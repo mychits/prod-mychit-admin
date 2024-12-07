@@ -7,6 +7,7 @@ import User from "./pages/User";
 import Enroll from "./pages/Enroll";
 import Auction from "./pages/Auction";
 import Payment from "./pages/Payment";
+import WeekGroup from "./pages/WeekGroup";
 
 function App() {
   const location = useLocation();
@@ -17,6 +18,7 @@ function App() {
       <Routes>
         <Route path="/dashboard" element={<Home />} />
         <Route path="/group" element={<Group />} />
+        <Route path="/week-group" element={<WeekGroup />} />
         <Route path="/user" element={<User />} />
         <Route path="/enrollment" element={<Enroll />} />
         <Route path="/auction" element={<Auction />} />

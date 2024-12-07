@@ -26,6 +26,7 @@ const Payment = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [receiptNo, setReceiptNo] = useState("");
+  const [paymentMode, setPaymentMode] = useState("cash");
 
   const [formData, setFormData] = useState({
     group_id: "",
@@ -34,7 +35,8 @@ const Payment = () => {
     receipt_no: "",
     pay_date: "",
     amount: "",
-    pay_mode: "",
+    pay_type: "cash",
+    transaction_id: "",
   });
 
   const handleModalClose = () => setShowUploadModal(false);
@@ -184,13 +186,25 @@ const Payment = () => {
     }
   }, [groupInfo, formData.bid_amount]);
 
+  const handlePaymentModeChange = (e) => {
+    const selectedMode = e.target.value;
+    setPaymentMode(selectedMode);
+    setFormData((prevData) => ({
+      ...prevData,
+      pay_type: selectedMode,
+      transaction_id: selectedMode === "online" ? prevData.transaction_id : "",
+    }));
+  };
+
+  console.log(formData);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await api.post("/payment/add-payment", formData);
       if (response.status === 201) {
         alert("Payment Added Successfully");
-        window.location.reload();
+        //window.location.reload();
         setShowModal(false);
       }
     } catch (error) {
@@ -477,25 +491,44 @@ const Payment = () => {
                   <div className="w-1/2">
                     <label
                       className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="group_install"
+                      htmlFor="pay_mode"
                     >
                       Payment Mode
                     </label>
+                    <select
+                      name="pay_mode"
+                      id="pay_mode"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      onChange={handlePaymentModeChange}
+                    >
+                      <option value="cash">Cash</option>
+                      <option value="online">Online</option>
+                    </select>
+                  </div>
+                </div>
+                {paymentMode === "online" && (
+                  <div className="w-full mt-4">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="transaction_id"
+                    >
+                      Transaction ID
+                    </label>
                     <input
                       type="text"
-                      name="pay_mode"
-                      value="cash"
-                      id="pay_mode"
-                      placeholder=""
-                      readOnly
+                      name="transaction_id"
+                      id="transaction_id"
+                      value={formData.transaction_id}
+                      onChange={handleChange}
+                      placeholder="Enter Transaction ID"
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
                   </div>
-                </div>
+                )}
                 <button
                   type="submit"
                   className="w-full text-white bg-blue-700 hover:bg-blue-800
-              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 >
                   Add
                 </button>

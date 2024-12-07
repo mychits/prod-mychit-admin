@@ -10,7 +10,7 @@ import { CgProfile } from "react-icons/cg";
 import { IoIosSettings } from "react-icons/io";
 import { IoIosHelpCircle } from "react-icons/io";
 import { RiAuctionLine } from "react-icons/ri";
-import { FaPeopleArrows } from "react-icons/fa";
+import { FaPeopleArrows, FaLayerGroup } from "react-icons/fa";
 import { GiGoldBar } from "react-icons/gi";
 
 const MenuSidebar = [
@@ -21,6 +21,11 @@ const MenuSidebar = [
     spacing: true,
     icon: <TbCategoryPlus />,
     link: "/group",
+  },
+  {
+    title: "Weekly Group ",
+    icon: <FaLayerGroup />,
+    link: "/week-group",
   },
   { title: "Customers ", icon: <IoIosPersonAdd />, link: "/user" },
   { title: "Enrollment ", icon: <FaPeopleArrows />, link: "/enrollment" },
