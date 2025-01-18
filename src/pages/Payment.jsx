@@ -9,10 +9,13 @@ import { BsEye } from "react-icons/bs";
 import UploadModal from "../components/modals/UploadModal";
 import axios from "axios";
 import url from "../data/Url";
+import DataTable from "../components/layouts/Datatable";
 
 const Payment = () => {
   const [groups, setGroups] = useState([]);
+  const [actualGroups, setActualGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState("");
+  const [TablePayments, setTablePayments] = useState([]);
   const [selectedAuctionGroup, setSelectedAuctionGroup] = useState("");
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [selectedAuctionGroupId, setSelectedAuctionGroupId] = useState("");
@@ -27,13 +30,15 @@ const Payment = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [receiptNo, setReceiptNo] = useState("");
   const [paymentMode, setPaymentMode] = useState("cash");
+  const today = new Date().toISOString().split("T")[0];
+  const [EnrollGroupId, setEnrollGroupId] = useState({ groupId: "", ticket: "" });
 
   const [formData, setFormData] = useState({
     group_id: "",
     user_id: "",
     ticket: "",
     receipt_no: "",
-    pay_date: "",
+    pay_date: today,
     amount: "",
     pay_type: "cash",
     transaction_id: "",
@@ -44,9 +49,22 @@ const Payment = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await api.get("/group/get-group");
+        const response = await api.get("/user/get-user");
         console.log(response);
         setGroups(response.data);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }
+    };
+    fetchGroups();
+  }, []);
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await api.get("/group/get-group");
+        console.log(response);
+        setActualGroups(response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
       }
@@ -86,10 +104,10 @@ const Payment = () => {
 
   const handleChangeUser = (e) => {
     const { name, value } = e.target;
-    const [user_id, ticket] = value.split("-");
+    const [group_id, ticket] = value.split("|");
     setFormData((prevData) => ({
       ...prevData,
-      user_id,
+      group_id,
       ticket,
     }));
   };
@@ -114,15 +132,29 @@ const Payment = () => {
     }
   };
 
+  const columns = [
+    { key: 'id', header: 'SL. NO' },
+    { key: 'name', header: 'Customer Name' },
+    { key: 'phone_number', header: 'Customer Phone Number' },
+    { key: 'ticket', header: 'Ticket Number' },
+    { key: 'old_receipt', header: 'Old Receipt' },
+    { key: 'receipt', header: 'Receipt' },
+    { key: 'amount', header: 'Amount' },
+    { key: 'date', header: 'Paid Date' },
+    { key: 'collected_by', header: 'Collected By' },
+    { key: 'action', header: 'Action' },
+  ];
+
   const handleGroup = async (event) => {
     const groupId = event.target.value;
     setSelectedGroupId(groupId);
     setFormData((prevFormData) => ({
       ...prevFormData,
-      group_id: groupId,
+      user_id: groupId,
     }));
 
     handleGroupChange(groupId);
+    handleGroupAuctionChange(groupId)
 
     if (groupId) {
       try {
@@ -144,13 +176,47 @@ const Payment = () => {
     handleGroupPaymentChange(groupId);
   };
 
+  const formatPayDate = (dateString) => {
+    const date = new Date(dateString);
+    const options = { day: 'numeric', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+  };
+
   const handleGroupPaymentChange = async (groupId) => {
     setSelectedAuctionGroup(groupId);
     if (groupId) {
       try {
         const response = await api.get(`/payment/get-group-payment/${groupId}`);
         if (response.data && response.data.length > 0) {
-          setFilteredAuction(response.data);
+          //setFilteredAuction(response.data);
+          const formattedData = response.data.map((group, index) => ({
+            id: index + 1,
+            name: group?.user_id?.full_name,
+            phone_number: group?.user_id?.phone_number,
+            ticket: group.ticket,
+            receipt: group.receipt_no,
+            old_receipt: group.old_receipt_no,
+            amount: group.amount,
+            date: formatPayDate(group.pay_date),
+            collected_by: group?.collected_by?.name || "Admin",
+            action: (
+              <div className="flex justify-end gap-2">
+                {/* <button
+                  onClick={() => handleUpdateModalOpen(group._id)}
+                  className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
+                >
+                  <CiEdit color="green" />
+                </button> */}
+                <button
+                  onClick={() => handleDeleteModalOpen(group._id)}
+                  className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
+                >
+                  <MdDelete color="red" />
+                </button>
+              </div>
+            )
+          }));
+          setTablePayments(formattedData)
         } else {
           setFilteredAuction([]);
         }
@@ -196,15 +262,13 @@ const Payment = () => {
     }));
   };
 
-  console.log(formData);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await api.post("/payment/add-payment", formData);
       if (response.status === 201) {
         alert("Payment Added Successfully");
-        //window.location.reload();
+        window.location.reload();
         setShowModal(false);
       }
     } catch (error) {
@@ -251,6 +315,11 @@ const Payment = () => {
 
     const formDatas = new FormData();
     const fileInput = e.target.file;
+
+    formDatas.append("user_id", formData.user_id);
+    formDatas.append("group_id", formData.group_id);
+    formDatas.append("ticket", formData.ticket);
+
     if (fileInput && fileInput.files[0]) {
       formDatas.append("file", fileInput.files[0]);
 
@@ -273,6 +342,28 @@ const Payment = () => {
     }
   };
 
+  const handleGroupAuctionChange = async (groupId) => {
+    if (groupId) {
+      try {
+        const response = await api.post(`/enroll/get-user-tickets-report/${groupId}`);
+        if (response.data && response.data.length > 0) {
+          const validAuctions = response.data.filter(auction =>
+            auction.enrollment &&
+            auction.enrollment.group
+          );
+          setFilteredAuction(validAuctions);
+        } else {
+          setFilteredAuction([]);
+        }
+      } catch (error) {
+        console.error("Error fetching enrollment data:", error);
+        setFilteredAuction([]);
+      }
+    } else {
+      setFilteredAuction([]);
+    }
+  };
+
   return (
     <>
       <div>
@@ -281,7 +372,7 @@ const Payment = () => {
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold">Payments</h1>
             <div className="mt-6 mb-8">
-              <div className="mb-2">
+              <div className="mb-10">
                 <label>Select Group</label>
                 <div className="flex justify-between items-center w-full">
                   <select
@@ -290,7 +381,7 @@ const Payment = () => {
                     className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                   >
                     <option value="">Select Group</option>
-                    {groups.map((group) => (
+                    {actualGroups.map((group) => (
                       <option key={group._id} value={group._id}>
                         {group.group_name}
                       </option>
@@ -316,71 +407,22 @@ const Payment = () => {
                 show={showUploadModal}
                 onClose={handleModalClose}
                 onSubmit={handleFileSubmit}
+                groups={groups}
+                selectedGroupId={selectedGroupId}
+                handleGroup={handleGroup}
+                handleChangeUser={handleChangeUser}
+                formData={formData}
+                filteredAuction={filteredAuction}
               />
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-6">
-                {filteredAuction.length === 0 ? (
-                  <div className="flex justify-center items-center h-64">
-                    <p className="text-gray-500 text-lg">
-                      {selectedAuctionGroup
-                        ? "No Payments is present for the selected group"
-                        : "Select Group to View"}
-                    </p>
-                  </div>
+              {
+                TablePayments && TablePayments.length > 0 ? (
+                  <DataTable data={TablePayments} columns={columns} />
                 ) : (
-                  filteredAuction.map((user) => (
-                    <div
-                      key={user._id}
-                      className="bg-white border border-gray-300 rounded-xl p-6 shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-xl"
-                    >
-                      <div className="flex flex-col items-center">
-                        <h2 className="text-xl font-bold mb-3 text-gray-700 text-center">
-                          {user.user_id?.full_name}
-                        </h2>
-                        <div className="flex gap-16 py-3">
-                          <p className="text-gray-500 mb-2 text-center">
-                            <span className="font-medium text-gray-700 text-xl">
-                              {user.user_id?.phone_number}
-                            </span>
-                            <br />
-                            <span className="font-bold text-sm">
-                              Phone Number
-                            </span>
-                          </p>
-                          <p className="text-gray-500 mb-4 text-center">
-                            <span className="font-medium text-gray-700 text-xl">
-                              {user.ticket}
-                            </span>
-                            <br />
-                            <span className="font-bold text-sm">Ticket</span>
-                          </p>
-                          <p className="text-gray-500 mb-4 text-center">
-                            <span className="font-medium text-gray-700 text-xl">
-                              {user.amount}
-                            </span>
-                            <br />
-                            <span className="font-bold text-sm">Amount</span>
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end gap-2">
-                        {/* <button
-                          onClick={() => handleUpdateModalOpen(user._id)}
-                          className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-                        >
-                          <BsEye color="green" />
-                        </button> */}
-                        <button
-                          onClick={() => handleDeleteModalOpen(user._id)}
-                          className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-                        >
-                          <MdDelete color="red" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+                  <div className="mt-10 text-center text-gray-500">
+                    No Data Available
+                  </div>
+                )
+              }
             </div>
           </div>
           <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
@@ -394,17 +436,17 @@ const Payment = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"
                   >
-                    Group
+                    Customer
                   </label>
                   <select
                     value={selectedGroupId}
                     onChange={handleGroup}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
-                    <option value="">Select Group</option>
+                    <option value="">Select Customer</option>
                     {groups.map((group) => (
                       <option key={group._id} value={group._id}>
-                        {group.group_name}
+                        {group.full_name}
                       </option>
                     ))}
                   </select>
@@ -414,24 +456,29 @@ const Payment = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"
                   >
-                    Users
+                    Group & Ticket
                   </label>
                   <select
-                    name="user_id"
-                    value={`${formData.user_id}-${formData.ticket}`}
+                    name="group_id"
+                    value={`${formData.group_id}|${formData.ticket}`}
                     onChange={handleChangeUser}
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
-                    <option value="">Select User</option>
-                    {filteredUsers.map((user) => (
-                      <option
-                        key={`${user.user_id._id}-${user.tickets}`}
-                        value={`${user.user_id._id}-${user.tickets}`}
-                      >
-                        {user.user_id.full_name} | {user.tickets}
-                      </option>
-                    ))}
+                    <option value="">Select Group | Ticket</option>
+                    {filteredAuction.map((group) => {
+                      // Skip entries where group is null
+                      if (!group.enrollment.group) return null;
+
+                      return (
+                        <option
+                          key={group.enrollment.group._id}
+                          value={`${group.enrollment.group._id}|${group.enrollment.tickets}`}
+                        >
+                          {group.enrollment.group.group_name} | {group.enrollment.tickets}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
@@ -485,6 +532,7 @@ const Payment = () => {
                       id="amount"
                       onChange={handleChange}
                       placeholder="Enter Amount"
+                      required
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
                   </div>
@@ -543,7 +591,7 @@ const Payment = () => {
               <h3 className="mb-4 text-xl font-bold text-gray-900">
                 View Auction
               </h3>
-              <form className="space-y-6" onSubmit={() => {}}>
+              <form className="space-y-6" onSubmit={() => { }}>
                 <div>
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -555,7 +603,7 @@ const Payment = () => {
                     type="text"
                     name="group_id"
                     value={currentUpdateGroup?.group_id?.group_name}
-                    onChange={() => {}}
+                    onChange={() => { }}
                     id="name"
                     placeholder="Enter the Group Name"
                     readOnly
@@ -609,7 +657,7 @@ const Payment = () => {
                     type="text"
                     name="group_id"
                     value={`${currentUpdateGroup?.user_id?.full_name} | ${currentUpdateGroup?.ticket}`}
-                    onChange={() => {}}
+                    onChange={() => { }}
                     id="name"
                     placeholder="Enter the User Name"
                     readOnly
@@ -631,7 +679,7 @@ const Payment = () => {
                       currentUpdateGroup?.group_id?.group_value -
                       currentUpdateGroup?.win_amount
                     }
-                    onChange={() => {}}
+                    onChange={() => { }}
                     id="name"
                     placeholder="Enter the Bid Amount"
                     readOnly
@@ -739,7 +787,7 @@ const Payment = () => {
                       type="date"
                       name="auction_date"
                       value={currentUpdateGroup?.auction_date}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       id="date"
                       placeholder="Enter the Date"
                       readOnly
@@ -757,7 +805,7 @@ const Payment = () => {
                       type="date"
                       name="next_date"
                       value={currentUpdateGroup?.next_date}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       id="date"
                       placeholder="Enter the Date"
                       readOnly

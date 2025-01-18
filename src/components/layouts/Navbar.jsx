@@ -13,13 +13,13 @@ const Navbar = () => {
   return (
     <>
       <nav className="bg-white w-full fixed top-0 left-0 z-10 shadow-m">
-        <div className="container flex justify-between items-center py-2">
+        <div className="container flex justify-between items-center py-2 px-10">
           <div className="text-2xl flex items-center gap-2 font-bold py-4 uppercase">
             <AiTwotoneGold />
             <p>MyChits</p>
             <p className="text-primary">Chit</p>
           </div>
-          <div className="hidden md:block">
+          {/* <div className="hidden md:block">
             <ul className="flex items-center gap-6 text-gray">
               {NavbarMenu.map((item) => {
                 return (
@@ -34,7 +34,7 @@ const Navbar = () => {
                 );
               })}
             </ul>
-          </div>
+          </div> */}
           <div className="flex items-center gap-4">
             <button className="text-2xl hover:bg-primary hover:text-white rounded-full p-2 duration-200">
               <IoIosNotifications />

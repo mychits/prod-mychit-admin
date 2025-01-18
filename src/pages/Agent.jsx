@@ -7,46 +7,37 @@ import Modal from "../components/modals/Modal";
 import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import { Edit, Trash2 } from 'lucide-react';
 
-const Group = () => {
-  const [groups, setGroups] = useState([]);
-  const [TableGroups, setTableGroups] = useState([]);
+const Agent = () => {
+  const [users, setUsers] = useState([]);
+  const [TableAgents, setTableAgents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState(false);
   const [showModalUpdate, setShowModalUpdate] = useState(false);
-  const [currentGroup, setCurrentGroup] = useState(null);
-  const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUpdateUser, setCurrentUpdateUser] = useState(null);
 
   const [formData, setFormData] = useState({
-    group_name: "",
-    group_type: "",
-    group_value: "",
-    group_install: "",
-    group_members: "",
-    group_duration: "",
-    start_date: "",
-    end_date: "",
-    minimum_bid: "",
-    maximum_bid: "",
-    commission: 5,
-    reg_fee: "",
+    name: "",
+    email: "",
+    phone_number: "",
+    password: "",
+    address: "",
+    pincode: "",
+    adhaar_no: "",
+    pan_no: "",
   });
 
   const [updateFormData, setUpdateFormData] = useState({
-    group_name: "",
-    group_type: "",
-    group_value: "",
-    group_install: "",
-    group_members: "",
-    group_duration: "",
-    start_date: "",
-    end_date: "",
-    minimum_bid: "",
-    maximum_bid: "",
-    commission: 5,
-    reg_fee:""
+    name: "",
+    email: "",
+    phone_number: "",
+    password: "",
+    address: "",
+    pincode: "",
+    adhaar_no: "",
+    pan_no: "",
   });
 
   const handleChange = (e) => {
@@ -61,44 +52,45 @@ const Group = () => {
     e.preventDefault();
 
     try {
-      const response = await api.post("/group/add-group", formData, {
+      const response = await api.post("/agent/add-agent", formData, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-      alert("Group Added Successfully");
       window.location.reload();
+      alert("Agent Added Successfully");
+
       setShowModal(false);
       setFormData({
-        group_name: "",
-        group_type: "",
-        group_value: "",
-        group_install: "",
-        group_members: "",
-        group_duration: "",
-        start_date: "",
-        end_date: "",
-        minimum_bid: "",
-        maximum_bid: "",
-        commission: "",
+        name: "",
+        email: "",
+        phone_number: "",
+        password: "",
+        address: "",
+        pincode: "",
+        adhaar_no: "",
+        pan_no: "",
       });
     } catch (error) {
-      console.error("Error adding group:", error);
+      console.error("Error adding agent:", error);
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message);
+      } else {
+        alert("An unexpected error occurred. Please try again.");
+      }
     }
   };
 
   useEffect(() => {
-    const fetchGroups = async () => {
+    const fetchUsers = async () => {
       try {
-        const response = await api.get("/group/get-group");
-        setGroups(response.data);
+        const response = await api.get("/agent/get-agent");
+        setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
           id: index + 1,
-          name: group.group_name,
-          type: group.group_type.charAt(0).toUpperCase() + group.group_type.slice(1) + " Group",
-          value: group.group_value,
-          installment: group.group_install,
-          members: group.group_members,
+          name: group.name,
+          phone_number: group.phone_number,
+          password: group.password,
           action: (
             <div className="flex justify-end gap-2">
               <button
@@ -116,51 +108,53 @@ const Group = () => {
             </div>
           )
         }));
-        setTableGroups(formattedData)
+        setTableAgents(formattedData)
       } catch (error) {
-        console.error("Error fetching group data:", error);
+        console.error("Error fetching user data:", error);
       }
     };
-    fetchGroups();
+    fetchUsers();
   }, []);
 
-  const filteredGroups = groups.filter((group) =>
-    group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
+  const columns = [
+    { key: 'id', header: 'SL. NO' },
+    { key: 'name', header: 'Agent Name' },
+    { key: 'phone_number', header: 'Agent Phone Number' },
+    { key: 'password', header: 'Agent Password' },
+    { key: 'action', header: 'Action' },
+  ];
+
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleDeleteModalOpen = async (groupId) => {
+  const handleDeleteModalOpen = async (userId) => {
     try {
-      const response = await api.get(`/group/get-by-id-group/${groupId}`);
-      setCurrentGroup(response.data);
+      const response = await api.get(`/agent/get-agent-by-id/${userId}`);
+      setCurrentUser(response.data);
       setShowModalDelete(true);
     } catch (error) {
-      console.error("Error fetching group:", error);
+      console.error("Error fetching user:", error);
     }
   };
 
-  const handleUpdateModalOpen = async (groupId) => {
+  const handleUpdateModalOpen = async (userId) => {
     try {
-      const response = await api.get(`/group/get-by-id-group/${groupId}`);
-      const groupData = response.data;
-      const formattedStartDate = groupData.start_date.split("T")[0];
-      const formattedEndDate = groupData.end_date.split("T")[0];
-      setCurrentUpdateGroup(response.data);
+      const response = await api.get(`/agent/get-agent-by-id/${userId}`);
+      setCurrentUpdateUser(response.data);
       setUpdateFormData({
-        group_name: response.data.group_name,
-        group_type: response.data.group_type,
-        group_value: response.data.group_value,
-        group_install: response.data.group_install,
-        group_members: response.data.group_members,
-        group_duration: response.data.group_duration,
-        start_date: formattedStartDate,
-        end_date: formattedEndDate,
-        minimum_bid: response.data.minimum_bid,
-        maximum_bid: response.data.maximum_bid,
-        reg_fee: response.data.reg_fee
+        name: response.data.name,
+        email: response.data.email,
+        phone_number: response.data.phone_number,
+        password: response.data.password,
+        pincode: response.data.pincode,
+        adhaar_no: response.data.adhaar_no,
+        pan_no: response.data.pan_no,
+        address: response.data.address,
       });
       setShowModalUpdate(true);
     } catch (error) {
-      console.error("Error fetching group:", error);
+      console.error("Error fetching user:", error);
     }
   };
 
@@ -172,16 +166,16 @@ const Group = () => {
     }));
   };
 
-  const handleDeleteGroup = async () => {
-    if (currentGroup) {
+  const handleDeleteUser = async () => {
+    if (currentUser) {
       try {
-        await api.delete(`/group/delete-group/${currentGroup._id}`);
-        alert("Group deleted successfully");
+        await api.delete(`/agent/delete-agent/${currentUser._id}`);
+        alert("Agent deleted successfully");
         setShowModalDelete(false);
-        setCurrentGroup(null);
+        setCurrentUser(null);
         window.location.reload();
       } catch (error) {
-        console.error("Error deleting group:", error);
+        console.error("Error deleting user:", error);
       }
     }
   };
@@ -189,27 +183,23 @@ const Group = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await api.put(
-        `/group/update-group/${currentUpdateGroup._id}`,
+      const response = await api.put(
+        `/agent/update-agent/${currentUpdateUser._id}`,
         updateFormData
       );
       setShowModalUpdate(false);
-      alert("Group Updated Successfully");
+      alert("Agent Updated Successfully");
       window.location.reload();
     } catch (error) {
-      console.error("Error updating group:", error);
+      console.error("Error updating agent:", error);
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message);
+      } else {
+        alert("An unexpected error occurred. Please try again.");
+      }
     }
   };
 
-  const columns = [
-    { key: 'id', header: 'SL. NO' },
-    { key: 'name', header: 'Group Name' },
-    { key: 'type', header: 'Group Type' },
-    { key: 'value', header: 'Group Value' },
-    { key: 'installment', header: 'Group Installment' },
-    { key: 'members', header: 'Group Members' },
-    { key: 'action', header: 'Action' },
-  ];
 
   return (
     <>
@@ -219,60 +209,60 @@ const Group = () => {
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
-                <h1 className="text-2xl font-semibold">Groups</h1>
+                <h1 className="text-2xl font-semibold">Employees</h1>
                 <button
                   onClick={() => setShowModal(true)}
                   className="ml-4 bg-blue-700 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
-                  + Add Group
+                  + Add Employee
                 </button>
               </div>
             </div>
-
-            <DataTable data={TableGroups} columns={columns} />
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {/* {filteredGroups.length === 0 ? (
+            <DataTable data={TableAgents} columns={columns} />
+            {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {filteredUsers.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
-                  <p className="text-gray-500 text-lg">No groups added yet</p>
+                  <p className="text-gray-500 text-lg">
+                    No agents added yet
+                  </p>
                 </div>
               ) : (
-                filteredGroups.map((group) => (
+                filteredUsers.map((user) => (
                   <div
-                    key={group.id}
+                    key={user.id}
                     className="bg-white border border-gray-300 rounded-xl p-6 shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-xl"
                   >
                     <div className="flex flex-col items-center">
                       <h2 className="text-xl font-bold mb-3 text-gray-700 text-center">
-                        {group.group_name}
+                        {user.name}
                       </h2>
-                      <p className="">{group.group_type.charAt(0).toUpperCase() + group.group_type.slice(1)} Group</p>
                       <div className="flex gap-16 py-3">
                         <p className="text-gray-500 mb-2 text-center">
-                          <span className="font-medium text-gray-700 text-lg">
-                            {group.group_members}
+                          <span className="font-medium text-gray-700 text-xl">
+                            {user.password}
                           </span>
                           <br />
-                          <span className="font-bold text-sm">Members</span>
+                          <span className="font-bold text-sm">Password</span>
                         </p>
                         <p className="text-gray-500 mb-4 text-center">
-                          <span className="font-medium text-gray-700 text-lg">
-                            ₹{group.group_install}
+                          <span className="font-medium text-gray-700 text-xl">
+                            {user.phone_number}
                           </span>
                           <br />
-                          <span className="font-bold text-sm">Installment</span>
+                          <span className="font-bold text-sm">Phone</span>
                         </p>
                       </div>
                     </div>
+
                     <div className="flex justify-end gap-2">
                       <button
-                        onClick={() => handleUpdateModalOpen(group._id)}
+                        onClick={() => handleUpdateModalOpen(user._id)}
                         className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
                       >
                         <CiEdit color="green" />
                       </button>
                       <button
-                        onClick={() => handleDeleteModalOpen(group._id)}
+                        onClick={() => handleDeleteModalOpen(user._id)}
                         className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
                       >
                         <MdDelete color="red" />
@@ -280,224 +270,165 @@ const Group = () => {
                     </div>
                   </div>
                 ))
-              )} */}
-
-            </div>
+              )}
+            </div> */}
           </div>
         </div>
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
-            <h3 className="mb-4 text-xl font-bold text-gray-900">Add Group</h3>
+            <h3 className="mb-4 text-xl font-bold text-gray-900">
+              Add Employee
+            </h3>
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Group Name
+                  Full Name
                 </label>
                 <input
                   type="text"
-                  name="group_name"
-                  value={formData.group_name}
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   id="name"
-                  placeholder="Enter the Group Name"
+                  placeholder="Enter the Full Name"
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
               </div>
-              <div className="w-full">
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="date"
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    id="text"
+                    placeholder="Enter Email"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="date"
+                  >
+                    Phone Number
+                  </label>
+                  <input
+                    type="number"
+                    name="phone_number"
+                    value={formData.phone_number}
+                    onChange={handleChange}
+                    id="text"
+                    placeholder="Enter Phone Number"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="date"
+                  >
+                    Password
+                  </label>
+                  <input
+                    type="text"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    id="text"
+                    placeholder="Enter Password"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="date"
+                  >
+                    Pincode
+                  </label>
+                  <input
+                    type="number"
+                    name="pincode"
+                    value={formData.pincode}
+                    onChange={handleChange}
+                    id="text"
+                    placeholder="Enter Pincode"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="date"
+                  >
+                    Adhaar Number
+                  </label>
+                  <input
+                    type="number"
+                    name="adhaar_no"
+                    value={formData.adhaar_no}
+                    onChange={handleChange}
+                    id="text"
+                    placeholder="Enter Adhaar Number"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="date"
+                  >
+                    Pan Number
+                  </label>
+                  <input
+                    type="text"
+                    name="pan_no"
+                    value={formData.pan_no}
+                    onChange={handleChange}
+                    id="text"
+                    placeholder="Enter Pan Number"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+              <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
+                  htmlFor="email"
                 >
-                  Group Type
+                  Address
                 </label>
-                <select
-                  name="group_type"
-                  id="category"
-                  value={formData.group_type}
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
                   onChange={handleChange}
+                  id="name"
+                  placeholder="Enter the Address"
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                >
-                  <option value="">Select Group Type</option>
-                  <option value="divident">Divident Group</option>
-                  <option value="double">Double Group</option>
-                </select>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Group Value
-                  </label>
-                  <input
-                    type="number"
-                    name="group_value"
-                    value={formData.group_value}
-                    onChange={handleChange}
-                    id="text"
-                    placeholder="Enter Group Value"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Group Installment Amount
-                  </label>
-                  <input
-                    type="number"
-                    name="group_install"
-                    value={formData.group_install}
-                    onChange={handleChange}
-                    id="text"
-                    placeholder="Enter Group Installment Amount"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Group Members
-                  </label>
-                  <input
-                    type="number"
-                    name="group_members"
-                    value={formData.group_members}
-                    onChange={handleChange}
-                    id="text"
-                    placeholder="Enter Group Members"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Group Duration
-                  </label>
-                  <input
-                    type="number"
-                    name="group_duration"
-                    value={formData.group_duration}
-                    onChange={handleChange}
-                    id="text"
-                    placeholder="Enter Group Duration"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-full">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Registration Fee
-                  </label>
-                  <input
-                    type="number"
-                    name="reg_fee"
-                    value={formData.reg_fee}
-                    onChange={handleChange}
-                    id="text"
-                    placeholder="Enter Registration Fee"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Start Date
-                  </label>
-                  <input
-                    type="date"
-                    name="start_date"
-                    value={formData.start_date}
-                    onChange={handleChange}
-                    id="date"
-                    placeholder="Enter the Date"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    End Date
-                  </label>
-                  <input
-                    type="date"
-                    name="end_date"
-                    value={formData.end_date}
-                    onChange={handleChange}
-                    id="date"
-                    placeholder="Enter the Date"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Minimum Bid
-                  </label>
-                  <input
-                    type="number"
-                    name="minimum_bid"
-                    value={formData.minimum_bid}
-                    onChange={handleChange}
-                    id="text"
-                    placeholder="Enter Minimum Bid"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Maximum Bid
-                  </label>
-                  <input
-                    type="number"
-                    name="maximum_bid"
-                    value={formData.maximum_bid}
-                    onChange={handleChange}
-                    id="text"
-                    placeholder="Enter Maximum Bid"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
+                />
               </div>
               <button
                 type="submit"
@@ -515,7 +446,7 @@ const Group = () => {
         >
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Update Group
+              Update Employee
             </h3>
             <form className="space-y-6" onSubmit={handleUpdate}>
               <div>
@@ -523,55 +454,34 @@ const Group = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Group Name
+                  Full Name
                 </label>
                 <input
                   type="text"
-                  name="group_name"
-                  value={updateFormData.group_name}
+                  name="name"
+                  value={updateFormData.name}
                   onChange={handleInputChange}
                   id="name"
-                  placeholder="Enter the Group Name"
+                  placeholder="Enter the Full Name"
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
               </div>
-              <div className="w-full">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
-                >
-                  Group Type
-                </label>
-                <select
-                  name="group_type"
-                  value={updateFormData.group_type || ""}
-                  onChange={handleInputChange}
-                  id="category"
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                >
-                  <option value="">Select Group Type</option>
-                  <option value="divident">Dividend Group</option>
-                  <option value="double">Double Group</option>
-                </select>
-              </div>
-
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Value
+                    Email
                   </label>
                   <input
-                    type="text"
-                    name="group_value"
-                    value={updateFormData.group_value}
+                    type="email"
+                    name="email"
+                    value={updateFormData.email}
                     onChange={handleInputChange}
                     id="text"
-                    placeholder="Enter Group Value"
+                    placeholder="Enter Email"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
@@ -581,15 +491,35 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Installment Amount
+                    Phone Number
+                  </label>
+                  <input
+                    type="number"
+                    name="phone_number"
+                    value={updateFormData.phone_number}
+                    onChange={handleInputChange}
+                    id="text"
+                    placeholder="Enter Phone Number"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-full">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="date"
+                  >
+                    Pincode
                   </label>
                   <input
                     type="text"
-                    name="group_install"
-                    value={updateFormData.group_install}
+                    name="pincode"
+                    value={updateFormData.pincode}
                     onChange={handleInputChange}
                     id="text"
-                    placeholder="Enter Group Installment Amount"
+                    placeholder="Enter Pincode"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
@@ -601,15 +531,15 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Members
+                    Adhaar Number
                   </label>
                   <input
                     type="text"
-                    name="group_members"
-                    value={updateFormData.group_members}
+                    name="adhaar_no"
+                    value={updateFormData.adhaar_no}
                     onChange={handleInputChange}
                     id="text"
-                    placeholder="Enter Group Members"
+                    placeholder="Enter Adhaar Number"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
@@ -619,15 +549,15 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Duration
+                    Pan Number
                   </label>
                   <input
                     type="text"
-                    name="group_duration"
-                    value={updateFormData.group_duration}
+                    name="pan_no"
+                    value={updateFormData.pan_no}
                     onChange={handleInputChange}
                     id="text"
-                    placeholder="Enter Group Duration"
+                    placeholder="Enter Pan Number"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
@@ -638,94 +568,18 @@ const Group = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Registration Fee
+                  Address
                 </label>
                 <input
                   type="text"
-                  name="reg_fee"
-                  value={updateFormData.reg_fee}
+                  name="address"
+                  value={updateFormData.address}
                   onChange={handleInputChange}
                   id="name"
-                  placeholder="Enter the Registration Fee"
+                  placeholder="Enter the Address"
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Start Date
-                  </label>
-                  <input
-                    type="date"
-                    name="start_date"
-                    value={updateFormData.start_date}
-                    onChange={handleInputChange}
-                    id="date"
-                    placeholder="Enter the Date"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    End Date
-                  </label>
-                  <input
-                    type="date"
-                    name="end_date"
-                    value={updateFormData.end_date}
-                    onChange={handleInputChange}
-                    id="date"
-                    placeholder="Enter the Date"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Minimum Bid %
-                  </label>
-                  <input
-                    type="text"
-                    name="minimum_bid"
-                    value={updateFormData.minimum_bid}
-                    onChange={handleInputChange}
-                    id="text"
-                    placeholder="Enter Minimum Bid"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Maximum Bid %
-                  </label>
-                  <input
-                    type="text"
-                    name="maximum_bid"
-                    value={updateFormData.maximum_bid}
-                    onChange={handleInputChange}
-                    id="text"
-                    placeholder="Enter Maximum Bid"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
               </div>
               <button
                 type="submit"
@@ -741,18 +595,18 @@ const Group = () => {
           isVisible={showModalDelete}
           onClose={() => {
             setShowModalDelete(false);
-            setCurrentGroup(null);
+            setCurrentUser(null);
           }}
         >
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Delete Group
+              Delete Employee
             </h3>
-            {currentGroup && (
+            {currentUser && (
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  handleDeleteGroup();
+                  handleDeleteUser();
                 }}
                 className="space-y-6"
               >
@@ -763,14 +617,14 @@ const Group = () => {
                   >
                     Please enter{" "}
                     <span className="text-primary font-bold">
-                      {currentGroup.group_name}
+                      {currentUser.name}
                     </span>{" "}
                     to confirm deletion.
                   </label>
                   <input
                     type="text"
                     id="groupName"
-                    placeholder="Enter the Group Name"
+                    placeholder="Enter the employee Full Name"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
@@ -791,4 +645,4 @@ const Group = () => {
   );
 };
 
-export default Group;
+export default Agent;

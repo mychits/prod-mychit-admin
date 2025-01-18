@@ -6,9 +6,11 @@ import { CiEdit } from "react-icons/ci";
 import Modal from "../components/modals/Modal";
 import axios from "axios";
 import api from "../instance/TokenInstance";
+import DataTable from "../components/layouts/Datatable";
 
 const User = () => {
   const [users, setUsers] = useState([]);
+  const [TableUsers, setTableUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState(false);
@@ -71,6 +73,11 @@ const User = () => {
       });
     } catch (error) {
       console.error("Error adding user:", error);
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message);
+      } else {
+        alert("An unexpected error occurred. Please try again.");
+      }
     }
   };
 
@@ -78,14 +85,46 @@ const User = () => {
     const fetchUsers = async () => {
       try {
         const response = await api.get("/user/get-user");
-        console.log(response);
         setUsers(response.data);
+        const formattedData = response.data.map((group, index) => ({
+          id: index + 1,
+          name: group.full_name,
+          phone_number: group.phone_number,
+          address: group.address,
+          pincode: group.pincode,
+          action: (
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => handleUpdateModalOpen(group._id)}
+                className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
+              >
+                <CiEdit color="green" />
+              </button>
+              <button
+                onClick={() => handleDeleteModalOpen(group._id)}
+                className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
+              >
+                <MdDelete color="red" />
+              </button>
+            </div>
+          )
+        }));
+        setTableUsers(formattedData)
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     };
     fetchUsers();
   }, []);
+
+  const columns = [
+    { key: 'id', header: 'SL. NO' },
+    { key: 'name', header: 'Customer Name' },
+    { key: 'phone_number', header: 'Customer Phone Number' },
+    { key: 'address', header: 'Customer Address' },
+    { key: 'pincode', header: 'Customer Pincode' },
+    { key: 'action', header: 'Action' },
+  ];
 
   const filteredUsers = users.filter((user) =>
     user.full_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -155,8 +194,14 @@ const User = () => {
       window.location.reload();
     } catch (error) {
       console.error("Error updating user:", error);
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message);
+      } else {
+        alert("An unexpected error occurred. Please try again.");
+      }
     }
   };
+
 
   return (
     <>
@@ -164,16 +209,9 @@ const User = () => {
         <div className="flex mt-20">
           <Sidebar />
           <div className="flex-grow p-7">
-            <h1 className="text-2xl font-semibold">Customers</h1>
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
-                <input
-                  type="text"
-                  placeholder="Search users..."
-                  className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                <h1 className="text-2xl font-semibold">Customers</h1>
                 <button
                   onClick={() => setShowModal(true)}
                   className="ml-4 bg-blue-700 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
@@ -182,7 +220,8 @@ const User = () => {
                 </button>
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <DataTable data={TableUsers} columns={columns} />
+            {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {filteredUsers.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
                   <p className="text-gray-500 text-lg">
@@ -234,7 +273,7 @@ const User = () => {
                   </div>
                 ))
               )}
-            </div>
+            </div> */}
           </div>
         </div>
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
