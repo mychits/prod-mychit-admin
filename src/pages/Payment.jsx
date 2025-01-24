@@ -10,6 +10,10 @@ import UploadModal from "../components/modals/UploadModal";
 import axios from "axios";
 import url from "../data/Url";
 import DataTable from "../components/layouts/Datatable";
+import { Printer } from "lucide-react";
+import { BiPrinter } from "react-icons/bi";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const Payment = () => {
   const [groups, setGroups] = useState([]);
@@ -45,6 +49,20 @@ const Payment = () => {
   });
 
   const handleModalClose = () => setShowUploadModal(false);
+
+  const handlePrint = async (id) => {
+    const receiptElement = document.getElementById('receipt');
+    const canvas = await html2canvas(receiptElement);
+    const imgData = canvas.toDataURL('image/png');
+
+    const pdf = new jsPDF('portrait', 'mm', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
+    pdf.save(`Receipt_${id}.pdf`);
+  };
+
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -201,12 +219,12 @@ const Payment = () => {
             collected_by: group?.collected_by?.name || "Admin",
             action: (
               <div className="flex justify-end gap-2">
-                {/* <button
-                  onClick={() => handleUpdateModalOpen(group._id)}
-                  className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
+                <a
+                  href={`/print/${group._id}`}
+                  className="border border-blue-400 text-white px-4 py-2 rounded-md shadow hover:border-blue-700 transition duration-200"
                 >
-                  <CiEdit color="green" />
-                </button> */}
+                  <BiPrinter color="blue" />
+                </a>
                 <button
                   onClick={() => handleDeleteModalOpen(group._id)}
                   className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
@@ -853,3 +871,46 @@ const Payment = () => {
 };
 
 export default Payment;
+
+function ReceiptButton() {
+  return (
+    <div>
+      {/* Receipt Content */}
+      <div
+        id="receipt"
+        style={{
+          width: '210mm',
+          height: '297mm',
+          padding: '20mm',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* Top Half */}
+        <div style={{ borderBottom: '1px solid black', height: '50%' }}>
+          <h2>Receipt - Part 1</h2>
+          <p>Details for the first part...</p>
+          <p><strong>Amount:</strong> $123.45</p>
+          <p><strong>Date:</strong> 01/22/2025</p>
+        </div>
+
+        {/* Bottom Half */}
+        <div style={{ height: '50%' }}>
+          <h2>Receipt - Part 2</h2>
+          <p>Details for the second part...</p>
+          <p><strong>Amount:</strong> $123.45</p>
+          <p><strong>Date:</strong> 01/22/2025</p>
+        </div>
+      </div>
+
+      {/* Button to Generate PDF */}
+      <button
+        onClick={() => handleUpdateModalOpen('example-id')}
+        className="border border-blue-400 text-white px-4 py-2 rounded-md shadow hover:border-blue-700 transition duration-200"
+      >
+        <BiPrinter color="blue" />
+      </button>
+    </div>
+  );
+}

@@ -18,6 +18,7 @@ import GroupReport from "./pages/GroupReport";
 import UserReport from "./pages/UserReport";
 import Profile from "./pages/Profile";
 import AuctionReport from "./pages/AuctionReport";
+import Print from "./pages/Print";
 
 function App() {
   const location = useLocation();
@@ -43,6 +44,7 @@ function App() {
         <Route path="/user-report" element={<UserReport />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/auction-report" element={<AuctionReport />} />
+        <Route path="/print/:id" element={<Print/>} />
         <Route path="/test" element={<Test />} />
       </Routes>
     </div>

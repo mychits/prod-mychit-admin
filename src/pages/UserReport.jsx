@@ -315,6 +315,12 @@ const UserReport = () => {
         { key: 'balance', header: 'Balance' },
     ];
 
+    const formatPayDate = (dateString) => {
+        const date = new Date(dateString);
+        const options = { day: 'numeric', month: 'short', year: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+      };
+
     useEffect(() => {
         const fetchEnroll = async () => {
             setTableEnrolls([]);
@@ -336,9 +342,10 @@ const UserReport = () => {
 
                     const formattedData = response.data.map((group, index) => ({
                         id: index + 1,
-                        date: group?.pay_date,
+                        date: formatPayDate(group?.pay_date),
                         amount: group.amount,
                         receipt: group.receipt_no,
+                        old_receipt: group.old_receipt_no,
                         type: group.pay_type,
                     }));
                     setTableEnrolls(formattedData);
@@ -362,6 +369,7 @@ const UserReport = () => {
         { key: 'date', header: 'Date' },
         { key: 'amount', header: 'Amount' },
         { key: 'receipt', header: 'Receipt No' },
+        { key: 'old_receipt', header: 'Old Receipt No' },
         { key: 'type', header: 'Payment Type' },
     ];
 

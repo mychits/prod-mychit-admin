@@ -10,7 +10,7 @@ const UploadModal = ({ show, onClose, onSubmit, groups, selectedGroupId, handleG
 
   const downloadExcel = () => {
     const data = [
-      { old_receipt_number: "", payment_date: "", amount: "", payment_type: "" }
+      { payment_date: "", old_receipt_number: "", payment_type: "", amount: "" }
     ];
 
     const worksheet = XLSX.utils.json_to_sheet(data);

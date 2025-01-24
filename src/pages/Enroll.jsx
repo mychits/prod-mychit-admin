@@ -21,6 +21,8 @@ const Enroll = () => {
   const [currentGroup, setCurrentGroup] = useState(null);
   const [availableTicketsAdd, setAvailableTicketsAdd] = useState([]);
 
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     group_id: "",
     user_id: "",
@@ -130,10 +132,10 @@ const Enroll = () => {
     }
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setLoading(true);
     const { no_of_tickets, group_id, user_id } = formData;
     const ticketsCount = parseInt(no_of_tickets, 10);
     const ticketEntries = availableTicketsAdd
@@ -144,7 +146,8 @@ const Enroll = () => {
         no_of_tickets,
         tickets: ticketNumber,
       }));
-    console.log(ticketEntries)
+    console.log(ticketEntries);
+
     try {
       for (const ticketEntry of ticketEntries) {
         await api.post("/enroll/add-enroll", ticketEntry, {
@@ -163,6 +166,8 @@ const Enroll = () => {
       });
     } catch (error) {
       console.error("Error enrolling user:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -404,10 +409,18 @@ const Enroll = () => {
                       type="number"
                       name="no_of_tickets"
                       value={formData.no_of_tickets}
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value, 10);
+                        if (value <= availableTicketsAdd.length) {
+                          handleChange(e);
+                        } else {
+                          alert(`You can only select up to ${availableTicketsAdd.length} tickets.`);
+                        }
+                      }}
                       id="name"
                       placeholder="Enter the Number of Tickets"
                       required
+                      max={availableTicketsAdd.length}
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
                     <span className="mt-10">Only {availableTicketsAdd.length} tickets left</span>
@@ -418,10 +431,21 @@ const Enroll = () => {
               }
               <button
                 type="submit"
-                className="w-full text-white bg-blue-700 hover:bg-blue-800
-              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                disabled={loading}
+                className={`w-full text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
+                  }`}
               >
-                Add
+                {
+                  loading ? (
+                    <>
+                      <p>Loading...</p>
+                    </>
+                  ) : (
+                    <>
+                      Add
+                    </>
+                  )
+                }
               </button>
             </form>
           </div>

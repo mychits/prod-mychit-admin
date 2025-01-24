@@ -204,11 +204,15 @@ const Receipt = () => {
                     },
                 });
                 if (response.data && response.data.length > 0) {
-                    setFilteredAuction(response.data);
-                    const paymentData = response.data;
-                    const totalAmount = paymentData.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+                    const validPayments = response.data.filter(payment => payment.group_id !== null);
+
+                    setFilteredAuction(validPayments);
+                    console.log(validPayments);
+
+                    const totalAmount = validPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
                     setPayments(totalAmount);
-                    const formattedData = response.data.map((group, index) => ({
+
+                    const formattedData = validPayments.map((group, index) => ({
                         id: index + 1,
                         date: group.pay_date,
                         group: group.group_id.group_name,
@@ -219,7 +223,8 @@ const Receipt = () => {
                         mode: group.pay_type,
                         collected_by: group?.collected_by?.name || "Admin"
                     }));
-                    setTableDaybook(formattedData)
+
+                    setTableDaybook(formattedData);
                 } else {
                     setFilteredAuction([]);
                 }
@@ -232,6 +237,7 @@ const Receipt = () => {
 
         fetchPayments();
     }, [selectedAuctionGroupId, selectedDate, selectedPaymentMode, selectedCustomers, selectedFromDate]);
+
 
     const columns = [
         { key: 'id', header: 'SL. NO' },

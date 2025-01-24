@@ -10,7 +10,7 @@ const DataTable = ({ data = [], columns = [] }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState({});
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-    const [pageSize, setPageSize] = useState(20);
+    const [pageSize, setPageSize] = useState(100);
 
     const searchData = (data) => {
         if (!searchQuery) return data;

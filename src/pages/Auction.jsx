@@ -144,32 +144,60 @@ const Auction = () => {
         const response = await api.get(`/auction/get-group-auction/${groupId}`);
         if (response.data && response.data.length > 0) {
           setFilteredAuction(response.data);
-          const formattedData = response.data.map((group, index) => ({
-            id: index + 1,
-            date: formatPayDate(group.auction_date),
-            name: group.user_id?.full_name,
-            phone_number: group.user_id?.phone_number,
-            ticket: group.ticket,
-            bid_amount: parseInt(group.divident) + parseInt(group.commission),
-            amount: group.win_amount,
-            auction_type: group?.auction_type.charAt(0).toUpperCase() + group?.auction_type.slice(1) + " Auction",
-            action: (
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => handleUpdateModalOpen(group._id)}
-                  className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-                >
-                  <EyeIcon color="green" />
-                </button>
-                <button
-                  onClick={() => handleDeleteModalOpen(group._id)}
-                  className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-                >
-                  <MdDelete color="red" />
-                </button>
-              </div>
-            )
-          }));
+          const formattedData = [
+            {
+              id: 1,
+              date: formatPayDate(response?.data[0]?.group_id?.start_date),
+              name: "Commencement",
+              phone_number: "Commencement",
+              ticket: "Commencement",
+              bid_amount: 0,
+              amount: 0,
+              auction_type: "Commencement Auction",
+              action: (
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => console.log("Custom View Action")}
+                    className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
+                  >
+                    <EyeIcon color="green" />
+                  </button>
+                  <button
+                    onClick={() => console.log("Custom Delete Action")}
+                    className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
+                  >
+                    <MdDelete color="red" />
+                  </button>
+                </div>
+              ),
+            },
+            ...response.data.map((group, index) => ({
+              id: index + 2,
+              date: formatPayDate(group.auction_date),
+              name: group.user_id?.full_name,
+              phone_number: group.user_id?.phone_number,
+              ticket: group.ticket,
+              bid_amount: parseInt(group.divident) + parseInt(group.commission),
+              amount: group.win_amount,
+              auction_type: group?.auction_type.charAt(0).toUpperCase() + group?.auction_type.slice(1) + " Auction",
+              action: (
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => handleUpdateModalOpen(group._id)}
+                    className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
+                  >
+                    <EyeIcon color="green" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteModalOpen(group._id)}
+                    className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
+                  >
+                    <MdDelete color="red" />
+                  </button>
+                </div>
+              ),
+            }))
+          ];
           setTableAuctions(formattedData)
         } else {
           setFilteredAuction([]);
