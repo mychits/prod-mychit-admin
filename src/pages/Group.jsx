@@ -8,6 +8,7 @@ import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import { Edit, Trash2 } from 'lucide-react';
+import CustomAlert from "../components/alerts/CustomAlert";
 
 const Group = () => {
   const [groups, setGroups] = useState([]);
@@ -18,6 +19,7 @@ const Group = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
+  const [alertConfig,setAlertConfig] = useState({visiblity:false,message:"Something went wrong!",type:"info"});
 
   const [formData, setFormData] = useState({
     group_name: "",
@@ -66,8 +68,9 @@ const Group = () => {
           "Content-Type": "application/json",
         },
       });
-      alert("Group Added Successfully");
-      window.location.reload();
+      // alert("Group Added Successfully");
+      setAlertConfig({visiblity:true,message:"Group Added Successfully",type:"success"});
+      // window.location.reload();
       setShowModal(false);
       setFormData({
         group_name: "",
@@ -176,10 +179,11 @@ const Group = () => {
     if (currentGroup) {
       try {
         await api.delete(`/group/delete-group/${currentGroup._id}`);
-        alert("Group deleted successfully");
+        // alert("Group deleted successfully");
+        setAlertConfig({message:"Group deleted successfully",type:"success",visiblity:true})
         setShowModalDelete(false);
         setCurrentGroup(null);
-        window.location.reload();
+        // window.location.reload();
       } catch (error) {
         console.error("Error deleting group:", error);
       }
@@ -194,8 +198,9 @@ const Group = () => {
         updateFormData
       );
       setShowModalUpdate(false);
-      alert("Group Updated Successfully");
-      window.location.reload();
+      // alert("Group Updated Successfully");
+      setAlertConfig({message:"Group updated successfully",type:"success",visiblity:true})
+      // window.location.reload();
     } catch (error) {
       console.error("Error updating group:", error);
     }
@@ -228,7 +233,8 @@ const Group = () => {
                 </button>
               </div>
             </div>
-
+            
+        <CustomAlert type={alertConfig.type} isVisible={alertConfig.visiblity} message={alertConfig.message} onClose={()=>{setAlertConfig({...alertConfig,visiblity:false})}}/>
             <DataTable data={TableGroups} columns={columns} />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">

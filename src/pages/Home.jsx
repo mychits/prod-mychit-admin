@@ -11,7 +11,7 @@ import api from "../instance/TokenInstance";
 const Home = () => {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
-  const [agents, setAgents] = useState([])
+  const [agents, setAgents] = useState([]);
   const [payments, setPayments] = useState([]);
 
   useEffect(() => {
