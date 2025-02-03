@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { IoMdCloseCircle } from "react-icons/io";
+import { IoMdClose } from "react-icons/io";
 const Modal = ({ isVisible, onClose, children }) => {
   if (!isVisible) return null;
 
@@ -13,12 +13,12 @@ const Modal = ({ isVisible, onClose, children }) => {
         className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center z-10"
         onClick={handleClose}
       >
-        <div className="w-[600px] flex flex-col">
+        <div className="w-[600px] flex flex-col relative">
           <button
-            className="text-gray-700 text-2xl place-self-end"
+            className="text-gray-700 text-2xl absolute top-2 right-2 hover:bg-gray-100"
             onClick={() => onClose()}
           >
-            <IoMdCloseCircle />
+           <IoMdClose />
           </button>
           <div className="bg-white p-2 rounded">{children}</div>
         </div>
