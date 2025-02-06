@@ -14,7 +14,7 @@ import { Printer } from "lucide-react";
 import { BiPrinter } from "react-icons/bi";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-
+import CustomAlert from "../components/alerts/CustomAlert";
 const Payment = () => {
   const [groups, setGroups] = useState([]);
   const [actualGroups, setActualGroups] = useState([]);
@@ -35,6 +35,11 @@ const Payment = () => {
   const [receiptNo, setReceiptNo] = useState("");
   const [paymentMode, setPaymentMode] = useState("cash");
   const today = new Date().toISOString().split("T")[0];
+  const [alertConfig, setAlertConfig] = useState({
+    visibility: false,
+    message: "Something went wrong!",
+    type: "info",
+  });
   const [EnrollGroupId, setEnrollGroupId] = useState({
     groupId: "",
     ticket: "",
@@ -155,7 +160,7 @@ const Payment = () => {
       ...prevData,
       [name]: value,
     }));
-    setErrors((prevData)=>({...prevData,[name]:""}));
+    setErrors((prevData) => ({ ...prevData, [name]: "" }));
   };
 
   const handleChangeUser = (e) => {
@@ -166,7 +171,7 @@ const Payment = () => {
       group_id,
       ticket,
     }));
-    setErrors((prevData)=>({...prevData,group_ticket:""}));
+    setErrors((prevData) => ({ ...prevData, group_ticket: "" }));
   };
 
   const handleGroupChange = async (groupId) => {
@@ -209,7 +214,7 @@ const Payment = () => {
       ...prevFormData,
       user_id: groupId,
     }));
- setErrors((prevData)=>({...prevData,customer:""}));
+    setErrors((prevData) => ({ ...prevData, customer: "" }));
 
     handleGroupChange(groupId);
     handleGroupAuctionChange(groupId);
@@ -328,9 +333,12 @@ const Payment = () => {
       if (isValid) {
         const response = await api.post("/payment/add-payment", formData);
         if (response.status === 201) {
-          alert("Payment Added Successfully");
-          window.location.reload();
           setShowModal(false);
+          setAlertConfig({
+            visibility: true,
+            message: "Payment Added Successfully",
+            type: "success",
+          });
         }
       }
     } catch (error) {
@@ -352,10 +360,14 @@ const Payment = () => {
     if (currentGroup) {
       try {
         await api.delete(`/payment/delete-payment/${currentGroup._id}`);
-        alert("Payment deleted successfully");
+
         setShowModalDelete(false);
         setCurrentGroup(null);
-        window.location.reload();
+        setAlertConfig({
+          visibility: true,
+          message: "Payment deleted successfully",
+          type: "success",
+        });
       } catch (error) {
         console.error("Error deleting auction:", error);
       }
@@ -391,16 +403,28 @@ const Payment = () => {
         });
 
         if (response.status === 200) {
-          alert("File uploaded successfully!");
-          window.location.reload();
           setShowUploadModal(false);
+          setAlertConfig({
+            visibility: true,
+            message: "File uploaded successfully!",
+            type: "success",
+          });
         }
       } catch (error) {
         console.error("Error uploading file:", error);
-        alert("Failed to upload file.");
+
+        setAlertConfig({
+          visibility: true,
+          message: "Failed to upload file.",
+          type: "success",
+        });
       }
     } else {
-      alert("Please select a file to upload.");
+      setAlertConfig({
+        visibility: true,
+        message: "Please select a file to upload.",
+        type: "success",
+      });
     }
   };
 
@@ -432,6 +456,11 @@ const Payment = () => {
       <div>
         <div className="flex mt-20">
           <Sidebar />
+          <CustomAlert
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+          />
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold">Payments</h1>
             <div className="mt-6 mb-8">
@@ -486,8 +515,14 @@ const Payment = () => {
               )}
             </div>
           </div>
-         
-          <Modal isVisible={showModal} onClose={() => {setShowModal(false);setErrors({});}}>
+
+          <Modal
+            isVisible={showModal}
+            onClose={() => {
+              setShowModal(false);
+              setErrors({});
+            }}
+          >
             <div className="py-6 px-5 lg:px-8 text-left">
               <h3 className="mb-4 text-xl font-bold text-gray-900">
                 Add Payment
@@ -588,7 +623,7 @@ const Payment = () => {
                       placeholder=""
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
-                    
+
                     {errors.pay_date && (
                       <p className="text-red-500 text-xs mt-1">
                         {errors.pay_date}
@@ -614,7 +649,7 @@ const Payment = () => {
                       required
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
-                    
+
                     {errors.amount && (
                       <p className="text-red-500 text-xs mt-1">
                         {errors.amount}
