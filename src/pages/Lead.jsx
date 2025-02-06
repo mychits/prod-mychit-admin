@@ -25,7 +25,7 @@ const Lead = () => {
   const [agents, setAgents] = useState([]);
   const [errors, setErrors] = useState({});
   const [alertConfig, setAlertConfig] = useState({
-    visiblity: false,
+    visibility: false,
     message: "Something went wrong!",
     type: "info",
   });
@@ -108,7 +108,7 @@ const Lead = () => {
           },
         });
         setAlertConfig({
-          visiblity: true,
+          visibility: true,
           message: "Lead added successfully",
           type: "success",
         });
@@ -237,7 +237,7 @@ const Lead = () => {
         setCurrentGroup(null);
 
         setAlertConfig({
-          visiblity: true,
+          visibility: true,
           message: "Lead deleted successfully",
           type: "success",
         });
@@ -259,7 +259,7 @@ const Lead = () => {
         );
         setShowModalUpdate(false);
         setAlertConfig({
-          visiblity: true,
+          visibility: true,
           message: "Lead Updated Successfully",
           type: "success",
         });
@@ -311,7 +311,7 @@ const Lead = () => {
           <Sidebar />
           <CustomAlert
             type={alertConfig.type}
-            isVisible={alertConfig.visiblity}
+            isVisible={alertConfig.visibility}
             message={alertConfig.message}
           />
 
