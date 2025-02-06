@@ -8,7 +8,7 @@ import Modal from "../components/modals/Modal";
 import { BsEye } from "react-icons/bs";
 import DataTable from "../components/layouts/Datatable";
 import { EyeIcon } from "lucide-react";
-
+import CustomAlert from "../components/alerts/CustomAlert";
 const Auction = () => {
   const [groups, setGroups] = useState([]);
   const [TableAuctions, setTableAuctions] = useState([]);
@@ -25,7 +25,12 @@ const Auction = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [double, setDouble] = useState({});
-
+  const [errors, setErrors] = useState({});
+  const [alertConfig, setAlertConfig] = useState({
+    visibility: false,
+    message: "Something went wrong!",
+    type: "info",
+  });
   const [formData, setFormData] = useState({
     group_id: "",
     user_id: "",
@@ -58,8 +63,10 @@ const Auction = () => {
   useEffect(() => {
     const fetchDouble = async () => {
       try {
-        const response = await api.get(`/double/get-double/${selectedAuctionGroupId}`);
-        console.log(response.data)
+        const response = await api.get(
+          `/double/get-double/${selectedAuctionGroupId}`
+        );
+        console.log(response.data);
         setDouble(response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
@@ -68,12 +75,58 @@ const Auction = () => {
     fetchDouble();
   }, [selectedAuctionGroupId]);
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!selectedGroupId) {
+      newErrors.group = "Group selection is required";
+    }
+
+    if (!formData.auction_type) {
+      newErrors.auction_type = "Auction type is required";
+    }
+
+    // Customer validation
+    if (!formData.user_id) {
+      newErrors.customer = "Customer selection is required";
+    }
+
+    // Bid Amount validation
+    if (!formData.bid_amount) {
+      newErrors.bid_amount = "Bid amount is required";
+    } else if (isNaN(formData.bid_amount) || formData.bid_amount <= 0) {
+      newErrors.bid_amount = "Bid amount must be a positive number";
+    } else if (
+      groupInfo.group_value &&
+      formData.bid_amount > groupInfo.group_value
+    ) {
+      newErrors.bid_amount = `Bid amount cannot exceed group value of ${groupInfo.group_value}`;
+    }
+
+    // Date validations
+    if (!formData.auction_date) {
+      newErrors.auction_date = "Auction date is required";
+    }
+
+    if (!formData.next_date) {
+      newErrors.next_date = "Next date is required";
+    } else if (formData.next_date < formData.auction_date) {
+      newErrors.next_date = "Next date cannot be in the past";
+    } else if (formData.next_date === formData.auction_date) {
+      newErrors.next_date = "Next date must be after auction date";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
   };
 
   const handleChangeUser = (e) => {
@@ -84,6 +137,7 @@ const Auction = () => {
       user_id,
       ticket,
     }));
+    setErrors((prevErrors) => ({ ...prevErrors, customer: "" }));
   };
 
   const handleGroupChange = async (groupId) => {
@@ -91,7 +145,9 @@ const Auction = () => {
 
     if (groupId) {
       try {
-        const response = await api.get(`/enroll/get-group-enroll-auction/${groupId}`);
+        const response = await api.get(
+          `/enroll/get-group-enroll-auction/${groupId}`
+        );
         if (response.data && response.data.length > 0) {
           setFilteredUsers(response.data);
         } else {
@@ -108,6 +164,7 @@ const Auction = () => {
 
   const handleGroup = async (event) => {
     const groupId = event.target.value;
+    setErrors((prevErrors) => ({ ...prevErrors, group: "" }));
     setSelectedGroupId(groupId);
     handleGroupChange(groupId);
 
@@ -133,8 +190,8 @@ const Auction = () => {
 
   const formatPayDate = (dateString) => {
     const date = new Date(dateString);
-    const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
+    const options = { day: "numeric", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-US", options);
   };
 
   const handleGroupAuctionChange = async (groupId) => {
@@ -179,7 +236,10 @@ const Auction = () => {
               ticket: group.ticket,
               bid_amount: parseInt(group.divident) + parseInt(group.commission),
               amount: group.win_amount,
-              auction_type: group?.auction_type.charAt(0).toUpperCase() + group?.auction_type.slice(1) + " Auction",
+              auction_type:
+                group?.auction_type.charAt(0).toUpperCase() +
+                group?.auction_type.slice(1) +
+                " Auction",
               action: (
                 <div className="flex justify-end gap-2">
                   <button
@@ -196,9 +256,9 @@ const Auction = () => {
                   </button>
                 </div>
               ),
-            }))
+            })),
           ];
-          setTableAuctions(formattedData)
+          setTableAuctions(formattedData);
         } else {
           setFilteredAuction([]);
         }
@@ -212,15 +272,15 @@ const Auction = () => {
   };
 
   const columns = [
-    { key: 'id', header: 'SL. NO' },
-    { key: 'date', header: 'Auction Date' },
-    { key: 'name', header: 'Customer Name' },
-    { key: 'phone_number', header: 'Customer Phone Number' },
-    { key: 'ticket', header: 'Ticket' },
-    { key: 'bid_amount', header: 'Bid Amount' },
-    { key: 'amount', header: 'Win Amount' },
-    { key: 'auction_type', header: 'Auction Type' },
-    { key: 'action', header: 'Action' },
+    { key: "id", header: "SL. NO" },
+    { key: "date", header: "Auction Date" },
+    { key: "name", header: "Customer Name" },
+    { key: "phone_number", header: "Customer Phone Number" },
+    { key: "ticket", header: "Ticket" },
+    { key: "bid_amount", header: "Bid Amount" },
+    { key: "amount", header: "Win Amount" },
+    { key: "auction_type", header: "Auction Type" },
+    { key: "action", header: "Action" },
   ];
 
   useEffect(() => {
@@ -249,13 +309,18 @@ const Auction = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const isvalid = validateForm();
     try {
-      console.log(formData)
-      const response = await api.post("/auction/add-auction", formData);
-      if (response.status === 201) {
-        alert("Auction Added Successfully");
-        window.location.reload();
-        setShowModal(false);
+      if (isvalid) {
+        const response = await api.post("/auction/add-auction", formData);
+        if (response.status === 201) {
+          setAlertConfig({
+            visibility: true,
+            message: "Auction Added Successfully",
+            type: "success",
+          });
+          setShowModal(false);
+        }
       }
     } catch (error) {
       console.error("Error submitting auction data:", error);
@@ -276,10 +341,13 @@ const Auction = () => {
     if (currentGroup) {
       try {
         await api.delete(`/auction/delete-auction/${currentGroup._id}`);
-        alert("Auction deleted successfully");
+        setAlertConfig({
+          visibility: true,
+          message: "Auction deleted successfully",
+          type: "success",
+        });
         setShowModalDelete(false);
         setCurrentGroup(null);
-        window.location.reload();
       } catch (error) {
         console.error("Error deleting auction:", error);
       }
@@ -296,13 +364,18 @@ const Auction = () => {
     }
   };
 
-  console.log(filteredAuction)
+  console.log(filteredAuction);
 
   return (
     <>
       <div>
         <div className="flex mt-20">
           <Sidebar />
+          <CustomAlert
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+          />
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold">Auctions</h1>
             <div className="mt-6 mb-8">
@@ -322,20 +395,23 @@ const Auction = () => {
                     ))}
                   </select>
                   <button
-                    onClick={() => setShowModal(true)}
+                    onClick={() => {
+                      setShowModal(true);
+                      setErrors({});
+                    }}
                     className="ml-4 bg-blue-700 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                   >
                     + Add Auction
                   </button>
                 </div>
                 <p className="text-xl items-center mt-5"></p>
-                {
-                  filteredAuction[0]?.group_id?.group_type === 'double' && (
-                    <>
-                      <p className="text-xl items-center">Balance: {double.amount}</p>
-                    </>
-                  )
-                }
+                {filteredAuction[0]?.group_id?.group_type === "double" && (
+                  <>
+                    <p className="text-xl items-center">
+                      Balance: {double.amount}
+                    </p>
+                  </>
+                )}
               </div>
               <div className="">
                 <DataTable data={TableAuctions} columns={columns} />
@@ -406,12 +482,17 @@ const Auction = () => {
               </div> */}
             </div>
           </div>
-          <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
+          <Modal
+            isVisible={showModal}
+            onClose={() => {
+              setShowModal(false), setErrors({});
+            }}
+          >
             <div className="py-6 px-5 lg:px-8 text-left">
               <h3 className="mb-4 text-xl font-bold text-gray-900">
                 Add Auction
               </h3>
-              <form className="space-y-6" onSubmit={handleSubmit}>
+              <form className="space-y-6" onSubmit={handleSubmit} noValidate>
                 <div className="w-full">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -431,6 +512,9 @@ const Auction = () => {
                       </option>
                     ))}
                   </select>
+                  {errors.group && (
+                    <p className="mt-1 text-sm text-red-500">{errors.group}</p>
+                  )}
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
                   <div className="w-1/2">
@@ -468,28 +552,32 @@ const Auction = () => {
                     />
                   </div>
                 </div>
-                {
-                  groupInfo.group_type === 'double' && (
-                    <div className="w-full">
-                      <label
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                        htmlFor="category"
-                      >
-                        Auction Type
-                      </label>
-                      <select
-                        name="auction_type"
-                        value={formData.auction_type}
-                        onChange={handleChange}
-                        required
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      >
-                        <option value="normal">Normal Auction</option>
-                        <option value="free">Free Auction</option>
-                      </select>
-                    </div>
-                  )
-                }
+                {groupInfo.group_type === "double" && (
+                  <div className="w-full">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="category"
+                    >
+                      Auction Type
+                    </label>
+                    <select
+                      name="auction_type"
+                      value={formData.auction_type}
+                      onChange={handleChange}
+                      required
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    >
+                      <option value="normal">Normal Auction</option>
+                      <option value="free">Free Auction</option>
+                    </select>
+
+                    {errors.auction_type && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.auction_type}
+                      </p>
+                    )}
+                  </div>
+                )}
                 <div className="w-full">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -514,6 +602,11 @@ const Auction = () => {
                       </option>
                     ))}
                   </select>
+                  {errors.customer && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.customer}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -533,6 +626,11 @@ const Auction = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.bid_amount && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.bid_amount}
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
                   <div className="w-1/2">
@@ -641,6 +739,11 @@ const Auction = () => {
                       required
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                    {errors.auction_date && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.auction_date}
+                      </p>
+                    )}
                   </div>
                   <div className="w-1/2">
                     <label
@@ -659,6 +762,11 @@ const Auction = () => {
                       required
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                    {errors.next_date && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.next_date}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <button
@@ -679,7 +787,7 @@ const Auction = () => {
               <h3 className="mb-4 text-xl font-bold text-gray-900">
                 View Auction
               </h3>
-              <form className="space-y-6" onSubmit={() => { }}>
+              <form className="space-y-6" onSubmit={() => {}}>
                 <div>
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -691,7 +799,7 @@ const Auction = () => {
                     type="text"
                     name="group_id"
                     value={currentUpdateGroup?.group_id?.group_name}
-                    onChange={() => { }}
+                    onChange={() => {}}
                     id="name"
                     placeholder="Enter the Group Name"
                     readOnly
@@ -734,28 +842,32 @@ const Auction = () => {
                     />
                   </div>
                 </div>
-                {
-                  currentUpdateGroup?.group_id?.group_type === 'double' && (
-                    <div className="w-full">
-                      <label
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                        htmlFor="category"
-                      >
-                        Auction Type
-                      </label>
-                      <input
-                        type="text"
-                        name="group_id"
-                        value={currentUpdateGroup?.auction_type.charAt(0).toUpperCase() + currentUpdateGroup?.auction_type.slice(1) + " Auction"}
-                        onChange={() => { }}
-                        id="name"
-                        placeholder="Enter the User Name"
-                        readOnly
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      />
-                    </div>
-                  )
-                }
+                {currentUpdateGroup?.group_id?.group_type === "double" && (
+                  <div className="w-full">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="category"
+                    >
+                      Auction Type
+                    </label>
+                    <input
+                      type="text"
+                      name="group_id"
+                      value={
+                        currentUpdateGroup?.auction_type
+                          .charAt(0)
+                          .toUpperCase() +
+                        currentUpdateGroup?.auction_type.slice(1) +
+                        " Auction"
+                      }
+                      onChange={() => {}}
+                      id="name"
+                      placeholder="Enter the User Name"
+                      readOnly
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    />
+                  </div>
+                )}
                 <div>
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -767,7 +879,7 @@ const Auction = () => {
                     type="text"
                     name="group_id"
                     value={`${currentUpdateGroup?.user_id?.full_name} | ${currentUpdateGroup?.ticket}`}
-                    onChange={() => { }}
+                    onChange={() => {}}
                     id="name"
                     placeholder="Enter the User Name"
                     readOnly
@@ -789,7 +901,7 @@ const Auction = () => {
                       currentUpdateGroup?.group_id?.group_value -
                       currentUpdateGroup?.win_amount
                     }
-                    onChange={() => { }}
+                    onChange={() => {}}
                     id="name"
                     placeholder="Enter the Bid Amount"
                     readOnly
@@ -897,7 +1009,7 @@ const Auction = () => {
                       type="date"
                       name="auction_date"
                       value={currentUpdateGroup?.auction_date}
-                      onChange={() => { }}
+                      onChange={() => {}}
                       id="date"
                       placeholder="Enter the Date"
                       readOnly
@@ -915,7 +1027,7 @@ const Auction = () => {
                       type="date"
                       name="next_date"
                       value={currentUpdateGroup?.next_date}
-                      onChange={() => { }}
+                      onChange={() => {}}
                       id="date"
                       placeholder="Enter the Date"
                       readOnly
