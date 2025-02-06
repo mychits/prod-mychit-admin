@@ -64,7 +64,7 @@ const Lead = () => {
   };
   const validateForm = (type) => {
     const newErrors = {};
-    const data = type === "addGroup" ? formData : updateFormData;
+    const data = type === "addLead" ? formData : updateFormData;
     if (!data.lead_name.trim()) {
       newErrors.lead_name = "Lead Name is required";
     }
@@ -98,7 +98,7 @@ const Lead = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const isValid = validateForm("addGroup");
+    const isValid = validateForm("addLead");
 
     try {
       if (isValid) {
@@ -107,7 +107,11 @@ const Lead = () => {
             "Content-Type": "application/json",
           },
         });
-        alert("Lead Added Successfully");
+        setAlertConfig({
+          visiblity: true,
+          message: "Lead added successfully",
+          type: "success",
+        });
         window.location.reload();
         setShowModal(false);
         setFormData({
