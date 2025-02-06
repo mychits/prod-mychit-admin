@@ -112,7 +112,6 @@ const Lead = () => {
           message: "Lead added successfully",
           type: "success",
         });
-        window.location.reload();
         setShowModal(false);
         setFormData({
           lead_name: "",
@@ -314,9 +313,6 @@ const Lead = () => {
             type={alertConfig.type}
             isVisible={alertConfig.visiblity}
             message={alertConfig.message}
-            onClose={() => {
-              setAlertConfig({ ...alertConfig, visiblity: false });
-            }}
           />
 
           <div className="flex-grow p-7">
