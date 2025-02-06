@@ -7,7 +7,7 @@ import Modal from "../components/modals/Modal";
 import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-
+import CustomAlert from "../components/alerts/CustomAlert";
 const User = () => {
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
@@ -17,7 +17,12 @@ const User = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUpdateUser, setCurrentUpdateUser] = useState(null);
-
+  const [alertConfig, setAlertConfig] = useState({
+    visibility: false,
+    message: "Something went wrong!",
+    type: "info",
+  });
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -46,37 +51,124 @@ const User = () => {
       ...prevData,
       [name]: value,
     }));
+    setErrors((prevData) => ({
+      ...prevData,
+      [name]: "",
+    }));
+  };
+  const validateForm = (type) => {
+    const newErrors = {};
+    const data = type === "addCustomer" ? formData : updateFormData;
+    const regex = {
+      email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      phone: /^[6-9]\d{9}$/,
+      password:
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{5,}$/,
+      pincode: /^\d{6}$/,
+      aadhaar: /^\d{12}$/,
+      pan: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+    };
+
+    if (!data.full_name.trim()) {
+      newErrors.full_name = "Full Name is required";
+    }
+
+    if (!data.email) {
+      newErrors.email = "Email is required";
+    } else if (!regex.email.test(data.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    if (!data.phone_number) {
+      newErrors.phone_number = "Phone number is required";
+    } else if (!regex.phone.test(data.phone_number)) {
+      newErrors.phone_number = "Invalid  phone number";
+    }
+
+    if (!data.password) {
+      newErrors.password = "Password is required";
+    } else if (!regex.password.test(data.password)) {
+      newErrors.password =
+        "Password must contain at least 5 characters, one uppercase, one lowercase, one number, and one special character";
+    }
+
+    if (!data.pincode) {
+      newErrors.pincode = "Pincode is required";
+    } else if (!regex.pincode.test(data.pincode)) {
+      newErrors.pincode = "Invalid pincode (6 digits required)";
+    }
+
+    if (!data.adhaar_no) {
+      newErrors.adhaar_no = "Aadhaar number is required";
+    } else if (!regex.aadhaar.test(data.adhaar_no)) {
+      newErrors.adhaar_no = "Invalid Aadhaar number (12 digits required)";
+    }
+
+    if (!data.pan_no) {
+      newErrors.pan_no = "PAN number is required";
+    } else if (!regex.pan.test(data.pan_no.toUpperCase())) {
+      newErrors.pan_no = "Invalid PAN format (e.g., ABCDE1234F)";
+    }
+
+    if (!data.address.trim()) {
+      newErrors.address = "Address is required";
+    } else if (data.address.trim().length < 10) {
+      newErrors.address = "Address should be at least 10 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const isValid = validateForm("addCustomer");
+    if (isValid) {
+      try {
+        const response = await api.post("/user/add-user", formData, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        // window.location.reload();
+        // alert("User Added Successfully");
+        setAlertConfig({
+          type: "success",
+          message: "User Added Successfully",
+          visibility: true,
+        });
 
-    try {
-      const response = await api.post("/user/add-user", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      window.location.reload();
-      alert("User Added Successfully");
-
-      setShowModal(false);
-      setFormData({
-        full_name: "",
-        email: "",
-        phone_number: "",
-        password: "",
-        address: "",
-        pincode: "",
-        adhaar_no: "",
-        pan_no: "",
-      });
-    } catch (error) {
-      console.error("Error adding user:", error);
-      if (error.response && error.response.data && error.response.data.message) {
-        alert(error.response.data.message);
-      } else {
-        alert("An unexpected error occurred. Please try again.");
+        setShowModal(false);
+        setErrors({});
+        setFormData({
+          full_name: "",
+          email: "",
+          phone_number: "",
+          password: "",
+          address: "",
+          pincode: "",
+          adhaar_no: "",
+          pan_no: "",
+        });
+      } catch (error) {
+        console.error("Error adding user:", error);
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
+          setAlertConfig({
+            type: "error",
+            message: `${error?.response?.data?.message}`,
+            visibility: true,
+          });
+        } else {
+          setAlertConfig({
+            type: "error",
+            message: "An unexpected error occurred. Please try again.",
+            visibility: true,
+          });
+        }
       }
     }
   };
@@ -107,9 +199,9 @@ const User = () => {
                 <MdDelete color="red" />
               </button>
             </div>
-          )
+          ),
         }));
-        setTableUsers(formattedData)
+        setTableUsers(formattedData);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -118,12 +210,12 @@ const User = () => {
   }, []);
 
   const columns = [
-    { key: 'id', header: 'SL. NO' },
-    { key: 'name', header: 'Customer Name' },
-    { key: 'phone_number', header: 'Customer Phone Number' },
-    { key: 'address', header: 'Customer Address' },
-    { key: 'pincode', header: 'Customer Pincode' },
-    { key: 'action', header: 'Action' },
+    { key: "id", header: "SL. NO" },
+    { key: "name", header: "Customer Name" },
+    { key: "phone_number", header: "Customer Phone Number" },
+    { key: "address", header: "Customer Address" },
+    { key: "pincode", header: "Customer Pincode" },
+    { key: "action", header: "Action" },
   ];
 
   const filteredUsers = users.filter((user) =>
@@ -155,6 +247,7 @@ const User = () => {
         address: response.data.address,
       });
       setShowModalUpdate(true);
+      setErrors({});
     } catch (error) {
       console.error("Error fetching user:", error);
     }
@@ -166,16 +259,23 @@ const User = () => {
       ...prevData,
       [name]: value,
     }));
+    setErrors((prevData) => ({
+      ...prevData,
+      [name]: "",
+    }));
   };
 
   const handleDeleteUser = async () => {
     if (currentUser) {
       try {
         await api.delete(`/user/delete-user/${currentUser._id}`);
-        alert("User deleted successfully");
+        setAlertConfig({
+          visibility: true,
+          message: "User deleted successfully",
+          type: "success",
+        });
         setShowModalDelete(false);
         setCurrentUser(null);
-        window.location.reload();
       } catch (error) {
         console.error("Error deleting user:", error);
       }
@@ -184,43 +284,81 @@ const User = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    const isValid = validateForm();
+
     try {
-      await api.put(
-        `/user/update-user/${currentUpdateUser._id}`,
-        updateFormData
-      );
-      setShowModalUpdate(false);
-      alert("User Updated Successfully");
-      window.location.reload();
+      if (isValid) {
+        await api.put(
+          `/user/update-user/${currentUpdateUser._id}`,
+          updateFormData
+        );
+        setShowModalUpdate(false);
+
+        setAlertConfig({
+          visibility: true,
+          message: "User Updated Successfully",
+          type: "success",
+        });
+      }
     } catch (error) {
       console.error("Error updating user:", error);
-      if (error.response && error.response.data && error.response.data.message) {
-        alert(error.response.data.message);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setAlertConfig({
+          visibility: true,
+          message: `${error?.response?.data?.message}`,
+          type: "error",
+        });
       } else {
-        alert("An unexpected error occurred. Please try again.");
+        setAlertConfig({
+          visibility: true,
+          message: "An unexpected error occurred. Please try again.",
+          type: "error",
+        });
       }
     }
   };
-
 
   return (
     <>
       <div>
         <div className="flex mt-20">
           <Sidebar />
+          <CustomAlert
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+          />
+
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
                 <h1 className="text-2xl font-semibold">Customers</h1>
                 <button
-                  onClick={() => setShowModal(true)}
+                  onClick={() => {
+                    setShowModal(true);
+                    setErrors({});
+                  }}
                   className="ml-4 bg-blue-700 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
                   + Add Customer
                 </button>
               </div>
             </div>
-            <DataTable data={TableUsers} columns={columns} />
+            <DataTable
+              data={TableUsers}
+              columns={columns}
+              exportedFileName={`Customers-${
+                TableUsers.length > 0
+                  ? TableUsers[0].name +
+                    " to " +
+                    TableUsers[TableUsers.length - 1].name
+                  : "empty"
+              }.csv`}
+            />
             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {filteredUsers.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
@@ -281,7 +419,7 @@ const User = () => {
             <h3 className="mb-4 text-xl font-bold text-gray-900">
               Add Customer
             </h3>
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -299,6 +437,11 @@ const User = () => {
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
+                {errors.full_name && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.full_name}
+                  </p>
+                )}
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -318,6 +461,9 @@ const User = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.email && (
+                    <p className="mt-2 text-sm text-red-600">{errors.email}</p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -336,6 +482,11 @@ const User = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.phone_number && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.phone_number}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -356,6 +507,11 @@ const User = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.password && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.password}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -374,6 +530,11 @@ const User = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.pincode && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.pincode}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -394,6 +555,11 @@ const User = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.adhaar_no && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.adhaar_no}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -412,6 +578,9 @@ const User = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.pan_no && (
+                    <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
+                  )}
                 </div>
               </div>
               <div>
@@ -431,6 +600,9 @@ const User = () => {
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
+                {errors.address && (
+                  <p className="mt-2 text-sm text-red-600">{errors.address}</p>
+                )}
               </div>
               <button
                 type="submit"
@@ -450,7 +622,7 @@ const User = () => {
             <h3 className="mb-4 text-xl font-bold text-gray-900">
               Update Customer
             </h3>
-            <form className="space-y-6" onSubmit={handleUpdate}>
+            <form className="space-y-6" onSubmit={handleUpdate} noValidate>
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -468,6 +640,11 @@ const User = () => {
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
+                {errors.full_name && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.full_name}
+                  </p>
+                )}
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -487,6 +664,9 @@ const User = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.email && (
+                    <p className="mt-2 text-sm text-red-600">{errors.email}</p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -505,6 +685,11 @@ const User = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.phone_number && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.phone_number}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -525,6 +710,11 @@ const User = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.pincode && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.pincode}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -545,6 +735,11 @@ const User = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.adhaar_no && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.adhaar_no}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -563,6 +758,9 @@ const User = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.pan_no && (
+                    <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
+                  )}
                 </div>
               </div>
               <div>
@@ -582,6 +780,9 @@ const User = () => {
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
+                {errors.address && (
+                  <p className="mt-2 text-sm text-red-600">{errors.address}</p>
+                )}
               </div>
               <button
                 type="submit"
