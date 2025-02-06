@@ -6,7 +6,7 @@ import { CiEdit } from "react-icons/ci";
 import { MdDelete } from "react-icons/md";
 import Modal from "../components/modals/Modal";
 import DataTable from "../components/layouts/Datatable";
-
+import CustomAlert from "../components/alerts/CustomAlert";
 const Enroll = () => {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
@@ -22,6 +22,12 @@ const Enroll = () => {
   const [availableTicketsAdd, setAvailableTicketsAdd] = useState([]);
 
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [alertConfig, setAlertConfig] = useState({
+    visibility: false,
+    message: "Something went wrong!",
+    type: "info",
+  });
 
   const [formData, setFormData] = useState({
     group_id: "",
@@ -90,9 +96,9 @@ const Enroll = () => {
                   <MdDelete color="red" />
                 </button>
               </div>
-            )
+            ),
           }));
-          setTableEnrolls(formattedData)
+          setTableEnrolls(formattedData);
         } else {
           setFilteredUsers([]);
         }
@@ -106,11 +112,11 @@ const Enroll = () => {
   };
 
   const columns = [
-    { key: 'id', header: 'SL. NO' },
-    { key: 'name', header: 'Customer Name' },
-    { key: 'phone_number', header: 'Customer Phone Number' },
-    { key: 'ticket', header: 'Ticket Number' },
-    { key: 'action', header: 'Action' },
+    { key: "id", header: "SL. NO" },
+    { key: "name", header: "Customer Name" },
+    { key: "phone_number", header: "Customer Phone Number" },
+    { key: "ticket", header: "Ticket Number" },
+    { key: "action", header: "Action" },
   ];
 
   const handleChange = async (e) => {
@@ -120,6 +126,7 @@ const Enroll = () => {
       ...prevData,
       [name]: value,
     }));
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
 
     if (name === "group_id") {
       try {
@@ -131,43 +138,75 @@ const Enroll = () => {
       }
     }
   };
+  const validate = (type) => {
+    const newErrors = {};
+    const data = type === "addEnrollment" ? formData : updateFormData;
+    const noOfTickets = type === "addEnrollment" ? "no_of_tickets" : "tickets";
+    if (!data.group_id.trim()) {
+      newErrors.group_id = "Please select a group";
+    }
+    if (!data.user_id) {
+      newErrors.user_id = "Please select a customer";
+    }
 
+    if (availableTicketsAdd.length > 0) {
+      if (
+        !data[noOfTickets] ||
+        data[noOfTickets] <= 0 ||
+        isNaN(data[noOfTickets])
+      ) {
+        newErrors[noOfTickets] = "Please enter number of tickets";
+      } else if (data[noOfTickets] > availableTicketsAdd.length) {
+        newErrors[
+          noOfTickets
+        ] = `Maximum ${availableTicketsAdd.length} tickets allowed`;
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const isvalid = validate("addEnrollment");
+    if (isvalid) {
+      setLoading(true);
+      const { no_of_tickets, group_id, user_id } = formData;
+      const ticketsCount = parseInt(no_of_tickets, 10);
+      const ticketEntries = availableTicketsAdd
+        .slice(0, ticketsCount)
+        .map((ticketNumber) => ({
+          group_id,
+          user_id,
+          no_of_tickets,
+          tickets: ticketNumber,
+        }));
+      console.log(ticketEntries);
 
-    setLoading(true);
-    const { no_of_tickets, group_id, user_id } = formData;
-    const ticketsCount = parseInt(no_of_tickets, 10);
-    const ticketEntries = availableTicketsAdd
-      .slice(0, ticketsCount)
-      .map((ticketNumber) => ({
-        group_id,
-        user_id,
-        no_of_tickets,
-        tickets: ticketNumber,
-      }));
-    console.log(ticketEntries);
-
-    try {
-      for (const ticketEntry of ticketEntries) {
-        await api.post("/enroll/add-enroll", ticketEntry, {
-          headers: {
-            "Content-Type": "application/json",
-          },
+      try {
+        for (const ticketEntry of ticketEntries) {
+          await api.post("/enroll/add-enroll", ticketEntry, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+        }
+        setAlertConfig({
+          visibility: true,
+          message: "User Enrolled Successfully",
+          type: "success",
         });
+        setShowModal(false);
+        setFormData({
+          group_id: "",
+          user_id: "",
+          no_of_tickets: "",
+        });
+      } catch (error) {
+        console.error("Error enrolling user:", error);
+      } finally {
+        setLoading(false);
       }
-      alert("User Enrolled Successfully");
-      window.location.reload();
-      setShowModal(false);
-      setFormData({
-        group_id: "",
-        user_id: "",
-        no_of_tickets: "",
-      });
-    } catch (error) {
-      console.error("Error enrolling user:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -208,10 +247,14 @@ const Enroll = () => {
     if (currentGroup) {
       try {
         await api.delete(`/enroll/delete-enroll/${currentGroup._id}`);
-        alert("Enroll deleted successfully");
+
         setShowModalDelete(false);
         setCurrentGroup(null);
-        window.location.reload();
+        setAlertConfig({
+          visibility: true,
+          message: "Enroll deleted successfully",
+          type: "success",
+        });
       } catch (error) {
         console.error("Error deleting group:", error);
       }
@@ -226,8 +269,12 @@ const Enroll = () => {
         updateFormData
       );
       setShowModalUpdate(false);
-      alert("Enrollment Updated Successfully");
-      window.location.reload();
+
+      setAlertConfig({
+        visibility: true,
+        message: "Enrollment Updated Successfully",
+        type: "success",
+      });
     } catch (error) {
       console.error("Error updating enroll:", error);
     }
@@ -253,6 +300,11 @@ const Enroll = () => {
       <div>
         <div className="flex mt-20">
           <Sidebar />
+          <CustomAlert
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+          />
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold">Enrollments</h1>
             <div className="mt-6 mb-8">
@@ -280,7 +332,17 @@ const Enroll = () => {
                 </button>
               </div>
             </div>
-            <DataTable data={TableEnrolls} columns={columns} />
+            <DataTable
+              data={TableEnrolls}
+              columns={columns}
+              exportedFileName={`Enrollments-${
+                TableEnrolls.length > 0
+                  ? TableEnrolls[0].name +
+                    " to " +
+                    TableEnrolls[TableEnrolls.length - 1].name
+                  : "empty"
+              }.csv`}
+            />
             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-6">
               {filteredUsers.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
@@ -340,12 +402,18 @@ const Enroll = () => {
             </div> */}
           </div>
         </div>
-        <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
+        <Modal
+          isVisible={showModal}
+          onClose={() => {
+            setShowModal(false);
+            setErrors({});
+          }}
+        >
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
               Add Enrollment
             </h3>
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               <div className="w-full">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -368,6 +436,9 @@ const Enroll = () => {
                     </option>
                   ))}
                 </select>
+                {errors.group_id && (
+                  <p className="mt-1 text-sm text-red-600">{errors.group_id}</p>
+                )}
               </div>
               <div className="w-full">
                 <label
@@ -391,71 +462,85 @@ const Enroll = () => {
                     </option>
                   ))}
                 </select>
+                {errors.user_id && (
+                  <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>
+                )}
               </div>
-              {
-                formData.group_id && availableTicketsAdd.length === 0 ? (
-                  <>
-                    <p className="text-center text-red-600">Group is Full</p>
-                  </>
-                ) : formData.group_id && availableTicketsAdd.length !== 0 ? (
-                  <div>
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="email"
-                    >
-                      Number of Tickets
-                    </label>
-                    <input
-                      type="number"
-                      name="no_of_tickets"
-                      value={formData.no_of_tickets}
-                      onChange={(e) => {
-                        const value = parseInt(e.target.value, 10);
-                        if (value <= availableTicketsAdd.length) {
-                          handleChange(e);
-                        } else {
-                          alert(`You can only select up to ${availableTicketsAdd.length} tickets.`);
-                        }
-                      }}
-                      id="name"
-                      placeholder="Enter the Number of Tickets"
-                      required
-                      max={availableTicketsAdd.length}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
-                    <span className="mt-10">Only {availableTicketsAdd.length} tickets left</span>
-                  </div>
-                ) : (
-                  <p className="text-center text-red-600"></p>
-                )
-              }
+              {formData.group_id && availableTicketsAdd.length === 0 ? (
+                <>
+                  <p className="text-center text-red-600">Group is Full</p>
+                </>
+              ) : formData.group_id && availableTicketsAdd.length !== 0 ? (
+                <div>
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="email"
+                  >
+                    Number of Tickets
+                  </label>
+                  <input
+                    type="number"
+                    name="no_of_tickets"
+                    value={formData.no_of_tickets}
+                    id="name"
+                    onChange={(e) => {
+                      handleChange(e);
+                    }}
+                    placeholder="Enter the Number of Tickets"
+                    required
+                    max={availableTicketsAdd.length}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+
+                  {errors.no_of_tickets && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.no_of_tickets}
+                    </p>
+                  )}
+                  <span className="mt-10 flex items-center justify-center text-sm text-blue-900">
+                    Only {availableTicketsAdd.length} tickets left
+                  </span>
+                </div>
+              ) : (
+                <p className="text-center text-red-600"></p>
+              )}
               <button
                 type="submit"
-                disabled={loading}
-                className={`w-full text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
-                  }`}
+                disabled={loading || availableTicketsAdd.length === 0}
+                className={`w-full text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
+                }`}
               >
-                {
-                  loading ? (
-                    <>
-                      <p>Loading...</p>
-                    </>
-                  ) : (
-                    <>
-                      Add
-                    </>
-                  )
-                }
+                {loading ? (
+                  <>
+                    <p>Loading...</p>
+                  </>
+                ) : (
+                  <>Add</>
+                )}
               </button>
             </form>
           </div>
         </Modal>
-        <Modal isVisible={showModalUpdate} onClose={() => setShowModalUpdate(false)}>
+        <Modal
+          isVisible={showModalUpdate}
+          onClose={() => {
+            setShowModalUpdate(false);
+            setErrors({});
+          }}
+        >
           <div className="py-6 px-5 lg:px-8 text-left">
-            <h3 className="mb-4 text-xl font-bold text-gray-900">Update Enrollment</h3>
+            <h3 className="mb-4 text-xl font-bold text-gray-900">
+              Update Enrollment
+            </h3>
             <form className="space-y-6" onSubmit={handleUpdate}>
               <div className="w-full">
-                <label className="block mb-2 text-sm font-medium text-gray-900" htmlFor="group_id">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="group_id"
+                >
                   Group
                 </label>
                 <select
@@ -477,7 +562,10 @@ const Enroll = () => {
               </div>
 
               <div className="w-full">
-                <label className="block mb-2 text-sm font-medium text-gray-900" htmlFor="user_id">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="user_id"
+                >
                   Customer
                 </label>
                 <select
@@ -496,10 +584,16 @@ const Enroll = () => {
                     </option>
                   ))}
                 </select>
+                {errors.user_id && (
+                  <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>
+                )}
               </div>
 
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-900" htmlFor="no_of_tickets">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="no_of_tickets"
+                >
                   Select Ticket
                 </label>
                 <select
@@ -511,11 +605,13 @@ const Enroll = () => {
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
                   <option value="">Select Ticket</option>
-                  {availableTickets.concat([updateFormData.tickets]).map((ticket, index) => (
-                    <option key={index} value={ticket}>
-                      {ticket}
-                    </option>
-                  ))}
+                  {availableTickets
+                    .concat([updateFormData.tickets])
+                    .map((ticket, index) => (
+                      <option key={index} value={ticket}>
+                        {ticket}
+                      </option>
+                    ))}
                 </select>
               </div>
 
