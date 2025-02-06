@@ -7,7 +7,7 @@ import Modal from "../components/modals/Modal";
 import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2 } from "lucide-react";
 import CustomAlert from "../components/alerts/CustomAlert";
 
 const Group = () => {
@@ -19,7 +19,11 @@ const Group = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
-  const [alertConfig,setAlertConfig] = useState({visiblity:false,message:"Something went wrong!",type:"info"});
+  const [alertConfig, setAlertConfig] = useState({
+    visibility: false,
+    message: "Something went wrong!",
+    type: "info",
+  });
 
   const [formData, setFormData] = useState({
     group_name: "",
@@ -35,7 +39,7 @@ const Group = () => {
     commission: 5,
     reg_fee: "",
   });
-const [errors,setErrors] = useState({})
+  const [errors, setErrors] = useState({});
   const [updateFormData, setUpdateFormData] = useState({
     group_name: "",
     group_type: "",
@@ -48,92 +52,113 @@ const [errors,setErrors] = useState({})
     minimum_bid: "",
     maximum_bid: "",
     commission: 5,
-    reg_fee:""
+    reg_fee: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // apply validation here                           
+    // apply validation here
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-    setErrors({...errors,[name]:""})
+
+    setErrors((prevData) => ({
+      ...prevData,
+      [name]: "",
+    }));
   };
-  // validation start
+
   const validateForm = (type) => {
     const newErrors = {};
-    // Determine which form data to validate
+
     const data = type === "addGroup" ? formData : updateFormData;
-  
-    // Common validation logic
+
     if (!data.group_name.trim()) {
-      newErrors.group_name = 'Group Name is required';
+      newErrors.group_name = "Group Name is required";
     }
-  
+
     if (!data.group_type) {
-      newErrors.group_type = 'Group Type is required';
+      newErrors.group_type = "Group Type is required";
     }
-  
+
     if (!data.group_value || isNaN(data.group_value) || data.group_value <= 0) {
-      newErrors.group_value = 'Group Value must be a positive number';
+      newErrors.group_value = "Group Value must be a positive number";
     }
-  
-    if (!data.group_install || isNaN(data.group_install) || data.group_install <= 0) {
-      newErrors.group_install = 'Group Installment Amount must be a positive number';
+
+    if (
+      !data.group_install ||
+      isNaN(data.group_install) ||
+      data.group_install <= 0
+    ) {
+      newErrors.group_install =
+        "Group Installment Amount must be a positive number";
     }
-  
-    if (!data.group_members || isNaN(data.group_members) || data.group_members <= 0) {
-      newErrors.group_members = 'Group Members must be a positive number';
+
+    if (
+      !data.group_members ||
+      isNaN(data.group_members) ||
+      data.group_members <= 0
+    ) {
+      newErrors.group_members = "Group Members must be a positive number";
     }
-  
-    if (!data.group_duration || isNaN(data.group_duration) || data.group_duration <= 0) {
-      newErrors.group_duration = 'Group Duration must be a positive number';
+
+    if (
+      !data.group_duration ||
+      isNaN(data.group_duration) ||
+      data.group_duration <= 0
+    ) {
+      newErrors.group_duration = "Group Duration must be a positive number";
     }
-  
+
     if (!data.reg_fee || isNaN(data.reg_fee) || data.reg_fee < 0) {
-      newErrors.reg_fee = 'Registration Fee must be a zero or positive number';
+      newErrors.reg_fee = "Registration Fee must be a zero or positive number";
     }
-  
+
     if (!data.start_date) {
-      newErrors.start_date = 'Start Date is required';
+      newErrors.start_date = "Start Date is required";
     }
-  
+
     if (!data.end_date) {
-      newErrors.end_date = 'End Date is required';
+      newErrors.end_date = "End Date is required";
     } else if (new Date(data.end_date) < new Date(data.start_date)) {
-      newErrors.end_date = 'End Date cannot be earlier than Start Date';
+      newErrors.end_date = "End Date cannot be earlier than Start Date";
     }
-  
+
     if (!data.minimum_bid || isNaN(data.minimum_bid) || data.minimum_bid <= 0) {
-      newErrors.minimum_bid = 'Minimum Bid must be a positive number';
+      newErrors.minimum_bid = "Minimum Bid must be a positive number";
     }
-  
+
     if (!data.maximum_bid || isNaN(data.maximum_bid) || data.maximum_bid <= 0) {
-      newErrors.maximum_bid = 'Maximum Bid must be a positive number';
-    } else if (parseFloat(data.maximum_bid) <= parseFloat(data.minimum_bid)) {
-      newErrors.maximum_bid = 'Maximum Bid must be greater than Minimum Bid';
+      newErrors.maximum_bid = "Maximum Bid must be a positive number";
+    } else if (parseFloat(data.maximum_bid) < parseFloat(data.minimum_bid)) {
+      newErrors.maximum_bid =
+        "Maximum Bid must be greater than or equal to Minimum Bid";
     }
-  
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  // validation end
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const isValid = validateForm("addGroup");
     try {
-      if(isValid){
+      if (isValid) {
         const response = await api.post("/group/add-group", formData, {
           headers: {
             "Content-Type": "application/json",
           },
         });
         // alert("Group Added Successfully");
-        setAlertConfig({visiblity:true,message:"Group Added Successfully",type:"success"});
-        // window.location.reload();
-        
+
+        setAlertConfig({
+          visibility: true,
+          message: "Group Added Successfully",
+          type: "success",
+        });
+
         setShowModal(false);
         setFormData({
           group_name: "",
@@ -148,12 +173,9 @@ const [errors,setErrors] = useState({})
           maximum_bid: "",
           commission: "",
         });
-        setErrors({})
+      } else {
+        console.log(errors);
       }
-      else{
-        console.log(errors)
-      }
-      
     } catch (error) {
       console.error("Error adding group:", error);
     }
@@ -167,7 +189,10 @@ const [errors,setErrors] = useState({})
         const formattedData = response.data.map((group, index) => ({
           id: index + 1,
           name: group.group_name,
-          type: group.group_type.charAt(0).toUpperCase() + group.group_type.slice(1) + " Group",
+          type:
+            group.group_type.charAt(0).toUpperCase() +
+            group.group_type.slice(1) +
+            " Group",
           value: group.group_value,
           installment: group.group_install,
           members: group.group_members,
@@ -186,9 +211,9 @@ const [errors,setErrors] = useState({})
                 <MdDelete color="red" />
               </button>
             </div>
-          )
+          ),
         }));
-        setTableGroups(formattedData)
+        setTableGroups(formattedData);
       } catch (error) {
         console.error("Error fetching group data:", error);
       }
@@ -228,23 +253,24 @@ const [errors,setErrors] = useState({})
         end_date: formattedEndDate,
         minimum_bid: response.data.minimum_bid,
         maximum_bid: response.data.maximum_bid,
-        reg_fee: response.data.reg_fee
+        reg_fee: response.data.reg_fee,
       });
       setShowModalUpdate(true);
+      setErrors({});
     } catch (error) {
       console.error("Error fetching group:", error);
     }
   };
 
   const handleInputChange = (e) => {
-    console.log("updateFormData",updateFormData)
+    console.log("updateFormData", updateFormData);
     const { name, value } = e.target;
-    
+
     setUpdateFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-    setErrors({...errors,[name]:""})
+    setErrors({ ...errors, [name]: "" });
   };
 
   const handleDeleteGroup = async () => {
@@ -252,10 +278,13 @@ const [errors,setErrors] = useState({})
       try {
         await api.delete(`/group/delete-group/${currentGroup._id}`);
         // alert("Group deleted successfully");
-        setAlertConfig({message:"Group deleted successfully",type:"error",visiblity:true})
+        setAlertConfig({
+          message: "Group deleted successfully",
+          type: "success",
+          visibility: true,
+        });
         setShowModalDelete(false);
         setCurrentGroup(null);
-        // window.location.reload();
       } catch (error) {
         console.error("Error deleting group:", error);
       }
@@ -265,54 +294,76 @@ const [errors,setErrors] = useState({})
   const handleUpdate = async (e) => {
     e.preventDefault();
     const isValid = validateForm();
-    
+
     try {
-      if(isValid){
+      if (isValid) {
         await api.put(
           `/group/update-group/${currentUpdateGroup._id}`,
           updateFormData
         );
         setShowModalUpdate(false);
         // alert("Group Updated Successfully");
-        setAlertConfig({message:"Group updated successfully",type:"success",visiblity:true})
-        // window.location.reload();
+        setAlertConfig({
+          message: "Group updated successfully",
+          type: "success",
+          visibility: true,
+        });
+
+        //
       }
-     
     } catch (error) {
       console.error("Error updating group:", error);
     }
   };
 
   const columns = [
-    { key: 'id', header: 'SL. NO' },
-    { key: 'name', header: 'Group Name' },
-    { key: 'type', header: 'Group Type' },
-    { key: 'value', header: 'Group Value' },
-    { key: 'installment', header: 'Group Installment' },
-    { key: 'members', header: 'Group Members' },
-    { key: 'action', header: 'Action' },
+    { key: "id", header: "SL. NO" },
+    { key: "name", header: "Group Name" },
+    { key: "type", header: "Group Type" },
+    { key: "value", header: "Group Value" },
+    { key: "installment", header: "Group Installment" },
+    { key: "members", header: "Group Members" },
+    { key: "action", header: "Action" },
   ];
 
   return (
     <>
       <div>
+        <CustomAlert
+          type={alertConfig.type}
+          isVisible={alertConfig.visibility}
+          message={alertConfig.message}
+        />
         <div className="flex mt-20">
           <Sidebar />
+
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
                 <h1 className="text-2xl font-semibold">Groups</h1>
                 <button
-                  onClick={() => setShowModal(true)}
+                  onClick={() => {
+                    setShowModal(true);
+                    setErrors({});
+                  }}
                   className="ml-4 bg-blue-700 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
                   + Add Group
                 </button>
               </div>
             </div>
-            
-        <CustomAlert type={alertConfig.type} isVisible={alertConfig.visiblity} message={alertConfig.message} onClose={()=>{setAlertConfig({...alertConfig,visiblity:false})}}/> 
-            <DataTable data={TableGroups} columns={columns} exportFileName={`Groups.csv`}/>
+
+            <DataTable
+              data={TableGroups}
+              columns={columns}
+              exportedFileName={`Groups-${
+                TableGroups.length > 0
+                  ? TableGroups[0].name +
+                    " to " +
+                    TableGroups[TableGroups.length - 1].name
+                  : "empty"
+              }.csv`}
+            />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {/* {filteredGroups.length === 0 ? (
@@ -364,7 +415,6 @@ const [errors,setErrors] = useState({})
                   </div>
                 ))
               )} */}
-
             </div>
           </div>
         </div>
@@ -389,7 +439,11 @@ const [errors,setErrors] = useState({})
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
-                  {errors.group_name && <p className="text-red-500 text-sm mt-1">{errors.group_name}</p>}
+                {errors.group_name && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.group_name}
+                  </p>
+                )}
               </div>
               <div className="w-full">
                 <label
@@ -410,7 +464,11 @@ const [errors,setErrors] = useState({})
                   <option value="divident">Divident Group</option>
                   <option value="double">Double Group</option>
                 </select>
-                {errors.group_type && <p className="text-red-500 text-sm mt-1">{errors.group_type}</p>}
+                {errors.group_type && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.group_type}
+                  </p>
+                )}
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -430,7 +488,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                    {errors.group_value && <p className="text-red-500 text-sm mt-1">{errors.group_value}</p>}
+                  {errors.group_value && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_value}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -449,7 +511,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                  {errors.group_install && <p className="text-red-500 text-sm mt-1">{errors.group_install}</p>}
+                  {errors.group_install && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_install}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -470,7 +536,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                   {errors.group_members && <p className="text-red-500 text-sm mt-1">{errors.group_members}</p>}
+                  {errors.group_members && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_members}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -489,7 +559,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                  {errors.group_duration && <p className="text-red-500 text-sm mt-1">{errors.group_duration}</p>}
+                  {errors.group_duration && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_duration}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -510,7 +584,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                  {errors.reg_fee && <p className="text-red-500 text-sm mt-1">{errors.reg_fee}</p>}
+                  {errors.reg_fee && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.reg_fee}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -531,7 +609,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                   {errors.start_date && <p className="text-red-500 text-sm mt-1">{errors.start_date}</p>}
+                  {errors.start_date && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.start_date}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -550,7 +632,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                    {errors.end_date && <p className="text-red-500 text-sm mt-1">{errors.end_date}</p>}
+                  {errors.end_date && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.end_date}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -571,7 +657,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                   {errors.minimum_bid && <p className="text-red-500 text-sm mt-1">{errors.minimum_bid}</p>}
+                  {errors.minimum_bid && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.minimum_bid}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -590,7 +680,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                   {errors.maximum_bid && <p className="text-red-500 text-sm mt-1">{errors.maximum_bid}</p>}
+                  {errors.maximum_bid && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.maximum_bid}
+                    </p>
+                  )}
                 </div>
               </div>
               <button
@@ -629,7 +723,11 @@ const [errors,setErrors] = useState({})
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
-                {errors.group_name && <p className="text-red-500 text-sm mt-1">{errors.group_name}</p>}
+                {errors.group_name && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.group_name}
+                  </p>
+                )}
               </div>
               <div className="w-full">
                 <label
@@ -650,7 +748,11 @@ const [errors,setErrors] = useState({})
                   <option value="divident">Dividend Group</option>
                   <option value="double">Double Group</option>
                 </select>
-                {errors.group_type && <p className="text-red-500 text-sm mt-1">{errors.group_type}</p>}
+                {errors.group_type && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.group_type}
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-row justify-between space-x-4">
@@ -671,7 +773,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                  {errors.group_value && <p className="text-red-500 text-sm mt-1">{errors.group_value}</p>}
+                  {errors.group_value && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_value}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -690,7 +796,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                  {errors.group_install && <p className="text-red-500 text-sm mt-1">{errors.group_install}</p>}
+                  {errors.group_install && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_install}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -711,7 +821,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                   {errors.group_members && <p className="text-red-500 text-sm mt-1">{errors.group_members}</p>}
+                  {errors.group_members && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_members}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -730,7 +844,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                {errors.group_duration && <p className="text-red-500 text-sm mt-1">{errors.group_duration}</p>}
+                  {errors.group_duration && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_duration}
+                    </p>
+                  )}
                 </div>
               </div>
               <div>
@@ -750,7 +868,9 @@ const [errors,setErrors] = useState({})
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
-                {errors.reg_fee && <p className="text-red-500 text-sm mt-1">{errors.reg_fee}</p>}
+                {errors.reg_fee && (
+                  <p className="text-red-500 text-sm mt-1">{errors.reg_fee}</p>
+                )}
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -770,7 +890,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                   {errors.start_date && <p className="text-red-500 text-sm mt-1">{errors.start_date}</p>}
+                  {errors.start_date && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.start_date}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -789,7 +913,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                   {errors.end_date && <p className="text-red-500 text-sm mt-1">{errors.end_date}</p>}
+                  {errors.end_date && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.end_date}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -810,7 +938,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                    {errors.minimum_bid && <p className="text-red-500 text-sm mt-1">{errors.minimum_bid}</p>}
+                  {errors.minimum_bid && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.minimum_bid}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -829,7 +961,11 @@ const [errors,setErrors] = useState({})
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                  {errors.maximum_bid && <p className="text-red-500 text-sm mt-1">{errors.maximum_bid}</p>}
+                  {errors.maximum_bid && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.maximum_bid}
+                    </p>
+                  )}
                 </div>
               </div>
               <button
