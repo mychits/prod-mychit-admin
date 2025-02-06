@@ -7,8 +7,8 @@ import {
 } from "react-icons/fa";
 import { memo, useEffect, useState } from "react";
 
-const CustomAlert = memo(({ isVisible, type = "info", message, onClose }) => {
-  const [isClosing, setIsClosing] = useState(false); 
+const CustomAlert = memo(({ isVisible, type = "info", message }) => {
+  const [isClosing, setIsClosing] = useState(false);
 
   const alertConfig = {
     success: {
@@ -43,7 +43,8 @@ const CustomAlert = memo(({ isVisible, type = "info", message, onClose }) => {
 
       const timer = setTimeout(() => {
         setIsClosing(true);
-        setTimeout(onClose, 300);
+        window.location.reload();
+        // setTimeout(onClose, 300);
       }, 2000);
 
       return () => clearTimeout(timer);
@@ -72,7 +73,6 @@ const CustomAlert = memo(({ isVisible, type = "info", message, onClose }) => {
         <button
           onClick={() => {
             setIsClosing(true);
-            setTimeout(onClose, 300);
           }}
           className={`ml-auto -mx-1.5 -my-1.5 rounded-full p-1.5 hover:bg-gray-200 hover:bg-opacity-90`}
           aria-label="Close"
@@ -85,5 +85,3 @@ const CustomAlert = memo(({ isVisible, type = "info", message, onClose }) => {
 });
 
 export default CustomAlert;
-
-

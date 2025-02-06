@@ -34,10 +34,9 @@ const GroupReport = () => {
 
   const [groupPaidDate, setGroupPaidDate] = useState("");
   const [groupToBePaidDate, setGroupToBePaidDate] = useState("");
-  const [detailsLoading, setDetailLoading] = useState(false)
-  const [basicLoading, setBasicLoading] = useState(false)
-  const [dateLoading, setDateLoading] = useState(false)
-
+  const [detailsLoading, setDetailLoading] = useState(false);
+  const [basicLoading, setBasicLoading] = useState(false);
+  const [dateLoading, setDateLoading] = useState(false);
 
   const [selectedAuctionGroup, setSelectedAuctionGroup] = useState("");
   const [selectedGroupId, setSelectedGroupId] = useState("");
@@ -67,7 +66,6 @@ const GroupReport = () => {
     setActiveTab(tab);
   };
 
-
   const [formData, setFormData] = useState({
     group_id: "",
     user_id: "",
@@ -89,15 +87,15 @@ const GroupReport = () => {
 
   useEffect(() => {
     const fetchGroups = async () => {
-      setDetailLoading(true)
+      setDetailLoading(true);
       try {
         const response = await api.get("/group/get-group");
         setGroups(response.data);
-        setDetailLoading(false)
+        setDetailLoading(false);
       } catch (error) {
         console.error("Error fetching group data:", error);
       } finally {
-        setDetailLoading(false)
+        setDetailLoading(false);
       }
     };
     fetchGroups();
@@ -106,7 +104,9 @@ const GroupReport = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await api.get(`/group/get-by-id-group/${selectedGroup}`);
+        const response = await api.get(
+          `/group/get-by-id-group/${selectedGroup}`
+        );
         setGroup(response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
@@ -152,8 +152,8 @@ const GroupReport = () => {
     const groupId = event.target.value;
     setSelectedAuctionGroupId(groupId);
     //handleGroupChange(groupId);
-    setSelectedGroup(groupId)
-    handleGroupAuctionChange(groupId)
+    setSelectedGroup(groupId);
+    handleGroupAuctionChange(groupId);
   };
 
   useEffect(() => {
@@ -170,7 +170,10 @@ const GroupReport = () => {
         if (response.data && response.data.length > 0) {
           setFilteredAuction(response.data);
           const paymentData = response.data;
-          const totalAmount = paymentData.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+          const totalAmount = paymentData.reduce(
+            (sum, payment) => sum + Number(payment.amount || 0),
+            0
+          );
           setPayments(totalAmount);
           const formattedData = response.data.map((group, index) => ({
             id: index + 1,
@@ -179,9 +182,9 @@ const GroupReport = () => {
             phone_number: group.user_id.phone_number,
             ticket: group.ticket,
             amount: group.amount,
-            mode: group.pay_type
+            mode: group.pay_type,
           }));
-          setTableDaybook(formattedData)
+          setTableDaybook(formattedData);
         } else {
           setFilteredAuction([]);
         }
@@ -193,16 +196,21 @@ const GroupReport = () => {
     };
 
     fetchPayments();
-  }, [selectedAuctionGroupId, selectedDate, selectedPaymentMode, selectedCustomers]);
+  }, [
+    selectedAuctionGroupId,
+    selectedDate,
+    selectedPaymentMode,
+    selectedCustomers,
+  ]);
 
   const columns = [
-    { key: 'id', header: 'SL. NO' },
-    { key: 'group', header: 'Group Name' },
-    { key: 'name', header: 'Customer Name' },
-    { key: 'phone_number', header: 'Customer Phone Number' },
-    { key: 'ticket', header: 'Ticket' },
-    { key: 'amount', header: 'Amount' },
-    { key: 'mode', header: 'Payment Mode' },
+    { key: "id", header: "SL. NO" },
+    { key: "group", header: "Group Name" },
+    { key: "name", header: "Customer Name" },
+    { key: "phone_number", header: "Customer Phone Number" },
+    { key: "ticket", header: "Ticket" },
+    { key: "amount", header: "Amount" },
+    { key: "mode", header: "Payment Mode" },
   ];
 
   const handleGroupAuctionChange = async (groupId) => {
@@ -222,13 +230,17 @@ const GroupReport = () => {
             name: group.user_id?.full_name,
             phone_number: group.user_id?.phone_number,
             ticket: group.ticket,
-            bid_amount: parseFloat(group.divident) + parseFloat(group.commission),
+            bid_amount:
+              parseFloat(group.divident) + parseFloat(group.commission),
             win_amount: group.win_amount,
             next_payable: group.payable,
             divident: group.divident_head,
-            auction_type: group.auction_type.charAt(0).toUpperCase() + group.auction_type.slice(1) + " Auction"
+            auction_type:
+              group.auction_type.charAt(0).toUpperCase() +
+              group.auction_type.slice(1) +
+              " Auction",
           }));
-          setTableAuctions(formattedData)
+          setTableAuctions(formattedData);
           setCommission(totalCommission);
         } else {
           setFilteredAuction([]);
@@ -246,31 +258,33 @@ const GroupReport = () => {
   };
 
   const Auctioncolumns = [
-    { key: 'id', header: 'SL. NO' },
-    { key: 'date', header: 'Auction Date' },
-    { key: 'name', header: 'Customer Name' },
-    { key: 'phone_number', header: 'Customer Phone Number' },
-    { key: 'ticket', header: 'Ticket' },
-    { key: 'bid_amount', header: 'Bid Amount' },
-    { key: 'win_amount', header: 'Win Amount' },
-    { key: 'next_payable', header: 'Next Payable' },
-    { key: 'divident', header: 'Divident' },
-    { key: 'auction_type', header: 'Auction Type' },
+    { key: "id", header: "SL. NO" },
+    { key: "date", header: "Auction Date" },
+    { key: "name", header: "Customer Name" },
+    { key: "phone_number", header: "Customer Phone Number" },
+    { key: "ticket", header: "Ticket" },
+    { key: "bid_amount", header: "Bid Amount" },
+    { key: "win_amount", header: "Win Amount" },
+    { key: "next_payable", header: "Next Payable" },
+    { key: "divident", header: "Divident" },
+    { key: "auction_type", header: "Auction Type" },
   ];
 
   useEffect(() => {
     const fetchEnroll = async () => {
-      setBasicLoading(true)
+      setBasicLoading(true);
       try {
-        const response = await api.get(`/group-report/get-group-enroll/${selectedGroup}`);
+        const response = await api.get(
+          `/group-report/get-group-enroll/${selectedGroup}`
+        );
         if (response.data && response.data.length > 0) {
           setFilteredUsers(response.data);
 
-          const Paid = response.data
-          setGroupPaid(Paid[0].groupPaidAmount)
+          const Paid = response.data;
+          setGroupPaid(Paid[0].groupPaidAmount);
 
-          const toBePaid = response.data
-          setGroupToBePaid((toBePaid[0].totalToBePaidAmount))
+          const toBePaid = response.data;
+          setGroupToBePaid(toBePaid[0].totalToBePaidAmount);
 
           const formattedData = response.data.map((group, index) => ({
             id: index + 1,
@@ -279,17 +293,28 @@ const GroupReport = () => {
             ticket: group.ticket,
 
             amount_to_be_paid:
-              group?.group?.group_type === 'double' ?
-                (parseInt(group?.group?.group_install) * parseInt(group.auctionCount)) + parseInt(group?.group?.group_install) :
-                parseInt(group?.group?.group_install) + group.totalToBePaidAmount + parseInt(group.dividentHead),
+              group?.group?.group_type === "double"
+                ? parseInt(group?.group?.group_install) *
+                    parseInt(group.auctionCount) +
+                  parseInt(group?.group?.group_install)
+                : parseInt(group?.group?.group_install) +
+                  group.totalToBePaidAmount +
+                  parseInt(group.dividentHead),
 
             amount_paid: group.totalPaidAmount,
-            amount_balance: group?.group?.group_type === 'double' ?
-              ((parseInt(group?.group?.group_install) * parseInt(group.auctionCount)) + parseInt(group?.group?.group_install)) - group.totalPaidAmount :
-              (parseInt(group?.group?.group_install) + group.totalToBePaidAmount + parseInt(group.dividentHead)) - group.totalPaidAmount
+            amount_balance:
+              group?.group?.group_type === "double"
+                ? parseInt(group?.group?.group_install) *
+                    parseInt(group.auctionCount) +
+                  parseInt(group?.group?.group_install) -
+                  group.totalPaidAmount
+                : parseInt(group?.group?.group_install) +
+                  group.totalToBePaidAmount +
+                  parseInt(group.dividentHead) -
+                  group.totalPaidAmount,
           }));
-          setTableEnrolls(formattedData)
-          setBasicLoading(false)
+          setTableEnrolls(formattedData);
+          setBasicLoading(false);
         } else {
           setFilteredUsers([]);
         }
@@ -297,24 +322,24 @@ const GroupReport = () => {
         console.error("Error fetching enrollment data:", error);
         setFilteredUsers([]);
       } finally {
-        setBasicLoading(false)
+        setBasicLoading(false);
       }
-    }
-    fetchEnroll()
-  }, [selectedGroup])
+    };
+    fetchEnroll();
+  }, [selectedGroup]);
 
   const Basiccolumns = [
-    { key: 'id', header: 'SL. NO' },
-    { key: 'name', header: 'Customer Name' },
-    { key: 'phone_number', header: 'Customer Phone Number' },
-    { key: 'ticket', header: 'Ticket' },
-    { key: 'amount_to_be_paid', header: 'Amount to be Paid' },
-    { key: 'amount_paid', header: 'Amount Paid' },
-    { key: 'amount_balance', header: 'Amount Balance' },
+    { key: "id", header: "SL. NO" },
+    { key: "name", header: "Customer Name" },
+    { key: "phone_number", header: "Customer Phone Number" },
+    { key: "ticket", header: "Ticket" },
+    { key: "amount_to_be_paid", header: "Amount to be Paid" },
+    { key: "amount_paid", header: "Amount Paid" },
+    { key: "amount_balance", header: "Amount Balance" },
   ];
 
   const formatDate = (dateString) => {
-    const parts = dateString.split('-');
+    const parts = dateString.split("-");
     if (parts.length === 3) {
       return `${parts[2]}-${parts[1]}-${parts[0]}`;
     }
@@ -326,15 +351,17 @@ const GroupReport = () => {
   useEffect(() => {
     const fetchEnroll = async () => {
       try {
-        const response = await api.get(`/group-report/get-group-enroll-date/${selectedGroup}?fromDate=${formattedFromDate}&toDate=${formattedToDate}`);
+        const response = await api.get(
+          `/group-report/get-group-enroll-date/${selectedGroup}?fromDate=${formattedFromDate}&toDate=${formattedToDate}`
+        );
         if (response.data && response.data.length > 0) {
           setFilteredUsers(response.data);
 
-          const Paid = response.data
-          setGroupPaidDate(Paid[0].groupPaidAmount || 0)
+          const Paid = response.data;
+          setGroupPaidDate(Paid[0].groupPaidAmount || 0);
 
-          const toBePaid = response.data
-          setGroupToBePaidDate((toBePaid[0].totalToBePaidAmount))
+          const toBePaid = response.data;
+          setGroupToBePaidDate(toBePaid[0].totalToBePaidAmount);
 
           const formattedData = response.data.map((group, index) => ({
             id: index + 1,
@@ -342,15 +369,26 @@ const GroupReport = () => {
             phone_number: group?.user?.phone_number,
             ticket: group.ticket,
             amount_to_be_paid:
-              group?.group?.group_type === 'double' ?
-                (parseInt(group?.group?.group_install) * parseInt(group.auctionCount)) + parseInt(group?.group?.group_install) :
-                parseInt(group?.group?.group_install) + group.totalToBePaidAmount + parseInt(group.dividentHead),
+              group?.group?.group_type === "double"
+                ? parseInt(group?.group?.group_install) *
+                    parseInt(group.auctionCount) +
+                  parseInt(group?.group?.group_install)
+                : parseInt(group?.group?.group_install) +
+                  group.totalToBePaidAmount +
+                  parseInt(group.dividentHead),
             amount_paid: group.totalPaidAmount,
-            amount_balance: group?.group?.group_type === 'double' ?
-              ((parseInt(group?.group?.group_install) * parseInt(group.auctionCount)) + parseInt(group?.group?.group_install)) - group.totalPaidAmount :
-              (parseInt(group?.group?.group_install) + group.totalToBePaidAmount + parseInt(group.dividentHead)) - group.totalPaidAmount
+            amount_balance:
+              group?.group?.group_type === "double"
+                ? parseInt(group?.group?.group_install) *
+                    parseInt(group.auctionCount) +
+                  parseInt(group?.group?.group_install) -
+                  group.totalPaidAmount
+                : parseInt(group?.group?.group_install) +
+                  group.totalToBePaidAmount +
+                  parseInt(group.dividentHead) -
+                  group.totalPaidAmount,
           }));
-          setTableEnrollsDate(formattedData)
+          setTableEnrollsDate(formattedData);
         } else {
           setFilteredUsers([]);
         }
@@ -358,18 +396,18 @@ const GroupReport = () => {
         console.error("Error fetching enrollment data:", error);
         setFilteredUsers([]);
       }
-    }
-    fetchEnroll()
-  }, [selectedGroup, formattedFromDate, formattedToDate])
+    };
+    fetchEnroll();
+  }, [selectedGroup, formattedFromDate, formattedToDate]);
 
   const Datecolumns = [
-    { key: 'id', header: 'SL. NO' },
-    { key: 'name', header: 'Customer Name' },
-    { key: 'phone_number', header: 'Customer Phone Number' },
-    { key: 'ticket', header: 'Ticket' },
-    { key: 'amount_to_be_paid', header: 'Amount to be Paid' },
-    { key: 'amount_paid', header: 'Amount Paid' },
-    { key: 'amount_balance', header: 'Amount Balance' },
+    { key: "id", header: "SL. NO" },
+    { key: "name", header: "Customer Name" },
+    { key: "phone_number", header: "Customer Phone Number" },
+    { key: "ticket", header: "Ticket" },
+    { key: "amount_to_be_paid", header: "Amount to be Paid" },
+    { key: "amount_paid", header: "Amount Paid" },
+    { key: "amount_balance", header: "Amount Balance" },
   ];
 
   useEffect(() => {
@@ -437,309 +475,326 @@ const GroupReport = () => {
                   </div>
                 </div>
               </div>
-              {
-                selectedGroup && (
-                  <>
-                    <div className="mt-6 mb-8">
-                      <div className="flex justify-start border-b border-gray-300 mb-4">
-                        <button
-                          className={`px-6 py-2 font-medium ${activeTab === "groupDetails" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-500"
-                            }`}
-                          onClick={() => handleTabChange("groupDetails")}
-                        >
-                          Group Details
-                        </button>
-                        <button
-                          className={`px-6 py-2 font-medium ${activeTab === "basicReport" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-500"
-                            }`}
-                          onClick={() => handleTabChange("basicReport")}
-                        >
-                          Basic Group Report
-                        </button>
-                        <button
-                          className={`px-6 py-2 font-medium ${activeTab === "dateWiseReport" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-500"
-                            }`}
-                          onClick={() => handleTabChange("dateWiseReport")}
-                        >
-                          Date-wise Group Report
-                        </button>
-                      </div>
+              {selectedGroup && (
+                <>
+                  <div className="mt-6 mb-8">
+                    <div className="flex justify-start border-b border-gray-300 mb-4">
+                      <button
+                        className={`px-6 py-2 font-medium ${
+                          activeTab === "groupDetails"
+                            ? "border-b-2 border-blue-500 text-blue-500"
+                            : "text-gray-500"
+                        }`}
+                        onClick={() => handleTabChange("groupDetails")}
+                      >
+                        Group Details
+                      </button>
+                      <button
+                        className={`px-6 py-2 font-medium ${
+                          activeTab === "basicReport"
+                            ? "border-b-2 border-blue-500 text-blue-500"
+                            : "text-gray-500"
+                        }`}
+                        onClick={() => handleTabChange("basicReport")}
+                      >
+                        Basic Group Report
+                      </button>
+                      <button
+                        className={`px-6 py-2 font-medium ${
+                          activeTab === "dateWiseReport"
+                            ? "border-b-2 border-blue-500 text-blue-500"
+                            : "text-gray-500"
+                        }`}
+                        onClick={() => handleTabChange("dateWiseReport")}
+                      >
+                        Date-wise Group Report
+                      </button>
+                    </div>
 
-                      {activeTab === "groupDetails" && (
-                        <>
-                          {
-                            detailsLoading ? (
-                              <p>loading...</p>
-                            ) : (
-                              <div className="mt-10">
-                                <div className="flex gap-4">
-                                  <div className="flex flex-col flex-1">
-                                    <label className="mb-1 text-sm font-medium text-gray-700">Group Name</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Enter Group Name"
-                                      value={group.group_name}
-                                      readonly
-                                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                                    />
-                                  </div>
-                                  <div className="flex flex-col flex-1">
-                                    <label className="mb-1 text-sm font-medium text-gray-700">Group Type</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Enter Group Type"
-                                      value={group?.group_type?.charAt(0).toUpperCase() + group?.group_type?.slice(1) + " Auction"}
-                                      readonly
-                                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                                    />
-                                  </div>
-                                  <div className="flex flex-col flex-1">
-                                    <label className="mb-1 text-sm font-medium text-gray-700">Group Value</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Enter Group Value"
-                                      value={group.group_value}
-                                      readonly
-                                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="flex gap-4 mt-5">
-                                  <div className="flex flex-col flex-1">
-                                    <label className="mb-1 text-sm font-medium text-gray-700">Group Installment Amount</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Enter Group Installment Amount"
-                                      value={group.group_install}
-                                      readonly
-                                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                                    />
-                                  </div>
-                                  <div className="flex flex-col flex-1">
-                                    <label className="mb-1 text-sm font-medium text-gray-700">Group Members</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Enter Group Members"
-                                      value={group.group_members}
-                                      readonly
-                                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                                    />
-                                  </div>
-                                  <div className="flex flex-col flex-1">
-                                    <label className="mb-1 text-sm font-medium text-gray-700">Group Duration</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Enter Group Duration"
-                                      value={group.group_duration}
-                                      readonly
-                                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="flex gap-4 mt-5">
-                                  <div className="flex flex-col flex-1">
-                                    <label className="mb-1 text-sm font-medium text-gray-700">Earned Commission</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Earned Commission"
-                                      value={commission || "-"}
-                                      readonly
-                                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                                    />
-                                  </div>
-                                  <div className="flex flex-col flex-1">
-                                    <label className="mb-1 text-sm font-medium text-gray-700">Fullfilled</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Enter Fullfilled"
-                                      value={group.group_members - availableTickets.length || "-"}
-                                      readonly
-                                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                                    />
-                                  </div>
-                                  <div className="flex flex-col flex-1">
-                                    <label className="mb-1 text-sm font-medium text-gray-700">Vacant</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Enter Vacant"
-                                      value={availableTickets.length || "-"}
-                                      readonly
-                                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                                    />
-                                  </div>
-                                </div>
+                    {activeTab === "groupDetails" && (
+                      <>
+                        {detailsLoading ? (
+                          <p>loading...</p>
+                        ) : (
+                          <div className="mt-10">
+                            <div className="flex gap-4">
+                              <div className="flex flex-col flex-1">
+                                <label className="mb-1 text-sm font-medium text-gray-700">
+                                  Group Name
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="Enter Group Name"
+                                  value={group.group_name}
+                                  readonly
+                                  className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                                />
+                              </div>
+                              <div className="flex flex-col flex-1">
+                                <label className="mb-1 text-sm font-medium text-gray-700">
+                                  Group Type
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="Enter Group Type"
+                                  value={
+                                    group?.group_type?.charAt(0).toUpperCase() +
+                                    group?.group_type?.slice(1) +
+                                    " Auction"
+                                  }
+                                  readonly
+                                  className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                                />
+                              </div>
+                              <div className="flex flex-col flex-1">
+                                <label className="mb-1 text-sm font-medium text-gray-700">
+                                  Group Value
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="Enter Group Value"
+                                  value={group.group_value}
+                                  readonly
+                                  className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex gap-4 mt-5">
+                              <div className="flex flex-col flex-1">
+                                <label className="mb-1 text-sm font-medium text-gray-700">
+                                  Group Installment Amount
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="Enter Group Installment Amount"
+                                  value={group.group_install}
+                                  readonly
+                                  className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                                />
+                              </div>
+                              <div className="flex flex-col flex-1">
+                                <label className="mb-1 text-sm font-medium text-gray-700">
+                                  Group Members
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="Enter Group Members"
+                                  value={group.group_members}
+                                  readonly
+                                  className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                                />
+                              </div>
+                              <div className="flex flex-col flex-1">
+                                <label className="mb-1 text-sm font-medium text-gray-700">
+                                  Group Duration
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="Enter Group Duration"
+                                  value={group.group_duration}
+                                  readonly
+                                  className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex gap-4 mt-5">
+                              <div className="flex flex-col flex-1">
+                                <label className="mb-1 text-sm font-medium text-gray-700">
+                                  Earned Commission
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="Earned Commission"
+                                  value={commission || "-"}
+                                  readonly
+                                  className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                                />
+                              </div>
+                              <div className="flex flex-col flex-1">
+                                <label className="mb-1 text-sm font-medium text-gray-700">
+                                  Fullfilled
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="Enter Fullfilled"
+                                  value={
+                                    group.group_members -
+                                      availableTickets.length || "-"
+                                  }
+                                  readonly
+                                  className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                                />
+                              </div>
+                              <div className="flex flex-col flex-1">
+                                <label className="mb-1 text-sm font-medium text-gray-700">
+                                  Vacant
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="Enter Vacant"
+                                  value={availableTickets.length || "-"}
+                                  readonly
+                                  className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                                />
+                              </div>
+                            </div>
+                            <div className="mt-10">
+                              <h3 className="text-lg font-medium mb-4">
+                                Auctions
+                              </h3>
+                              {filteredAuction && filteredAuction.length > 0 ? (
                                 <div className="mt-10">
-                                  <h3 className="text-lg font-medium mb-4">Auctions</h3>
-                                  {filteredAuction && filteredAuction.length > 0 ? (
-                                    <div className="mt-10">
-                                      <DataTable data={TableAuctions} columns={Auctioncolumns} />
-                                    </div>
-                                  ) : (
-                                    <div className="mt-10 text-center text-gray-500">
-                                      No Data Available
-                                    </div>
-                                  )}
+                                  <DataTable
+                                    data={TableAuctions}
+                                    columns={Auctioncolumns}
+                                    exportedFileName={`Auctions-${
+                                      TableAuctions.length > 0
+                                        ? TableAuctions[0].name +
+                                          " to " +
+                                          TableAuctions[
+                                            TableAuctions.length - 1
+                                          ].name
+                                        : "empty"
+                                    }.csv`}
+                                  />
                                 </div>
-                              </div>
-                            )
-                          }
-                        </>
-                      )}
-
-                      {activeTab === "basicReport" && (
-                        <>
-                          <div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 mb-10">
-                              <div className="bg-blue-300 shadow-md rounded-lg p-4">
-                                <h3 className="text-2xl font-semibold text-start mb-2">
-                                  ₹{
-                                    filteredUsers[0]?.group?.group_type === 'double' ?
-                                      <>
-                                        {
-                                          (parseInt(filteredUsers[0]?.group?.group_install) * parseInt(filteredUsers[0]?.group?.group_members) * parseInt(filteredUsers[0]?.auctionCount)
-                                            + (parseInt(filteredUsers[0]?.group?.group_install) * parseInt(filteredUsers[0]?.group?.group_members)))
-                                        }
-                                      </> :
-                                      <>
-                                        {
-                                          groupToBePaid ?
-                                            (groupToBePaid * parseInt(filteredUsers[0]?.group?.group_members)) + (parseInt(filteredUsers[0]?.group?.group_install) * parseInt(filteredUsers[0]?.group?.group_members)) + (parseInt(TableAuctions[0]?.divident) * parseInt(filteredUsers[0]?.group?.group_members)) :
-                                            (parseInt(group?.group_install) * parseInt(group?.group_members))
-                                        }
-                                      </>
-                                  }
-                                </h3>
-                                <div className="text-gray-700">
-                                  <p className="mb-2 font-bold">Amount to be Paid</p>
+                              ) : (
+                                <div className="mt-10 text-center text-gray-500">
+                                  No Data Available
                                 </div>
-                              </div>
-                              <div className="bg-yellow-300 shadow-md rounded-lg p-4">
-                                <h3 className="text-2xl font-semibold text-start mb-2">₹ {groupPaid || 0}</h3>
-                                <div className="text-gray-700">
-                                  <p className="mb-2 font-bold">Paid Amount</p>
-                                </div>
-                              </div>
-                              <div className="bg-red-400 shadow-md rounded-lg p-4">
-                                <h3 className="text-2xl font-semibold text-start mb-2">
-                                  ₹ {
-                                    filteredUsers[0]?.group?.group_type === 'double' ?
-                                      <>
-                                        {
-                                          (
-                                            (parseInt(filteredUsers[0]?.group?.group_install) * parseInt(filteredUsers[0]?.group?.group_members) * parseInt(filteredUsers[0]?.auctionCount)
-                                              + (parseInt(filteredUsers[0]?.group?.group_install) * parseInt(filteredUsers[0]?.group?.group_members)))
-                                          ) - groupPaid
-                                        }
-                                      </> :
-                                      <>
-                                        {
-                                          groupToBePaid ?
-                                            ((groupToBePaid * parseInt(filteredUsers[0]?.group?.group_members)) + parseInt(filteredUsers[0]?.group?.group_install) * parseInt(group?.group_members) + (parseInt(TableAuctions[0]?.divident) * parseInt(filteredUsers[0]?.group?.group_members))) - groupPaid :
-                                            (parseInt(group?.group_install) * parseInt(group?.group_members)) - groupPaid
-                                        }
-                                      </>
-                                  }
-                                </h3>
-                                <div className="text-gray-700">
-                                  <p className="font-bold">Balance Amount</p>
-                                </div>
-                              </div>
-                            </div>
-                            {TableEnrolls && TableEnrolls.length > 0 ? (
-                              <div className="mt-10">
-                                <DataTable data={TableEnrolls} columns={Basiccolumns} />
-                              </div>
-                            ) : (
-                              <div className="mt-10 text-center text-gray-500">
-                                No Data Available
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      )}
-
-                      {activeTab === "dateWiseReport" && (
-                        <div className="mt-7">
-                          <div className="flex gap-4">
-                            <div className="flex flex-col flex-1">
-                              <label className="mb-1 text-sm font-medium text-gray-700">From Date</label>
-                              <input
-                                type="date"
-                                value={fromDate}
-                                onChange={handleFromDateChange}
-                                className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                              />
-                            </div>
-                            <div className="flex flex-col flex-1">
-                              <label className="mb-1 text-sm font-medium text-gray-700">To Date</label>
-                              <input
-                                type="date"
-                                value={toDate}
-                                onChange={handleToDateChange}
-                                className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                              />
+                              )}
                             </div>
                           </div>
+                        )}
+                      </>
+                    )}
+
+                    {activeTab === "basicReport" && (
+                      <>
+                        <div>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 mb-10">
                             <div className="bg-blue-300 shadow-md rounded-lg p-4">
                               <h3 className="text-2xl font-semibold text-start mb-2">
                                 ₹
-                                {
-                                  filteredUsers[0]?.group?.group_type === 'double' ?
-                                    <>
-                                      {
-                                        (parseInt(filteredUsers[0]?.group?.group_install) * parseInt(filteredUsers[0]?.group?.group_members) * parseInt(filteredUsers[0]?.auctionCount)
-                                          + (parseInt(filteredUsers[0]?.group?.group_install) * parseInt(filteredUsers[0]?.group?.group_members)))
-                                      }
-                                    </> :
-                                    <>
-                                      {
-                                        groupToBePaid ?
-                                          (groupToBePaid * parseInt(filteredUsers[0]?.group?.group_members)) + (parseInt(filteredUsers[0]?.group?.group_install) * parseInt(filteredUsers[0]?.group?.group_members)) + (parseInt(TableAuctions[0]?.divident) * parseInt(filteredUsers[0]?.group?.group_members)) :
-                                          (parseInt(group?.group_install) * parseInt(group?.group_members))
-                                      }
-                                    </>
-                                }
+                                {filteredUsers[0]?.group?.group_type ===
+                                "double" ? (
+                                  <>
+                                    {parseInt(
+                                      filteredUsers[0]?.group?.group_install
+                                    ) *
+                                      parseInt(
+                                        filteredUsers[0]?.group?.group_members
+                                      ) *
+                                      parseInt(filteredUsers[0]?.auctionCount) +
+                                      parseInt(
+                                        filteredUsers[0]?.group?.group_install
+                                      ) *
+                                        parseInt(
+                                          filteredUsers[0]?.group?.group_members
+                                        )}
+                                  </>
+                                ) : (
+                                  <>
+                                    {groupToBePaid
+                                      ? groupToBePaid *
+                                          parseInt(
+                                            filteredUsers[0]?.group
+                                              ?.group_members
+                                          ) +
+                                        parseInt(
+                                          filteredUsers[0]?.group?.group_install
+                                        ) *
+                                          parseInt(
+                                            filteredUsers[0]?.group
+                                              ?.group_members
+                                          ) +
+                                        parseInt(TableAuctions[0]?.divident) *
+                                          parseInt(
+                                            filteredUsers[0]?.group
+                                              ?.group_members
+                                          )
+                                      : parseInt(group?.group_install) *
+                                        parseInt(group?.group_members)}
+                                  </>
+                                )}
                               </h3>
                               <div className="text-gray-700">
-                                <p className="mb-2 font-bold">Amount to be Paid</p>
+                                <p className="mb-2 font-bold">
+                                  Amount to be Paid
+                                </p>
                               </div>
                             </div>
                             <div className="bg-yellow-300 shadow-md rounded-lg p-4">
-                              <h3 className="text-2xl font-semibold text-start mb-2">₹ {groupPaidDate || 0}</h3>
+                              <h3 className="text-2xl font-semibold text-start mb-2">
+                                ₹ {groupPaid || 0}
+                              </h3>
                               <div className="text-gray-700">
                                 <p className="mb-2 font-bold">Paid Amount</p>
                               </div>
                             </div>
                             <div className="bg-red-400 shadow-md rounded-lg p-4">
-                              <h3 className="text-2xl font-semibold text-start mb-2">₹
-                                {
-                                  filteredUsers[0]?.group?.group_type === 'double' ?
-                                    <>
-                                      {
-                                        (
-                                          (parseInt(filteredUsers[0]?.group?.group_install) * parseInt(filteredUsers[0]?.group?.group_members) * parseInt(filteredUsers[0]?.auctionCount)
-                                            + (parseInt(filteredUsers[0]?.group?.group_install) * parseInt(filteredUsers[0]?.group?.group_members)))
-                                        ) - groupPaid
-                                      }
-                                    </> :
-                                    <>
-                                      {
-                                        groupToBePaid ?
-                                          ((groupToBePaid * parseInt(filteredUsers[0]?.group?.group_members)) + parseInt(filteredUsers[0]?.group?.group_install) * parseInt(group?.group_members) + (parseInt(TableAuctions[0]?.divident) * parseInt(filteredUsers[0]?.group?.group_members))) - groupPaid :
-                                          (parseInt(group?.group_install) * parseInt(group?.group_members)) - groupPaid
-                                      }
-                                    </>
-                                }
+                              <h3 className="text-2xl font-semibold text-start mb-2">
+                                ₹{" "}
+                                {filteredUsers[0]?.group?.group_type ===
+                                "double" ? (
+                                  <>
+                                    {parseInt(
+                                      filteredUsers[0]?.group?.group_install
+                                    ) *
+                                      parseInt(
+                                        filteredUsers[0]?.group?.group_members
+                                      ) *
+                                      parseInt(filteredUsers[0]?.auctionCount) +
+                                      parseInt(
+                                        filteredUsers[0]?.group?.group_install
+                                      ) *
+                                        parseInt(
+                                          filteredUsers[0]?.group?.group_members
+                                        ) -
+                                      groupPaid}
+                                  </>
+                                ) : (
+                                  <>
+                                    {groupToBePaid
+                                      ? groupToBePaid *
+                                          parseInt(
+                                            filteredUsers[0]?.group
+                                              ?.group_members
+                                          ) +
+                                        parseInt(
+                                          filteredUsers[0]?.group?.group_install
+                                        ) *
+                                          parseInt(group?.group_members) +
+                                        parseInt(TableAuctions[0]?.divident) *
+                                          parseInt(
+                                            filteredUsers[0]?.group
+                                              ?.group_members
+                                          ) -
+                                        groupPaid
+                                      : parseInt(group?.group_install) *
+                                          parseInt(group?.group_members) -
+                                        groupPaid}
+                                  </>
+                                )}
                               </h3>
                               <div className="text-gray-700">
                                 <p className="font-bold">Balance Amount</p>
                               </div>
                             </div>
                           </div>
-                          {TableEnrollsDate && TableEnrollsDate.length > 0 ? (
+                          {TableEnrolls && TableEnrolls.length > 0 ? (
                             <div className="mt-10">
-                              <DataTable data={TableEnrollsDate} columns={Datecolumns} />
+                              <DataTable
+                                data={TableEnrolls}
+                                columns={Basiccolumns}
+                                exportedFileName={`Employees-${
+                                  TableEnrolls.length > 0
+                                    ? TableEnrolls[0].name +
+                                      " to " +
+                                      TableEnrolls[TableEnrolls.length - 1].name
+                                    : "empty"
+                                }.csv`}
+                              />
                             </div>
                           ) : (
                             <div className="mt-10 text-center text-gray-500">
@@ -747,15 +802,168 @@ const GroupReport = () => {
                             </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </>
-                )
-              }
-            </div >
-          </div >
-        </div >
-      </div >
+                      </>
+                    )}
+
+                    {activeTab === "dateWiseReport" && (
+                      <div className="mt-7">
+                        <div className="flex gap-4">
+                          <div className="flex flex-col flex-1">
+                            <label className="mb-1 text-sm font-medium text-gray-700">
+                              From Date
+                            </label>
+                            <input
+                              type="date"
+                              value={fromDate}
+                              onChange={handleFromDateChange}
+                              className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                            />
+                          </div>
+                          <div className="flex flex-col flex-1">
+                            <label className="mb-1 text-sm font-medium text-gray-700">
+                              To Date
+                            </label>
+                            <input
+                              type="date"
+                              value={toDate}
+                              onChange={handleToDateChange}
+                              className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 mb-10">
+                          <div className="bg-blue-300 shadow-md rounded-lg p-4">
+                            <h3 className="text-2xl font-semibold text-start mb-2">
+                              ₹
+                              {filteredUsers[0]?.group?.group_type ===
+                              "double" ? (
+                                <>
+                                  {parseInt(
+                                    filteredUsers[0]?.group?.group_install
+                                  ) *
+                                    parseInt(
+                                      filteredUsers[0]?.group?.group_members
+                                    ) *
+                                    parseInt(filteredUsers[0]?.auctionCount) +
+                                    parseInt(
+                                      filteredUsers[0]?.group?.group_install
+                                    ) *
+                                      parseInt(
+                                        filteredUsers[0]?.group?.group_members
+                                      )}
+                                </>
+                              ) : (
+                                <>
+                                  {groupToBePaid
+                                    ? groupToBePaid *
+                                        parseInt(
+                                          filteredUsers[0]?.group?.group_members
+                                        ) +
+                                      parseInt(
+                                        filteredUsers[0]?.group?.group_install
+                                      ) *
+                                        parseInt(
+                                          filteredUsers[0]?.group?.group_members
+                                        ) +
+                                      parseInt(TableAuctions[0]?.divident) *
+                                        parseInt(
+                                          filteredUsers[0]?.group?.group_members
+                                        )
+                                    : parseInt(group?.group_install) *
+                                      parseInt(group?.group_members)}
+                                </>
+                              )}
+                            </h3>
+                            <div className="text-gray-700">
+                              <p className="mb-2 font-bold">
+                                Amount to be Paid
+                              </p>
+                            </div>
+                          </div>
+                          <div className="bg-yellow-300 shadow-md rounded-lg p-4">
+                            <h3 className="text-2xl font-semibold text-start mb-2">
+                              ₹ {groupPaidDate || 0}
+                            </h3>
+                            <div className="text-gray-700">
+                              <p className="mb-2 font-bold">Paid Amount</p>
+                            </div>
+                          </div>
+                          <div className="bg-red-400 shadow-md rounded-lg p-4">
+                            <h3 className="text-2xl font-semibold text-start mb-2">
+                              ₹
+                              {filteredUsers[0]?.group?.group_type ===
+                              "double" ? (
+                                <>
+                                  {parseInt(
+                                    filteredUsers[0]?.group?.group_install
+                                  ) *
+                                    parseInt(
+                                      filteredUsers[0]?.group?.group_members
+                                    ) *
+                                    parseInt(filteredUsers[0]?.auctionCount) +
+                                    parseInt(
+                                      filteredUsers[0]?.group?.group_install
+                                    ) *
+                                      parseInt(
+                                        filteredUsers[0]?.group?.group_members
+                                      ) -
+                                    groupPaid}
+                                </>
+                              ) : (
+                                <>
+                                  {groupToBePaid
+                                    ? groupToBePaid *
+                                        parseInt(
+                                          filteredUsers[0]?.group?.group_members
+                                        ) +
+                                      parseInt(
+                                        filteredUsers[0]?.group?.group_install
+                                      ) *
+                                        parseInt(group?.group_members) +
+                                      parseInt(TableAuctions[0]?.divident) *
+                                        parseInt(
+                                          filteredUsers[0]?.group?.group_members
+                                        ) -
+                                      groupPaid
+                                    : parseInt(group?.group_install) *
+                                        parseInt(group?.group_members) -
+                                      groupPaid}
+                                </>
+                              )}
+                            </h3>
+                            <div className="text-gray-700">
+                              <p className="font-bold">Balance Amount</p>
+                            </div>
+                          </div>
+                        </div>
+                        {TableEnrollsDate && TableEnrollsDate.length > 0 ? (
+                          <div className="mt-10">
+                            <DataTable
+                              data={TableEnrollsDate}
+                              columns={Datecolumns}
+                              exportedFileName={`Employees-${
+                                TableEnrollsDate.length > 0
+                                  ? TableEnrollsDate[0].name +
+                                    " to " +
+                                    TableEnrollsDate[TableEnrollsDate.length - 1].name
+                                  : "empty"
+                              }.csv`}
+                            />
+                          </div>
+                        ) : (
+                          <div className="mt-10 text-center text-gray-500">
+                            No Data Available
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 };
