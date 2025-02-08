@@ -55,9 +55,18 @@ const MenuSidebar = [
     icon: <CgWebsite />,
     submenu: true,
     submenuItems: [
-      { title: "Gold Admin", link: "http://gold-admin-web.s3-website.eu-north-1.amazonaws.com/" }, // External link
-      { title: "Chit Plans Admin", link: "https://erp.admin.mychits.co.in/chit-enrollment-plan/admin/" }, // External link
-      { title: "Chit Enrollment Request", link: "https://erp.admin.mychits.co.in/src/request/enrollment.php?user-role=&user-code=" }, // External link
+      {
+        title: "Gold Admin",
+        link: "http://gold-admin-web.s3-website.eu-north-1.amazonaws.com/",
+      }, // External link
+      {
+        title: "Chit Plans Admin",
+        link: "https://erp.admin.mychits.co.in/chit-enrollment-plan/admin/",
+      }, // External link
+      {
+        title: "Chit Enrollment Request",
+        link: "https://erp.admin.mychits.co.in/src/request/enrollment.php?user-role=&user-code=",
+      }, // External link
       // { title: "Consolidated", link: "/consolidate" },
     ],
   },
@@ -79,22 +88,26 @@ const Sidebar = () => {
   return (
     <>
       <div
-        className={`bg-secondary h-auto p-5 pt-8 ${open ? "w-64" : "w-20"
-          } duration-300 relative`}
+        className={`bg-secondary h-auto p-5 pt-8 ${
+          open ? "w-64" : "w-20"
+        } duration-300 relative`}
       >
         <BsArrowLeftShort
-          className={`bg-white text-secondary text-3xl rounded-full absolute -right-3 top-9 border border-secondary cursor-pointer ${!open && "rotate-180"
-            }`}
+          className={`bg-white text-secondary text-3xl rounded-full absolute -right-3 top-9 border border-secondary cursor-pointer ${
+            !open && "rotate-180"
+          }`}
           onClick={() => setOpen(!open)}
         />
         <div className="inline-flex">
           <GiGoldBar
-            className={`bg-amber-300 text-4xl rounded cursor-pointer block float-left mr-2 duration-500 ${open && "rotate-[360deg]"
-              }`}
+            className={`bg-amber-300 text-4xl rounded cursor-pointer block float-left mr-2 duration-500 ${
+              open && "rotate-[360deg]"
+            }`}
           />
           <h3
-            className={`text-white origin-left font-medium text-2xl ${!open && "scale-0"
-              } duration-300 `}
+            className={`text-white origin-left font-medium text-2xl ${
+              !open && "scale-0"
+            } duration-300 `}
           >
             MyChits
           </h3>
@@ -106,13 +119,15 @@ const Sidebar = () => {
               <a href={menu.link} onClick={() => toggleSubMenu(index)}>
                 <li
                   key={index}
-                  className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md ${menu.spacing ? "mt-9" : "mt-2"
-                    }`}
+                  className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md ${
+                    menu.spacing ? "mt-9" : "mt-2"
+                  }`}
                 >
                   <span className="text-2xl block float-left">{menu.icon}</span>
                   <span
-                    className={`text-base font-medium flex-1 ${!open && "hidden"
-                      } `}
+                    className={`text-base font-medium flex-1 ${
+                      !open && "hidden"
+                    } `}
                   >
                     {menu.title}
                   </span>
@@ -131,8 +146,9 @@ const Sidebar = () => {
                       <a href={submenuItem.link} rel="noopener noreferrer">
                         <li
                           key={index}
-                          className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${menu.spacing ? "mt-9" : "mt-2"
-                            }`}
+                          className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
+                            menu.spacing ? "mt-9" : "mt-2"
+                          }`}
                         >
                           {submenuItem.title}
                         </li>
@@ -150,4 +166,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-
