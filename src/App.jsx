@@ -19,6 +19,8 @@ import UserReport from "./pages/UserReport";
 import Profile from "./pages/Profile";
 import AuctionReport from "./pages/AuctionReport";
 import Print from "./pages/Print";
+import GeneralSection from "./pages/GeneralSection";
+import GroupSettings from "./pages/GroupSettings";
 
 function App() {
   const location = useLocation();
@@ -38,13 +40,18 @@ function App() {
         <Route path="/daybook" element={<Daybook />} />
         <Route path="/lead" element={<Lead />} />
         <Route path="/" element={<Login />} />
-        <Route path="/lead-setting" element={<LeadSetting />} />
+        <Route path="/lead-setting" element={<LeadSetting />}>
+          <Route path="general-section" element={<GeneralSection />}>
+            <Route path="groups" element={<GroupSettings />} />
+            <Route />
+          </Route>
+        </Route>
         <Route path="/receipt" element={<Receipt />} />
         <Route path="/group-report" element={<GroupReport />} />
         <Route path="/user-report" element={<UserReport />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/auction-report" element={<AuctionReport />} />
-        <Route path="/print/:id" element={<Print/>} />
+        <Route path="/print/:id" element={<Print />} />
         <Route path="/test" element={<Test />} />
       </Routes>
     </div>
