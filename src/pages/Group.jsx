@@ -7,7 +7,8 @@ import Modal from "../components/modals/Modal";
 import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2 } from "lucide-react";
+import CustomAlert from "../components/alerts/CustomAlert";
 
 const Group = () => {
   const [groups, setGroups] = useState([]);
@@ -18,6 +19,11 @@ const Group = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
+  const [alertConfig, setAlertConfig] = useState({
+    visibility: false,
+    message: "Something went wrong!",
+    type: "info",
+  });
 
   const [formData, setFormData] = useState({
     group_name: "",
@@ -33,7 +39,7 @@ const Group = () => {
     commission: 5,
     reg_fee: "",
   });
-
+  const [errors, setErrors] = useState({});
   const [updateFormData, setUpdateFormData] = useState({
     group_name: "",
     group_type: "",
@@ -46,42 +52,130 @@ const Group = () => {
     minimum_bid: "",
     maximum_bid: "",
     commission: 5,
-    reg_fee:""
+    reg_fee: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // apply validation here
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+
+    setErrors((prevData) => ({
+      ...prevData,
+      [name]: "",
+    }));
+  };
+
+  const validateForm = (type) => {
+    const newErrors = {};
+
+    const data = type === "addGroup" ? formData : updateFormData;
+
+    if (!data.group_name.trim()) {
+      newErrors.group_name = "Group Name is required";
+    }
+
+    if (!data.group_type) {
+      newErrors.group_type = "Group Type is required";
+    }
+
+    if (!data.group_value || isNaN(data.group_value) || data.group_value <= 0) {
+      newErrors.group_value = "Group Value must be a positive number";
+    }
+
+    if (
+      !data.group_install ||
+      isNaN(data.group_install) ||
+      data.group_install <= 0
+    ) {
+      newErrors.group_install =
+        "Group Installment Amount must be a positive number";
+    }
+
+    if (
+      !data.group_members ||
+      isNaN(data.group_members) ||
+      data.group_members <= 0
+    ) {
+      newErrors.group_members = "Group Members must be a positive number";
+    }
+
+    if (
+      !data.group_duration ||
+      isNaN(data.group_duration) ||
+      data.group_duration <= 0
+    ) {
+      newErrors.group_duration = "Group Duration must be a positive number";
+    }
+
+    if (!data.reg_fee || isNaN(data.reg_fee) || data.reg_fee < 0) {
+      newErrors.reg_fee = "Registration Fee must be a zero or positive number";
+    }
+
+    if (!data.start_date) {
+      newErrors.start_date = "Start Date is required";
+    }
+
+    if (!data.end_date) {
+      newErrors.end_date = "End Date is required";
+    } else if (new Date(data.end_date) < new Date(data.start_date)) {
+      newErrors.end_date = "End Date cannot be earlier than Start Date";
+    }
+
+    if (!data.minimum_bid || isNaN(data.minimum_bid) || data.minimum_bid <= 0) {
+      newErrors.minimum_bid = "Minimum Bid must be a positive number";
+    }
+
+    if (!data.maximum_bid || isNaN(data.maximum_bid) || data.maximum_bid <= 0) {
+      newErrors.maximum_bid = "Maximum Bid must be a positive number";
+    } else if (parseFloat(data.maximum_bid) < parseFloat(data.minimum_bid)) {
+      newErrors.maximum_bid =
+        "Maximum Bid must be greater than or equal to Minimum Bid";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const isValid = validateForm("addGroup");
     try {
-      const response = await api.post("/group/add-group", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      alert("Group Added Successfully");
-      window.location.reload();
-      setShowModal(false);
-      setFormData({
-        group_name: "",
-        group_type: "",
-        group_value: "",
-        group_install: "",
-        group_members: "",
-        group_duration: "",
-        start_date: "",
-        end_date: "",
-        minimum_bid: "",
-        maximum_bid: "",
-        commission: "",
-      });
+      if (isValid) {
+        const response = await api.post("/group/add-group", formData, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        // alert("Group Added Successfully");
+
+        setAlertConfig({
+          visibility: true,
+          message: "Group Added Successfully",
+          type: "success",
+        });
+
+        setShowModal(false);
+        setFormData({
+          group_name: "",
+          group_type: "",
+          group_value: "",
+          group_install: "",
+          group_members: "",
+          group_duration: "",
+          start_date: "",
+          end_date: "",
+          minimum_bid: "",
+          maximum_bid: "",
+          commission: "",
+        });
+      } else {
+        console.log(errors);
+      }
     } catch (error) {
       console.error("Error adding group:", error);
     }
@@ -95,7 +189,10 @@ const Group = () => {
         const formattedData = response.data.map((group, index) => ({
           id: index + 1,
           name: group.group_name,
-          type: group.group_type.charAt(0).toUpperCase() + group.group_type.slice(1) + " Group",
+          type:
+            group.group_type.charAt(0).toUpperCase() +
+            group.group_type.slice(1) +
+            " Group",
           value: group.group_value,
           installment: group.group_install,
           members: group.group_members,
@@ -114,9 +211,9 @@ const Group = () => {
                 <MdDelete color="red" />
               </button>
             </div>
-          )
+          ),
         }));
-        setTableGroups(formattedData)
+        setTableGroups(formattedData);
       } catch (error) {
         console.error("Error fetching group data:", error);
       }
@@ -156,30 +253,38 @@ const Group = () => {
         end_date: formattedEndDate,
         minimum_bid: response.data.minimum_bid,
         maximum_bid: response.data.maximum_bid,
-        reg_fee: response.data.reg_fee
+        reg_fee: response.data.reg_fee,
       });
       setShowModalUpdate(true);
+      setErrors({});
     } catch (error) {
       console.error("Error fetching group:", error);
     }
   };
 
   const handleInputChange = (e) => {
+    console.log("updateFormData", updateFormData);
     const { name, value } = e.target;
+
     setUpdateFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+    setErrors({ ...errors, [name]: "" });
   };
 
   const handleDeleteGroup = async () => {
     if (currentGroup) {
       try {
         await api.delete(`/group/delete-group/${currentGroup._id}`);
-        alert("Group deleted successfully");
+        // alert("Group deleted successfully");
+        setAlertConfig({
+          message: "Group deleted successfully",
+          type: "success",
+          visibility: true,
+        });
         setShowModalDelete(false);
         setCurrentGroup(null);
-        window.location.reload();
       } catch (error) {
         console.error("Error deleting group:", error);
       }
@@ -188,40 +293,59 @@ const Group = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    const isValid = validateForm();
+
     try {
-      await api.put(
-        `/group/update-group/${currentUpdateGroup._id}`,
-        updateFormData
-      );
-      setShowModalUpdate(false);
-      alert("Group Updated Successfully");
-      window.location.reload();
+      if (isValid) {
+        await api.put(
+          `/group/update-group/${currentUpdateGroup._id}`,
+          updateFormData
+        );
+        setShowModalUpdate(false);
+        // alert("Group Updated Successfully");
+        setAlertConfig({
+          message: "Group updated successfully",
+          type: "success",
+          visibility: true,
+        });
+
+        //
+      }
     } catch (error) {
       console.error("Error updating group:", error);
     }
   };
 
   const columns = [
-    { key: 'id', header: 'SL. NO' },
-    { key: 'name', header: 'Group Name' },
-    { key: 'type', header: 'Group Type' },
-    { key: 'value', header: 'Group Value' },
-    { key: 'installment', header: 'Group Installment' },
-    { key: 'members', header: 'Group Members' },
-    { key: 'action', header: 'Action' },
+    { key: "id", header: "SL. NO" },
+    { key: "name", header: "Group Name" },
+    { key: "type", header: "Group Type" },
+    { key: "value", header: "Group Value" },
+    { key: "installment", header: "Group Installment" },
+    { key: "members", header: "Group Members" },
+    { key: "action", header: "Action" },
   ];
 
   return (
     <>
       <div>
+        <CustomAlert
+          type={alertConfig.type}
+          isVisible={alertConfig.visibility}
+          message={alertConfig.message}
+        />
         <div className="flex mt-20">
           <Sidebar />
+
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
                 <h1 className="text-2xl font-semibold">Groups</h1>
                 <button
-                  onClick={() => setShowModal(true)}
+                  onClick={() => {
+                    setShowModal(true);
+                    setErrors({});
+                  }}
                   className="ml-4 bg-blue-700 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
                   + Add Group
@@ -229,7 +353,17 @@ const Group = () => {
               </div>
             </div>
 
-            <DataTable data={TableGroups} columns={columns} />
+            <DataTable
+              data={TableGroups}
+              columns={columns}
+              exportedFileName={`Groups-${
+                TableGroups.length > 0
+                  ? TableGroups[0].name +
+                    " to " +
+                    TableGroups[TableGroups.length - 1].name
+                  : "empty"
+              }.csv`}
+            />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {/* {filteredGroups.length === 0 ? (
@@ -281,14 +415,13 @@ const Group = () => {
                   </div>
                 ))
               )} */}
-
             </div>
           </div>
         </div>
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">Add Group</h3>
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -306,6 +439,11 @@ const Group = () => {
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
+                {errors.group_name && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.group_name}
+                  </p>
+                )}
               </div>
               <div className="w-full">
                 <label
@@ -326,6 +464,11 @@ const Group = () => {
                   <option value="divident">Divident Group</option>
                   <option value="double">Double Group</option>
                 </select>
+                {errors.group_type && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.group_type}
+                  </p>
+                )}
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -345,6 +488,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.group_value && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_value}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -363,6 +511,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.group_install && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_install}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -383,6 +536,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.group_members && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_members}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -401,6 +559,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.group_duration && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_duration}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -421,6 +584,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.reg_fee && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.reg_fee}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -441,6 +609,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.start_date && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.start_date}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -459,6 +632,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.end_date && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.end_date}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -479,6 +657,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.minimum_bid && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.minimum_bid}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -497,6 +680,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.maximum_bid && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.maximum_bid}
+                    </p>
+                  )}
                 </div>
               </div>
               <button
@@ -517,7 +705,7 @@ const Group = () => {
             <h3 className="mb-4 text-xl font-bold text-gray-900">
               Update Group
             </h3>
-            <form className="space-y-6" onSubmit={handleUpdate}>
+            <form className="space-y-6" onSubmit={handleUpdate} noValidate>
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -535,6 +723,11 @@ const Group = () => {
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
+                {errors.group_name && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.group_name}
+                  </p>
+                )}
               </div>
               <div className="w-full">
                 <label
@@ -555,6 +748,11 @@ const Group = () => {
                   <option value="divident">Dividend Group</option>
                   <option value="double">Double Group</option>
                 </select>
+                {errors.group_type && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.group_type}
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-row justify-between space-x-4">
@@ -566,7 +764,7 @@ const Group = () => {
                     Group Value
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="group_value"
                     value={updateFormData.group_value}
                     onChange={handleInputChange}
@@ -575,6 +773,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.group_value && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_value}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -584,7 +787,7 @@ const Group = () => {
                     Group Installment Amount
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="group_install"
                     value={updateFormData.group_install}
                     onChange={handleInputChange}
@@ -593,6 +796,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.group_install && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_install}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -604,7 +812,7 @@ const Group = () => {
                     Group Members
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="group_members"
                     value={updateFormData.group_members}
                     onChange={handleInputChange}
@@ -613,6 +821,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.group_members && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_members}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -622,7 +835,7 @@ const Group = () => {
                     Group Duration
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="group_duration"
                     value={updateFormData.group_duration}
                     onChange={handleInputChange}
@@ -631,6 +844,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.group_duration && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.group_duration}
+                    </p>
+                  )}
                 </div>
               </div>
               <div>
@@ -641,7 +859,7 @@ const Group = () => {
                   Registration Fee
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   name="reg_fee"
                   value={updateFormData.reg_fee}
                   onChange={handleInputChange}
@@ -650,6 +868,9 @@ const Group = () => {
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
+                {errors.reg_fee && (
+                  <p className="text-red-500 text-sm mt-1">{errors.reg_fee}</p>
+                )}
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -669,6 +890,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.start_date && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.start_date}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -687,6 +913,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.end_date && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.end_date}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -698,7 +929,7 @@ const Group = () => {
                     Minimum Bid %
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="minimum_bid"
                     value={updateFormData.minimum_bid}
                     onChange={handleInputChange}
@@ -707,6 +938,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.minimum_bid && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.minimum_bid}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -716,7 +952,7 @@ const Group = () => {
                     Maximum Bid %
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     name="maximum_bid"
                     value={updateFormData.maximum_bid}
                     onChange={handleInputChange}
@@ -725,6 +961,11 @@ const Group = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.maximum_bid && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.maximum_bid}
+                    </p>
+                  )}
                 </div>
               </div>
               <button

@@ -1,17 +1,18 @@
-import React from 'react'
-import Sidebar from '../components/layouts/Sidebar'
-import SettingSidebar from '../components/layouts/SettingSidebar'
+import React from "react";
+import SettingSidebar from "../components/layouts/SettingSidebar";
+import { Outlet } from "react-router-dom";
 
 const LeadSetting = () => {
-    return (
-        <>
-            <div>
-                <div className="flex mt-20">
-                    <SettingSidebar />
-                </div>
-            </div>
-        </>
-    )
-}
+  return (
+    <>
+      <div>
+        <div className="flex mt-20">
+          <SettingSidebar />
+          <Outlet />
+        </div>
+      </div>
+    </>
+  );
+};
 
-export default LeadSetting
+export default LeadSetting;

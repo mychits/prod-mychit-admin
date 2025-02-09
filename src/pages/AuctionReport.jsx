@@ -337,7 +337,15 @@ const AuctionReport = () => {
                             </div>
                             <div className="">
                                 {filteredAuction && filteredAuction.length > 0 ? (
-                                    <DataTable data={TableAuctions} columns={columns} />
+                                    <DataTable data={TableAuctions} columns={columns}
+                                    exportedFileName={`Auctions-${
+                                        TableAuctions.length > 0
+                                          ? TableAuctions[0].name +
+                                            " to " +
+                                            TableAuctions[TableAuctions.length - 1].name
+                                          : "empty"
+                                      }.csv`} 
+                                     />
                                 ) : (
                                     <p className="text-center text-gray-500">No auctions are present</p>
                                 )}

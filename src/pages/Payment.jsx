@@ -12,9 +12,9 @@ import url from "../data/Url";
 import DataTable from "../components/layouts/Datatable";
 import { Printer } from "lucide-react";
 import { BiPrinter } from "react-icons/bi";
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import CustomAlert from "../components/alerts/CustomAlert";
 const Payment = () => {
   const [groups, setGroups] = useState([]);
   const [actualGroups, setActualGroups] = useState([]);
@@ -35,8 +35,16 @@ const Payment = () => {
   const [receiptNo, setReceiptNo] = useState("");
   const [paymentMode, setPaymentMode] = useState("cash");
   const today = new Date().toISOString().split("T")[0];
-  const [EnrollGroupId, setEnrollGroupId] = useState({ groupId: "", ticket: "" });
-
+  const [alertConfig, setAlertConfig] = useState({
+    visibility: false,
+    message: "Something went wrong!",
+    type: "info",
+  });
+  const [EnrollGroupId, setEnrollGroupId] = useState({
+    groupId: "",
+    ticket: "",
+  });
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     group_id: "",
     user_id: "",
@@ -51,18 +59,17 @@ const Payment = () => {
   const handleModalClose = () => setShowUploadModal(false);
 
   const handlePrint = async (id) => {
-    const receiptElement = document.getElementById('receipt');
+    const receiptElement = document.getElementById("receipt");
     const canvas = await html2canvas(receiptElement);
-    const imgData = canvas.toDataURL('image/png');
+    const imgData = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF('portrait', 'mm', 'a4');
+    const pdf = new jsPDF("portrait", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
-    pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
+    pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
     pdf.save(`Receipt_${id}.pdf`);
   };
-
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -112,12 +119,48 @@ const Payment = () => {
     }
   }, [receiptNo]);
 
+  const validateForm = () => {
+    const newErrors = {};
+    const today = new Date().toISOString().split("T")[0];
+
+    // Customer validation
+    if (!selectedGroupId) {
+      newErrors.customer = "Please select a customer";
+    }
+
+    // Group & Ticket validation
+    if (!formData.group_id || !formData.ticket) {
+      newErrors.group_ticket = "Please select a group and ticket";
+    }
+
+    // Payment Date validation
+    if (!formData.pay_date) {
+      newErrors.pay_date = "Payment date is required";
+    }
+
+    // Amount validation
+    const amount = parseFloat(formData.amount);
+    if (isNaN(amount) || amount <= 0) {
+      newErrors.amount = "Please enter a valid positive amount";
+    }
+
+    // Transaction ID validation
+    if (paymentMode === "online" && !formData.transaction_id?.trim()) {
+      newErrors.transaction_id =
+        "Transaction ID is required for online payments";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+    setErrors((prevData) => ({ ...prevData, [name]: "" }));
   };
 
   const handleChangeUser = (e) => {
@@ -128,6 +171,7 @@ const Payment = () => {
       group_id,
       ticket,
     }));
+    setErrors((prevData) => ({ ...prevData, group_ticket: "" }));
   };
 
   const handleGroupChange = async (groupId) => {
@@ -151,16 +195,16 @@ const Payment = () => {
   };
 
   const columns = [
-    { key: 'id', header: 'SL. NO' },
-    { key: 'name', header: 'Customer Name' },
-    { key: 'phone_number', header: 'Customer Phone Number' },
-    { key: 'ticket', header: 'Ticket Number' },
-    { key: 'old_receipt', header: 'Old Receipt' },
-    { key: 'receipt', header: 'Receipt' },
-    { key: 'amount', header: 'Amount' },
-    { key: 'date', header: 'Paid Date' },
-    { key: 'collected_by', header: 'Collected By' },
-    { key: 'action', header: 'Action' },
+    { key: "id", header: "SL. NO" },
+    { key: "name", header: "Customer Name" },
+    { key: "phone_number", header: "Customer Phone Number" },
+    { key: "ticket", header: "Ticket Number" },
+    { key: "old_receipt", header: "Old Receipt" },
+    { key: "receipt", header: "Receipt" },
+    { key: "amount", header: "Amount" },
+    { key: "date", header: "Paid Date" },
+    { key: "collected_by", header: "Collected By" },
+    { key: "action", header: "Action" },
   ];
 
   const handleGroup = async (event) => {
@@ -170,9 +214,10 @@ const Payment = () => {
       ...prevFormData,
       user_id: groupId,
     }));
+    setErrors((prevData) => ({ ...prevData, customer: "" }));
 
     handleGroupChange(groupId);
-    handleGroupAuctionChange(groupId)
+    handleGroupAuctionChange(groupId);
 
     if (groupId) {
       try {
@@ -196,8 +241,8 @@ const Payment = () => {
 
   const formatPayDate = (dateString) => {
     const date = new Date(dateString);
-    const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
+    const options = { day: "numeric", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-US", options);
   };
 
   const handleGroupPaymentChange = async (groupId) => {
@@ -232,9 +277,9 @@ const Payment = () => {
                   <MdDelete color="red" />
                 </button>
               </div>
-            )
+            ),
           }));
-          setTablePayments(formattedData)
+          setTablePayments(formattedData);
         } else {
           setFilteredAuction([]);
         }
@@ -282,12 +327,19 @@ const Payment = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const isValid = validateForm();
+
     try {
-      const response = await api.post("/payment/add-payment", formData);
-      if (response.status === 201) {
-        alert("Payment Added Successfully");
-        window.location.reload();
-        setShowModal(false);
+      if (isValid) {
+        const response = await api.post("/payment/add-payment", formData);
+        if (response.status === 201) {
+          setShowModal(false);
+          setAlertConfig({
+            visibility: true,
+            message: "Payment Added Successfully",
+            type: "success",
+          });
+        }
       }
     } catch (error) {
       console.error("Error submitting payment data:", error);
@@ -308,10 +360,14 @@ const Payment = () => {
     if (currentGroup) {
       try {
         await api.delete(`/payment/delete-payment/${currentGroup._id}`);
-        alert("Payment deleted successfully");
+
         setShowModalDelete(false);
         setCurrentGroup(null);
-        window.location.reload();
+        setAlertConfig({
+          visibility: true,
+          message: "Payment deleted successfully",
+          type: "success",
+        });
       } catch (error) {
         console.error("Error deleting auction:", error);
       }
@@ -347,27 +403,40 @@ const Payment = () => {
         });
 
         if (response.status === 200) {
-          alert("File uploaded successfully!");
-          window.location.reload();
           setShowUploadModal(false);
+          setAlertConfig({
+            visibility: true,
+            message: "File uploaded successfully!",
+            type: "success",
+          });
         }
       } catch (error) {
         console.error("Error uploading file:", error);
-        alert("Failed to upload file.");
+
+        setAlertConfig({
+          visibility: true,
+          message: "Failed to upload file.",
+          type: "success",
+        });
       }
     } else {
-      alert("Please select a file to upload.");
+      setAlertConfig({
+        visibility: true,
+        message: "Please select a file to upload.",
+        type: "success",
+      });
     }
   };
 
   const handleGroupAuctionChange = async (groupId) => {
     if (groupId) {
       try {
-        const response = await api.post(`/enroll/get-user-tickets-report/${groupId}`);
+        const response = await api.post(
+          `/enroll/get-user-tickets-report/${groupId}`
+        );
         if (response.data && response.data.length > 0) {
-          const validAuctions = response.data.filter(auction =>
-            auction.enrollment &&
-            auction.enrollment.group
+          const validAuctions = response.data.filter(
+            (auction) => auction.enrollment && auction.enrollment.group
           );
           setFilteredAuction(validAuctions);
         } else {
@@ -387,6 +456,11 @@ const Payment = () => {
       <div>
         <div className="flex mt-20">
           <Sidebar />
+          <CustomAlert
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+          />
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold">Payments</h1>
             <div className="mt-6 mb-8">
@@ -432,23 +506,28 @@ const Payment = () => {
                 formData={formData}
                 filteredAuction={filteredAuction}
               />
-              {
-                TablePayments && TablePayments.length > 0 ? (
-                  <DataTable data={TablePayments} columns={columns} />
-                ) : (
-                  <div className="mt-10 text-center text-gray-500">
-                    No Data Available
-                  </div>
-                )
-              }
+              {TablePayments && TablePayments.length > 0 ? (
+                <DataTable data={TablePayments} columns={columns} />
+              ) : (
+                <div className="mt-10 text-center text-gray-500">
+                  No Data Available
+                </div>
+              )}
             </div>
           </div>
-          <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
+
+          <Modal
+            isVisible={showModal}
+            onClose={() => {
+              setShowModal(false);
+              setErrors({});
+            }}
+          >
             <div className="py-6 px-5 lg:px-8 text-left">
               <h3 className="mb-4 text-xl font-bold text-gray-900">
                 Add Payment
               </h3>
-              <form className="space-y-6" onSubmit={handleSubmit}>
+              <form className="space-y-6" onSubmit={handleSubmit} noValidate>
                 <div className="w-full">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -468,6 +547,11 @@ const Payment = () => {
                       </option>
                     ))}
                   </select>
+                  {errors.customer && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.customer}
+                    </p>
+                  )}
                 </div>
                 <div className="w-full">
                   <label
@@ -493,11 +577,17 @@ const Payment = () => {
                           key={group.enrollment.group._id}
                           value={`${group.enrollment.group._id}|${group.enrollment.tickets}`}
                         >
-                          {group.enrollment.group.group_name} | {group.enrollment.tickets}
+                          {group.enrollment.group.group_name} |{" "}
+                          {group.enrollment.tickets}
                         </option>
                       );
                     })}
                   </select>
+                  {errors.group_ticket && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.group_ticket}
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
                   <div className="w-1/2">
@@ -533,6 +623,12 @@ const Payment = () => {
                       placeholder=""
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+
+                    {errors.pay_date && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.pay_date}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
@@ -544,7 +640,7 @@ const Payment = () => {
                       Amount
                     </label>
                     <input
-                      type="text"
+                      type="number"
                       name="amount"
                       value={formData.amount}
                       id="amount"
@@ -553,6 +649,12 @@ const Payment = () => {
                       required
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+
+                    {errors.amount && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.amount}
+                      </p>
+                    )}
                   </div>
                   <div className="w-1/2">
                     <label
@@ -589,6 +691,11 @@ const Payment = () => {
                       placeholder="Enter Transaction ID"
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                    {errors.transaction_id && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.transaction_id}
+                      </p>
+                    )}
                   </div>
                 )}
                 <button
@@ -609,7 +716,7 @@ const Payment = () => {
               <h3 className="mb-4 text-xl font-bold text-gray-900">
                 View Auction
               </h3>
-              <form className="space-y-6" onSubmit={() => { }}>
+              <form className="space-y-6" onSubmit={() => {}} noValidate>
                 <div>
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -621,7 +728,7 @@ const Payment = () => {
                     type="text"
                     name="group_id"
                     value={currentUpdateGroup?.group_id?.group_name}
-                    onChange={() => { }}
+                    onChange={() => {}}
                     id="name"
                     placeholder="Enter the Group Name"
                     readOnly
@@ -675,7 +782,7 @@ const Payment = () => {
                     type="text"
                     name="group_id"
                     value={`${currentUpdateGroup?.user_id?.full_name} | ${currentUpdateGroup?.ticket}`}
-                    onChange={() => { }}
+                    onChange={() => {}}
                     id="name"
                     placeholder="Enter the User Name"
                     readOnly
@@ -697,7 +804,7 @@ const Payment = () => {
                       currentUpdateGroup?.group_id?.group_value -
                       currentUpdateGroup?.win_amount
                     }
-                    onChange={() => { }}
+                    onChange={() => {}}
                     id="name"
                     placeholder="Enter the Bid Amount"
                     readOnly
@@ -805,7 +912,7 @@ const Payment = () => {
                       type="date"
                       name="auction_date"
                       value={currentUpdateGroup?.auction_date}
-                      onChange={() => { }}
+                      onChange={() => {}}
                       id="date"
                       placeholder="Enter the Date"
                       readOnly
@@ -823,7 +930,7 @@ const Payment = () => {
                       type="date"
                       name="next_date"
                       value={currentUpdateGroup?.next_date}
-                      onChange={() => { }}
+                      onChange={() => {}}
                       id="date"
                       placeholder="Enter the Date"
                       readOnly
@@ -879,34 +986,42 @@ function ReceiptButton() {
       <div
         id="receipt"
         style={{
-          width: '210mm',
-          height: '297mm',
-          padding: '20mm',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
+          width: "210mm",
+          height: "297mm",
+          padding: "20mm",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
         }}
       >
         {/* Top Half */}
-        <div style={{ borderBottom: '1px solid black', height: '50%' }}>
+        <div style={{ borderBottom: "1px solid black", height: "50%" }}>
           <h2>Receipt - Part 1</h2>
           <p>Details for the first part...</p>
-          <p><strong>Amount:</strong> $123.45</p>
-          <p><strong>Date:</strong> 01/22/2025</p>
+          <p>
+            <strong>Amount:</strong> $123.45
+          </p>
+          <p>
+            <strong>Date:</strong> 01/22/2025
+          </p>
         </div>
 
         {/* Bottom Half */}
-        <div style={{ height: '50%' }}>
+        <div style={{ height: "50%" }}>
           <h2>Receipt - Part 2</h2>
           <p>Details for the second part...</p>
-          <p><strong>Amount:</strong> $123.45</p>
-          <p><strong>Date:</strong> 01/22/2025</p>
+          <p>
+            <strong>Amount:</strong> $123.45
+          </p>
+          <p>
+            <strong>Date:</strong> 01/22/2025
+          </p>
         </div>
       </div>
 
       {/* Button to Generate PDF */}
       <button
-        onClick={() => handleUpdateModalOpen('example-id')}
+        onClick={() => handleUpdateModalOpen("example-id")}
         className="border border-blue-400 text-white px-4 py-2 rounded-md shadow hover:border-blue-700 transition duration-200"
       >
         <BiPrinter color="blue" />

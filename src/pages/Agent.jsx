@@ -7,7 +7,7 @@ import Modal from "../components/modals/Modal";
 import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-
+import CustomAlert from "../components/alerts/CustomAlert";
 const Agent = () => {
   const [users, setUsers] = useState([]);
   const [TableAgents, setTableAgents] = useState([]);
@@ -17,7 +17,12 @@ const Agent = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUpdateUser, setCurrentUpdateUser] = useState(null);
-
+  const [errors, setErrors] = useState({});
+  const [alertConfig, setAlertConfig] = useState({
+    visibility: false,
+    message: "Something went wrong!",
+    type: "info",
+  });
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -46,37 +51,122 @@ const Agent = () => {
       ...prevData,
       [name]: value,
     }));
+    setErrors((prevData) => ({
+      ...prevData,
+      [name]: "",
+    }));
+  };
+  const validateForm = (type) => {
+    const newErrors = {};
+    const data = type === "addEmployee" ? formData : updateFormData;
+    const regex = {
+      email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      phone: /^[6-9]\d{9}$/,
+      password:
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{5,}$/,
+      pincode: /^\d{6}$/,
+      aadhaar: /^\d{12}$/,
+      pan: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+    };
+
+    if (!data.name.trim()) {
+      newErrors.name = "Full Name is required";
+    }
+
+    if (!data.email) {
+      newErrors.email = "Email is required";
+    } else if (!regex.email.test(data.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    if (!data.phone_number) {
+      newErrors.phone_number = "Phone number is required";
+    } else if (!regex.phone.test(data.phone_number)) {
+      newErrors.phone_number = "Invalid  phone number";
+    }
+
+    if (!data.password) {
+      newErrors.password = "Password is required";
+    } else if (!regex.password.test(data.password)) {
+      newErrors.password =
+        "Password must contain at least 5 characters, one uppercase, one lowercase, one number, and one special character";
+    }
+
+    if (!data.pincode) {
+      newErrors.pincode = "Pincode is required";
+    } else if (!regex.pincode.test(data.pincode)) {
+      newErrors.pincode = "Invalid pincode (6 digits required)";
+    }
+
+    if (!data.adhaar_no) {
+      newErrors.adhaar_no = "Aadhaar number is required";
+    } else if (!regex.aadhaar.test(data.adhaar_no)) {
+      newErrors.adhaar_no = "Invalid Aadhaar number (12 digits required)";
+    }
+
+    if (!data.pan_no) {
+      newErrors.pan_no = "PAN number is required";
+    } else if (!regex.pan.test(data.pan_no.toUpperCase())) {
+      newErrors.pan_no = "Invalid PAN format (e.g., ABCDE1234F)";
+    }
+
+    if (!data.address.trim()) {
+      newErrors.address = "Address is required";
+    } else if (data.address.trim().length < 10) {
+      newErrors.address = "Address should be at least 10 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const isValidate = validateForm("addEmployee");
 
     try {
-      const response = await api.post("/agent/add-agent", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      window.location.reload();
-      alert("Agent Added Successfully");
+      if (isValidate) {
+        const response = await api.post("/agent/add-agent", formData, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
-      setShowModal(false);
-      setFormData({
-        name: "",
-        email: "",
-        phone_number: "",
-        password: "",
-        address: "",
-        pincode: "",
-        adhaar_no: "",
-        pan_no: "",
-      });
+        setShowModal(false);
+        setFormData({
+          name: "",
+          email: "",
+          phone_number: "",
+          password: "",
+          address: "",
+          pincode: "",
+          adhaar_no: "",
+          pan_no: "",
+        });
+        setAlertConfig({
+          visibility: true,
+          message: "Agent Added Successfully",
+          type: "success",
+        });
+      }
     } catch (error) {
       console.error("Error adding agent:", error);
-      if (error.response && error.response.data && error.response.data.message) {
-        alert(error.response.data.message);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setAlertConfig({
+          visibility: true,
+          message: `${error.response.data.message}`,
+          type: "error",
+        });
       } else {
-        alert("An unexpected error occurred. Please try again.");
+        setAlertConfig({
+          visibility: true,
+          message: "An unexpected error occurred. Please try again.",
+          type: "error",
+        });
       }
     }
   };
@@ -106,9 +196,9 @@ const Agent = () => {
                 <MdDelete color="red" />
               </button>
             </div>
-          )
+          ),
         }));
-        setTableAgents(formattedData)
+        setTableAgents(formattedData);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -117,11 +207,11 @@ const Agent = () => {
   }, []);
 
   const columns = [
-    { key: 'id', header: 'SL. NO' },
-    { key: 'name', header: 'Agent Name' },
-    { key: 'phone_number', header: 'Agent Phone Number' },
-    { key: 'password', header: 'Agent Password' },
-    { key: 'action', header: 'Action' },
+    { key: "id", header: "SL. NO" },
+    { key: "name", header: "Agent Name" },
+    { key: "phone_number", header: "Agent Phone Number" },
+    { key: "password", header: "Agent Password" },
+    { key: "action", header: "Action" },
   ];
 
   const filteredUsers = users.filter((user) =>
@@ -133,6 +223,7 @@ const Agent = () => {
       const response = await api.get(`/agent/get-agent-by-id/${userId}`);
       setCurrentUser(response.data);
       setShowModalDelete(true);
+      setErrors({});
     } catch (error) {
       console.error("Error fetching user:", error);
     }
@@ -153,6 +244,7 @@ const Agent = () => {
         address: response.data.address,
       });
       setShowModalUpdate(true);
+      setErrors({});
     } catch (error) {
       console.error("Error fetching user:", error);
     }
@@ -170,10 +262,13 @@ const Agent = () => {
     if (currentUser) {
       try {
         await api.delete(`/agent/delete-agent/${currentUser._id}`);
-        alert("Agent deleted successfully");
         setShowModalDelete(false);
         setCurrentUser(null);
-        window.location.reload();
+        setAlertConfig({
+          visibility: true,
+          message: "Agent deleted successfully",
+          type: "success",
+        });
       } catch (error) {
         console.error("Error deleting user:", error);
       }
@@ -182,43 +277,79 @@ const Agent = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    const isValid = validateForm();
     try {
-      const response = await api.put(
-        `/agent/update-agent/${currentUpdateUser._id}`,
-        updateFormData
-      );
-      setShowModalUpdate(false);
-      alert("Agent Updated Successfully");
-      window.location.reload();
+      if (isValid) {
+        const response = await api.put(
+          `/agent/update-agent/${currentUpdateUser._id}`,
+          updateFormData
+        );
+        setShowModalUpdate(false);
+        setAlertConfig({
+          visibility: true,
+          message: "Agent Updated Successfully",
+          type: "success",
+        });
+      }
     } catch (error) {
       console.error("Error updating agent:", error);
-      if (error.response && error.response.data && error.response.data.message) {
-        alert(error.response.data.message);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setAlertConfig({
+          visibility: true,
+          message: `${error.response.data.message}`,
+          type: "error",
+        });
       } else {
-        alert("An unexpected error occurred. Please try again.");
+        setAlertConfig({
+          visibility: true,
+          message: "An unexpected error occurred. Please try again.",
+          type: "error",
+        });
       }
     }
   };
-
 
   return (
     <>
       <div>
         <div className="flex mt-20">
           <Sidebar />
+          <CustomAlert
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+          />
+
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
                 <h1 className="text-2xl font-semibold">Employees</h1>
                 <button
-                  onClick={() => setShowModal(true)}
+                  onClick={() => {
+                    setShowModal(true);
+                    setErrors({});
+                  }}
                   className="ml-4 bg-blue-700 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
                   + Add Employee
                 </button>
               </div>
             </div>
-            <DataTable data={TableAgents} columns={columns} />
+            <DataTable
+              data={TableAgents}
+              columns={columns}
+              exportedFileName={`Employees-${
+                TableAgents.length > 0
+                  ? TableAgents[0].name +
+                    " to " +
+                    TableAgents[TableAgents.length - 1].name
+                  : "empty"
+              }.csv`}
+            />
             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {filteredUsers.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
@@ -279,7 +410,7 @@ const Agent = () => {
             <h3 className="mb-4 text-xl font-bold text-gray-900">
               Add Employee
             </h3>
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -297,6 +428,9 @@ const Agent = () => {
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
+                {errors.name && (
+                  <p className="mt-2 text-sm text-red-600">{errors.name}</p>
+                )}
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -316,6 +450,9 @@ const Agent = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.email && (
+                    <p className="mt-2 text-sm text-red-600">{errors.email}</p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -334,6 +471,11 @@ const Agent = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.phone_number && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.phone_number}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -354,6 +496,11 @@ const Agent = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.password && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.password}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -372,6 +519,11 @@ const Agent = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.pincode && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.pincode}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -392,6 +544,11 @@ const Agent = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.adhaar_no && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.adhaar_no}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -410,6 +567,9 @@ const Agent = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.pan_no && (
+                    <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
+                  )}
                 </div>
               </div>
               <div>
@@ -429,6 +589,9 @@ const Agent = () => {
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
+                {errors.address && (
+                  <p className="mt-2 text-sm text-red-600">{errors.address}</p>
+                )}
               </div>
               <button
                 type="submit"
@@ -448,7 +611,7 @@ const Agent = () => {
             <h3 className="mb-4 text-xl font-bold text-gray-900">
               Update Employee
             </h3>
-            <form className="space-y-6" onSubmit={handleUpdate}>
+            <form className="space-y-6" onSubmit={handleUpdate} noValidate>
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -466,6 +629,9 @@ const Agent = () => {
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
+                {errors.name && (
+                  <p className="mt-2 text-sm text-red-600">{errors.name}</p>
+                )}
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -485,6 +651,9 @@ const Agent = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.email && (
+                    <p className="mt-2 text-sm text-red-600">{errors.email}</p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -503,6 +672,11 @@ const Agent = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.phone_number && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.phone_number}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -523,6 +697,11 @@ const Agent = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.pincode && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.pincode}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -543,6 +722,11 @@ const Agent = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.adhaar_no && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.adhaar_no}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -561,6 +745,9 @@ const Agent = () => {
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                  {errors.pan_no && (
+                    <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
+                  )}
                 </div>
               </div>
               <div>
@@ -580,6 +767,9 @@ const Agent = () => {
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
+                {errors.address && (
+                  <p className="mt-2 text-sm text-red-600">{errors.address}</p>
+                )}
               </div>
               <button
                 type="submit"

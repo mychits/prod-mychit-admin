@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { BsArrowLeftShort, BsChevronDown } from "react-icons/bs";
 import { RiDashboardFill } from "react-icons/ri";
 import { SiGoogleanalytics } from "react-icons/si";
@@ -13,10 +13,24 @@ import { RiAuctionLine } from "react-icons/ri";
 import { FaPeopleArrows, FaLayerGroup, FaUserLock } from "react-icons/fa";
 import { GiGoldBar } from "react-icons/gi";
 import { IoPeopleOutline } from "react-icons/io5";
-
+import { TiSpanner } from "react-icons/ti";
+import { Link } from "react-router-dom";
+import { Fragment } from "react";
 const MenuSidebar = [
   { title: "Dashboard", icon: <RiDashboardFill />, link: "/dashboard" },
-  { title: "Analytics", icon: <SiGoogleanalytics />, link: "/analytics" },
+  {
+    title: "Analytics",
+    icon: <SiGoogleanalytics />,
+    link: "/analytics",
+  },
+  {
+    title: "General Section ",
+    spacing: true,
+    icon: <TiSpanner />,
+    submenu: true,
+    submenuItems: [{ title: "Groups", link: "general-section/groups" }],
+    // link: "/group",
+  },
   {
     title: "Leads",
     spacing: true,
@@ -24,7 +38,12 @@ const MenuSidebar = [
     link: "/lead",
   },
   { title: "Payments ", icon: <BsCash />, link: "/payment" },
-  { title: "Profile", spacing: true, icon: <CgProfile />, link: "/profile" },
+  {
+    title: "Profile",
+    spacing: true,
+    icon: <CgProfile />,
+    link: "/profile",
+  },
   { title: "Help & Support", icon: <IoIosHelpCircle />, link: "/help" },
 ];
 
@@ -81,6 +100,7 @@ const SettingSidebar = () => {
                     className={`text-base font-medium flex-1 ${
                       !open && "hidden"
                     } `}
+                    onClick={() => toggleSubMenu(index)}
                   >
                     {menu.title}
                   </span>
@@ -96,16 +116,16 @@ const SettingSidebar = () => {
                 <ul>
                   {menu.submenuItems.map((submenuItem, index) => (
                     <>
-                      <a href={submenuItem.link}>
+                      <Link to={submenuItem.link}>
                         <li
                           key={index}
-                          className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-slate-400 rounded-md ${
-                            menu.spacing ? "mt-9" : "mt-2"
+                          className={`text-gray-100 text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
+                            menu.spacing ? "mt-2" : "mt-2"
                           }`}
                         >
                           {submenuItem.title}
                         </li>
-                      </a>
+                      </Link>
                     </>
                   ))}
                 </ul>
