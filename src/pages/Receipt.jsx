@@ -191,6 +191,12 @@ const Receipt = () => {
     //     }
     // };
 
+    const formatPayDate = (dateString) => {
+        const date = new Date(dateString);
+        const options = { day: 'numeric', month: 'short', year: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    };
+
     useEffect(() => {
         const fetchPayments = async () => {
             try {
@@ -214,7 +220,7 @@ const Receipt = () => {
 
                     const formattedData = validPayments.map((group, index) => ({
                         id: index + 1,
-                        date: group.pay_date,
+                        date: formatPayDate(group.pay_date),
                         group: group.group_id.group_name,
                         name: group.user_id?.full_name,
                         phone_number: group.user_id.phone_number,

@@ -31,6 +31,7 @@ const UserReport = () => {
         const today = new Date();
         return today.toISOString().split("T")[0];
     });
+    const [totalAmount, setTotalAmount] = useState(0);
 
     const [groupPaidDate, setGroupPaidDate] = useState("");
     const [groupToBePaidDate, setGroupToBePaidDate] = useState("");
@@ -319,7 +320,7 @@ const UserReport = () => {
         const date = new Date(dateString);
         const options = { day: 'numeric', month: 'short', year: 'numeric' };
         return date.toLocaleDateString('en-US', options);
-      };
+    };
 
     useEffect(() => {
         const fetchEnroll = async () => {
@@ -340,6 +341,9 @@ const UserReport = () => {
                     const toBePaid = response.data;
                     setGroupToBePaid(toBePaid[0].totalToBePaidAmount);
 
+                    const totalAmount = response.data.reduce((sum, group) => sum + parseInt(group.amount), 0);
+                    setTotalAmount(totalAmount);
+
                     const formattedData = response.data.map((group, index) => ({
                         id: index + 1,
                         date: formatPayDate(group?.pay_date),
@@ -352,17 +356,20 @@ const UserReport = () => {
                 } else {
                     setFilteredUsers([]);
                     setTableEnrolls([]);
+                    setTotalAmount(0);
                 }
             } catch (error) {
                 console.error("Error fetching enrollment data:", error);
                 setFilteredUsers([]);
                 setTableEnrolls([]);
+                setTotalAmount(0);
             } finally {
                 setBasicLoading(false);
             }
         };
         fetchEnroll();
     }, [selectedGroup, EnrollGroupId.groupId, EnrollGroupId.ticket]);
+
 
     const Basiccolumns = [
         { key: 'id', header: 'SL. NO' },
@@ -686,7 +693,7 @@ const UserReport = () => {
                                                                 >
                                                                     <option value="">Select Group | Ticket</option>
                                                                     {filteredAuction.map((group) => {
-                                                                
+
                                                                         if (group?.enrollment?.group) {
                                                                             return (
                                                                                 <option
@@ -702,6 +709,16 @@ const UserReport = () => {
                                                                 </select>
                                                             </div>
                                                         </div>
+
+
+
+                                                        {TableEnrolls && TableEnrolls.length > 0 ? (
+                                                            <div className="mt-5">
+                                                                <p className="font-bold text-lg">Total Paid Amount: {totalAmount}</p>
+                                                            </div>
+                                                        ) : (
+                                                            ""
+                                                        )}
 
                                                         {TableEnrolls && TableEnrolls.length > 0 ? (
                                                             <div className="mt-10">
