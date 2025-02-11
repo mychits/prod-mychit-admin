@@ -98,7 +98,7 @@ const Auction = () => {
       newErrors.bid_amount = "Bid amount must be a positive number";
     } else if (
       groupInfo.group_value &&
-      formData.bid_amount > groupInfo.group_value
+      parseFloat(formData.bid_amount) > parseFloat(groupInfo.group_value)
     ) {
       newErrors.bid_amount = `Bid amount cannot exceed group value of ${groupInfo.group_value}`;
     }
