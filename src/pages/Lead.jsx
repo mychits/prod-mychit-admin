@@ -7,7 +7,6 @@ import Modal from "../components/modals/Modal";
 import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import { Edit, Trash2 } from "lucide-react";
 import CustomAlert from "../components/alerts/CustomAlert";
 
 const Lead = () => {
