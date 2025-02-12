@@ -94,11 +94,14 @@ const Auction = () => {
     // Bid Amount validation
     if (!formData.bid_amount) {
       newErrors.bid_amount = "Bid amount is required";
-    } else if (isNaN(formData.bid_amount) || formData.bid_amount <= 0) {
+    } else if (
+      isNaN(formData.bid_amount) ||
+      parseFloat(formData.bid_amount) <= 0
+    ) {
       newErrors.bid_amount = "Bid amount must be a positive number";
     } else if (
       groupInfo.group_value &&
-      formData.bid_amount > groupInfo.group_value
+      parseFloat(formData.bid_amount) > parseFloat(groupInfo.group_value)
     ) {
       newErrors.bid_amount = `Bid amount cannot exceed group value of ${groupInfo.group_value}`;
     }
@@ -110,9 +113,13 @@ const Auction = () => {
 
     if (!formData.next_date) {
       newErrors.next_date = "Next date is required";
+      console.log(formData.auction_type);
     } else if (formData.next_date < formData.auction_date) {
       newErrors.next_date = "Next date cannot be in the past";
-    } else if (formData.next_date === formData.auction_date) {
+    } else if (
+      formData.auction_type.toLowerCase() == "normal" &&
+      formData.next_date === formData.auction_date
+    ) {
       newErrors.next_date = "Next date must be after auction date";
     }
 
@@ -525,7 +532,7 @@ const Auction = () => {
                       Group Value
                     </label>
                     <input
-                      type="text"
+                      type="number"
                       name="group_value"
                       value={groupInfo.group_value || 0}
                       id="group_value"

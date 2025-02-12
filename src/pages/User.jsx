@@ -62,8 +62,6 @@ const User = () => {
     const regex = {
       email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
       phone: /^[6-9]\d{9}$/,
-      password:
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{5,}$/,
       pincode: /^\d{6}$/,
       aadhaar: /^\d{12}$/,
       pan: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
@@ -73,9 +71,10 @@ const User = () => {
       newErrors.full_name = "Full Name is required";
     }
 
-    if (!data.email) {
-      newErrors.email = "Email is required";
-    } else if (!regex.email.test(data.email)) {
+    // if (!data.email) {
+    //   newErrors.email = "Email is required";
+    // } else
+    if (data.email && !regex.email.test(data.email)) {
       newErrors.email = "Invalid email format";
     }
 
@@ -87,10 +86,11 @@ const User = () => {
 
     if (!data.password) {
       newErrors.password = "Password is required";
-    } else if (!regex.password.test(data.password)) {
-      newErrors.password =
-        "Password must contain at least 5 characters, one uppercase, one lowercase, one number, and one special character";
     }
+    // else if (!regex.password.test(data.password)) {
+    //   newErrors.password =
+    //     "Password must contain at least 5 characters, one uppercase, one lowercase, one number, and one special character";
+    // }
 
     if (!data.pincode) {
       newErrors.pincode = "Pincode is required";
@@ -103,17 +103,14 @@ const User = () => {
     } else if (!regex.aadhaar.test(data.adhaar_no)) {
       newErrors.adhaar_no = "Invalid Aadhaar number (12 digits required)";
     }
-
-    if (!data.pan_no) {
-      newErrors.pan_no = "PAN number is required";
-    } else if (!regex.pan.test(data.pan_no.toUpperCase())) {
+    if (data.pan_no && !regex.pan.test(data.pan_no.toUpperCase())) {
       newErrors.pan_no = "Invalid PAN format (e.g., ABCDE1234F)";
     }
 
     if (!data.address.trim()) {
       newErrors.address = "Address is required";
-    } else if (data.address.trim().length < 10) {
-      newErrors.address = "Address should be at least 10 characters";
+    } else if (data.address.trim().length < 3) {
+      newErrors.address = "Address should be at least 3 characters";
     }
 
     setErrors(newErrors);
