@@ -198,9 +198,14 @@ const Auction = () => {
   const formatPayDate = (dateString) => {
     const date = new Date(dateString);
     const options = { day: "numeric", month: "short", year: "numeric" };
-    return date.toLocaleDateString("en-US", options);
+    return date.toLocaleDateString("en-US", options).replace(",", " ");
   };
-
+  const prevDate = (dateString) => {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() - 10);
+    const options = { day: "numeric", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-US", options).replace(",", " ");
+  };
   const handleGroupAuctionChange = async (groupId) => {
     setSelectedAuctionGroup(groupId);
     if (groupId) {
@@ -211,29 +216,29 @@ const Auction = () => {
           const formattedData = [
             {
               id: 1,
-              date: formatPayDate(response?.data[0]?.group_id?.start_date),
+              date: prevDate(response?.data[0]?.auction_date),
               name: "Commencement",
               phone_number: "Commencement",
               ticket: "Commencement",
               bid_amount: 0,
               amount: 0,
               auction_type: "Commencement Auction",
-              action: (
-                <div className="flex justify-end gap-2">
-                  <button
-                    onClick={() => console.log("Custom View Action")}
-                    className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-                  >
-                    <EyeIcon color="green" />
-                  </button>
-                  <button
-                    onClick={() => console.log("Custom Delete Action")}
-                    className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-                  >
-                    <MdDelete color="red" />
-                  </button>
-                </div>
-              ),
+              // action: (
+              //   <div className="flex justify-end gap-2">
+              //     <button
+              //       onClick={() => console.log("Custom View Action")}
+              //       className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
+              //     >
+              //       <EyeIcon color="green" />
+              //     </button>
+              //     <button
+              //       onClick={() => console.log("Custom Delete Action")}
+              //       className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
+              //     >
+              //       <MdDelete color="red" />
+              //     </button>
+              //   </div>
+              // ),
             },
             ...response.data.map((group, index) => ({
               id: index + 2,
@@ -421,7 +426,17 @@ const Auction = () => {
                 )}
               </div>
               <div className="">
-                <DataTable data={TableAuctions} columns={columns} />
+                <DataTable
+                  data={TableAuctions}
+                  columns={columns}
+                  exportedFileName={`Auctions-${
+                    TableAuctions.length > 0
+                      ? TableAuctions[1].name +
+                        " to " +
+                        TableAuctions[TableAuctions.length - 1].name
+                      : "empty"
+                  }.csv`}
+                />
               </div>
               {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-6">
                 {filteredAuction.length === 0 ? (
