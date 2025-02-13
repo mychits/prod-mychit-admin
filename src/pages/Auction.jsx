@@ -417,7 +417,7 @@ const Auction = () => {
                   </button>
                 </div>
                 <p className="text-xl items-center mt-5"></p>
-                {filteredAuction[0]?.group_id?.group_type === "double" && (
+                {filteredAuction[0]?.group_id?.group_type === "double" && ( //
                   <>
                     <p className="text-xl items-center">
                       Balance: {double.amount}

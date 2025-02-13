@@ -47,6 +47,9 @@ const Navbar = () => {
             </button> */}
             <a
               href="/"
+              onClick={() => {
+                localStorage.clear();
+              }}
               className="hover:bg-primary text-primary font-semibold hover:text-white rounded-md border-2 border-primary px-6 py-2 duration-200 hidden md:block"
             >
               <IoIosLogOut size={20} />
