@@ -116,11 +116,6 @@ const Auction = () => {
       console.log(formData.auction_type);
     } else if (formData.next_date < formData.auction_date) {
       newErrors.next_date = "Next date cannot be in the past";
-    } else if (
-      formData.auction_type.toLowerCase() == "normal" &&
-      formData.next_date === formData.auction_date
-    ) {
-      newErrors.next_date = "Next date must be after auction date";
     }
 
     setErrors(newErrors);
