@@ -665,22 +665,13 @@ const UserReport = () => {
                                   <DataTable
                                     data={TableAuctions}
                                     columns={Auctioncolumns}
-<<<<<<< HEAD
-                                    exportedFileName={`Auctions-${TableAuctions.length > 0
-                                        ? TableAuctions[0].name +
-                                        " to " +
-                                        TableAuctions[
-                                          TableAuctions.length - 1
-                                        ].name
-=======
                                     exportedFileName={`Auctions-${
                                       TableAuctions.length > 0
-                                        ? TableAuctions[0].group +
+                                        ? TableAuctions[0].name +
                                           " to " +
                                           TableAuctions[
                                             TableAuctions.length - 1
-                                          ].group
->>>>>>> Rajath-dev
+                                          ].name
                                         : "empty"
                                       }.csv`}
                                   />
