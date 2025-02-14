@@ -353,9 +353,9 @@ const AuctionReport = () => {
                   <DataTable
                     data={TableAuctions}
                     columns={columns}
-                    exportedFileName={`Auctions-${
+                    exportedFileName={`AuctionsReport-${
                       TableAuctions.length > 0
-                        ? TableAuctions[0].name +
+                        ? TableAuctions[1].name +
                           " to " +
                           TableAuctions[TableAuctions.length - 1].name
                         : "empty"

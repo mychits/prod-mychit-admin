@@ -664,11 +664,11 @@ const UserReport = () => {
                                     columns={Auctioncolumns}
                                     exportedFileName={`Auctions-${
                                       TableAuctions.length > 0
-                                        ? TableAuctions[0].name +
+                                        ? TableAuctions[0].group +
                                           " to " +
                                           TableAuctions[
                                             TableAuctions.length - 1
-                                          ].name
+                                          ].group
                                         : "empty"
                                     }.csv`}
                                   />
