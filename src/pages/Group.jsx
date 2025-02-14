@@ -119,9 +119,12 @@ const Group = () => {
       newErrors.start_date = "Start Date is required";
     }
 
-    if (!data.end_date) {
+    if (formData.end_date && !data.end_date) {
       newErrors.end_date = "End Date is required";
-    } else if (new Date(data.end_date) < new Date(data.start_date)) {
+    } else if (
+      formData.end_date &&
+      new Date(data.end_date) < new Date(data.start_date)
+    ) {
       newErrors.end_date = "End Date cannot be earlier than Start Date";
     }
 

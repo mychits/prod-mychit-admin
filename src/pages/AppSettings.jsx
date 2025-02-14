@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 
-const GeneralSection = () => {
+const AppSettings = () => {
   return (
     <div className="w-full">
       <Outlet />
@@ -9,4 +9,4 @@ const GeneralSection = () => {
   );
 };
 
-export default GeneralSection;
+export default AppSettings;

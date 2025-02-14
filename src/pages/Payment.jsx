@@ -507,7 +507,17 @@ const Payment = () => {
                 filteredAuction={filteredAuction}
               />
               {TablePayments && TablePayments.length > 0 ? (
-                <DataTable data={TablePayments} columns={columns} />
+                <DataTable
+                  data={TablePayments}
+                  columns={columns}
+                  exportedFileName={`Payments-${
+                    TablePayments.length > 0
+                      ? TablePayments[0].name +
+                        " to " +
+                        TablePayments[TablePayments.length - 1].name
+                      : "empty"
+                  }.csv`}
+                />
               ) : (
                 <div className="mt-10 text-center text-gray-500">
                   No Data Available

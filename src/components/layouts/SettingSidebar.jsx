@@ -24,11 +24,11 @@ const MenuSidebar = [
     link: "/analytics",
   },
   {
-    title: "General Section ",
+    title: "App Settings ",
     spacing: true,
     icon: <TiSpanner />,
     submenu: true,
-    submenuItems: [{ title: "Groups", link: "general-section/groups" }],
+    submenuItems: [{ title: "Groups", link: "app-settings/groups" }],
     // link: "/group",
   },
   {

@@ -1,60 +1,243 @@
 import { Route, Routes, useLocation } from "react-router-dom";
-import Home from "./pages/Home";
+import React, { Suspense, lazy } from "react";
 import Navbar from "./components/layouts/Navbar";
-import Login from "./pages/Login";
-import Group from "./pages/Group";
-import User from "./pages/User";
-import Enroll from "./pages/Enroll";
-import Auction from "./pages/Auction";
-import Payment from "./pages/Payment";
-import WeekGroup from "./pages/WeekGroup";
-import Agent from "./pages/Agent";
-import Daybook from "./pages/Daybook";
-import Test from "./pages/Test";
-import Lead from "./pages/Lead";
-import LeadSetting from "./pages/LeadSetting";
-import Receipt from "./pages/Receipt";
-import GroupReport from "./pages/GroupReport";
-import UserReport from "./pages/UserReport";
-import Profile from "./pages/Profile";
-import AuctionReport from "./pages/AuctionReport";
-import Print from "./pages/Print";
-import GeneralSection from "./pages/GeneralSection";
-import GroupSettings from "./pages/GroupSettings";
-
+const Home = lazy(() => import("./pages/Home"));
+const Login = lazy(() => import("./pages/Login"));
+const Group = lazy(() => import("./pages/Group"));
+const User = lazy(() => import("./pages/User"));
+const Enroll = lazy(() => import("./pages/Enroll"));
+const Auction = lazy(() => import("./pages/Auction"));
+const Payment = lazy(() => import("./pages/Payment"));
+const WeekGroup = lazy(() => import("./pages/WeekGroup"));
+const Agent = lazy(() => import("./pages/Agent"));
+const Daybook = lazy(() => import("./pages/Daybook"));
+const Test = lazy(() => import("./pages/Test"));
+const Lead = lazy(() => import("./pages/Lead"));
+const LeadSetting = lazy(() => import("./pages/LeadSetting"));
+const Receipt = lazy(() => import("./pages/Receipt"));
+const GroupReport = lazy(() => import("./pages/GroupReport"));
+const UserReport = lazy(() => import("./pages/UserReport"));
+const Profile = lazy(() => import("./pages/Profile"));
+const AuctionReport = lazy(() => import("./pages/AuctionReport"));
+const Print = lazy(() => import("./pages/Print"));
+const AppSettings = lazy(() => import("./pages/AppSettings"));
+const GroupSettings = lazy(() => import("./pages/GroupSettings"));
+import ProtectedRoute from "./components/authentication/ProtectedRoute";
+import CircularLoader from "./components/loaders/CircularLoader";
 function App() {
   const location = useLocation();
-
   return (
-    <div className="overflow-x-hidden">
-      {location.pathname !== "/" && <Navbar />}
-      <Routes>
-        <Route path="/dashboard" element={<Home />} />
-        <Route path="/group" element={<Group />} />
-        <Route path="/week-group" element={<WeekGroup />} />
-        <Route path="/user" element={<User />} />
-        <Route path="/enrollment" element={<Enroll />} />
-        <Route path="/auction" element={<Auction />} />
-        <Route path="/payment" element={<Payment />} />
-        <Route path="/agent" element={<Agent />} />
-        <Route path="/daybook" element={<Daybook />} />
-        <Route path="/lead" element={<Lead />} />
-        <Route path="/" element={<Login />} />
-        <Route path="/lead-setting" element={<LeadSetting />}>
-          <Route path="general-section" element={<GeneralSection />}>
-            <Route path="groups" element={<GroupSettings />} />
-            <Route />
-          </Route>
-        </Route>
-        <Route path="/receipt" element={<Receipt />} />
-        <Route path="/group-report" element={<GroupReport />} />
-        <Route path="/user-report" element={<UserReport />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/auction-report" element={<AuctionReport />} />
-        <Route path="/print/:id" element={<Print />} />
-        <Route path="/test" element={<Test />} />
-      </Routes>
-    </div>
+    <>
+      <div className="overflow-x-hidden">
+        <Suspense fallback={<CircularLoader seconds={30} />}>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/group"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Group />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/week-group"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <WeekGroup />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/user"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <User />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/enrollment"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Enroll />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/auction"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Auction />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payment"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Payment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/agent"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Agent />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/daybook"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Daybook />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/lead"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Lead />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/"
+              element={
+                <>
+                  <Login />
+                </>
+              }
+            />
+            <Route
+              path="/lead-setting"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <LeadSetting />
+                </ProtectedRoute>
+              }
+            >
+              <Route
+                path="app-settings"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <AppSettings />
+                  </ProtectedRoute>
+                }
+              >
+                <Route
+                  path="groups"
+                  element={
+                    <ProtectedRoute>
+                      <Navbar />
+                      <GroupSettings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route />
+              </Route>
+            </Route>
+            <Route
+              path="/receipt"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Receipt />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/group-report"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <GroupReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user-report"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <UserReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/auction-report"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <AuctionReport />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/print/:id"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Print />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/test"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Test />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Suspense>
+      </div>
+    </>
   );
 }
 

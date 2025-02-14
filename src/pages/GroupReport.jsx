@@ -647,7 +647,7 @@ const GroupReport = () => {
                                   <DataTable
                                     data={TableAuctions}
                                     columns={Auctioncolumns}
-                                    exportedFileName={`Auctions-${
+                                    exportedFileName={`GroupReport-${
                                       TableAuctions.length > 0
                                         ? TableAuctions[0].name +
                                           " to " +
@@ -945,7 +945,9 @@ const GroupReport = () => {
                                 TableEnrollsDate.length > 0
                                   ? TableEnrollsDate[0].name +
                                     " to " +
-                                    TableEnrollsDate[TableEnrollsDate.length - 1].name
+                                    TableEnrollsDate[
+                                      TableEnrollsDate.length - 1
+                                    ].name
                                   : "empty"
                               }.csv`}
                             />
