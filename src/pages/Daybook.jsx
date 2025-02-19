@@ -10,6 +10,7 @@ import UploadModal from "../components/modals/UploadModal";
 import axios from "axios";
 import url from "../data/Url";
 import DataTable from "../components/layouts/Datatable";
+import CircularLoader from "../components/loaders/CircularLoader";
 
 const Daybook = () => {
   const [groups, setGroups] = useState([]);
@@ -439,9 +440,9 @@ const Daybook = () => {
                   />
                 </div>
               ) : (
-                <div className="mt-10 text-center text-gray-500">
-                  No Data Available
-                </div>
+                
+                  <CircularLoader/>
+                
               )}
             </div>
           </div>

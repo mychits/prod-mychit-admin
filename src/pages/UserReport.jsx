@@ -10,6 +10,7 @@ import UploadModal from "../components/modals/UploadModal";
 import axios from "axios";
 import url from "../data/Url";
 import DataTable from "../components/layouts/Datatable";
+import CircularLoader from "../components/loaders/CircularLoader";
 
 const UserReport = () => {
   const [groups, setGroups] = useState([]);
@@ -342,7 +343,7 @@ const UserReport = () => {
   const formatPayDate = (dateString) => {
     const date = new Date(dateString);
     const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
+    return date.toLocaleDateString('en-US', options).replace(",", "");;
   };
 
   useEffect(() => {
@@ -665,21 +666,19 @@ const UserReport = () => {
                                   <DataTable
                                     data={TableAuctions}
                                     columns={Auctioncolumns}
-                                    exportedFileName={`Auctions-${
+                                    exportedFileName={`CustomerReport-${
                                       TableAuctions.length > 0
-                                        ? TableAuctions[0].name +
+                                        ? TableAuctions[0].group +
                                           " to " +
                                           TableAuctions[
                                             TableAuctions.length - 1
-                                          ].name
+                                          ].group
                                         : "empty"
                                       }.csv`}
                                   />
                                 </div>
                               ) : (
-                                <div className="mt-10 text-center text-gray-500">
-                                  No Data Available
-                                </div>
+                               <CircularLoader/>
                               )}
                             </div>
                             <div className="flex gap-4 mt-5">
@@ -784,9 +783,9 @@ const UserReport = () => {
                               <DataTable data={TableEnrolls} columns={Basiccolumns} />
                             </div>
                           ) : (
-                            <div className="mt-10 text-center text-gray-500">
-                              No Data Available
-                            </div>
+                           
+                             <CircularLoader/>
+                           
                           )}
                         </div>
                       </>

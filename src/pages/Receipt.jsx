@@ -11,6 +11,8 @@ import axios from "axios";
 import url from "../data/Url";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
+import EndlessCircularLoader from "../components/loaders/EndlessCircularLoader";
+import CircularLoader from "../components/loaders/CircularLoader";
 const Receipt = () => {
   const [groups, setGroups] = useState([]);
   const [TableDaybook, setTableDaybook] = useState([]);
@@ -197,7 +199,7 @@ const Receipt = () => {
   const formatPayDate = (dateString) => {
     const date = new Date(dateString);
     const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
+    return date.toLocaleDateString('en-US', options).replace(",","");
   };
 
   useEffect(() => {
@@ -218,7 +220,7 @@ const Receipt = () => {
           );
 
           setFilteredAuction(validPayments);
-          console.log(validPayments);
+          console.log("payment:",validPayments);
 
           const totalAmount = validPayments.reduce(
             (sum, payment) => sum + Number(payment.amount || 0),
@@ -231,7 +233,7 @@ const Receipt = () => {
             date: formatPayDate(group.pay_date),
             group: group.group_id.group_name,
             name: group.user_id?.full_name,
-            phone_number: group.user_id.phone_number,
+            phone_number: group.user_id?.phone_number,
             ticket: group.ticket,
             amount: group.amount,
             mode: group.pay_type,
@@ -425,6 +427,7 @@ const Receipt = () => {
                         </option>
                       ))}
                     </select>
+                    
                   </div>
                   <div className="mb-2">
                     <label>Customer</label>
@@ -466,7 +469,7 @@ const Receipt = () => {
                   <DataTable
                     data={TableDaybook}
                     columns={columns}
-                    exportedFileName={`DayBook-${TableDaybook.length > 0
+                    exportedFileName={`ReportsReceipt-${TableDaybook.length > 0
                         ? TableDaybook[0].name +
                         " to " +
                         TableDaybook[TableDaybook.length - 1].name
@@ -476,7 +479,7 @@ const Receipt = () => {
                 </div>
               ) : (
                 <div className="mt-10 text-center text-gray-500">
-                  No Data Available
+                 <CircularLoader/>
                 </div>
               )}
             </div>

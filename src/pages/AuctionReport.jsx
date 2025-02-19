@@ -8,6 +8,7 @@ import Modal from "../components/modals/Modal";
 import { BsEye } from "react-icons/bs";
 import DataTable from "../components/layouts/Datatable";
 import { EyeIcon } from "lucide-react";
+import CircularLoader from "../components/loaders/CircularLoader";
 
 const AuctionReport = () => {
   const [groups, setGroups] = useState([]);
@@ -362,9 +363,7 @@ const AuctionReport = () => {
                     }.csv`}
                   />
                 ) : (
-                  <p className="text-center text-gray-500">
-                    No auctions are present
-                  </p>
+                 <CircularLoader/>
                 )}
               </div>
 

@@ -8,7 +8,9 @@ import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
+import { useRef } from "react";
 const User = () => {
+  let num = useRef(0)
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -181,6 +183,7 @@ const User = () => {
           phone_number: group.phone_number,
           address: group.address,
           pincode: group.pincode,
+          customer_id:group.customer_id || `CUSM*`,
           action: (
             <div className="flex justify-end gap-2">
               <button
@@ -208,6 +211,7 @@ const User = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+    {key:"customer_id",header:"Customer Id"},
     { key: "name", header: "Customer Name" },
     { key: "phone_number", header: "Customer Phone Number" },
     { key: "address", header: "Customer Address" },
