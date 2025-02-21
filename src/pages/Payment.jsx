@@ -15,6 +15,10 @@ import { BiPrinter } from "react-icons/bi";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import CustomAlert from "../components/alerts/CustomAlert";
+import CircularLoader from "../components/loaders/CircularLoader";
+import { FaWhatsappSquare } from "react-icons/fa";
+import whatsappApi from "../instance/WhatsappInstance";
+
 const Payment = () => {
   const [groups, setGroups] = useState([]);
   const [actualGroups, setActualGroups] = useState([]);
@@ -24,6 +28,7 @@ const Payment = () => {
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [selectedAuctionGroupId, setSelectedAuctionGroupId] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const [userName, setUserName] = useState("");
   const [filteredAuction, setFilteredAuction] = useState([]);
   const [groupInfo, setGroupInfo] = useState({});
   const [showModal, setShowModal] = useState(false);
@@ -33,6 +38,7 @@ const Payment = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [receiptNo, setReceiptNo] = useState("");
+  const[whatsappEnable,setWhatsappEnable] = useState(true);
   const [paymentMode, setPaymentMode] = useState("cash");
   const today = new Date().toISOString().split("T")[0];
   const [alertConfig, setAlertConfig] = useState({
@@ -109,7 +115,57 @@ const Payment = () => {
     };
     fetchReceipt();
   }, []);
+  async function sendingWhatsappMessage() {
+    if(whatsappEnable){
+  
+    try {
+      let cust = groups?.find((group) => group._id === formData.user_id);
+      let grp = filteredAuction?.find(
+        (group) => group.enrollment.group._id === formData.group_id
+      );
+      let custName =cust?.full_name
+      let grpName =grp?.enrollment?.group?.group_name
+      if (
+        !custName||
+        !grpName ||
+        !formData.pay_date ||
+        !formData.receipt_no ||
+        !formData.amount
+      ) throw new Error("Please fill data correctly, WhatsApp send failed.");
 
+      customerName = customerName?.full_name + ` ticket no: ${formData.ticket}`;
+      groupName = groupName?.enrollment?.group?.group_name
+      //  for individual ticket no
+      const {data} = await api.post(`/payment/get-total-amount`,{
+        group_id:formData.group_id,
+        ticket:formData.ticket,
+        user_id:formData.user_id
+      })  
+      //for customer irrespective of ticket
+      console.log("payment",data);
+      console.log(
+        "whatsapp data",
+        customerName,
+        groupName,
+        data.totalAmount,
+        formData.receipt_no,
+        formData.pay_date
+      );
+       await whatsappApi.post("/payment",{
+          template_name:"var_payment",
+          variable_1:`${customerName || "customer"}`,
+          variable_2:`${formData.amount}`,
+          variable_3:`${formData.receipt_no}`,
+          variable_4:`${formData.pay_date}`,
+          variable_5:`${groupName}`,
+          variable_6:`${data.totalAmount}`,
+          whatsapp_number:"7019658931"
+        })
+    } catch (err) {
+      console.log("something went wrong",err.message);
+    }
+  }
+  }
   useEffect(() => {
     if (receiptNo) {
       setFormData((prevData) => ({
@@ -165,7 +221,9 @@ const Payment = () => {
 
   const handleChangeUser = (e) => {
     const { name, value } = e.target;
+
     const [group_id, ticket] = value.split("|");
+    setUserName(name);
     setFormData((prevData) => ({
       ...prevData,
       group_id,
@@ -327,6 +385,7 @@ const Payment = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const isValid = validateForm();
 
     try {
@@ -334,11 +393,12 @@ const Payment = () => {
         const response = await api.post("/payment/add-payment", formData);
         if (response.status === 201) {
           setShowModal(false);
-          setAlertConfig({
-            visibility: true,
-            message: "Payment Added Successfully",
-            type: "success",
-          });
+          await sendingWhatsappMessage();
+          // setAlertConfig({
+          //   visibility: true,
+          //   message: "Payment Added Successfully",
+          //   type: "success",
+          // });
         }
       }
     } catch (error) {
@@ -520,7 +580,7 @@ const Payment = () => {
                 />
               ) : (
                 <div className="mt-10 text-center text-gray-500">
-                  No Data Available
+                  <CircularLoader />
                 </div>
               )}
             </div>
@@ -708,6 +768,25 @@ const Payment = () => {
                     )}
                   </div>
                 )}
+                <div className="flex flex-col items-center p-4 max-w-full bg-white rounded-lg shadow-lg space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <FaWhatsappSquare color="green" className="w-10 h-10" />
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      WhatsApp
+                    </h2>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={whatsappEnable}
+                      onChange={()=>setWhatsappEnable(!whatsappEnable)}
+                      className="text-green-500 checked:ring-2  checked:ring-green-700  rounded-full w-4 h-4"
+                    />
+                    <span className="text-gray-700">Send Via Whatsapp</span>
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   className="w-full text-white bg-blue-700 hover:bg-blue-800
