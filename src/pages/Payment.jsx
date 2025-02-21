@@ -133,8 +133,8 @@ const Payment = () => {
         !formData.amount
       ) throw new Error("Please fill data correctly, WhatsApp send failed.");
 
-      customerName = customerName?.full_name + ` ticket no: ${formData.ticket}`;
-      groupName = groupName?.enrollment?.group?.group_name
+      // customerName = customerName?.full_name + ` ticket no: ${formData.ticket}`;
+      // groupName = groupName?.enrollment?.group?.group_name
       //  for individual ticket no
       const {data} = await api.post(`/payment/get-total-amount`,{
         group_id:formData.group_id,
