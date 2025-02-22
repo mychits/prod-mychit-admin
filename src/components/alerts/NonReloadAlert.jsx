@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa";
 import { memo, useEffect, useState } from "react";
 
-const NonReloadAlert = memo(({ isVisible, type = "info", message }) => {
+const CustomAlert = memo(({ isVisible, type = "info", message }) => {
   const [isClosing, setIsClosing] = useState(false);
 
   const alertConfig = {
@@ -54,7 +54,7 @@ const NonReloadAlert = memo(({ isVisible, type = "info", message }) => {
   if (!isVisible && !isClosing) return null;
 
   return (
-    <div className="fixed top-4 left-1/2 z-50 -translate-x-1/2 transform">
+    <div className="fixed top-4 right-4 z-50 transform">  //-translate-x-1/2 
       <div
         className={`${alertConfig[type].bg} ${alertConfig[type].border} ${
           alertConfig[type].text
@@ -84,4 +84,4 @@ const NonReloadAlert = memo(({ isVisible, type = "info", message }) => {
   );
 });
 
-export default NonReloadAlert;
+export default CustomAlert;

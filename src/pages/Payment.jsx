@@ -19,6 +19,7 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import { FaWhatsappSquare } from "react-icons/fa";
 import whatsappApi from "../instance/WhatsappInstance";
 
+
 const Payment = () => {
   const [groups, setGroups] = useState([]);
   const [actualGroups, setActualGroups] = useState([]);
@@ -38,7 +39,7 @@ const Payment = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [receiptNo, setReceiptNo] = useState("");
-  const[whatsappEnable,setWhatsappEnable] = useState(true);
+  const [whatsappEnable, setWhatsappEnable] = useState(true);
   const [paymentMode, setPaymentMode] = useState("cash");
   const today = new Date().toISOString().split("T")[0];
   const [alertConfig, setAlertConfig] = useState({
@@ -116,55 +117,69 @@ const Payment = () => {
     fetchReceipt();
   }, []);
   async function sendingWhatsappMessage() {
-    if(whatsappEnable){
-  
-    try {
-      let cust = groups?.find((group) => group._id === formData.user_id);
-      let grp = filteredAuction?.find(
-        (group) => group.enrollment.group._id === formData.group_id
-      );
-      let custName =cust?.full_name
-      let grpName =grp?.enrollment?.group?.group_name
-      if (
-        !custName||
-        !grpName ||
-        !formData.pay_date ||
-        !formData.receipt_no ||
-        !formData.amount
-      ) throw new Error("Please fill data correctly, WhatsApp send failed.");
+    if (whatsappEnable) {
+      try {
+        const cust = groups?.find((group) => group._id === formData.user_id);
+        const grp = filteredAuction?.find(
+          (group) => group.enrollment.group._id === formData.group_id
+        );
+        const custName = cust?.full_name;
+        const custPhone = cust?.phone_number;
+        const grpName = grp?.enrollment?.group?.group_name;
+        console.log("custName", cust, "grpName", grp);
+        if (
+          !custName ||
+          !custPhone ||
+          !grpName ||
+          !formData.pay_date ||
+          !formData.receipt_no ||
+          !formData.amount ||
+          !formData.user_id
+        )
+          throw new Error("Please fill data correctly, WhatsApp send failed.");
+        //  for individual ticket no
 
-      // customerName = customerName?.full_name + ` ticket no: ${formData.ticket}`;
-      // groupName = groupName?.enrollment?.group?.group_name
-      //  for individual ticket no
-      const {data} = await api.post(`/payment/get-total-amount`,{
-        group_id:formData.group_id,
-        ticket:formData.ticket,
-        user_id:formData.user_id
-      })  
-      //for customer irrespective of ticket
-      console.log("payment",data);
-      console.log(
-        "whatsapp data",
-        customerName,
-        groupName,
-        data.totalAmount,
-        formData.receipt_no,
-        formData.pay_date
-      );
-       await whatsappApi.post("/payment",{
-          template_name:"var_payment",
-          variable_1:`${customerName || "customer"}`,
-          variable_2:`${formData.amount}`,
-          variable_3:`${formData.receipt_no}`,
-          variable_4:`${formData.pay_date}`,
-          variable_5:`${groupName}`,
-          variable_6:`${data.totalAmount}`,
-          whatsapp_number:"7019658931"
-        })
-    } catch (err) {
-      console.log("something went wrong",err.message);
+        // const {data} = await api.post(`/payment/get-total-amount`,{
+        //   group_id:formData.group_id,
+        //   ticket:formData.ticket,
+        //   user_id:formData.user_id
+        // })
+
+        //for customer irrespective of ticket
+        const {data} = await api.post(
+          `/enroll/get-user-tickets-report/${formData.user_id}`
+        );
+       if(!data) throw new Error("unable to fetch userData")
+        const totalAmount = data?.reduce(
+          (sum, entry) => sum + (Number(entry.payments?.totalPaidAmount) || 0),
+          0
+        );
+        if(!totalAmount) throw new Error("amount is unavailable");
+        console.log("payment", totalAmount);
+        console.log(
+          "whatsapp data",
+          custName,
+          grpName,
+          totalAmount,
+          formData.receipt_no,
+          formData.pay_date
+        );
+        await whatsappApi.post("/payment", {
+          template_name: "var_payment",
+          variable_1: `${custName}`,
+          variable_2: `${formData.amount}`,
+          variable_3: `${formData.receipt_no}`,
+          variable_4: `${formData.pay_date}`,
+          variable_5: `${grpName}`,
+          variable_6: `₹ ${totalAmount}`,
+          whatsapp_number: `${custPhone}`,
+        //   whatsapp_number: `${"7019658931"}`
+
+        });
+      } catch (err) {
+        console.log("something went wrong,", err.message);
+      }
     }
-  }
   }
   useEffect(() => {
     if (receiptNo) {
@@ -402,6 +417,11 @@ const Payment = () => {
         }
       }
     } catch (error) {
+      setAlertConfig({
+        visibility: true,
+        message: `Error submitting payment data:${error.message}`,
+        type: "success",
+      });
       console.error("Error submitting payment data:", error);
     }
   };
@@ -768,10 +788,10 @@ const Payment = () => {
                     )}
                   </div>
                 )}
-                <div className="flex flex-col items-center p-4 max-w-full bg-white rounded-lg shadow-lg space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <FaWhatsappSquare color="green" className="w-10 h-10" />
-                    <h2 className="text-lg font-semibold text-gray-800">
+                <div className="flex flex-col items-center p-4 max-w-full bg-white rounded-lg shadow-sm space-y-4">
+                  <div className="flex items-center space-x-1">
+                    <FaWhatsappSquare color="green" className="w-8 h-8" />
+                    <h2 className="text-md font-semibold text-gray-800">
                       WhatsApp
                     </h2>
                   </div>
@@ -780,10 +800,10 @@ const Payment = () => {
                     <input
                       type="checkbox"
                       checked={whatsappEnable}
-                      onChange={()=>setWhatsappEnable(!whatsappEnable)}
-                      className="text-green-500 checked:ring-2  checked:ring-green-700  rounded-full w-4 h-4"
+                      onChange={() => setWhatsappEnable(!whatsappEnable)}
+                      className="text-green-500 checked:ring-2  checked:ring-green-700 rounded-full w-4 h-4"
                     />
-                    <span className="text-gray-700">Send Via Whatsapp</span>
+                    <span className="text-gray-700 text-sm">Send Via Whatsapp</span>
                   </div>
                 </div>
 
