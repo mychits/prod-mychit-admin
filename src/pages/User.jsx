@@ -10,7 +10,7 @@ import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
 import { useRef } from "react";
 const User = () => {
-  let num = useRef(0)
+  let num = useRef(0);
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -183,7 +183,7 @@ const User = () => {
           phone_number: group.phone_number,
           address: group.address,
           pincode: group.pincode,
-          customer_id:group.customer_id || `CUSM*`,
+          customer_id: group.customer_id || `Updating soon...`,
           action: (
             <div className="flex justify-end gap-2">
               <button
@@ -201,9 +201,19 @@ const User = () => {
             </div>
           ),
         }));
-        setTableUsers(formattedData);
+        let fData =formattedData.map((ele) => {
+          if (
+            ele?.address &&
+            typeof ele.address === "string" &&
+            ele?.address?.includes(",")
+          )
+            ele.address = ele.address.replaceAll(",", " ");
+          return ele;
+        });
+       if(!fData) setTableUsers(formattedData);
+        setTableUsers(fData);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Error fetching user data:", error.message);
       }
     };
     fetchUsers();
@@ -211,7 +221,7 @@ const User = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
-    {key:"customer_id",header:"Customer Id"},
+    { key: "customer_id", header: "Customer Id" },
     { key: "name", header: "Customer Name" },
     { key: "phone_number", header: "Customer Phone Number" },
     { key: "address", header: "Customer Address" },
