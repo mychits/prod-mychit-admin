@@ -8,7 +8,7 @@ import Modal from "../components/modals/Modal";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
 import { FaWhatsappSquare } from "react-icons/fa";
-import whatsappApi from "../instance/WhatsappInstance";
+
 const Enroll = () => {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
@@ -169,42 +169,7 @@ const Enroll = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  async function sendingWhatsappMessage() {
-    if (whatsappEnable) {
-      try {
-        if (!Array.isArray(groups) || groups.length === 0) {
-          throw new Error("Groups list is not available or empty");
-        }
-        if (!Array.isArray(users) || users.length === 0) {
-          throw new Error("Users list is not available or empty");
-        }
-        const grp = groups.find((group) => group?._id === formData?.group_id);
-        const usr = users.find((user) => user?._id === formData?.user_id);
-        
-        if (
-          !grp ||
-          !usr ||
-          !usr?.phone_number ||
-          !usr?.full_name ||
-          !grp?.group_name
-        )
-          throw new Error("fields are missing");
-        const response = await whatsappApi.post("/enrollment", {
-          template_name: "var_enrollment",
-          variable_1: usr.full_name,
-          variable_2: usr.full_name,
-          variable_3: grp.group_name,
-          whatsapp_number: usr.phone_number,
-        });
-        if(response.status ===201) {
-          return;
-        }; 
-        
-      } catch (err) {
-        console.log("error", err.message);
-      }
-    }
-  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isvalid = validate("addEnrollment");
@@ -230,7 +195,7 @@ const Enroll = () => {
             },
           });
         }
-        await sendingWhatsappMessage();
+       
         setShowModal(false);
         setFormData({
           group_id: "",
@@ -366,7 +331,7 @@ const Enroll = () => {
                 </select>
                 <button
                   onClick={() => setShowModal(true)}
-                  className="ml-4 bg-blue-700 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
+                  className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
                   + Add Enrollment
                 </button>

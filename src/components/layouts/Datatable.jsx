@@ -183,14 +183,19 @@ const DataTable = ({
         <div className="flex items-center gap-2">
           <button
             onClick={exportToExcel}
-            className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-md 
+    bg-[#217346] hover:bg-[#1a5c38] text-white 
+    transition-colors duration-200 
+    shadow-sm font-medium"
           >
             <Download className="w-4 h-4" />
             Export Excel
           </button>
           <button
             onClick={printToPDF}
-            className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-md bg-gray-800 hover:bg-gray-900 text-white 
+    transition-colors duration-200 
+    shadow-sm font-medium"
           >
             <Printer className="w-4 h-4" />
             Print PDF

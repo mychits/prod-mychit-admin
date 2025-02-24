@@ -4,7 +4,8 @@ import { BsArrowDown, BsArrowUp } from "react-icons/bs";
 import { MdGroups } from "react-icons/md";
 import { LiaLayerGroupSolid } from "react-icons/lia";
 import { FaUserLock } from "react-icons/fa";
-import { MdOutlinePayments } from "react-icons/md";
+import { MdOutlinePayments ,} from "react-icons/md";
+import { SlCalender } from "react-icons/sl";
 import { useEffect, useState } from "react";
 import api from "../instance/TokenInstance";
 
@@ -13,6 +14,9 @@ const Home = () => {
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [paymentsValue, setPaymentsValue] = useState("...");
+  const [paymentsPerMonth, setPaymentsPerMonth] = useState([]);
+  const [paymentsPerMonthValue, setPaymentsPerMonthValue] = useState("...");
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -54,10 +58,11 @@ const Home = () => {
     const fetchPayments = async () => {
       try {
         const response = await api.get("/payment/get-payment");
+        console.log(response.data);
         const paymentData = response.data;
         const totalAmount = paymentData.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
 
-        setPayments(totalAmount);
+        setPaymentsValue(totalAmount);
       } catch (error) {
         console.error("Error fetching payment data:", error);
       }
@@ -65,6 +70,40 @@ const Home = () => {
     fetchPayments();
   }, []);
 
+
+
+  useEffect(() => {
+    const fetchMonthlyPayments = async () => {
+      try {
+        const response = await api.get("/payment/get-payment");
+        const paymentData = response.data;
+        
+        // Get current month and year
+        const today = new Date();
+        const currentMonth = today.getMonth(); // 0-11 (January-December)
+        const currentYear = today.getFullYear();
+    
+        // Filter payments for current month
+        const paymentsPerMonth = paymentData.filter(payment => {
+          const paymentDate = new Date(payment.pay_date); // Ensure payment objects have a valid date field
+          return (
+            paymentDate.getMonth() === currentMonth &&
+            paymentDate.getFullYear() === currentYear
+          );
+        });
+        // Calculate total for the month
+        const totalAmount = paymentsPerMonth.reduce(
+          (sum, payment) => sum + Number(payment.amount || 0),
+          0
+        );
+    
+        setPaymentsPerMonthValue(totalAmount);
+      } catch (error) {
+        console.error("Error fetching payments:", error);
+      }
+    }
+    fetchMonthlyPayments();
+  },[]);
   const cardData = [
     {
       icon: <LiaLayerGroupSolid size={20} />,
@@ -93,8 +132,16 @@ const Home = () => {
     {
       icon: <MdOutlinePayments size={16} />,
       text: "Payments",
-      count: `₹${payments}`,
+      count: `₹${paymentsValue}`,
       bgColor: "bg-red-200",
+      iconColor: "bg-red-900",
+      redirect: "/payment",
+    },
+    {
+      icon:<div className="text-center"> <SlCalender  size={16} />  ₹ </div>,
+      text: "Current Month Payments",
+      count: `₹${paymentsPerMonthValue}`,
+      bgColor: "bg-yellow-200",
       iconColor: "bg-red-900",
       redirect: "/payment",
     },

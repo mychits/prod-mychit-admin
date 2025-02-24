@@ -17,8 +17,6 @@ import html2canvas from "html2canvas";
 import CustomAlert from "../components/alerts/CustomAlert";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { FaWhatsappSquare } from "react-icons/fa";
-import whatsappApi from "../instance/WhatsappInstance";
-
 
 const Payment = () => {
   const [groups, setGroups] = useState([]);
@@ -116,71 +114,7 @@ const Payment = () => {
     };
     fetchReceipt();
   }, []);
-  async function sendingWhatsappMessage() {
-    if (whatsappEnable) {
-      try {
-        const cust = groups?.find((group) => group._id === formData.user_id);
-        const grp = filteredAuction?.find(
-          (group) => group.enrollment.group._id === formData.group_id
-        );
-        const custName = cust?.full_name;
-        const custPhone = cust?.phone_number;
-        const grpName = grp?.enrollment?.group?.group_name;
-        console.log("custName", cust, "grpName", grp);
-        if (
-          !custName ||
-          !custPhone ||
-          !grpName ||
-          !formData.pay_date ||
-          !formData.receipt_no ||
-          !formData.amount ||
-          !formData.user_id
-        )
-          throw new Error("Please fill data correctly, WhatsApp send failed.");
-        //  for individual ticket no
-
-        // const {data} = await api.post(`/payment/get-total-amount`,{
-        //   group_id:formData.group_id,
-        //   ticket:formData.ticket,
-        //   user_id:formData.user_id
-        // })
-
-        //for customer irrespective of ticket
-        const {data} = await api.post(
-          `/enroll/get-user-tickets-report/${formData.user_id}`
-        );
-       if(!data) throw new Error("unable to fetch userData")
-        const totalAmount = data?.reduce(
-          (sum, entry) => sum + (Number(entry.payments?.totalPaidAmount) || 0),
-          0
-        );
-        if(!totalAmount) throw new Error("amount is unavailable");
-        console.log("payment", totalAmount);
-        console.log(
-          "whatsapp data",
-          custName,
-          grpName,
-          totalAmount,
-          formData.receipt_no,
-          formData.pay_date
-        );
-        await whatsappApi.post("/payment", {
-          template_name: "var_payment",
-          variable_1: `${custName}`,
-          variable_2: `${formData.amount}`,
-          variable_3: `${formData.receipt_no}`,
-          variable_4: `${formData.pay_date}`,
-          variable_5: `${grpName}`,
-          variable_6: `₹ ${totalAmount}`,
-          whatsapp_number: `${custPhone}`,
-        //   whatsapp_number: `${"7019658931"}`
-
-        });
-      } catch (err) {
-        console.log("something went wrong,", err.message);
-      }
-    }
-  }
+  
   useEffect(() => {
     if (receiptNo) {
       setFormData((prevData) => ({
@@ -408,19 +342,18 @@ const Payment = () => {
         const response = await api.post("/payment/add-payment", formData);
         if (response.status === 201) {
           setShowModal(false);
-          await sendingWhatsappMessage();
-          // setAlertConfig({
-          //   visibility: true,
-          //   message: "Payment Added Successfully",
-          //   type: "success",
-          // });
+          setAlertConfig({
+            visibility: true,
+            message: "Payment Added Successfully",
+            type: "success",
+          });
         }
       }
     } catch (error) {
       setAlertConfig({
         visibility: true,
         message: `Error submitting payment data:${error.message}`,
-        type: "success",
+        type: "error",
       });
       console.error("Error submitting payment data:", error);
     }
@@ -562,7 +495,7 @@ const Payment = () => {
                   <div>
                     <button
                       onClick={() => setShowModal(true)}
-                      className="ml-4 bg-blue-700 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
+                      className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                     >
                       + Add Payment
                     </button>
