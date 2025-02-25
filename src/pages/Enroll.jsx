@@ -189,6 +189,7 @@ const Enroll = () => {
 
       try {
         for (const ticketEntry of ticketEntries) {
+          console.log("ticket");
           await api.post("/enroll/add-enroll", ticketEntry, {
             headers: {
               "Content-Type": "application/json",

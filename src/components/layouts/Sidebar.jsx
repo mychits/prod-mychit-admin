@@ -13,7 +13,8 @@ import { RiAuctionLine } from "react-icons/ri";
 import { FaPeopleArrows, FaLayerGroup, FaUserLock } from "react-icons/fa";
 import { GiGoldBar } from "react-icons/gi";
 import { IoPeopleOutline } from "react-icons/io5";
-
+import { GoGraph } from "react-icons/go";
+import { FaWhatsapp } from "react-icons/fa";
 const MenuSidebar = [
   { title: "Dashboard", icon: <RiDashboardFill />, link: "/dashboard" },
   { title: "Analytics", icon: <SiGoogleanalytics />, link: "/analytics" },
@@ -47,6 +48,23 @@ const MenuSidebar = [
       { title: "Customer Report", link: "/user-report" },
       { title: "Receipt Report", link: "/receipt" },
       { title: "Auction Report", link: "/auction-report" },
+    ],
+  },
+  {
+    title: "Marketing",
+    icon: <GoGraph />,
+    submenu: true,
+    submenuItems: [
+      {
+        title: "Whatsapp Promotion login",
+        link: "https://app.whatsapppromotion.net/login",
+        icon: <FaWhatsapp size={20}/>,
+
+      },  {
+        title: "Whatsapp Advertisement",
+        link: "/whatsappadd",
+        icon: <FaWhatsapp size={20} />
+      },
     ],
   },
   { title: "Profile", spacing: true, icon: <CgProfile />, link: "/profile" },
@@ -143,13 +161,16 @@ const Sidebar = () => {
                   {menu.submenuItems.map((submenuItem, index) => (
                     <>
                       {/* Use target="_blank" for external links */}
+                      
                       <a href={submenuItem.link} rel="noopener noreferrer">
+                      
                         <li
                           key={index}
                           className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
                             menu.spacing ? "mt-9" : "mt-2"
                           }`}
                         >
+                          {submenuItem?.icon}
                           {submenuItem.title}
                         </li>
                       </a>

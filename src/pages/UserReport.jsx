@@ -342,8 +342,9 @@ const UserReport = () => {
 
   const formatPayDate = (dateString) => {
     const date = new Date(dateString);
-    const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options).replace(",", "");;
+    // const options = { day: 'numeric', month: 'numeric', year: 'numeric' };
+    return date.toISOString().split("T")[0]
+  
   };
 
   useEffect(() => {
@@ -430,7 +431,7 @@ const UserReport = () => {
             id: index + 1,
             name: group?.user?.full_name,
             phone_number: group?.user?.phone_number,
-            ticket: group.ticket,
+            ticket: group.ticket ,
             amount_to_be_paid:
               parseInt(group.group.group_install) + group.totalToBePaidAmount,
             amount_paid: group.totalPaidAmount,

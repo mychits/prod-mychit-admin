@@ -22,6 +22,7 @@ const DataTable = ({
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [pageSize, setPageSize] = useState(100);
 
+
   const searchData = (data) => {
     if (!searchQuery) return data;
     return data.filter((item) =>
@@ -193,7 +194,7 @@ const DataTable = ({
           </button>
           <button
             onClick={printToPDF}
-            className="flex items-center gap-2 px-4 py-2 rounded-md bg-gray-800 hover:bg-gray-900 text-white 
+            className="flex items-center gap-2 px-4 py-2 rounded-md bg-green-700 hover:bg-green-900 text-white 
     transition-colors duration-200 
     shadow-sm font-medium"
           >

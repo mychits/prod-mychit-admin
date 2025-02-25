@@ -234,7 +234,7 @@ const Receipt = () => {
             group: group.group_id.group_name,
             name: group.user_id?.full_name,
             phone_number: group.user_id?.phone_number,
-            receipt_no:group?.receipt_no,
+            receipt_no:group?.receipt_no ? group.receipt_no :`#${group.old_receipt_no.split("-")[1]}`,
             ticket: group.ticket,
             amount: group.amount,
             mode: group.pay_type,

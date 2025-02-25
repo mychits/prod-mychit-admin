@@ -75,25 +75,38 @@ const Home = () => {
   useEffect(() => {
     const fetchMonthlyPayments = async () => {
       try {
-        const response = await api.get("/payment/get-payment");
+        // const response = await api.get("/payment/get-report-receipt`, {
+        //   params: {
+        //     from_date: selectedFromDate,
+        //     to_date: selectedDate,});
+       
+        console.log(response.data);
         const paymentData = response.data;
         
-        // Get current month and year
+     
         const today = new Date();
         const currentMonth = today.getMonth(); // 0-11 (January-December)
         const currentYear = today.getFullYear();
+        console.log(currentMonth);
+        console.log(currentYear);
     
         // Filter payments for current month
         const paymentsPerMonth = paymentData.filter(payment => {
-          const paymentDate = new Date(payment.pay_date); // Ensure payment objects have a valid date field
+          const paymentDate = new Date(payment.pay_date);
+          // console.log(paymentDate);
+          // console.log(today);
+           // Ensure payment objects have a valid date field
           return (
             paymentDate.getMonth() === currentMonth &&
             paymentDate.getFullYear() === currentYear
           );
         });
         // Calculate total for the month
+        console.log("paymentsPerMonth:",paymentsPerMonth);
         const totalAmount = paymentsPerMonth.reduce(
-          (sum, payment) => sum + Number(payment.amount || 0),
+          (sum, payment) =>{ 
+            console.log("payment",payment.amount);
+            return(sum + Number(payment.amount || 0))},
           0
         );
     
@@ -141,8 +154,8 @@ const Home = () => {
       icon:<div className="text-center"> <SlCalender  size={16} />  ₹ </div>,
       text: "Current Month Payments",
       count: `₹${paymentsPerMonthValue}`,
-      bgColor: "bg-yellow-200",
-      iconColor: "bg-red-900",
+      bgColor: "bg-purple-200",
+      iconColor: "bg-purple-900",
       redirect: "/payment",
     },
   ];

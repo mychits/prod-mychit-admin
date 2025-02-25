@@ -212,7 +212,7 @@ const Daybook = () => {
             name: group.user_id?.full_name,
             phone_number: group.user_id.phone_number,
             ticket: group.ticket,
-            receipt: group.receipt_no,
+            receipt:group.receipt_no ? group.receipt_no :(`#${group.old_receipt_no.split("-")[1]}`),
             amount: group.amount,
             mode: group.pay_type,
             collected_by: group?.collected_by?.name || "Admin",
