@@ -74,48 +74,49 @@ const Home = () => {
 
   useEffect(() => {
     const fetchMonthlyPayments = async () => {
-      try {
-        // const response = await api.get("/payment/get-report-receipt`, {
-        //   params: {
-        //     from_date: selectedFromDate,
-        //     to_date: selectedDate,});
+      // try {
+        const today = new Date();
+         const currentMonth = today.getMonth(); // 0-11 (January-December)
+        const currentYear = today.getFullYear();
+        const currentDay = today.toISOString().split("T")[0]
+        const firstDay = `${currentYear}-${currentMonth+1}-01`
+        const response = await api.get("/payment/get-report-receipt", {
+          params: {
+            from_date: firstDay,
+            to_date: firstDay,}});
+            console.log("response",response.data)
        
-        console.log(response.data);
-        const paymentData = response.data;
+        // console.log(response.data);
+        // const paymentData = response.data;
         
      
-        const today = new Date();
-        const currentMonth = today.getMonth(); // 0-11 (January-December)
-        const currentYear = today.getFullYear();
-        console.log(currentMonth);
-        console.log(currentYear);
+        // 
+       
+        // console.log(currentMonth);
+        // console.log(currentYear);
     
-        // Filter payments for current month
-        const paymentsPerMonth = paymentData.filter(payment => {
-          const paymentDate = new Date(payment.pay_date);
-          // console.log(paymentDate);
-          // console.log(today);
-           // Ensure payment objects have a valid date field
-          return (
-            paymentDate.getMonth() === currentMonth &&
-            paymentDate.getFullYear() === currentYear
-          );
-        });
-        // Calculate total for the month
-        console.log("paymentsPerMonth:",paymentsPerMonth);
-        const totalAmount = paymentsPerMonth.reduce(
-          (sum, payment) =>{ 
-            console.log("payment",payment.amount);
-            return(sum + Number(payment.amount || 0))},
-          0
-        );
+        // // Filter payments for current month
+        // const paymentsPerMonth = paymentData.filter(payment => {
+        //   const paymentDate = new Date(payment.pay_date);
+        //   // console.log(paymentDate);
+        //   // console.log(today);
+        //    // Ensure payment objects have a valid date field
+        //   return (
+        //     paymentDate.getMonth() === currentMonth &&
+        //     paymentDate.getFullYear() === currentYear
+        //   );
+        // });
+        // // Calculate total for the month
+        // console.log("paymentsPerMonth:",paymentsPerMonth);
+        // const totalAmount = paymentsPerMonth.reduce(
+        //   (sum, payment) =>{ 
+        //     console.log("payment",payment.amount);
+        //     return(sum + Number(payment.amount || 0))},
+        //   0
+        // );
     
-        setPaymentsPerMonthValue(totalAmount);
-      } catch (error) {
-        console.error("Error fetching payments:", error);
-      }
-    }
-    fetchMonthlyPayments();
+}
+fetchMonthlyPayments()
   },[]);
   const cardData = [
     {
