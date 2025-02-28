@@ -9,6 +9,7 @@ import {
 import CircularLoader from "../loaders/CircularLoader";
 
 const DataTable = ({
+  isExportEnabled = true,
   data = [],
   columns = [],
   exportedFileName = "export.csv",
@@ -21,7 +22,6 @@ const DataTable = ({
   const [filters, setFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [pageSize, setPageSize] = useState(100);
-
 
   const searchData = (data) => {
     if (!searchQuery) return data;
@@ -181,7 +181,7 @@ const DataTable = ({
           <Search className="w-4 h-4 text-gray-500 absolute right-3" />
         </div>
 
-        <div className="flex items-center gap-2">
+        {isExportEnabled && <div className="flex items-center gap-2">
           <button
             onClick={exportToExcel}
             className="flex items-center gap-2 px-4 py-2 rounded-md 
@@ -201,7 +201,7 @@ const DataTable = ({
             <Printer className="w-4 h-4" />
             Print PDF
           </button>
-        </div>
+        </div>}
       </div>
 
       <div className="border rounded-lg overflow-x-auto">

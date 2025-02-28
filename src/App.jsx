@@ -24,6 +24,9 @@ const AppSettings = lazy(() => import("./pages/AppSettings"));
 const GroupSettings = lazy(() => import("./pages/GroupSettings"));
 import ProtectedRoute from "./components/authentication/ProtectedRoute";
 import CircularLoader from "./components/loaders/CircularLoader";
+import Marketing from "./pages/Marketing";
+import WhatsappAdd from "./pages/WhatsappAdd";
+import WhatsappFailed from "./pages/WhatsappFailed";
 function App() {
   const location = useLocation();
   return (
@@ -159,7 +162,6 @@ function App() {
                   </ProtectedRoute>
                 }
               >
-            
                 <Route
                   path="groups"
                   element={
@@ -199,6 +201,34 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/marketing"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Marketing />
+                </ProtectedRoute>
+              }
+            >
+              <Route
+                path="what-add"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <WhatsappAdd />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="failed-whatuser"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <WhatsappFailed />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
             <Route
               path="/profile"
               element={

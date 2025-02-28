@@ -15,6 +15,7 @@ import { GiGoldBar } from "react-icons/gi";
 import { IoPeopleOutline } from "react-icons/io5";
 import { GoGraph } from "react-icons/go";
 import { FaWhatsapp } from "react-icons/fa";
+import { MdOutlineSmsFailed } from "react-icons/md";
 const MenuSidebar = [
   { title: "Dashboard", icon: <RiDashboardFill />, link: "/dashboard" },
   { title: "Analytics", icon: <SiGoogleanalytics />, link: "/analytics" },
@@ -62,8 +63,13 @@ const MenuSidebar = [
 
       },  {
         title: "Whatsapp Advertisement",
-        link: "/whatsappadd",
+        link: "/marketing/what-add",
         icon: <FaWhatsapp size={20} />
+      },
+      {
+        title: "Failed Whatsapp User List",
+        link: "/marketing/failed-whatuser",
+        icon: <MdOutlineSmsFailed size={20}/>
       },
     ],
   },

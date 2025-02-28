@@ -8,9 +8,9 @@ import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
-import { useRef } from "react";
+
 const User = () => {
-  let num = useRef(0);
+  
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
