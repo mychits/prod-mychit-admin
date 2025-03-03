@@ -4,7 +4,7 @@ import { BsArrowDown, BsArrowUp } from "react-icons/bs";
 import { MdGroups } from "react-icons/md";
 import { LiaLayerGroupSolid } from "react-icons/lia";
 import { FaUserLock } from "react-icons/fa";
-import { MdOutlinePayments ,} from "react-icons/md";
+import { MdOutlinePayments } from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
 import { useEffect, useState } from "react";
 import api from "../instance/TokenInstance";
@@ -60,7 +60,10 @@ const Home = () => {
         const response = await api.get("/payment/get-payment");
         console.log(response.data);
         const paymentData = response.data;
-        const totalAmount = paymentData.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+        const totalAmount = paymentData.reduce(
+          (sum, payment) => sum + Number(payment.amount || 0),
+          0
+        );
 
         setPaymentsValue(totalAmount);
       } catch (error) {
@@ -70,54 +73,40 @@ const Home = () => {
     fetchPayments();
   }, []);
 
-
-
   useEffect(() => {
     const fetchMonthlyPayments = async () => {
-      // try {
+      try {
         const today = new Date();
-         const currentMonth = today.getMonth(); // 0-11 (January-December)
+        const currentMonth = today.getMonth();
         const currentYear = today.getFullYear();
-        const currentDay = today.toISOString().split("T")[0]
-        const firstDay = `${currentYear}-${currentMonth+1}-01`
+        const firstDay = `${currentYear}-${String(currentMonth + 1).padStart(
+          2,
+          "0"
+        )}-01`;
+        console.log("firstday",firstDay);
+        const lastDay = new Date(currentYear, currentMonth + 1, 0);
+        const lastDayFormatted = lastDay.toISOString().split("T")[0];
+
         const response = await api.get("/payment/get-report-receipt", {
           params: {
             from_date: firstDay,
-            to_date: firstDay,}});
-            console.log("response",response.data)
-       
-        // console.log(response.data);
-        // const paymentData = response.data;
-        
-     
-        // 
-       
-        // console.log(currentMonth);
-        // console.log(currentYear);
-    
-        // // Filter payments for current month
-        // const paymentsPerMonth = paymentData.filter(payment => {
-        //   const paymentDate = new Date(payment.pay_date);
-        //   // console.log(paymentDate);
-        //   // console.log(today);
-        //    // Ensure payment objects have a valid date field
-        //   return (
-        //     paymentDate.getMonth() === currentMonth &&
-        //     paymentDate.getFullYear() === currentYear
-        //   );
-        // });
-        // // Calculate total for the month
-        // console.log("paymentsPerMonth:",paymentsPerMonth);
-        // const totalAmount = paymentsPerMonth.reduce(
-        //   (sum, payment) =>{ 
-        //     console.log("payment",payment.amount);
-        //     return(sum + Number(payment.amount || 0))},
-        //   0
-        // );
-    
-}
-fetchMonthlyPayments()
-  },[]);
+            to_date: lastDayFormatted,
+          },
+        });
+
+        setPaymentsPerMonth(response.data);
+
+        const totalAmount = response.data.reduce((sum, payment) => {
+          console.log("payment", payment.amount);
+          return sum + Number(payment.amount || 0);
+        }, 0);
+        setPaymentsPerMonthValue(totalAmount);
+      } catch (err) {
+        console.error("Error fetching monthly payment data:", err.message);
+      }
+    };
+    fetchMonthlyPayments();
+  }, []);
   const cardData = [
     {
       icon: <LiaLayerGroupSolid size={20} />,
@@ -152,7 +141,12 @@ fetchMonthlyPayments()
       redirect: "/payment",
     },
     {
-      icon:<div className="text-center"> <SlCalender  size={16} />  ₹ </div>,
+      icon: (
+        <div className="text-center">
+          {" "}
+          <SlCalender size={16} /> ₹{" "}
+        </div>
+      ),
       text: "Current Month Payments",
       count: `₹${paymentsPerMonthValue}`,
       bgColor: "bg-purple-200",

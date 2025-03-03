@@ -396,7 +396,7 @@ const Auction = () => {
                   >
                     <option value="">Select Group</option>
                     {groups.map((group) => (
-                      <option key={group._id} value={group._id}>
+                      <option key={group?._id} value={group?._id}>
                         {group.group_name}
                       </option>
                     ))}
@@ -611,7 +611,7 @@ const Auction = () => {
                   >
                     <option value="">Select Customer</option>
                     {filteredUsers.map((user) => (
-                      <option
+                      user?.user_id?._id && <option
                         key={`${user.user_id._id}-${user.tickets}`}
                         value={`${user.user_id._id}-${user.tickets}`}
                       >

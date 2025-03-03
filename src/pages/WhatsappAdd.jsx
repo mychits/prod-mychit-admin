@@ -11,7 +11,7 @@ const WhatsappAdd = () => {
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [loading,setLoading] = useState(false)
+  const [disabled, setDisabled] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -19,11 +19,11 @@ const WhatsappAdd = () => {
   });
   const [selectUser, setSelectUser] = useState({});
   const [customerCount, setCustomerCount] = useState(0);
-  const [selectAll, setSelectAll] = useState({ msg: "All", checked: true });
+  const [selectAll, setSelectAll] = useState({ msg: "No", checked: false });
   const [formData, setFormData] = useState({
     template_name: "",
   });
-
+  const [errors, setErrors] = useState({});
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -31,15 +31,68 @@ const WhatsappAdd = () => {
       [name]: value,
     }));
   };
+  const validateForm = (type) => {
+    const newErrors = {};
 
+    if (!formData.template_name.trim()) {
+      newErrors.template_name = "Template name is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const isValid = validateForm();
     try {
-      const response = await whatsappApi.post("/marketing", {
-        selectUser,
-        template_name: formData?.template_name,
-      });
+      if (isValid) {
+        setDisabled(true);
+        const response = await whatsappApi.post("/marketing", {
+          selectUser,
+          template_name: formData?.template_name,
+        });
+        if (response.status >= 400) {
+          setShowModal(false);
+          setDisabled(false);
+          setErrors({});
+          setFormData({
+            template_name: "",
+          });
+          setAlertConfig({
+            type: "error",
+            message: "Whatsapp Failure",
+            visibility: true,
+          });
+          
+        }
+        if (response.status === 201) {
+          console.log("respose raj",response.data);
+        
+          setShowModal(false);
+          setErrors({});
+          setFormData({
+            template_name: "",
+          });
+          setAlertConfig({
+            type: "success",
+            message: "Whatsapped Successfully",
+            visibility: true,
+          });
+        }
+
+        setShowModal(false);
+        setErrors({});
+        setFormData({
+          template_name: "",
+        });
+      }
     } catch (err) {
+      setAlertConfig({
+        type: "error",
+        message: "Whatsapp Failure",
+        visibility: true,
+      });
+      setDisabled(false);
       console.error("whatsapp error", err.message);
     }
   };
@@ -64,7 +117,7 @@ const WhatsappAdd = () => {
         setUsers(response.data);
         const initialSelected = {};
         response.data.forEach((user) => {
-          initialSelected[user._id] = true;
+          initialSelected[user._id] = false;
         });
         setSelectUser(initialSelected);
       } catch (error) {
@@ -222,9 +275,14 @@ const WhatsappAdd = () => {
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 w-full p-2.5"
                 />
               </div>
-
+              {errors.template_name && (
+                <p className="mt-2 text-sm text-red-600">
+                  {errors.template_name}
+                </p>
+              )}
               <button
                 type="submit"
+                disabled={disabled}
                 className="w-full text-white bg-green-700 hover:bg-green-800
               focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
               >

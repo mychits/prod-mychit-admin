@@ -57,7 +57,7 @@ const MenuSidebar = [
     submenu: true,
     submenuItems: [
       {
-        title: "Whatsapp Promotion login",
+        title: "Whatsapp Promotion Login",
         link: "https://app.whatsapppromotion.net/login",
         icon: <FaWhatsapp size={20}/>,
 
@@ -67,9 +67,10 @@ const MenuSidebar = [
         icon: <FaWhatsapp size={20} />
       },
       {
-        title: "Failed Whatsapp User List",
+        title: "Whatsapp Failed Users",
         link: "/marketing/failed-whatuser",
-        icon: <MdOutlineSmsFailed size={20}/>
+        red:true,
+        icon: <FaWhatsapp size={20} className="text-red-300"/>
       },
     ],
   },
@@ -172,7 +173,9 @@ const Sidebar = () => {
                       
                         <li
                           key={index}
-                          className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
+                          className={
+                           
+                            `${submenuItem.red ?"text-red-300":"text-gray-300"} select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
                             menu.spacing ? "mt-9" : "mt-2"
                           }`}
                         >
