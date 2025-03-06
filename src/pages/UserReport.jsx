@@ -280,12 +280,12 @@ const UserReport = () => {
                 balance:
                   groupType === "double"
                     ? groupInstall * auctionCount +
-                    groupInstall -
-                    totalPaidAmount
+                      groupInstall -
+                      totalPaidAmount
                     : totalPayable +
-                    groupInstall +
-                    firstDividentHead -
-                    totalPaidAmount,
+                      groupInstall +
+                      firstDividentHead -
+                      totalPaidAmount,
               };
             })
             .filter((item) => item !== null); // Remove null entries from formattedData
@@ -343,8 +343,7 @@ const UserReport = () => {
   const formatPayDate = (dateString) => {
     const date = new Date(dateString);
     // const options = { day: 'numeric', month: 'numeric', year: 'numeric' };
-    return date.toISOString().split("T")[0]
-  
+    return date.toISOString().split("T")[0];
   };
 
   useEffect(() => {
@@ -366,14 +365,21 @@ const UserReport = () => {
           const toBePaid = response.data;
           setGroupToBePaid(toBePaid[0].totalToBePaidAmount);
 
-          const formattedData = response.data.map((group, index) => ({
-            id: index + 1,
-            date: formatPayDate(group?.pay_date),
-            amount: group.amount,
-            receipt: group.receipt_no,
-            old_receipt: group.old_receipt_no,
-            type: group.pay_type,
-          }));
+          let balance=0;
+          const formattedData = response.data.map((group, index) => {
+            balance+=Number(group.amount)
+            return {
+              id: index + 1,
+              date: formatPayDate(group?.pay_date),
+              amount: group.amount,
+              receipt: group.receipt_no,
+              old_receipt: group.old_receipt_no,
+              type: group.pay_type,
+              balance 
+            };
+          });
+          formattedData.push({id:"",date:"",amount:"",receipt:"",old_receipt:"",type:"",balance})
+          
           setTableEnrolls(formattedData);
         } else {
           setFilteredUsers([]);
@@ -397,6 +403,7 @@ const UserReport = () => {
     { key: "receipt", header: "Receipt No" },
     { key: "old_receipt", header: "Old Receipt No" },
     { key: "type", header: "Payment Type" },
+    { key: "balance", header: "Balance" },
   ];
 
   const formatDate = (dateString) => {
@@ -424,14 +431,17 @@ const UserReport = () => {
           const toBePaid = response.data;
           setGroupToBePaidDate(toBePaid[0].totalToBePaidAmount);
 
-          const totalAmount = response.data.reduce((sum, group) => sum + parseInt(group.amount), 0);
+          const totalAmount = response.data.reduce(
+            (sum, group) => sum + parseInt(group.amount),
+            0
+          );
           setTotalAmount(totalAmount);
 
           const formattedData = response.data.map((group, index) => ({
             id: index + 1,
             name: group?.user?.full_name,
             phone_number: group?.user?.phone_number,
-            ticket: group.ticket ,
+            ticket: group.ticket,
             amount_to_be_paid:
               parseInt(group.group.group_install) + group.totalToBePaidAmount,
             amount_paid: group.totalPaidAmount,
@@ -534,28 +544,31 @@ const UserReport = () => {
                   <div className="mt-6 mb-8">
                     <div className="flex justify-start border-b border-gray-300 mb-4">
                       <button
-                        className={`px-6 py-2 font-medium ${activeTab === "groupDetails"
+                        className={`px-6 py-2 font-medium ${
+                          activeTab === "groupDetails"
                             ? "border-b-2 border-blue-500 text-blue-500"
                             : "text-gray-500"
-                          }`}
+                        }`}
                         onClick={() => handleTabChange("groupDetails")}
                       >
                         Customer Details
                       </button>
                       <button
-                        className={`px-6 py-2 font-medium ${activeTab === "basicReport"
+                        className={`px-6 py-2 font-medium ${
+                          activeTab === "basicReport"
                             ? "border-b-2 border-blue-500 text-blue-500"
                             : "text-gray-500"
-                          }`}
+                        }`}
                         onClick={() => handleTabChange("basicReport")}
                       >
                         Customer Ledger
                       </button>
                       <button
-                        className={`px-6 py-2 font-medium ${activeTab === "dateWiseReport"
+                        className={`px-6 py-2 font-medium ${
+                          activeTab === "dateWiseReport"
                             ? "border-b-2 border-blue-500 text-blue-500"
                             : "text-gray-500"
-                          }`}
+                        }`}
                         onClick={() => handleTabChange("dateWiseReport")}
                       >
                         Passbook
@@ -675,11 +688,11 @@ const UserReport = () => {
                                             TableAuctions.length - 1
                                           ].group
                                         : "empty"
-                                      }.csv`}
+                                    }.csv`}
                                   />
                                 </div>
                               ) : (
-                               <CircularLoader/>
+                                <CircularLoader />
                               )}
                             </div>
                             <div className="flex gap-4 mt-5">
@@ -754,22 +767,28 @@ const UserReport = () => {
                         <div>
                           <div className="flex gap-4">
                             <div className="flex flex-col flex-1">
-                              <label className="mb-1 text-sm font-medium text-gray-700">Groups and Tickets</label>
+                              <label className="mb-1 text-sm font-medium text-gray-700">
+                                Groups and Tickets
+                              </label>
                               <select
-                                value={EnrollGroupId.groupId ? `${EnrollGroupId.groupId}|${EnrollGroupId.ticket}` : ""}
+                                value={
+                                  EnrollGroupId.groupId
+                                    ? `${EnrollGroupId.groupId}|${EnrollGroupId.ticket}`
+                                    : ""
+                                }
                                 onChange={handleEnrollGroup}
                                 className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                               >
                                 <option value="">Select Group | Ticket</option>
                                 {filteredAuction.map((group) => {
-
                                   if (group?.enrollment?.group) {
                                     return (
                                       <option
                                         key={group.enrollment.group._id}
                                         value={`${group.enrollment.group._id}|${group.enrollment.tickets}`}
                                       >
-                                        {group.enrollment.group.group_name} | {group.enrollment.tickets}
+                                        {group.enrollment.group.group_name} |{" "}
+                                        {group.enrollment.tickets}
                                       </option>
                                     );
                                   }
@@ -781,12 +800,13 @@ const UserReport = () => {
 
                           {TableEnrolls && TableEnrolls.length > 0 ? (
                             <div className="mt-10">
-                              <DataTable data={TableEnrolls} columns={Basiccolumns} />
+                              <DataTable
+                                data={TableEnrolls}
+                                columns={Basiccolumns}
+                              />
                             </div>
                           ) : (
-                           
-                             <CircularLoader/>
-                           
+                            <CircularLoader />
                           )}
                         </div>
                       </>

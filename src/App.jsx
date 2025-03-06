@@ -105,6 +105,7 @@ function App() {
                 <ProtectedRoute>
                   <Navbar />
                   <Payment />
+                
                 </ProtectedRoute>
               }
             />

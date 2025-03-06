@@ -478,8 +478,20 @@ const GroupReport = () => {
               </div>
               {selectedGroup && (
                 <>
+                
                   <div className="mt-6 mb-8">
+                    
                     <div className="flex justify-start border-b border-gray-300 mb-4">
+                    <button
+                        className={`px-6 py-2 font-medium ${
+                          activeTab === "allGroups"
+                            ? "border-b-2 border-blue-500 text-blue-500"
+                            : "text-gray-500"
+                        }`}
+                        onClick={() => handleTabChange("allGroups")}
+                      >
+                        All Groups
+                      </button>
                       <button
                         className={`px-6 py-2 font-medium ${
                           activeTab === "groupDetails"

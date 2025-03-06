@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import api from "../instance/TokenInstance";
 import { MdDelete } from "react-icons/md";
@@ -17,6 +17,8 @@ import html2canvas from "html2canvas";
 import CustomAlert from "../components/alerts/CustomAlert";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { FaWhatsappSquare } from "react-icons/fa";
+import PrintModal from "../components/modals/PrintModal";
+import PaymentPrint from "../components/printFormats/PaymentPrint";
 
 const Payment = () => {
   const [groups, setGroups] = useState([]);
@@ -37,12 +39,16 @@ const Payment = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [receiptNo, setReceiptNo] = useState("");
-  const [whatsappEnable, setWhatsappEnable] = useState(true);
+  const whatsappEnable = true;
   const [paymentMode, setPaymentMode] = useState("cash");
   const today = new Date().toISOString().split("T")[0];
+  const [loading, setLoading] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
+    noReload: false,
     type: "info",
   });
   const [EnrollGroupId, setEnrollGroupId] = useState({
@@ -60,8 +66,21 @@ const Payment = () => {
     pay_type: "cash",
     transaction_id: "",
   });
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const [printDetails, setPrintDetails] = useState({
+    customerName: "",
+    groupName: "",
+    ticketNumber: "",
+    receiptNumber: "",
+    paymentDate: "",
+    paymentMode: "",
+    amount: "",
+    transactionId: "",
+  });
+  const printModalOnCloseHandler = () => setShowPrintModal(false);
 
   const handleModalClose = () => setShowUploadModal(false);
+  const [reload, setReload] = useState(false);
 
   const handlePrint = async (id) => {
     const receiptElement = document.getElementById("receipt");
@@ -80,41 +99,41 @@ const Payment = () => {
     const fetchGroups = async () => {
       try {
         const response = await api.get("/user/get-user");
-        console.log(response);
         setGroups(response.data);
+        console.log("useEffect Groups", response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
       }
     };
     fetchGroups();
-  }, []);
+  }, [alertConfig]);
 
   useEffect(() => {
     const fetchGroups = async () => {
       try {
         const response = await api.get("/group/get-group");
-        console.log(response);
+        console.log("useEffect actual Group", actualGroups);
         setActualGroups(response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
       }
     };
     fetchGroups();
-  }, []);
+  }, [alertConfig]);
 
   useEffect(() => {
     const fetchReceipt = async () => {
       try {
         const response = await api.get("/payment/get-latest-receipt");
-        console.log(response);
         setReceiptNo(response.data);
+        console.log("selectedgroupid", selectedGroupId);
       } catch (error) {
         console.error("Error fetching receipt data:", error);
       }
     };
     fetchReceipt();
-  }, []);
-  
+  }, [alertConfig]);
+
   useEffect(() => {
     if (receiptNo) {
       setFormData((prevData) => ({
@@ -126,7 +145,6 @@ const Payment = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    const today = new Date().toISOString().split("T")[0];
 
     // Customer validation
     if (!selectedGroupId) {
@@ -253,10 +271,12 @@ const Payment = () => {
   };
 
   const handleGroupPaymentChange = async (groupId) => {
+    setLoading(true);
     setSelectedAuctionGroup(groupId);
     if (groupId) {
       try {
         const response = await api.get(`/payment/get-group-payment/${groupId}`);
+        setLoading(false);
         if (response.data && response.data.length > 0) {
           //setFilteredAuction(response.data);
           const formattedData = response.data.map((group, index) => ({
@@ -291,6 +311,7 @@ const Payment = () => {
           setFilteredAuction([]);
         }
       } catch (error) {
+        setLoading(false);
         console.error("Error fetching payment data:", error);
         setFilteredAuction([]);
       }
@@ -331,30 +352,135 @@ const Payment = () => {
       transaction_id: selectedMode === "online" ? prevData.transaction_id : "",
     }));
   };
+  const createReceipt = async (formData) => {
+    try {
+      const {
+        group_id,
+        user_id,
+        ticket,
+        receipt_no,
+        pay_date,
+        amount,
+        pay_type,
+        transaction_id,
+      } = formData;
 
+      const responseUser = await api.get(`user/get-user-by-id/${user_id}`);
+
+      const responseGroup = await api.get(`group/get-by-id-group/${group_id}`);
+      console.log(responseGroup, "hurrauy");
+
+      if (responseUser.status === 200 && responseGroup.status === 200) {
+        const customerName = responseUser?.data?.full_name;
+        const groupName = responseGroup?.data?.group_name;
+        if (customerName && groupName) {
+          setPrintDetails((prev) => ({
+            ...prev,
+            customerName,
+            groupName,
+            ticketNumber: ticket,
+            receiptNumber: receipt_no,
+            paymentDate: pay_date,
+            paymentMode: pay_type,
+            transactionId: pay_type === "cash" ? "" : transaction_id,
+            amount,
+          }));
+          setShowPrintModal(true);
+        }
+      }
+      if (responseUser.status >= 400 || responseGroup.status >= 400) {
+        setAlertConfig({
+          visibility: true,
+          noReload: true,
+          message: `Error Creating Receipt`,
+          type: "error",
+        });
+      }
+
+    } catch (err) {
+      setAlertConfig({
+        visibility: true,
+        noReload: true,
+        message: `Error Creating Receipt`,
+        type: "error",
+      });
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const isValid = validateForm();
-
     try {
       if (isValid) {
+        setDisabled(true);
+        setAlertConfig((prev) => ({
+          ...prev,
+          visibility: false,
+        }));
+        setShowModal(false);
         const response = await api.post("/payment/add-payment", formData);
         if (response.status === 201) {
-          setShowModal(false);
+          setSelectedGroupId("");
+          createReceipt(formData);
+          setDisabled(false);
+          setFormData({
+            group_id: "",
+            user_id: "",
+            ticket: "",
+            receipt_no: "",
+            pay_date: "",
+            amount: "",
+            pay_type: "cash",
+            transaction_id: "",
+          });
           setAlertConfig({
             visibility: true,
+            noReload: true,
             message: "Payment Added Successfully",
             type: "success",
           });
         }
+        if (response.status >= 400) {
+          setShowModal(false);
+          setSelectedGroupId("");
+          setDisabled(false);
+          setFormData({
+            group_id: "",
+            user_id: "",
+            ticket: "",
+            receipt_no: "",
+            pay_date: "",
+            amount: "",
+            pay_type: "cash",
+            transaction_id: "",
+          });
+          setAlertConfig({
+            visibility: true,
+            noReload: true,
+            message: "Payment Added Failed",
+            type: "error",
+          });
+        }
       }
     } catch (error) {
+      setShowModal(false);
+      setSelectedGroupId("");
+      setFormData({
+        group_id: "",
+        user_id: "",
+        ticket: "",
+        receipt_no: "",
+        pay_date: "",
+        amount: "",
+        pay_type: "cash",
+        transaction_id: "",
+      });
       setAlertConfig({
         visibility: true,
-        message: `Error submitting payment data:${error.message}`,
+        noReload: true,
+        message: `Error submitting payment data`,
         type: "error",
       });
+      setDisabled(false);
       console.error("Error submitting payment data:", error);
     }
   };
@@ -473,19 +599,22 @@ const Payment = () => {
             type={alertConfig.type}
             isVisible={alertConfig.visibility}
             message={alertConfig.message}
+            noReload={alertConfig.noReload}
           />
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold">Payments</h1>
             <div className="mt-6 mb-8">
               <div className="mb-10">
-                <label>Select Group</label>
+                <label className="font-bold">Select Group</label>
                 <div className="flex justify-between items-center w-full">
                   <select
                     value={selectedAuctionGroupId}
                     onChange={handleGroupPayment}
                     className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                   >
-                    <option value="">Select Group</option>
+                    <option value="" disabled>
+                      Select Group
+                    </option>
                     {actualGroups.map((group) => (
                       <option key={group._id} value={group._id}>
                         {group.group_name}
@@ -519,15 +648,15 @@ const Payment = () => {
                 formData={formData}
                 filteredAuction={filteredAuction}
               />
-              {TablePayments && TablePayments.length > 0 ? (
+              {TablePayments && TablePayments.length > 0 && !loading ? (
                 <DataTable
                   data={TablePayments}
                   columns={columns}
-                  exportedFileName={`Payments-${
+                  exportedFileName={`Payments ${
                     TablePayments.length > 0
-                      ? TablePayments[0].name +
+                      ? TablePayments[0].date +
                         " to " +
-                        TablePayments[TablePayments.length - 1].name
+                        TablePayments[TablePayments.length - 1].date
                       : "empty"
                   }.csv`}
                 />
@@ -563,7 +692,9 @@ const Payment = () => {
                     onChange={handleGroup}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
-                    <option value="">Select Customer</option>
+                    <option value="" disabled>
+                      Select Customer
+                    </option>
                     {groups.map((group) => (
                       <option key={group._id} value={group._id}>
                         {group.full_name}
@@ -587,7 +718,6 @@ const Payment = () => {
                     name="group_id"
                     value={`${formData.group_id}|${formData.ticket}`}
                     onChange={handleChangeUser}
-                    required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
                     <option value="">Select Group | Ticket</option>
@@ -733,10 +863,11 @@ const Payment = () => {
                     <input
                       type="checkbox"
                       checked={whatsappEnable}
-                      onChange={() => setWhatsappEnable(!whatsappEnable)}
                       className="text-green-500 checked:ring-2  checked:ring-green-700 rounded-full w-4 h-4"
                     />
-                    <span className="text-gray-700 text-sm">Send Via Whatsapp</span>
+                    <span className="text-gray-700 text-sm">
+                      Send Via Whatsapp
+                    </span>
                   </div>
                 </div>
 
@@ -750,6 +881,13 @@ const Payment = () => {
               </form>
             </div>
           </Modal>
+          <PrintModal
+            isVisible={showPrintModal}
+            onClose={printModalOnCloseHandler}
+          >
+            <PaymentPrint printDetails={printDetails} />
+          </PrintModal>
+
           <Modal
             isVisible={showModalUpdate}
             onClose={() => setShowModalUpdate(false)}

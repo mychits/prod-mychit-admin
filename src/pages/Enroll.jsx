@@ -24,7 +24,7 @@ const Enroll = () => {
   const [availableTicketsAdd, setAvailableTicketsAdd] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [whatsappEnable, setWhatsappEnable] = useState(true);
+  const whatsappEnable=true;
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -523,7 +523,6 @@ const Enroll = () => {
                   <input
                     type="checkbox"
                     checked={whatsappEnable}
-                    onChange={() => setWhatsappEnable(!whatsappEnable)}
                     className="text-green-500 checked:ring-2  checked:ring-green-700  rounded-full w-4 h-4"
                   />
                   <span className="text-gray-700">Send Via Whatsapp</span>

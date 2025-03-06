@@ -592,6 +592,38 @@ const Lead = () => {
                   </div>
                 </>
               )}
+               {formData.lead_type === "agent" && (
+                <>
+                  <div className="w-full">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="category"
+                    >
+                      Agents
+                    </label>
+                    <select
+                      name="lead_agent"
+                      id="category"
+                      value={formData.lead_agent}
+                      onChange={handleChange}
+                      required
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    >
+                      <option value="">Select Agent</option>
+                      {agents.map((agent) => (
+                        <option key={agent._id} value={agent._id}>
+                          {agent.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.lead_agent && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.lead_agent}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
               <button
                 type="submit"
                 className="w-full text-white bg-blue-700 hover:bg-blue-800

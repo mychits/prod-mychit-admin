@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa";
 import { memo, useEffect, useState } from "react";
 
-const CustomAlert = memo(({ isVisible, type = "info", message }) => {
+const CustomAlert = memo(({ isVisible, type = "info", message ,noReload =false}) => {
   const [isClosing, setIsClosing] = useState(false);
 
   const alertConfig = {
@@ -43,6 +43,7 @@ const CustomAlert = memo(({ isVisible, type = "info", message }) => {
 
       const timer = setTimeout(() => {
         setIsClosing(true);
+        if(!noReload)
         window.location.reload();
         // setTimeout(onClose, 300);
       }, 2000);

@@ -137,7 +137,7 @@ const DataTable = ({
                     ${safeColumns
                       .map(
                         (column) => `
-                      <td>${row[column.key]}</td>
+                      <td>${row[column.key]||"-"}</td>
                     `
                       )
                       .join("")}

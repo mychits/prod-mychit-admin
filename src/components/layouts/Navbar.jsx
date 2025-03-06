@@ -6,6 +6,7 @@ import { NavbarMenu } from "../../data/menu";
 import ResponsiveMenu from "./ResponsiveMenu";
 import Modal from "../modals/Modal";
 import { AiTwotoneGold } from "react-icons/ai";
+import { NavLink } from "react-router-dom";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -19,6 +20,49 @@ const Navbar = () => {
             <p>MyChits</p>
             <p className="text-primary">Chit</p>
           </div>
+
+          <NavLink
+            className={({ isActive }) =>
+              isActive
+                ? "text-blue-900 font-bold border-b-2 border-blue-900 "
+                : "text-gray-700 font-medium  hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
+            }
+            to={"/payment"}
+          >
+            Payments
+          </NavLink>
+
+          <NavLink
+            className={({ isActive }) =>
+              isActive
+                ? "text-blue-900 font-bold border-b-2 border-blue-900"
+                : "text-gray-700 font-medium hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
+            }
+            to={"/daybook"}
+          >
+            Day Book
+          </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              isActive
+                ? "text-blue-900 font-bold border-b-2 border-blue-900"
+                : "text-gray-700 font-medium hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
+            }
+            to={"/receipt"}
+          >
+            Receipt Report
+          </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              isActive
+                ? "text-blue-900 font-bold border-b-2 border-blue-900"
+                : "text-gray-700 font-medium hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
+            }
+            to={"/user-report"}
+          >
+            Customer Report
+          </NavLink>
+
           {/* <div className="hidden md:block">
             <ul className="flex items-center gap-6 text-gray">
               {NavbarMenu.map((item) => {

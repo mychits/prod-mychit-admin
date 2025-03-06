@@ -412,7 +412,7 @@ const Auction = () => {
                   </button>
                 </div>
                 <p className="text-xl items-center mt-5"></p>
-                {filteredAuction[0]?.group_id?.group_type === "double" && ( //
+                {filteredAuction[0]?.group_id?.group_type  && ( //
                   <>
                     <p className="text-xl items-center">
                       Balance: {double.amount}
@@ -424,11 +424,11 @@ const Auction = () => {
                 <DataTable
                   data={TableAuctions}
                   columns={columns}
-                  exportedFileName={`Auctions-${
+                  exportedFileName={`Auctions ${
                     TableAuctions.length > 0
-                      ? TableAuctions[1].name +
+                      ? TableAuctions[1].date +
                         " to " +
-                        TableAuctions[TableAuctions.length - 1].name
+                        TableAuctions[TableAuctions.length - 1].date
                       : "empty"
                   }.csv`}
                 />
