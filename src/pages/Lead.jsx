@@ -18,6 +18,7 @@ const Lead = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
+  const [leadAgentsEmployee,setLeadAgentsEmployee] = useState([])
   const [selectedGroup, setSelectedGroup] = useState("");
   const [leads, setLeads] = useState([]);
   const [users, setUsers] = useState([]);
@@ -32,7 +33,25 @@ const Lead = () => {
     const groupId = event.target.value;
     setSelectedGroup(groupId);
   };
+useEffect(()=>{
+  async function fetchAgents(){
+    try{
+      const response = await api.get("/agent/get-agent");
+      if(response.status === 200){
+        setLeadAgentsEmployee(response.data)
+      
+      }
+      if(response.status >=400 ){
+        throw new Error("Something went wrong")
+      }
+      }catch(err){
+      console.log("Failed to fetch agents data",err.message);
+      }
 
+  }
+  fetchAgents();
+
+},[])
   const [formData, setFormData] = useState({
     lead_name: "",
     lead_phone: "",
@@ -51,6 +70,7 @@ const Lead = () => {
     lead_type: "",
     lead_customer: "",
     lead_agent: "",
+    lead_needs: "",
   });
 
   const handleChange = (e) => {
@@ -528,6 +548,61 @@ const Lead = () => {
                   </p>
                 )}
               </div>
+
+              <div className="w-full">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="category"
+                >
+                  Lead Needs and Goals
+                </label>
+                <select
+                  name="lead_needs"
+                  id="category"
+                  value={formData.lead_needs}
+                  onChange={handleChange}
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                >
+                  <option value="">Select Lead Needs and Goals</option>
+                  <option value="savings">Savings</option>
+                  <option value="borrowings">Borrowings</option>
+                </select>
+                {errors.lead_type && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.lead_type}
+                  </p>
+                )}
+              </div>
+              <div className="w-full">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="category"
+                >
+                  Lead Agent
+                </label>
+                <select
+                  name="lead_agent"
+                  id="category"
+                  value={formData.lead_agent}
+                  onChange={handleChange}
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                >
+                  <option value="">Select Lead Agent</option>
+                 {
+                  leadAgentsEmployee.map((employee)=>(
+                    <option>{employee?.name}</option>
+                  ))
+                 }
+                </select>
+                {errors.lead_type && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.lead_type}
+                  </p>
+                )}
+              </div>
+
               {formData.lead_type === "customer" && (
                 <>
                   <div className="w-full">
@@ -560,39 +635,8 @@ const Lead = () => {
                   </div>
                 </>
               )}
+
               {formData.lead_type === "agent" && (
-                <>
-                  <div className="w-full">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="category"
-                    >
-                      Agents
-                    </label>
-                    <select
-                      name="lead_agent"
-                      id="category"
-                      value={formData.lead_agent}
-                      onChange={handleChange}
-                      required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    >
-                      <option value="">Select Agent</option>
-                      {agents.map((agent) => (
-                        <option key={agent._id} value={agent._id}>
-                          {agent.name}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.lead_agent && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.lead_agent}
-                      </p>
-                    )}
-                  </div>
-                </>
-              )}
-               {formData.lead_type === "agent" && (
                 <>
                   <div className="w-full">
                     <label
