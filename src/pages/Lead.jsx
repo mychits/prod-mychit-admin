@@ -42,6 +42,7 @@ const Lead = () => {
     lead_type: "",
     lead_customer: "",
     lead_needs: "",
+    note:""
     
   });
 
@@ -54,6 +55,7 @@ const Lead = () => {
     lead_customer: "",
     lead_agent: "",
     lead_needs: "",
+    note:""
   });
 
   const handleChange = (e) => {
@@ -95,6 +97,9 @@ const Lead = () => {
     if (!data.lead_needs.trim()) {
       newErrors.lead_needs = "Lead Needs and Goals is required";
     }
+    // if(!data.note.trim()){
+    //   newErrors.note ="Note Field is Mandatory"
+    // }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -126,7 +131,8 @@ const Lead = () => {
           lead_type: "",
           lead_customer: "",
           lead_agent: "",
-          lead_needs:""
+          lead_needs:"",
+          note:""
         });
       }
     } catch (error) {
@@ -159,6 +165,7 @@ const Lead = () => {
           lead_needs: group?.lead_needs,
           group_id: group?.group_id?.group_name,
           lead_type: group.lead_type === "agent" ? "employee" : group.lead_type,
+          note:group?.note,
           lead_type_name:
             group.lead_type === "customer"
               ? group?.lead_customer?.full_name
@@ -221,6 +228,7 @@ const Lead = () => {
         lead_customer: response.data.lead_customer,
         lead_agent: response.data.lead_agent,
         lead_needs: response.data?.lead_needs,
+        note:response.data.note
       });
       setShowModalUpdate(true);
       setErrors({});
@@ -287,6 +295,7 @@ const Lead = () => {
     { key: "lead_type", header: "Lead Source Type" },
     { key: "lead_needs", header: "Lead Needs And Goals" },
     { key: "lead_type_name", header: "Lead Source Name" },
+    { key: "note", header: "Note" },
     { key: "action", header: "Action" },
   ];
 
@@ -538,6 +547,27 @@ const Lead = () => {
                     {errors.lead_type}
                   </p>
                 )}
+              </div>
+              <div className="w-full">
+              <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="date"
+                  >
+                    Note
+                  </label>
+              <input
+                    type="text"
+                    name="note"
+                    value={formData.note}
+                    onChange={handleChange}
+                    id="text"
+                    placeholder="Specify note if any!"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+
+                
+               
               </div>
 
               <div className="w-full">
@@ -810,7 +840,24 @@ const Lead = () => {
                     )}
                   </div>
                 </>
-              )}
+              )} <label
+              className="block mb-2 text-sm font-medium text-gray-900"
+              htmlFor="date"
+            >
+              Note
+            </label>
+        <input
+              type="text"
+              name="note"
+              value={updateFormData.note}
+              onChange={handleInputChange}
+              id="text"
+              placeholder="Specify note if any!"
+              required
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+            />
+
+        
                  <div className="w-full">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
