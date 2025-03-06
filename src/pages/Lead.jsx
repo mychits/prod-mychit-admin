@@ -18,7 +18,7 @@ const Lead = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
-  const [leadAgentsEmployee,setLeadAgentsEmployee] = useState([])
+ 
   const [selectedGroup, setSelectedGroup] = useState("");
   const [leads, setLeads] = useState([]);
   const [users, setUsers] = useState([]);
@@ -33,25 +33,7 @@ const Lead = () => {
     const groupId = event.target.value;
     setSelectedGroup(groupId);
   };
-useEffect(()=>{
-  async function fetchAgents(){
-    try{
-      const response = await api.get("/agent/get-agent");
-      if(response.status === 200){
-        setLeadAgentsEmployee(response.data)
-      
-      }
-      if(response.status >=400 ){
-        throw new Error("Something went wrong")
-      }
-      }catch(err){
-      console.log("Failed to fetch agents data",err.message);
-      }
 
-  }
-  fetchAgents();
-
-},[])
   const [formData, setFormData] = useState({
     lead_name: "",
     lead_phone: "",
@@ -59,7 +41,8 @@ useEffect(()=>{
     group_id: "",
     lead_type: "",
     lead_customer: "",
-    lead_agent: "",
+    lead_needs: "",
+    
   });
 
   const [updateFormData, setUpdateFormData] = useState({
@@ -109,7 +92,10 @@ useEffect(()=>{
     if (data.lead_type === "agent" && !data.lead_agent) {
       newErrors.lead_agent = "Agent selection is required";
     }
-
+    if (!data.lead_needs.trim()) {
+      newErrors.lead_needs = "Lead Needs and Goals is required";
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -140,6 +126,7 @@ useEffect(()=>{
           lead_type: "",
           lead_customer: "",
           lead_agent: "",
+          lead_needs:""
         });
       }
     } catch (error) {
@@ -169,6 +156,7 @@ useEffect(()=>{
           name: group.lead_name,
           phone: group.lead_phone,
           profession: group.lead_profession,
+          lead_needs: group?.lead_needs,
           group_id: group?.group_id?.group_name,
           lead_type: group.lead_type === "agent" ? "employee" : group.lead_type,
           lead_type_name:
@@ -219,6 +207,7 @@ useEffect(()=>{
   const handleUpdateModalOpen = async (groupId) => {
     try {
       const response = await api.get(`/lead/get-lead-by-id/${groupId}`);
+      console.log("The response data is ",response.data);
       const groupData = response.data;
       //const formattedStartDate = groupData.start_date.split("T")[0];
       //  const formattedEndDate = groupData.end_date.split("T")[0];
@@ -231,6 +220,7 @@ useEffect(()=>{
         lead_type: response.data.lead_type,
         lead_customer: response.data.lead_customer,
         lead_agent: response.data.lead_agent,
+        lead_needs: response.data?.lead_needs,
       });
       setShowModalUpdate(true);
       setErrors({});
@@ -295,6 +285,7 @@ useEffect(()=>{
     { key: "profession", header: "Lead Profession" },
     { key: "group_id", header: "Group Name" },
     { key: "lead_type", header: "Lead Source Type" },
+    { key: "lead_needs", header: "Lead Needs And Goals" },
     { key: "lead_type_name", header: "Lead Source Name" },
     { key: "action", header: "Action" },
   ];
@@ -568,40 +559,13 @@ useEffect(()=>{
                   <option value="savings">Savings</option>
                   <option value="borrowings">Borrowings</option>
                 </select>
-                {errors.lead_type && (
+                {errors.lead_needs && (
                   <p className="mt-1 text-sm text-red-500">
-                    {errors.lead_type}
+                    {errors.lead_needs}
                   </p>
                 )}
               </div>
-              <div className="w-full">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
-                >
-                  Lead Agent
-                </label>
-                <select
-                  name="lead_agent"
-                  id="category"
-                  value={formData.lead_agent}
-                  onChange={handleChange}
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                >
-                  <option value="">Select Lead Agent</option>
-                 {
-                  leadAgentsEmployee.map((employee)=>(
-                    <option>{employee?.name}</option>
-                  ))
-                 }
-                </select>
-                {errors.lead_type && (
-                  <p className="mt-1 text-sm text-red-500">
-                    {errors.lead_type}
-                  </p>
-                )}
-              </div>
+             
 
               {formData.lead_type === "customer" && (
                 <>
@@ -847,6 +811,31 @@ useEffect(()=>{
                   </div>
                 </>
               )}
+                 <div className="w-full">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="category"
+                >
+                  Lead Needs and Goals
+                </label>
+                <select
+                  name="lead_needs"
+                  id="category"
+                  value={updateFormData.lead_needs}
+                  onChange={handleInputChange}
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                >
+                  <option value="">Select Lead Needs and Goals</option>
+                  <option value="savings">Savings</option>
+                  <option value="borrowings">Borrowings</option>
+                </select>
+                {errors.lead_needs && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.lead_needs}
+                  </p>
+                )}
+              </div>
               {updateFormData.lead_type === "agent" && (
                 <>
                   <div className="w-full">
