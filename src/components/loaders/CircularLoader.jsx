@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const CircularLoader = ({ seconds = 3 }) => {
+const CircularLoader = ({ seconds = 200 }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

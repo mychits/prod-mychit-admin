@@ -112,17 +112,19 @@ const Lead = () => {
 
     try {
       if (isValid) {
+        setShowModal(false);
         const response = await api.post("/lead/add-lead", formData, {
           headers: {
             "Content-Type": "application/json",
           },
         });
+        if(response.status >=400) throw new Error("Unable to add Lead")
+       
         setAlertConfig({
           visibility: true,
           message: "Lead added successfully",
           type: "success",
         });
-        setShowModal(false);
         setFormData({
           lead_name: "",
           lead_phone: "",
@@ -136,7 +138,12 @@ const Lead = () => {
         });
       }
     } catch (error) {
-      console.error("Error adding lead:", error);
+      setShowModal(false);
+      setAlertConfig({
+        visibility: true,
+        message: "Lead added successfully",
+        type: "error",
+      });
     }
   };
 

@@ -42,6 +42,7 @@ const GroupReport = () => {
   const [selectedAuctionGroup, setSelectedAuctionGroup] = useState("");
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [selectedAuctionGroupId, setSelectedAuctionGroupId] = useState("");
+  const [filteredAllAuction, setFilteredAllAuction] = useState([]);
   const [filteredAuction, setFilteredAuction] = useState([]);
   const [groupInfo, setGroupInfo] = useState({});
   const [showModal, setShowModal] = useState(false);
@@ -159,6 +160,7 @@ const GroupReport = () => {
 
   useEffect(() => {
     const fetchPayments = async () => {
+     
       try {
         const response = await api.get(`/payment/get-report-daybook`, {
           params: {
@@ -452,8 +454,8 @@ const GroupReport = () => {
   return (
     <>
       <div>
-        <div className="flex mt-20">
-          <Sidebar />
+        <div className="w-screen flex mt-20">
+          {/* <Sidebar /> */}
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold">Reports - Group</h1>
             <div className="mt-6 mb-8">
@@ -466,7 +468,7 @@ const GroupReport = () => {
                       onChange={handleGroupPayment}
                       className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                     >
-                      <option value="">Select Group</option>
+                      <option value="">All Groups</option>
                       {groups.map((group) => (
                         <option key={group._id} value={group._id}>
                           {group.group_name}
@@ -478,20 +480,8 @@ const GroupReport = () => {
               </div>
               {selectedGroup && (
                 <>
-                
                   <div className="mt-6 mb-8">
-                    
                     <div className="flex justify-start border-b border-gray-300 mb-4">
-                    <button
-                        className={`px-6 py-2 font-medium ${
-                          activeTab === "allGroups"
-                            ? "border-b-2 border-blue-500 text-blue-500"
-                            : "text-gray-500"
-                        }`}
-                        onClick={() => handleTabChange("allGroups")}
-                      >
-                        All Groups
-                      </button>
                       <button
                         className={`px-6 py-2 font-medium ${
                           activeTab === "groupDetails"
@@ -672,7 +662,7 @@ const GroupReport = () => {
                                   />
                                 </div>
                               ) : (
-                                <CircularLoader/>
+                                <CircularLoader />
                               )}
                             </div>
                           </div>
@@ -800,16 +790,16 @@ const GroupReport = () => {
                                 columns={Basiccolumns}
                                 exportedFileName={`Employees-${
                                   TableEnrolls.length > 0
-                                    ? TableEnrolls[0].name +
+                                    ? TableEnrolls[0].date +
                                       " to " +
-                                      TableEnrolls[TableEnrolls.length - 1].name
+                                      TableEnrolls[TableEnrolls.length - 1].date
                                     : "empty"
                                 }.csv`}
                               />
                             </div>
                           ) : (
                             <div className="mt-10 text-center text-gray-500">
-                              No Data Available
+                             <CircularLoader seconds={5}/>
                             </div>
                           )}
                         </div>
@@ -965,7 +955,7 @@ const GroupReport = () => {
                           </div>
                         ) : (
                           <div className="mt-10 text-center text-gray-500">
-                            No Data Available
+                           <CircularLoader seconds={5}/>
                           </div>
                         )}
                       </div>

@@ -27,6 +27,8 @@ import CircularLoader from "./components/loaders/CircularLoader";
 import Marketing from "./pages/Marketing";
 import WhatsappAdd from "./pages/WhatsappAdd";
 import WhatsappFailed from "./pages/WhatsappFailed";
+import AllGroupReport from "./pages/AllGroupReport";
+import Reports from "./pages/Reports";
 function App() {
   const location = useLocation();
   return (
@@ -105,7 +107,6 @@ function App() {
                 <ProtectedRoute>
                   <Navbar />
                   <Payment />
-                
                 </ProtectedRoute>
               }
             />
@@ -118,15 +119,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/daybook"
-              element={
-                <ProtectedRoute>
-                  <Navbar />
-                  <Daybook />
-                </ProtectedRoute>
-              }
-            />
+
             <Route
               path="/lead"
               element={
@@ -175,6 +168,74 @@ function App() {
                 <Route />
               </Route>
             </Route>
+
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <Reports />
+                </ProtectedRoute>
+              }
+            >
+              <Route
+                path="daybook"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <Daybook />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="receipt"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <Receipt />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="group-report"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <GroupReport />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="all-group-report"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+
+                    <AllGroupReport />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="auction-report"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <AuctionReport />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="user-report"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <UserReport />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
+
+            {/*            
             <Route
               path="/receipt"
               element={
@@ -183,25 +244,18 @@ function App() {
                   <Receipt />
                 </ProtectedRoute>
               }
-            />
+            /> */}
             <Route
               path="/group-report"
               element={
                 <ProtectedRoute>
                   <Navbar />
-                  <GroupReport />
+                  {/* <GroupReport /> */}
+                  <AllGroupReport />
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/user-report"
-              element={
-                <ProtectedRoute>
-                  <Navbar />
-                  <UserReport />
-                </ProtectedRoute>
-              }
-            />
+
             <Route
               path="/marketing"
               element={
@@ -239,15 +293,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/auction-report"
-              element={
-                <ProtectedRoute>
-                  <Navbar />
-                  <AuctionReport />
-                </ProtectedRoute>
-              }
-            />
+
             <Route
               path="/print/:id"
               element={

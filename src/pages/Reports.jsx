@@ -1,26 +1,15 @@
-import React, { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import React from "react";
 import Sidebar from "../components/layouts/Sidebar";
-import { FaWhatsapp } from "react-icons/fa";
+import {NavLink, Outlet } from "react-router-dom";
 const subMenus = [
-  {
-    title: "Promotion Login",
-    link: "https://app.whatsapppromotion.net/login",
-    icon: <FaWhatsapp size={20} />,
-  },
-  {
-    title: "Advertisement",
-    link: "/marketing/what-add",
-    icon: <FaWhatsapp size={20} />,
-  },
-  {
-    title: "Failed Users",
-    link: "/marketing/failed-whatuser",
-    red: true,
-    icon: <FaWhatsapp size={20} className="text-red-00" />,
-  },
+  { title: "Daybook", link: "/reports/daybook" },
+  { title: "Group Report", link: "/reports/group-report" },
+  { title: "All Group Report", link: "/reports/all-group-report" },
+  { title: "Customer Report", link: "/reports/user-report" },
+  { title: "Receipt Report", link: "/reports/receipt" },
+  { title: "Auction Report", link: "/reports/auction-report" },
 ];
-const Marketing = () => {
+const Reports = () => {
   return (
     <div>
       <div className="w-screen flex mt-20">
@@ -48,4 +37,4 @@ const Marketing = () => {
   );
 };
 
-export default Marketing;
+export default Reports;

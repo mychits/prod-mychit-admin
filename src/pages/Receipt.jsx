@@ -385,8 +385,8 @@ const Receipt = () => {
   return (
     <>
       <div>
-        <div className="flex mt-20">
-          <Sidebar />
+        <div className="w-screen flex mt-20">
+          {/* <Sidebar /> */}
           <CustomAlert
             type={alertConfig.type}
             isVisible={alertConfig.visibility}

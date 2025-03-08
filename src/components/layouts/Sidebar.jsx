@@ -14,7 +14,7 @@ import { FaPeopleArrows, FaLayerGroup, FaUserLock } from "react-icons/fa";
 import { GiGoldBar } from "react-icons/gi";
 import { IoPeopleOutline } from "react-icons/io5";
 import { GoGraph } from "react-icons/go";
-import { FaWhatsapp } from "react-icons/fa";
+
 import { MdOutlineSmsFailed } from "react-icons/md";
 const MenuSidebar = [
   { title: "Dashboard", icon: <RiDashboardFill />, link: "/dashboard" },
@@ -42,37 +42,39 @@ const MenuSidebar = [
   {
     title: "Reports",
     icon: <GrAnalytics />,
-    submenu: true,
-    submenuItems: [
-      { title: "Daybook", link: "/daybook" },
-      { title: "Group Report", link: "/group-report" },
-      { title: "Customer Report", link: "/user-report" },
-      { title: "Receipt Report", link: "/receipt" },
-      { title: "Auction Report", link: "/auction-report" },
-    ],
+     link: "/reports"
+    // submenu: true,
+    // submenuItems: [
+    //   { title: "Daybook", link: "/daybook" },
+    //   { title: "Group Report", link: "/group-report" },
+    //   { title: "Customer Report", link: "/user-report" },
+    //   { title: "Receipt Report", link: "/receipt" },
+    //   { title: "Auction Report", link: "/auction-report" },
+    // ],
   },
   {
     title: "Marketing",
     icon: <GoGraph />,
-    submenu: true,
-    submenuItems: [
-      {
-        title: "Whatsapp Promotion Login",
-        link: "https://app.whatsapppromotion.net/login",
-        icon: <FaWhatsapp size={20}/>,
-
-      },  {
-        title: "Whatsapp Advertisement",
-        link: "/marketing/what-add",
-        icon: <FaWhatsapp size={20} />
-      },
-      {
-        title: "Whatsapp Failed Users",
-        link: "/marketing/failed-whatuser",
-        red:true,
-        icon: <FaWhatsapp size={20} className="text-red-300"/>
-      },
-    ],
+    link: "/marketing"
+    // submenu: true,
+    // submenuItems: [
+    //   {
+    //     title: "Whatsapp Promotion Login",
+    //     link: "https://app.whatsapppromotion.net/login",
+    //     icon: <FaWhatsapp size={20} />,
+    //   },
+    //   {
+    //     title: "Whatsapp Advertisement",
+    //     link: "/marketing/what-add",
+    //     icon: <FaWhatsapp size={20} />,
+    //   },
+    //   {
+    //     title: "Whatsapp Failed Users",
+    //     link: "/marketing/failed-whatuser",
+    //     red: true,
+    //     icon: <FaWhatsapp size={20} className="text-red-300" />,
+    //   },
+    // ],
   },
   { title: "Profile", spacing: true, icon: <CgProfile />, link: "/profile" },
   {
@@ -113,7 +115,7 @@ const Sidebar = () => {
   return (
     <>
       <div
-        className={`bg-secondary h-auto p-5 pt-8 ${
+        className={`bg-secondary min-h-screen max-h-auto p-5 pt-8 ${
           open ? "w-64" : "w-20"
         } duration-300 relative`}
       >
@@ -168,14 +170,13 @@ const Sidebar = () => {
                   {menu.submenuItems.map((submenuItem, index) => (
                     <>
                       {/* Use target="_blank" for external links */}
-                      
+
                       <a href={submenuItem.link} rel="noopener noreferrer">
-                      
                         <li
                           key={index}
-                          className={
-                           
-                            `${submenuItem.red ?"text-red-300":"text-gray-300"} select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
+                          className={`${
+                            submenuItem.red ? "text-red-300" : "text-gray-300"
+                          } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
                             menu.spacing ? "mt-9" : "mt-2"
                           }`}
                         >

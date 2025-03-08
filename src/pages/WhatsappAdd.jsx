@@ -180,9 +180,9 @@ const WhatsappAdd = () => {
 
   return (
     <>
-      <div>
-        <div className="flex mt-20">
-          <Sidebar />
+      <div className="w-screen">
+        <div className=" flex mt-20">
+          {/* <Sidebar /> */}
           <CustomAlert
             type={alertConfig.type}
             isVisible={alertConfig.visibility}

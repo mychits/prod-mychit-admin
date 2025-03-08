@@ -334,9 +334,9 @@ const WhatsappFailed = () => {
 
   return (
     <>
-      <div>
+      <div className="w-screen">
         <div className="flex mt-20">
-          <Sidebar />
+          {/* <Sidebar /> */}
           <CustomAlert
             type={alertConfig.type}
             isVisible={alertConfig.visibility}

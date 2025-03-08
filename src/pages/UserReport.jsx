@@ -515,8 +515,8 @@ const UserReport = () => {
   return (
     <>
       <div>
-        <div className="flex mt-20">
-          <Sidebar />
+        <div className="w-screen flex mt-20">
+          {/* <Sidebar /> */}
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold">Reports - Customer</h1>
             <div className="mt-6 mb-8">

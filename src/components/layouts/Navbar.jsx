@@ -13,7 +13,7 @@ const Navbar = () => {
   const [showModal, setShowModal] = useState(false);
   return (
     <>
-      <nav className="bg-white w-full fixed top-0 left-0 z-10 shadow-m">
+      <nav className="bg-white w-full fixed top-0 left-0 z-10 shadow-md">
         <div className="container flex justify-between items-center py-2 px-10">
           <div className="text-2xl flex items-center gap-2 font-bold py-4 uppercase">
             <AiTwotoneGold />
@@ -27,9 +27,9 @@ const Navbar = () => {
                 ? "text-blue-900 font-bold border-b-2 border-blue-900 "
                 : "text-gray-700 font-medium  hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
             }
-            to={"/payment"}
+            to={"/reports/group-report"}
           >
-            Payments
+            Group Report
           </NavLink>
 
           <NavLink
@@ -38,7 +38,7 @@ const Navbar = () => {
                 ? "text-blue-900 font-bold border-b-2 border-blue-900"
                 : "text-gray-700 font-medium hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
             }
-            to={"/daybook"}
+            to={"/reports/daybook"}
           >
             Day Book
           </NavLink>
@@ -48,7 +48,7 @@ const Navbar = () => {
                 ? "text-blue-900 font-bold border-b-2 border-blue-900"
                 : "text-gray-700 font-medium hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
             }
-            to={"/receipt"}
+            to={"/reports/receipt"}
           >
             Receipt Report
           </NavLink>
@@ -58,11 +58,30 @@ const Navbar = () => {
                 ? "text-blue-900 font-bold border-b-2 border-blue-900"
                 : "text-gray-700 font-medium hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
             }
-            to={"/user-report"}
+            to={"/reports/user-report"}
           >
             Customer Report
           </NavLink>
-
+          <NavLink
+            className={({ isActive }) =>
+              isActive
+                ? "text-blue-900 font-bold border-b-2 border-blue-900"
+                : "text-gray-700 font-medium hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
+            }
+            to={"/reports/all-group-report"}
+          >
+            All Group Report
+          </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              isActive
+                ? "text-blue-900 font-bold border-b-2 border-blue-900"
+                : "text-gray-700 font-medium hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
+            }
+            to={"/marketing/what-add"}
+          >
+            Whatsapp 
+          </NavLink>
           {/* <div className="hidden md:block">
             <ul className="flex items-center gap-6 text-gray">
               {NavbarMenu.map((item) => {
