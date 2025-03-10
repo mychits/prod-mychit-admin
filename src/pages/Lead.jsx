@@ -55,7 +55,7 @@ const Lead = () => {
     lead_customer: "",
     lead_agent: "",
     lead_needs: "",
-    note:""
+    note:"",
   });
 
   const handleChange = (e) => {
@@ -151,6 +151,7 @@ const Lead = () => {
     const fetchGroups = async () => {
       try {
         const response = await api.get("/group/get-group");
+       
         setGroups(response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
@@ -163,6 +164,7 @@ const Lead = () => {
     const fetchLeads = async () => {
       try {
         const response = await api.get("/lead/get-lead");
+        console.log("response data",response.data);
         setLeads(response.data);
         const formattedData = response.data.map((group, index) => ({
           id: index + 1,
@@ -171,6 +173,8 @@ const Lead = () => {
           profession: group.lead_profession,
           lead_needs: group?.lead_needs,
           group_id: group?.group_id?.group_name,
+          date:group?.createdAt.split("T")[0]
+          ,
           lead_type: group.lead_type === "agent" ? "employee" : group.lead_type,
           note:group?.note,
           lead_type_name:
@@ -298,6 +302,7 @@ const Lead = () => {
     { key: "name", header: "Lead Name" },
     { key: "phone", header: "Lead Phone Number" },
     { key: "profession", header: "Lead Profession" },
+    { key: "date", header: "Lead Created At" },
     { key: "group_id", header: "Group Name" },
     { key: "lead_type", header: "Lead Source Type" },
     { key: "lead_needs", header: "Lead Needs And Goals" },
