@@ -4,7 +4,7 @@ import {NavLink, Outlet } from "react-router-dom";
 const subMenus = [
   { title: "Daybook", link: "/reports/daybook" },
   { title: "Group Report", link: "/reports/group-report" },
-  { title: "All Group Report", link: "/reports/all-group-report" },
+  // { title: "All Group Report", link: "/reports/all-group-report" },
   { title: "Customer Report", link: "/reports/user-report" },
   { title: "Receipt Report", link: "/reports/receipt" },
   { title: "Auction Report", link: "/reports/auction-report" },
