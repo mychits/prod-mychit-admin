@@ -453,7 +453,7 @@ const GroupReport = () => {
 
   return (
     <>
-      <div>
+      <div className="w-screen">
         <div className="w-screen flex mt-20">
           {/* <Sidebar /> */}
           <div className="flex-grow p-7">
