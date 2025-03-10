@@ -20,9 +20,12 @@ const AllGroupReport = () => {
     { key: "amount_balance", header: "Amount Balance" },
   ];
   useEffect(() => {
+    const controller = new AbortController();
     async function getAllGroupReport() {
       try {
-        const response = await api.get(`/group-report/get-all-group-enroll`);
+        const response = await api.get(`/group-report/get-all-group-enroll`,{
+          signal:controller.signal
+        });
         console.log(response.data);
         if (response.data && response.data.length > 0) {
           setFilteredUsers(response.data);
@@ -33,39 +36,37 @@ const AllGroupReport = () => {
           const toBePaid = response.data;
           setGroupToBePaid(toBePaid[0].totalToBePaidAmount);
 
-          const formattedData = response.data
-            .filter((group) => group?.user?.email && group.group.group_name)
-            .map((group, index) => {
-              return {
-                id: index + 1,
-                name: group?.user?.full_name,
-                phone_number: group?.user?.phone_number,
-                start_date: group?.group?.start_date.split("T")[0],
-                ticket: group.ticket,
-                group_name: group?.group?.group_name,
-                amount_to_be_paid:
-                  group?.group?.group_type === "double"
-                    ? parseInt(group?.group?.group_install) *
-                        parseInt(group.auctionCount) +
-                      parseInt(group?.group?.group_install)
-                    : parseInt(group?.group?.group_install) +
-                      group.totalToBePaidAmount +
-                      parseInt(group.dividentHead),
+          const formattedData = response.data.map((group, index) => {
+            return {
+              id: index + 1,
+              name: group?.user?.full_name,
+              phone_number: group?.user?.phone_number,
+              start_date: group?.group?.start_date.split("T")[0],
+              ticket: group.ticket,
+              group_name: group?.group?.group_name,
+              amount_to_be_paid:
+                group?.group?.group_type === "double"
+                  ? parseInt(group?.group?.group_install) *
+                      parseInt(group.auctionCount) +
+                    parseInt(group?.group?.group_install)
+                  : parseInt(group?.group?.group_install) +
+                    group.totalToBePaidAmount +
+                    parseInt(group.dividentHead),
 
-                amount_paid: group.totalPaidAmount,
+              amount_paid: group.totalPaidAmount,
 
-                amount_balance:
-                  group?.group?.group_type === "double"
-                    ? parseInt(group?.group?.group_install) *
-                        parseInt(group.auctionCount) +
-                      parseInt(group?.group?.group_install) -
-                      group.totalPaidAmount
-                    : parseInt(group?.group?.group_install) +
-                      group.totalToBePaidAmount +
-                      parseInt(group.dividentHead) -
-                      group.totalPaidAmount,
-              };
-            });
+              amount_balance:
+                group?.group?.group_type === "double"
+                  ? parseInt(group?.group?.group_install) *
+                      parseInt(group.auctionCount) +
+                    parseInt(group?.group?.group_install) -
+                    group.totalPaidAmount
+                  : parseInt(group?.group?.group_install) +
+                    group.totalToBePaidAmount +
+                    parseInt(group.dividentHead) -
+                    group.totalPaidAmount,
+            };
+          });
           console.log("formatted all group", formattedData);
           setTableEnrollsData(formattedData);
           // setBasicLoading(false);
@@ -78,6 +79,10 @@ const AllGroupReport = () => {
       }
     }
     getAllGroupReport();
+   
+    return () => {
+      controller.abort(); 
+    };
   }, []);
   return (
     <div className="w-screen">

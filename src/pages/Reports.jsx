@@ -15,7 +15,7 @@ const Reports = () => {
       <div className="w-screen flex mt-20">
         <Sidebar />
         <div className="flex-grow">
-          <div className="w-[300px] bg-gray-50 min-h-screen max-h-auto p-4">
+          <div className="w-[300px] bg-gray-50 h-full  p-4">
             {subMenus.map(({ title, link, icon, red }) => (
               <NavLink
                 className={({ isActive }) =>

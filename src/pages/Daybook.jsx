@@ -205,7 +205,7 @@ const Daybook = () => {
             (sum, payment) => sum + Number(payment.amount || 0),
             0
           );
-          setPayments(totalAmount);
+          setPayments(totalAmount || 0);
           const formattedData = response.data.map((group, index) => ({
             id: index + 1,
             group: group.group_id.group_name,
@@ -420,7 +420,7 @@ const Daybook = () => {
                   <div>
                     <h1 className="text-md mt-6">
                       Total Amount:{" "}
-                      <span className="text-xl">₹{payments || 0}</span>
+                      <span className="text-xl">₹{payments + 0}</span>
                     </h1>
                   </div>
                 </div>

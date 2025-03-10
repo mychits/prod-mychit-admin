@@ -29,8 +29,8 @@ import WhatsappAdd from "./pages/WhatsappAdd";
 import WhatsappFailed from "./pages/WhatsappFailed";
 import AllGroupReport from "./pages/AllGroupReport";
 import Reports from "./pages/Reports";
+
 function App() {
-  const location = useLocation();
   return (
     <>
       <div className="overflow-x-hidden">
@@ -178,83 +178,14 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route
-                path="daybook"
-                element={
-                  <ProtectedRoute>
-                    <Navbar />
-                    <Daybook />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="receipt"
-                element={
-                  <ProtectedRoute>
-                    <Navbar />
-                    <Receipt />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="group-report"
-                element={
-                  <ProtectedRoute>
-                    <Navbar />
-                    <GroupReport />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="all-group-report"
-                element={
-                  <ProtectedRoute>
-                    <Navbar />
-
-                    <AllGroupReport />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="auction-report"
-                element={
-                  <ProtectedRoute>
-                    <Navbar />
-                    <AuctionReport />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="user-report"
-                element={
-                  <ProtectedRoute>
-                    <Navbar />
-                    <UserReport />
-                  </ProtectedRoute>
-                }
-              />
+            
+              <Route path="daybook" element={<Daybook />} />
+              <Route path="receipt" element={<Receipt />} />
+              <Route path="group-report" element={<GroupReport />} />
+              <Route path="all-group-report" element={<AllGroupReport />} />
+              <Route path="auction-report" element={<AuctionReport />} />
+              <Route path="user-report" element={<UserReport />} />
             </Route>
-
-            {/*            
-            <Route
-              path="/receipt"
-              element={
-                <ProtectedRoute>
-                  <Navbar />
-                  <Receipt />
-                </ProtectedRoute>
-              }
-            /> */}
-            <Route
-              path="/group-report"
-              element={
-                <ProtectedRoute>
-                  <Navbar />
-                  {/* <GroupReport /> */}
-                  <AllGroupReport />
-                </ProtectedRoute>
-              }
-            />
 
             <Route
               path="/marketing"
@@ -265,24 +196,8 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route
-                path="what-add"
-                element={
-                  <ProtectedRoute>
-                    <Navbar />
-                    <WhatsappAdd />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="failed-whatuser"
-                element={
-                  <ProtectedRoute>
-                    <Navbar />
-                    <WhatsappFailed />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="what-add" element={<WhatsappAdd />} />
+              <Route path="failed-whatuser" element={<WhatsappFailed />} />
             </Route>
             <Route
               path="/profile"

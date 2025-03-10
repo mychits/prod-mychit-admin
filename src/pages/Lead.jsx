@@ -18,7 +18,7 @@ const Lead = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
- 
+
   const [selectedGroup, setSelectedGroup] = useState("");
   const [leads, setLeads] = useState([]);
   const [users, setUsers] = useState([]);
@@ -42,8 +42,7 @@ const Lead = () => {
     lead_type: "",
     lead_customer: "",
     lead_needs: "",
-    note:""
-    
+    note: "",
   });
 
   const [updateFormData, setUpdateFormData] = useState({
@@ -55,7 +54,7 @@ const Lead = () => {
     lead_customer: "",
     lead_agent: "",
     lead_needs: "",
-    note:"",
+    note: "",
   });
 
   const handleChange = (e) => {
@@ -100,7 +99,7 @@ const Lead = () => {
     // if(!data.note.trim()){
     //   newErrors.note ="Note Field is Mandatory"
     // }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -118,8 +117,8 @@ const Lead = () => {
             "Content-Type": "application/json",
           },
         });
-        if(response.status >=400) throw new Error("Unable to add Lead")
-       
+        if (response.status >= 400) throw new Error("Unable to add Lead");
+
         setAlertConfig({
           visibility: true,
           message: "Lead added successfully",
@@ -133,8 +132,8 @@ const Lead = () => {
           lead_type: "",
           lead_customer: "",
           lead_agent: "",
-          lead_needs:"",
-          note:""
+          lead_needs: "",
+          note: "",
         });
       }
     } catch (error) {
@@ -151,7 +150,7 @@ const Lead = () => {
     const fetchGroups = async () => {
       try {
         const response = await api.get("/group/get-group");
-       
+
         setGroups(response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
@@ -164,7 +163,7 @@ const Lead = () => {
     const fetchLeads = async () => {
       try {
         const response = await api.get("/lead/get-lead");
-        console.log("response data",response.data);
+        console.log("response data", response.data);
         setLeads(response.data);
         const formattedData = response.data.map((group, index) => ({
           id: index + 1,
@@ -173,10 +172,9 @@ const Lead = () => {
           profession: group.lead_profession,
           lead_needs: group?.lead_needs,
           group_id: group?.group_id?.group_name,
-          date:group?.createdAt.split("T")[0]
-          ,
+          date: group?.createdAt.split("T")[0],
           lead_type: group.lead_type === "agent" ? "employee" : group.lead_type,
-          note:group?.note,
+          note: group?.note,
           lead_type_name:
             group.lead_type === "customer"
               ? group?.lead_customer?.full_name
@@ -225,7 +223,7 @@ const Lead = () => {
   const handleUpdateModalOpen = async (groupId) => {
     try {
       const response = await api.get(`/lead/get-lead-by-id/${groupId}`);
-      console.log("The response data is ",response.data);
+      console.log("The response data is ", response.data);
       const groupData = response.data;
       //const formattedStartDate = groupData.start_date.split("T")[0];
       //  const formattedEndDate = groupData.end_date.split("T")[0];
@@ -239,7 +237,7 @@ const Lead = () => {
         lead_customer: response.data.lead_customer,
         lead_agent: response.data.lead_agent,
         lead_needs: response.data?.lead_needs,
-        note:response.data.note
+        note: response.data.note,
       });
       setShowModalUpdate(true);
       setErrors({});
@@ -347,9 +345,9 @@ const Lead = () => {
           />
 
           <div className="flex-grow p-7">
-            <div className="mt-6 mb-8">
-              <div className="flex justify-between items-center w-full">
-                <h1 className="text-2xl font-semibold">Leads</h1>
+            <div className="mt-6 mb-8 ">
+              <div className="flex justify-between items-center w-full ">
+                <h1 className="text-2xl font-semibold ">Leads</h1>
                 <button
                   onClick={() => {
                     setShowModal(true);
@@ -361,19 +359,19 @@ const Lead = () => {
                 </button>
               </div>
             </div>
-
-            <DataTable
-              data={TableGroups}
-              columns={columns}
-              exportedFileName={`Leads-${
-                TableGroups.length > 0
-                  ? TableGroups[0].name +
-                    " to " +
-                    TableGroups[TableGroups.length - 1].name
-                  : "empty"
-              }.csv`}
-            />
-
+       
+              <DataTable  
+                data={TableGroups}
+                columns={columns}
+                exportedFileName={`Leads-${
+                  TableGroups.length > 0
+                    ? TableGroups[0].date +
+                      " to " +
+                      TableGroups[TableGroups.length - 1].date
+                    : "empty"
+                }.csv`}
+              />
+      
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {/* {filteredGroups.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
@@ -561,25 +559,22 @@ const Lead = () => {
                 )}
               </div>
               <div className="w-full">
-              <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Note
-                  </label>
-              <input
-                    type="text"
-                    name="note"
-                    value={formData.note}
-                    onChange={handleChange}
-                    id="text"
-                    placeholder="Specify note if any!"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-
-                
-               
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="date"
+                >
+                  Note
+                </label>
+                <input
+                  type="text"
+                  name="note"
+                  value={formData.note}
+                  onChange={handleChange}
+                  id="text"
+                  placeholder="Specify note if any!"
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                />
               </div>
 
               <div className="w-full">
@@ -607,7 +602,6 @@ const Lead = () => {
                   </p>
                 )}
               </div>
-             
 
               {formData.lead_type === "customer" && (
                 <>
@@ -770,7 +764,6 @@ const Lead = () => {
                   )}
                 </div>
               </div>
-
               <div className="w-full">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -852,25 +845,24 @@ const Lead = () => {
                     )}
                   </div>
                 </>
-              )} <label
-              className="block mb-2 text-sm font-medium text-gray-900"
-              htmlFor="date"
-            >
-              Note
-            </label>
-        <input
-              type="text"
-              name="note"
-              value={updateFormData.note}
-              onChange={handleInputChange}
-              id="text"
-              placeholder="Specify note if any!"
-              required
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-            />
-
-        
-                 <div className="w-full">
+              )}{" "}
+              <label
+                className="block mb-2 text-sm font-medium text-gray-900"
+                htmlFor="date"
+              >
+                Note
+              </label>
+              <input
+                type="text"
+                name="note"
+                value={updateFormData.note}
+                onChange={handleInputChange}
+                id="text"
+                placeholder="Specify note if any!"
+                required
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+              />
+              <div className="w-full">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"

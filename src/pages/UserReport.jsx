@@ -69,7 +69,7 @@ const UserReport = () => {
   const [selectedCustomers, setSelectedCustomers] = useState("");
   const [payments, setPayments] = useState([]);
   const [availableTickets, setAvailableTickets] = useState([]);
-
+  const [screenLoading, setScreenLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("groupDetails");
 
   const handleTabChange = (tab) => {
@@ -96,11 +96,13 @@ const UserReport = () => {
   };
 
   useEffect(() => {
+    setScreenLoading(true);
     const fetchGroups = async () => {
       setDetailLoading(true);
       try {
         const response = await api.get("/user/get-user");
         setGroups(response.data);
+        setScreenLoading(false);
         setDetailLoading(false);
       } catch (error) {
         console.error("Error fetching group data:", error);
@@ -365,9 +367,9 @@ const UserReport = () => {
           const toBePaid = response.data;
           setGroupToBePaid(toBePaid[0].totalToBePaidAmount);
 
-          let balance=0;
+          let balance = 0;
           const formattedData = response.data.map((group, index) => {
-            balance+=Number(group.amount)
+            balance += Number(group.amount);
             return {
               id: index + 1,
               date: formatPayDate(group?.pay_date),
@@ -375,11 +377,19 @@ const UserReport = () => {
               receipt: group.receipt_no,
               old_receipt: group.old_receipt_no,
               type: group.pay_type,
-              balance 
+              balance,
             };
           });
-          formattedData.push({id:"",date:"",amount:"",receipt:"",old_receipt:"",type:"",balance})
-          
+          formattedData.push({
+            id: "",
+            date: "",
+            amount: "",
+            receipt: "",
+            old_receipt: "",
+            type: "",
+            balance,
+          });
+
           setTableEnrolls(formattedData);
         } else {
           setFilteredUsers([]);
@@ -511,10 +521,16 @@ const UserReport = () => {
       setAvailableTickets([]);
     }
   }, [selectedGroup]);
+  if (screenLoading)
+    return (
+      <div className="w-screen  flex  justify-start items-start m-28 h-full">
+        <CircularLoader color="text-green-600"/>;
+      </div>
+    );
 
   return (
     <>
-      <div  className="w-screen">
+      <div className="w-screen">
         <div className="flex mt-20">
           {/* <Sidebar /> */}
           <div className="flex-grow p-7">

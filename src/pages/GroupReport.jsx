@@ -37,10 +37,8 @@ const GroupReport = () => {
   const [groupToBePaidDate, setGroupToBePaidDate] = useState("");
   const [detailsLoading, setDetailLoading] = useState(false);
   const [basicLoading, setBasicLoading] = useState(false);
-  const [dateLoading, setDateLoading] = useState(false);
+  const [screenLoading, setScreenLoading] = useState(true);
 
-  const [selectedAuctionGroup, setSelectedAuctionGroup] = useState("");
-  const [selectedGroupId, setSelectedGroupId] = useState("");
   const [selectedAuctionGroupId, setSelectedAuctionGroupId] = useState("");
   const [filteredAllAuction, setFilteredAllAuction] = useState([]);
   const [filteredAuction, setFilteredAuction] = useState([]);
@@ -88,12 +86,14 @@ const GroupReport = () => {
   };
 
   useEffect(() => {
+    setScreenLoading(true);
     const fetchGroups = async () => {
       setDetailLoading(true);
       try {
         const response = await api.get("/group/get-group");
         setGroups(response.data);
         setDetailLoading(false);
+        setScreenLoading(false);
       } catch (error) {
         console.error("Error fetching group data:", error);
       } finally {
@@ -160,7 +160,6 @@ const GroupReport = () => {
 
   useEffect(() => {
     const fetchPayments = async () => {
-     
       try {
         const response = await api.get(`/payment/get-report-daybook`, {
           params: {
@@ -450,7 +449,12 @@ const GroupReport = () => {
       setAvailableTickets([]);
     }
   }, [selectedGroup]);
-
+  if (screenLoading)
+    return (
+      <div className="w-screen flex flex-start items-start m-28">
+        <CircularLoader color="text-green-600" />
+      </div>
+    );
   return (
     <>
       <div className="w-screen">
@@ -799,7 +803,7 @@ const GroupReport = () => {
                             </div>
                           ) : (
                             <div className="mt-10 text-center text-gray-500">
-                             <CircularLoader seconds={5}/>
+                              <CircularLoader seconds={5} />
                             </div>
                           )}
                         </div>
@@ -955,7 +959,7 @@ const GroupReport = () => {
                           </div>
                         ) : (
                           <div className="mt-10 text-center text-gray-500">
-                           <CircularLoader seconds={5}/>
+                            <CircularLoader seconds={5} />
                           </div>
                         )}
                       </div>
