@@ -385,7 +385,7 @@ const Receipt = () => {
   return (
     <>
       <div className="w-screen">
-        <div className="w-screen flex mt-20">
+        <div className="flex mt-20">
           {/* <Sidebar /> */}
           <CustomAlert
             type={alertConfig.type}

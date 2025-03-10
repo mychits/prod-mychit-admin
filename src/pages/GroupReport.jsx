@@ -454,7 +454,7 @@ const GroupReport = () => {
   return (
     <>
       <div className="w-screen">
-        <div className="w-screen flex mt-20">
+        <div className="flex mt-20">
           {/* <Sidebar /> */}
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold">Reports - Group</h1>
@@ -468,7 +468,7 @@ const GroupReport = () => {
                       onChange={handleGroupPayment}
                       className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                     >
-                      <option value="">All Groups</option>
+                      <option value="">select Groups</option>
                       {groups.map((group) => (
                         <option key={group._id} value={group._id}>
                           {group.group_name}
