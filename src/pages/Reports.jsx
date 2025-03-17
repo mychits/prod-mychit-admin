@@ -8,6 +8,7 @@ const subMenus = [
   { title: "Customer Report", link: "/reports/user-report" },
   { title: "Receipt Report", link: "/reports/receipt" },
   { title: "Auction Report", link: "/reports/auction-report" },
+  { title: "Lead Report", link: "/reports/lead-report" },
 ];
 const Reports = () => {
   return (

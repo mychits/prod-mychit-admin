@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+
 import { AiOutlineGold } from "react-icons/ai";
-import Url from "../data/Url";
+
 import { useNavigate } from "react-router-dom";
+import api from "../instance/TokenInstance";
 
 const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -19,7 +20,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${Url}/admin/login`, {
+      const response = await api.post(`/admin/login`, {
         phoneNumber,
         password,
       });

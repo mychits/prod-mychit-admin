@@ -9,6 +9,8 @@ import {
 import CircularLoader from "../loaders/CircularLoader";
 
 const DataTable = ({
+  updateHandler = () => {},
+  catcher="_id",
   isExportEnabled = true,
   data = [],
   columns = [],
@@ -81,7 +83,9 @@ const DataTable = ({
     a.click();
     window.URL.revokeObjectURL(url);
   };
-
+  const changeColor = (index) => {
+    return index % 2 === 0;
+  };
   const printToPDF = () => {
     const printContent = document.createElement("div");
     printContent.innerHTML = `
@@ -137,7 +141,7 @@ const DataTable = ({
                     ${safeColumns
                       .map(
                         (column) => `
-                      <td>${row[column.key]||"-"}</td>
+                      <td>${row[column.key] || "-"}</td>
                     `
                       )
                       .join("")}
@@ -181,27 +185,29 @@ const DataTable = ({
           <Search className="w-4 h-4 text-gray-500 absolute right-3" />
         </div>
 
-        {isExportEnabled && <div className="flex items-center gap-2">
-          <button
-            onClick={exportToExcel}
-            className="flex items-center gap-2 px-4 py-2 rounded-md 
+        {isExportEnabled && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={exportToExcel}
+              className="flex items-center gap-2 px-4 py-2 rounded-md 
     bg-[#217346] hover:bg-[#1a5c38] text-white 
     transition-colors duration-200 
     shadow-sm font-medium"
-          >
-            <Download className="w-4 h-4" />
-            Export Excel
-          </button>
-          <button
-            onClick={printToPDF}
-            className="flex items-center gap-2 px-4 py-2 rounded-md bg-green-700 hover:bg-green-900 text-white 
+            >
+              <Download className="w-4 h-4" />
+              Export Excel
+            </button>
+            <button
+              onClick={printToPDF}
+              className="flex items-center gap-2 px-4 py-2 rounded-md bg-green-700 hover:bg-green-900 text-white 
     transition-colors duration-200 
     shadow-sm font-medium"
-          >
-            <Printer className="w-4 h-4" />
-            Print PDF
-          </button>
-        </div>}
+            >
+              <Printer className="w-4 h-4" />
+              Print PDF
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="border rounded-lg overflow-x-auto">
@@ -251,11 +257,19 @@ const DataTable = ({
               ))}
             </tr>
             {paginatedData.map((row, index) => (
-              <tr key={index} className="hover:bg-gray-50">
+              <tr
+                key={index}
+                className={`${
+                  changeColor(index) ? "bg-blue-50" : "bg-white"
+                } hover:bg-gray-100`}
+              >
                 {safeColumns.map((column) => (
                   <td
                     key={`${index}-${column.key}`}
-                    className="px-6 py-4 whitespace-nowrap"
+                    className="px-6 py-4"
+                    onDoubleClick={() =>{ 
+                      console.log("row",row)
+                      updateHandler(row[catcher])}}
                   >
                     {row[column.key]}
                   </td>

@@ -2,14 +2,15 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import { MdDelete } from "react-icons/md";
-import { CiEdit } from "react-icons/ci";
 import Modal from "../components/modals/Modal";
-import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
-
-const Lead = () => {
+import TabModal from "../components/modals/TabModal";
+import { IoMdMore } from "react-icons/io";
+import CustomContextMenu from "../components/contextMenu/CustomContextMenu";
+import CircularLoader from "../components/loaders/CircularLoader";
+const LeadReport = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,12 +19,15 @@ const Lead = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
-
+  const [selectiveGroups, setSelectiveGroups] = useState([]);
+  const [loader, setLoader] = useState(false);
+  const [secondaryLoader, setSecondaryLoader] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState("");
   const [leads, setLeads] = useState([]);
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [errors, setErrors] = useState({});
+
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -44,7 +48,7 @@ const Lead = () => {
     lead_needs: "",
     note: "",
   });
-
+  const [showContextMenu, setShowContextMenu] = useState({});
   const [updateFormData, setUpdateFormData] = useState({
     lead_name: "",
     lead_phone: "",
@@ -56,15 +60,11 @@ const Lead = () => {
     lead_needs: "",
     note: "",
   });
+  const [selectedFromDate, setSelectedFromDate] = useState("");
+  const [selectedToDate, setSelectedToDate] = useState("");
+  const [selectedLeadSourceName, setSelectedLeadSourceName] = useState("");
+  const [selectedNote, setSelectedNote] = useState("");
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-  };
   const validateForm = (type) => {
     const newErrors = {};
     const data = type === "addLead" ? formData : updateFormData;
@@ -104,48 +104,6 @@ const Lead = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const isValid = validateForm("addLead");
-
-    try {
-      if (isValid) {
-        setShowModal(false);
-        const response = await api.post("/lead/add-lead", formData, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (response.status >= 400) throw new Error("Unable to add Lead");
-
-        setAlertConfig({
-          visibility: true,
-          message: "Lead added successfully",
-          type: "success",
-        });
-        setFormData({
-          lead_name: "",
-          lead_phone: "",
-          lead_profession: "",
-          group_id: "",
-          lead_type: "",
-          lead_customer: "",
-          lead_agent: "",
-          lead_needs: "",
-          note: "",
-        });
-      }
-    } catch (error) {
-      setShowModal(false);
-      setAlertConfig({
-        visibility: true,
-        message: "Lead added successfully",
-        type: "error",
-      });
-    }
-  };
-
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -158,48 +116,67 @@ const Lead = () => {
     };
     fetchGroups();
   }, []);
-
+  const onContextMenuPressed = (id) => {
+    setShowContextMenu((prev) => ({ ...prev, [id]: true }));
+    console.log(showContextMenu);
+  };
   useEffect(() => {
     const fetchLeads = async () => {
+      setLoader(true);
       try {
         const response = await api.get("/lead/get-lead");
-        console.log("response data", response.data);
-        setLeads(response.data);
-        const formattedData = response.data.map((group, index) => ({
-          id: index + 1,
-          name: group.lead_name,
-          phone: group.lead_phone,
-          profession: group.lead_profession,
-          lead_needs: group?.lead_needs,
-          group_id: group?.group_id?.group_name,
-          date: group?.createdAt.split("T")[0],
-          lead_type: group.lead_type === "agent" ? "employee" : group.lead_type,
-          note: group?.note,
-          lead_type_name:
-            group.lead_type === "customer"
-              ? group?.lead_customer?.full_name
-              : group.lead_type === "agent"
-              ? group?.lead_agent?.name
-              : "",
-          action: (
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => handleUpdateModalOpen(group._id)}
-                className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-              >
-                <CiEdit color="green" />
-              </button>
-              <button
-                onClick={() => handleDeleteModalOpen(group._id)}
-                className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-              >
-                <MdDelete color="red" />
-              </button>
-            </div>
-          ),
-        }));
-        setTableGroups(formattedData);
+        setLoader(false);
+        const tempData = {};
+        if (response.data) {
+          //   response.data.forEach((element) => {
+          //     tempData[element.group_id._id] = false;
+          //   });
+          setShowContextMenu(tempData);
+          setLeads(response.data);
+          console.log("this is leads", leads);
+          const formattedData = response.data.map((group, index) => ({
+            _id: group._id,
+            id: index + 1,
+            name: group.lead_name,
+            phone: group.lead_phone,
+            profession: group.lead_profession,
+            lead_needs: group?.lead_needs,
+            group_id: group?.group_id?.group_name,
+            date: group?.createdAt.split("T")[0],
+            lead_type:
+              group.lead_type === "agent" ? "employee" : group.lead_type,
+            note: group?.note,
+            lead_type_name:
+              group.lead_type === "customer"
+                ? group?.lead_customer?.full_name
+                : group.lead_type === "agent"
+                ? group?.lead_agent?.name
+                : "",
+            action: (
+              <div className="flex justify-center gap-2 relative">
+                {/* <button
+
+              
+                >
+                  <IoMdMore color="black" />
+                  <CustomContextMenu
+                    onClickHandler={() => onContextMenuPressed(group._id)}
+                  /> 
+                </button> */}
+
+                <button
+                  onClick={() => handleDeleteModalOpen(group._id)}
+                  className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
+                >
+                  <MdDelete color="red" />
+                </button>
+              </div>
+            ),
+          }));
+          setTableGroups(formattedData);
+        }
       } catch (error) {
+        setLoader(true);
         console.error("Error fetching group data:", error);
       }
     };
@@ -332,35 +309,172 @@ const Lead = () => {
     };
     fetchAgents();
   }, []);
+  useEffect(() => {
+    const fetchFilteredLead = async () => {
+      setLoader(true);
+      try {
+        const response = await api.get("/lead-report/get-lead-report", {
+          params: {
+            from_date: selectedFromDate,
+            to_date: selectedToDate,
+            lead_source_name: selectedLeadSourceName,
+            group_id: selectedGroup,
+            note: selectedNote,
+          },
+        });
+        setLoader(false);
+
+        const formattedData = response.data.map((group, index) => ({
+          _id: group._id,
+          id: index + 1,
+          name: group.lead_name,
+          phone: group.lead_phone,
+          profession: group.lead_profession,
+          lead_needs: group?.lead_needs,
+          group_id: group?.group_id?.group_name,
+          date: group?.createdAt.split("T")[0],
+          lead_type: group.lead_type === "agent" ? "employee" : group.lead_type,
+          note: group?.note,
+          lead_type_name:
+            group.lead_type === "customer"
+              ? group?.lead_customer?.full_name
+              : group.lead_type === "agent"
+              ? group?.lead_agent?.name
+              : "",
+          action: (
+            <div className="flex justify-center gap-2 relative">
+              <button
+                onClick={() => handleDeleteModalOpen(group._id)}
+                className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
+              >
+                <MdDelete color="red" />
+              </button>
+            </div>
+          ),
+        }));
+        setTableGroups(formattedData);
+      } catch (err) {
+        console.error("Failed to fetch Data", err.message);
+        setLoader(true);
+      }
+    };
+
+    fetchFilteredLead();
+  }, [
+    selectedFromDate,
+    selectedToDate,
+    selectedLeadSourceName,
+    selectedGroup,
+    selectedNote,
+  ]);
 
   return (
-    <>
+    <div className="w-full">
       <div>
-        <div className="flex mt-20">
-          <Sidebar />
+        <div className=" flex mt-20">
           <CustomAlert
             type={alertConfig.type}
             isVisible={alertConfig.visibility}
             message={alertConfig.message}
           />
-
           <div className="flex-grow p-7">
-            <div className="mt-6 mb-8 ">
-              <div className="flex justify-between items-center w-full ">
-                <h1 className="text-2xl font-semibold ">Leads</h1>
-                <button
-                  onClick={() => {
-                    setShowModal(true);
-                    setErrors({});
-                  }}
-                  className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
-                >
-                  + Add Lead
-                </button>
+            <h1 className="font-bold text-2xl">Lead Report</h1>
+            <div className="mt-6 mb-8">
+              <div className="mb-2">
+                <div className="flex justify-start items-center w-full gap-4">
+                  <div className="mb-2">
+                    <label>From Date</label>
+                    <input
+                      type="date"
+                      value={selectedFromDate}
+                      onChange={(e) => setSelectedFromDate(e.target.value)}
+                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label>To Date</label>
+                    <input
+                      type="date"
+                      value={selectedToDate}
+                      onChange={(e) => setSelectedToDate(e.target.value)}
+                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label>Group</label>
+                    <select
+                      value={selectedGroup}
+                      onChange={handleGroupChange}
+                      className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                    >
+                      <option value="">Select Group</option>
+                      {filteredGroups.map((group) => (
+                        <option key={group._id} value={group._id}>
+                          {group.group_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="mb-2">
+                    <label>Lead Source Name</label>
+                    <select
+                      value={selectedLeadSourceName}
+                      onChange={(e) =>
+                        setSelectedLeadSourceName(e.target.value)
+                      }
+                      className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                    >
+                      <option value="">Select Lead Name</option>
+                      {leads
+                        .filter(
+                          (lead) => lead?.lead_agent || lead?.lead_customer
+                        )
+                        .map((lead) => {
+                          console.log("this is lead", lead);
+                          return (
+                            <option
+                              key={lead?._id}
+                              value={
+                                lead?.lead_agent?._id ||
+                                lead?.lead_customer?._id
+                              }
+                            >
+                              {lead?.lead_agent?.name ||
+                                lead?.lead_customer?.full_name}
+                            </option>
+                          );
+                        })}
+                    </select>
+                  </div>
+                  <div className="mb-2">
+                    <label>Note</label>
+                    <select
+                      value={selectedNote}
+                      onChange={(e) => setSelectedNote(e.target.value)}
+                      className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                    >
+                      <option value="">Select Note</option>
+                      {leads
+                        .filter((lead) => lead?.note)
+                        .map((lead) => (
+                          <option key={lead?._id} value={lead?.note}>
+                            {lead.note}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
-       
+            {loader ?
+            
+            
+            <div className="flex w-full justify-center items-center">
+            <CircularLoader />;
+          </div>
+            :(
               <DataTable  
+                updateHandler={handleUpdateModalOpen}
                 data={TableGroups}
                 columns={columns}
                 exportedFileName={`Leads-${
@@ -371,7 +485,8 @@ const Lead = () => {
                     : "empty"
                 }.csv`}
               />
-      
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {/* {filteredGroups.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
@@ -425,259 +540,7 @@ const Lead = () => {
             </div>
           </div>
         </div>
-        <Modal
-          isVisible={showModal}
-          onClose={() => {
-            setShowModal(false);
-            setErrors({});
-          }}
-        >
-          <div className="py-6 px-5 lg:px-8 text-left">
-            <h3 className="mb-4 text-xl font-bold text-gray-900">Add Lead</h3>
-            <form className="space-y-6" onSubmit={handleSubmit} noValidate>
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="email"
-                >
-                  Lead Name
-                </label>
-                <input
-                  type="text"
-                  name="lead_name"
-                  value={formData.lead_name}
-                  onChange={handleChange}
-                  id="name"
-                  placeholder="Enter the Lead Name"
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                />
-                {errors.lead_name && (
-                  <p className="mt-1 text-sm text-red-500">
-                    {errors.lead_name}
-                  </p>
-                )}
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Lead Phone Number
-                  </label>
-                  <input
-                    type="number"
-                    name="lead_phone"
-                    value={formData.lead_phone}
-                    onChange={handleChange}
-                    id="text"
-                    placeholder="Enter Phone Number"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                  {errors.lead_phone && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {errors.lead_phone}
-                    </p>
-                  )}
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Lead Work/Profession
-                  </label>
-                  <select
-                    name="lead_profession"
-                    id="category"
-                    value={formData.lead_profession}
-                    onChange={handleChange}
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  >
-                    <option value="">Select Work/Profession</option>
-                    <option value="employed">Employed</option>
-                    <option value="self_employed">Self Employed</option>
-                  </select>
-                  {errors.lead_profession && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {errors.lead_profession}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="w-full">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
-                >
-                  Group
-                </label>
-                <select
-                  name="group_id"
-                  id="category"
-                  value={formData.group_id}
-                  onChange={handleChange}
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                >
-                  <option value="">Select Group</option>
-                  {groups.map((group) => (
-                    <option key={group._id} value={group._id}>
-                      {group.group_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="w-full">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
-                >
-                  Lead Source Type
-                </label>
-                <select
-                  name="lead_type"
-                  id="category"
-                  value={formData.lead_type}
-                  onChange={handleChange}
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                >
-                  <option value="">Select Lead Source Type</option>
-                  <option value="social">Social Media</option>
-                  <option value="customer">Customer</option>
-                  <option value="agent">Employee</option>
-                  <option value="walkin">Walkin</option>
-                </select>
-                {errors.lead_type && (
-                  <p className="mt-1 text-sm text-red-500">
-                    {errors.lead_type}
-                  </p>
-                )}
-              </div>
-              <div className="w-full">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="date"
-                >
-                  Note
-                </label>
-                <input
-                  type="text"
-                  name="note"
-                  value={formData.note}
-                  onChange={handleChange}
-                  id="text"
-                  placeholder="Specify note if any!"
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                />
-              </div>
 
-              <div className="w-full">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
-                >
-                  Lead Needs and Goals
-                </label>
-                <select
-                  name="lead_needs"
-                  id="category"
-                  value={formData.lead_needs}
-                  onChange={handleChange}
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                >
-                  <option value="">Select Lead Needs and Goals</option>
-                  <option value="savings">Savings</option>
-                  <option value="borrowings">Borrowings</option>
-                </select>
-                {errors.lead_needs && (
-                  <p className="mt-1 text-sm text-red-500">
-                    {errors.lead_needs}
-                  </p>
-                )}
-              </div>
-
-              {formData.lead_type === "customer" && (
-                <>
-                  <div className="w-full">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="category"
-                    >
-                      Customers
-                    </label>
-                    <select
-                      name="lead_customer"
-                      id="category"
-                      value={formData.lead_customer}
-                      onChange={handleChange}
-                      required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    >
-                      <option value="">Select Customer</option>
-                      {users.map((user) => (
-                        <option key={user._id} value={user._id}>
-                          {user.full_name}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.lead_customer && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.lead_customer}
-                      </p>
-                    )}
-                  </div>
-                </>
-              )}
-
-              {formData.lead_type === "agent" && (
-                <>
-                  <div className="w-full">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="category"
-                    >
-                      Agents
-                    </label>
-                    <select
-                      name="lead_agent"
-                      id="category"
-                      value={formData.lead_agent}
-                      onChange={handleChange}
-                      required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    >
-                      <option value="">Select Agent</option>
-                      {agents.map((agent) => (
-                        <option key={agent._id} value={agent._id}>
-                          {agent.name}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.lead_agent && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.lead_agent}
-                      </p>
-                    )}
-                  </div>
-                </>
-              )}
-              <button
-                type="submit"
-                className="w-full text-white bg-blue-700 hover:bg-blue-800
-                                focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-              >
-                Add
-              </button>
-            </form>
-          </div>
-        </Modal>
         <Modal
           isVisible={showModalUpdate}
           onClose={() => {
@@ -979,8 +842,8 @@ const Lead = () => {
           </div>
         </Modal>
       </div>
-    </>
+    </div>
   );
 };
 
-export default Lead;
+export default LeadReport;

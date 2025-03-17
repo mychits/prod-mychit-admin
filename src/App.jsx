@@ -29,6 +29,8 @@ import WhatsappAdd from "./pages/WhatsappAdd";
 import WhatsappFailed from "./pages/WhatsappFailed";
 import AllGroupReport from "./pages/AllGroupReport";
 import Reports from "./pages/Reports";
+import LeadReport from "./pages/LeadReport";
+import Sidebar from "./components/layouts/Sidebar";
 
 function App() {
   return (
@@ -184,6 +186,7 @@ function App() {
               <Route path="group-report" element={<GroupReport />} />
               <Route path="all-group-report" element={<AllGroupReport />} />
               <Route path="auction-report" element={<AuctionReport />} />
+              <Route path="lead-report" element={<LeadReport />} />
               <Route path="user-report" element={<UserReport />} />
             </Route>
 

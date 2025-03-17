@@ -178,6 +178,7 @@ const User = () => {
         const response = await api.get("/user/get-user");
         setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
+          _id:group._id,
           id: index + 1,
           name: group.full_name,
           phone_number: group.phone_number,
@@ -186,12 +187,12 @@ const User = () => {
           customer_id: group.customer_id || `Updating soon...`,
           action: (
             <div className="flex justify-end gap-2">
-              <button
+              {/* <button
                 onClick={() => handleUpdateModalOpen(group._id)}
                 className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
               >
                 <CiEdit color="green" />
-              </button>
+              </button> */}
               <button
                 onClick={() => handleDeleteModalOpen(group._id)}
                 className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
@@ -360,6 +361,8 @@ const User = () => {
               </div>
             </div>
             <DataTable
+            catcher="_id"
+            updateHandler={handleUpdateModalOpen}
               data={TableUsers}
               columns={columns}
               exportedFileName={`Customers-${

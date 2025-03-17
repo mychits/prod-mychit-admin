@@ -62,7 +62,7 @@ const Navbar = () => {
           >
             Customer Report
           </NavLink>
-          <NavLink
+          {/* <NavLink
             className={({ isActive }) =>
               isActive
                 ? "text-blue-900 font-bold border-b-2 border-blue-900"
@@ -71,7 +71,7 @@ const Navbar = () => {
             to={"/reports/all-group-report"}
           >
             All Group Report
-          </NavLink>
+          </NavLink> */}
           <NavLink
             className={({ isActive }) =>
               isActive

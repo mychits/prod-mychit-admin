@@ -79,18 +79,19 @@ const Enroll = () => {
         if (response.data && response.data.length > 0) {
           setFilteredUsers(response.data);
           const formattedData = response.data.map((group, index) => ({
+            _id:group?._id,
             id: index + 1,
             name: group?.user_id?.full_name,
             phone_number: group?.user_id?.phone_number,
             ticket: group.tickets,
             action: (
               <div className="flex justify-end gap-2">
-                <button
+                {/* <button
                   onClick={() => handleUpdateModalOpen(group._id)}
                   className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
                 >
                   <CiEdit color="green" />
-                </button>
+                </button> */}
                 <button
                   onClick={() => handleDeleteModalOpen(group._id)}
                   className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
@@ -339,6 +340,7 @@ const Enroll = () => {
               </div>
             </div>
             <DataTable
+            updateHandler={handleUpdateModalOpen}
               data={TableEnrolls}
               columns={columns}
               exportedFileName={`Enrollments-${
