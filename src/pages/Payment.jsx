@@ -111,7 +111,7 @@ const Payment = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await api.get("/group/get-group");
+        const response = await api.get("/group/get-group-admin");
         console.log("useEffect actual Group", actualGroups);
         setActualGroups(response.data);
       } catch (error) {

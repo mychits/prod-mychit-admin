@@ -33,11 +33,14 @@ const DataTable = ({
     setActive(tempData);
   }, [data]);
   const onSelectRow = (_id) => {
+    if(Object.keys(active).length>1){
     const tempActive = active;
     Object.keys(active).forEach((key) => {
       tempActive[key] = false;
+    
     });
     setActive({ ...tempActive, [_id]: true });
+  }
   };
   const searchData = (data) => {
     if (!searchQuery) return data;
@@ -278,8 +281,8 @@ const DataTable = ({
                   active[row._id]
                     ? "bg-blue-200"
                     : changeColor(index)
-                    ? "hover:bg-gray-100 bg-gray-200"
-                    :  " hover:bg-gray-100 bg-white" //
+                    ? "hover:bg-gray-200 bg-gray-100"
+                    :  " hover:bg-gray-200 bg-white" //
                 } cursor-pointer `}
               >
                 {safeColumns.map((column) => (
