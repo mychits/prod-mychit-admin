@@ -50,7 +50,7 @@ const Auction = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await api.get("/group/get-group");
+        const response = await api.get("/group/get-group-admin");
         console.log(response);
         setGroups(response.data);
       } catch (error) {
@@ -236,6 +236,7 @@ const Auction = () => {
               // ),
             },
             ...response.data.map((group, index) => ({
+              _id:group._id,
               id: index + 2,
               date: formatPayDate(group.auction_date),
               name: group.user_id?.full_name,
@@ -249,12 +250,12 @@ const Auction = () => {
                 " Auction",
               action: (
                 <div className="flex justify-end gap-2">
-                  <button
+                  {/* <button
                     onClick={() => handleUpdateModalOpen(group._id)}
                     className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
                   >
                     <EyeIcon color="green" />
-                  </button>
+                  </button> */}
                   <button
                     onClick={() => handleDeleteModalOpen(group._id)}
                     className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
@@ -422,6 +423,7 @@ const Auction = () => {
               </div>
               <div className="">
                 <DataTable
+                updateHandler={handleUpdateModalOpen}
                   data={TableAuctions}
                   columns={columns}
                   exportedFileName={`Auctions ${

@@ -177,18 +177,19 @@ const Agent = () => {
         const response = await api.get("/agent/get-agent");
         setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
+          _id:group._id,
           id: index + 1,
           name: group.name,
           phone_number: group.phone_number,
           password: group.password,
           action: (
             <div className="flex justify-end gap-2">
-              <button
+              {/* <button
                 onClick={() => handleUpdateModalOpen(group._id)}
                 className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
               >
                 <CiEdit color="green" />
-              </button>
+              </button> */}
               <button
                 onClick={() => handleDeleteModalOpen(group._id)}
                 className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
@@ -340,6 +341,7 @@ const Agent = () => {
               </div>
             </div>
             <DataTable
+            updateHandler={handleUpdateModalOpen}
               data={TableAgents}
               columns={columns}
               exportedFileName={`Employees-${

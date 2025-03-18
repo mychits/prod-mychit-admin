@@ -88,7 +88,7 @@ const WeekGroup = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await api.get("/group/get-group");
+        const response = await api.get("/group/get-group-admin");
         console.log(response);
         const filteredGroups = response.data.filter(
           (group) => group.group_method === "week"

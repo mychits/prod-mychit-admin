@@ -90,7 +90,7 @@ const GroupReport = () => {
     const fetchGroups = async () => {
       setDetailLoading(true);
       try {
-        const response = await api.get("/group/get-group");
+        const response = await api.get("/group/get-group-admin");
         setGroups(response.data);
         setDetailLoading(false);
         setScreenLoading(false);

@@ -38,7 +38,7 @@ const GroupSettings = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await api.get("/group/get-group");
+        const response = await api.get("/group/get-group-admin");
         setGroups(response.data);
         const formattedData = response.data.map((group, index) => ({
           checkBox: (
@@ -97,7 +97,7 @@ const GroupSettings = () => {
         mobile_access: newValue,
       });
 
-      const response = await api.get("/group/get-group");
+      const response = await api.get("/group/get-group-admin");
       setGroups(response.data);
     } catch (error) {
       setGroups((prev) =>

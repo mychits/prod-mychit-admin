@@ -29,7 +29,7 @@ const Test = () => {
     useEffect(() => {
         const fetchGroups = async () => {
             try {
-                const response = await api.get("/group/get-group");
+                const response = await api.get("/group/get-group-admin");
                 const formattedData = response.data.map((group, index) => ({
                     id: index + 1,
                     name: group.group_name,

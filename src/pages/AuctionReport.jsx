@@ -46,7 +46,7 @@ const AuctionReport = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await api.get("/group/get-group");
+        const response = await api.get("/group/get-group-admin");
         console.log(response);
         setGroups(response.data);
       } catch (error) {

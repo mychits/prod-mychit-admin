@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Download,
@@ -10,7 +10,7 @@ import CircularLoader from "../loaders/CircularLoader";
 
 const DataTable = ({
   updateHandler = () => {},
-  catcher="_id",
+  catcher = "_id",
   isExportEnabled = true,
   data = [],
   columns = [],
@@ -20,11 +20,25 @@ const DataTable = ({
   const safeColumns = Array.isArray(columns) ? columns : [];
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [active, setActive] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [pageSize, setPageSize] = useState(100);
-
+  useEffect(() => {
+    const tempData = {};
+    data.forEach((ele, index) => {
+      tempData[ele._id] = false;
+    });
+    setActive(tempData);
+  }, [data]);
+  const onSelectRow = (_id) => {
+    const tempActive = active;
+    Object.keys(active).forEach((key) => {
+      tempActive[key] = false;
+    });
+    setActive({ ...tempActive, [_id]: true });
+  };
   const searchData = (data) => {
     if (!searchQuery) return data;
     return data.filter((item) =>
@@ -259,17 +273,23 @@ const DataTable = ({
             {paginatedData.map((row, index) => (
               <tr
                 key={index}
+                onClick={() => onSelectRow(row._id)}
                 className={`${
-                  changeColor(index) ? "bg-blue-50" : "bg-white"
-                } hover:bg-gray-100`}
+                  active[row._id]
+                    ? "bg-blue-200"
+                    : changeColor(index)
+                    ? "hover:bg-gray-100 bg-gray-200"
+                    :  " hover:bg-gray-100 bg-white" //
+                } cursor-pointer `}
               >
                 {safeColumns.map((column) => (
                   <td
                     key={`${index}-${column.key}`}
                     className="px-6 py-4"
-                    onDoubleClick={() =>{ 
-                      console.log("row",row)
-                      updateHandler(row[catcher])}}
+                    onDoubleClick={() => {
+                      console.log("row", row);
+                      updateHandler(row[catcher]);
+                    }}
                   >
                     {row[column.key]}
                   </td>

@@ -187,7 +187,7 @@ const Group = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await api.get("/group/get-group");
+        const response = await api.get("/group/get-group-admin");
         setGroups(response.data);
         const formattedData = response.data.map((group, index) => ({
           _id: group._id,

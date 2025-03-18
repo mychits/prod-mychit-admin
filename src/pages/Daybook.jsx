@@ -54,7 +54,7 @@ const Daybook = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await api.get("/group/get-group");
+        const response = await api.get("/group/get-group-admin");
         setGroups(response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
