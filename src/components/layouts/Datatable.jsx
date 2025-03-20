@@ -252,6 +252,7 @@ const DataTable = ({
                 <td key={`filter-${column.key}`} className="px-6 py-2">
                   {column.key.toLowerCase() !== "action" && (
                     <Select
+                    className="w-full max-w-xs "
                     popupMatchSelectWidth={false}
                       showSearch
                       value={filters[column.key] || ""}
@@ -260,6 +261,7 @@ const DataTable = ({
                           ...prev,
                           [column.key]: value,
                         }))
+                        
                       }
                       filterOption={(input, option) =>
                         option.children
