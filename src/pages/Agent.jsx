@@ -3,11 +3,14 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
+import { IoMdMore } from "react-icons/io";
+import { Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
 import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
+import Navbar from "../components/layouts/Navbar";
 const Agent = () => {
   const [users, setUsers] = useState([]);
   const [TableAgents, setTableAgents] = useState([]);
@@ -18,6 +21,11 @@ const Agent = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUpdateUser, setCurrentUpdateUser] = useState(null);
   const [errors, setErrors] = useState({});
+  const [searchText,setSearchText] = useState("");
+  const onGlobalSearchChangeHandler = (e)=>{
+    const {value} = e.target
+    setSearchText(value)
+  }
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -183,19 +191,44 @@ const Agent = () => {
           phone_number: group.phone_number,
           password: group.password,
           action: (
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-center  gap-2">
               {/* <button
                 onClick={() => handleUpdateModalOpen(group._id)}
                 className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
               >
                 <CiEdit color="green" />
               </button> */}
-              <button
-                onClick={() => handleDeleteModalOpen(group._id)}
-                className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
+               <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(group._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(group._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
               >
-                <MdDelete color="red" />
-              </button>
+                <IoMdMore className="text-bold" />
+              </Dropdown>
             </div>
           ),
         }));
@@ -318,6 +351,7 @@ const Agent = () => {
     <>
       <div>
         <div className="flex mt-20">
+        <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true}/>
           <Sidebar />
           <CustomAlert
             type={alertConfig.type}
@@ -342,7 +376,7 @@ const Agent = () => {
             </div>
             <DataTable
             updateHandler={handleUpdateModalOpen}
-              data={TableAgents}
+              data={TableAgents.filter((item)=>Object.values(item).some(value=>String(value).toLowerCase().includes(searchText.toLowerCase())))}
               columns={columns}
               exportedFileName={`Employees-${
                 TableAgents.length > 0

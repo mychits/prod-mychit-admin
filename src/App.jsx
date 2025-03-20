@@ -43,7 +43,7 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Navbar />
+                 
                   <Home />
                 </ProtectedRoute>
               }
@@ -61,7 +61,7 @@ function App() {
               path="/group"
               element={
                 <ProtectedRoute>
-                  <Navbar />
+                
                   <Group />
                 </ProtectedRoute>
               }
@@ -70,7 +70,7 @@ function App() {
               path="/week-group"
               element={
                 <ProtectedRoute>
-                  <Navbar />
+                 
                   <WeekGroup />
                 </ProtectedRoute>
               }
@@ -80,7 +80,7 @@ function App() {
               path="/user"
               element={
                 <ProtectedRoute>
-                  <Navbar />
+                
                   <User />
                 </ProtectedRoute>
               }
@@ -89,7 +89,7 @@ function App() {
               path="/enrollment"
               element={
                 <ProtectedRoute>
-                  <Navbar />
+                 
                   <Enroll />
                 </ProtectedRoute>
               }
@@ -98,7 +98,7 @@ function App() {
               path="/auction"
               element={
                 <ProtectedRoute>
-                  <Navbar />
+                 
                   <Auction />
                 </ProtectedRoute>
               }
@@ -107,7 +107,7 @@ function App() {
               path="/payment"
               element={
                 <ProtectedRoute>
-                  <Navbar />
+                  
                   <Payment />
                 </ProtectedRoute>
               }
@@ -116,7 +116,7 @@ function App() {
               path="/agent"
               element={
                 <ProtectedRoute>
-                  <Navbar />
+                 
                   <Agent />
                 </ProtectedRoute>
               }

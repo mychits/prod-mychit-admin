@@ -4,7 +4,7 @@ import Sidebar from "../components/layouts/Sidebar";
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import Modal from "../components/modals/Modal";
-import axios from "axios";
+
 import api from "../instance/TokenInstance";
 
 const WeekGroup = () => {

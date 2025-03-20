@@ -9,6 +9,9 @@ import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import { Edit, Trash2 } from "lucide-react";
 import CustomAlert from "../components/alerts/CustomAlert";
+import { Dropdown } from "antd";
+import { IoMdMore } from "react-icons/io";
+import Navbar from "../components/layouts/Navbar";
 
 const Group = () => {
   const [groups, setGroups] = useState([]);
@@ -19,6 +22,11 @@ const Group = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
+  const [searchText, setSearchText] = useState("");
+  const onGlobalSearchChangeHandler = (e) => {
+    const { value } = e.target;
+    setSearchText(value);
+  };
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -200,20 +208,54 @@ const Group = () => {
           value: group.group_value,
           installment: group.group_install,
           members: group.group_members,
+          date: group.createdAt,
           action: (
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-center gap-2">
               {/* <button
                 onClick={() => handleUpdateModalOpen(group._id)}
                 className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
               >
                 <CiEdit color="green" />
               </button> */}
-              <button
+
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(group._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(group._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
+
+              {/* <button
                 onClick={() => handleDeleteModalOpen(group._id)}
                 className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
               >
                 <MdDelete color="red" />
-              </button>
+              </button> */}
             </div>
           ),
         }));
@@ -240,7 +282,7 @@ const Group = () => {
   };
 
   const handleUpdateModalOpen = async (groupId) => {
-    console.log("group id is ",groupId);
+    console.log("group id is ", groupId);
     try {
       const response = await api.get(`/group/get-by-id-group/${groupId}`);
       const groupData = response.data;
@@ -334,6 +376,7 @@ const Group = () => {
   return (
     <>
       <div>
+        <Navbar visibility={true} onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} />
         <CustomAlert
           type={alertConfig.type}
           isVisible={alertConfig.visibility}
@@ -359,15 +402,19 @@ const Group = () => {
             </div>
 
             <DataTable
-            catcher="_id"
+              catcher="_id"
               updateHandler={handleUpdateModalOpen}
-              data={TableGroups}
+              data={TableGroups.filter((item) =>
+                Object.values(item).some((value) =>
+                  String(value).toLowerCase().includes(searchText.toLowerCase())
+              )
+            )}
               columns={columns}
               exportedFileName={`Groups-${
                 TableGroups.length > 0
-                  ? TableGroups[0].name +
+                  ? TableGroups[0].date.split("T")[0] +
                     " to " +
-                    TableGroups[TableGroups.length - 1].name
+                    TableGroups[TableGroups.length - 1].date.split("T")[0]
                   : "empty"
               }.csv`}
             />

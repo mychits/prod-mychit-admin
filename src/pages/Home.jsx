@@ -8,6 +8,7 @@ import { MdOutlinePayments } from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
 import { useEffect, useState } from "react";
 import api from "../instance/TokenInstance";
+import Navbar from "../components/layouts/Navbar";
 
 const Home = () => {
   const [groups, setGroups] = useState([]);
@@ -17,6 +18,7 @@ const Home = () => {
   const [paymentsValue, setPaymentsValue] = useState("...");
   const [paymentsPerMonth, setPaymentsPerMonth] = useState([]);
   const [paymentsPerMonthValue, setPaymentsPerMonthValue] = useState("...");
+  const [searchValue,setSearchValue] = useState("")
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -118,7 +120,7 @@ const Home = () => {
     },
     {
       icon: <MdGroups size={16} />,
-      text: "Cutomers",
+      text: "Customers",
       count: users.length,
       bgColor: "bg-orange-200",
       iconColor: "bg-orange-900",
@@ -153,13 +155,20 @@ const Home = () => {
       iconColor: "bg-purple-900",
       redirect: "/payment",
     },
-  ];
+  ].filter((ele)=>ele.text.toLowerCase().includes(searchValue.toLocaleLowerCase()));
+  
+const onGlobalSearchChangeHandler = (e)=>{
+  const {value} = e.target;
+  console.log("first",value)
+  setSearchValue(value)
+}
 
   return (
     <>
       <div>
         <div className="flex mt-20">
           <Sidebar />
+        <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
           <div className="flex-grow p-7">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 w-full">
               {cardData.map((card, index) => (

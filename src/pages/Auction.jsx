@@ -6,9 +6,13 @@ import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import Modal from "../components/modals/Modal";
 import { BsEye } from "react-icons/bs";
+import {Dropdown} from "antd"
 import DataTable from "../components/layouts/Datatable";
 import { EyeIcon } from "lucide-react";
 import CustomAlert from "../components/alerts/CustomAlert";
+import Navbar from "../components/layouts/Navbar";
+import { Select } from "antd";
+import { IoMdMore } from "react-icons/io";
 const Auction = () => {
   const [groups, setGroups] = useState([]);
   const [TableAuctions, setTableAuctions] = useState([]);
@@ -26,6 +30,11 @@ const Auction = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [double, setDouble] = useState({});
   const [errors, setErrors] = useState({});
+  const [searchText, setSearchText] = useState("");
+  const onGlobalSearchChangeHandler = (e) => {
+    const { value } = e.target;
+    setSearchText(value);
+  };
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -184,8 +193,8 @@ const Auction = () => {
     }
   };
 
-  const handleGroupAuction = async (event) => {
-    const groupId = event.target.value;
+  const handleGroupAuction = async (groupId) => {
+  
     setSelectedAuctionGroupId(groupId);
     handleGroupAuctionChange(groupId);
   };
@@ -249,19 +258,50 @@ const Auction = () => {
                 group?.auction_type.slice(1) +
                 " Auction",
               action: (
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-center gap-2">
                   {/* <button
                     onClick={() => handleUpdateModalOpen(group._id)}
                     className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
                   >
                     <EyeIcon color="green" />
                   </button> */}
-                  <button
+                  {/* <button
                     onClick={() => handleDeleteModalOpen(group._id)}
                     className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
                   >
                     <MdDelete color="red" />
-                  </button>
+                  </button> */}
+                   <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(group._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(group._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
                 </div>
               ),
             })),
@@ -378,7 +418,9 @@ const Auction = () => {
     <>
       <div>
         <div className="flex mt-20">
+        <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true}/>
           <Sidebar />
+
           <CustomAlert
             type={alertConfig.type}
             isVisible={alertConfig.visibility}
@@ -388,20 +430,28 @@ const Auction = () => {
             <h1 className="text-2xl font-semibold">Auctions</h1>
             <div className="mt-6 mb-8">
               <div className="mb-10">
-                <label>Select Group</label>
+                <label>Select or Search Group</label>
                 <div className="flex justify-between items-center w-full">
-                  <select
-                    value={selectedAuctionGroupId}
+                  <Select
+                    value={selectedAuctionGroupId || undefined}
                     onChange={handleGroupAuction}
-                    className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    className="w-full max-w-md"
+                    filterOption={(input, option) =>
+                      option.children.toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                        placeholder="Search or Select Group"
                   >
-                    <option value="">Select Group</option>
+                    
                     {groups.map((group) => (
-                      <option key={group?._id} value={group?._id}>
+                      <Select.Option key={group?._id} value={group?._id}>
                         {group.group_name}
-                      </option>
+                      </Select.Option>
                     ))}
-                  </select>
+                  </Select>
                   <button
                     onClick={() => {
                       setShowModal(true);
@@ -424,7 +474,12 @@ const Auction = () => {
               <div className="">
                 <DataTable
                 updateHandler={handleUpdateModalOpen}
-                  data={TableAuctions}
+               
+                  data={TableAuctions.filter((item) =>
+                    Object.values(item).some((value) =>
+                      String(value).toLowerCase().includes(searchText.toLowerCase())
+                    )
+                  )}
                   columns={columns}
                   exportedFileName={`Auctions ${
                     TableAuctions.length > 0

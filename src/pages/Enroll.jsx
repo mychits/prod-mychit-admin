@@ -8,7 +8,10 @@ import Modal from "../components/modals/Modal";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
 import { FaWhatsappSquare } from "react-icons/fa";
-
+import { Dropdown } from "antd";
+import { IoMdMore } from "react-icons/io";
+import Navbar from "../components/layouts/Navbar";
+import { Select } from "antd";
 const Enroll = () => {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
@@ -24,7 +27,7 @@ const Enroll = () => {
   const [availableTicketsAdd, setAvailableTicketsAdd] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const whatsappEnable=true;
+  const whatsappEnable = true;
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -42,7 +45,11 @@ const Enroll = () => {
     user_id: "",
     tickets: "",
   });
-
+  const [searchText, setSearchText] = useState("");
+  const onGlobalSearchChangeHandler = (e) => {
+    const { value } = e.target;
+    setSearchText(value);
+  };
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -69,8 +76,8 @@ const Enroll = () => {
     fetchUsers();
   }, []);
 
-  const handleGroupChange = async (event) => {
-    const groupId = event.target.value;
+  const handleGroupChange = async (groupId) => {
+   
     setSelectedGroup(groupId);
 
     if (groupId) {
@@ -79,25 +86,56 @@ const Enroll = () => {
         if (response.data && response.data.length > 0) {
           setFilteredUsers(response.data);
           const formattedData = response.data.map((group, index) => ({
-            _id:group?._id,
+            _id: group?._id,
             id: index + 1,
             name: group?.user_id?.full_name,
             phone_number: group?.user_id?.phone_number,
             ticket: group.tickets,
             action: (
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-center items-center gap-2">
                 {/* <button
                   onClick={() => handleUpdateModalOpen(group._id)}
                   className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
                 >
                   <CiEdit color="green" />
                 </button> */}
-                <button
+                {/* <button
                   onClick={() => handleDeleteModalOpen(group._id)}
                   className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
                 >
                   <MdDelete color="red" />
-                </button>
+                </button> */}
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: "1",
+                        label: (
+                          <div
+                            className="text-green-600"
+                            onClick={() => handleUpdateModalOpen(group._id)}
+                          >
+                            Edit
+                          </div>
+                        ),
+                      },
+                      {
+                        key: "2",
+                        label: (
+                          <div
+                            className="text-red-600"
+                            onClick={() => handleDeleteModalOpen(group._id)}
+                          >
+                            Delete
+                          </div>
+                        ),
+                      },
+                    ],
+                  }}
+                  placement="bottomLeft"
+                >
+                  <IoMdMore className="text-bold" />
+                </Dropdown>
               </div>
             ),
           }));
@@ -170,7 +208,6 @@ const Enroll = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isvalid = validate("addEnrollment");
@@ -197,7 +234,7 @@ const Enroll = () => {
             },
           });
         }
-       
+
         setShowModal(false);
         setFormData({
           group_id: "",
@@ -306,6 +343,10 @@ const Enroll = () => {
     <>
       <div>
         <div className="flex mt-20">
+          <Navbar
+            onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+            visibility={true}
+          />
           <Sidebar />
           <CustomAlert
             type={alertConfig.type}
@@ -316,21 +357,29 @@ const Enroll = () => {
             <h1 className="text-2xl font-semibold">Enrollments</h1>
             <div className="mt-6 mb-8">
               <div className="mb-2">
-                <label>Select Group</label>
+                <label>Search or Select Group</label>
               </div>
               <div className="flex justify-between items-center w-full">
-                <select
-                  value={selectedGroup}
+                <Select
+                 showSearch
+                 popupMatchSelectWidth={false}
+                  value={selectedGroup || undefined}
+                  filterOption={(input, option) =>
+                    option.children.toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  placeholder="Search or Select Group"
                   onChange={handleGroupChange}
-                  className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                  className="border   w-full max-w-md"
                 >
-                  <option value="">Select Group</option>
+                 
                   {groups.map((group) => (
-                    <option key={group._id} value={group._id}>
+                    <Select.Option key={group._id} value={group._id}>
                       {group.group_name}
-                    </option>
+                    </Select.Option>
                   ))}
-                </select>
+                </Select>
                 <button
                   onClick={() => setShowModal(true)}
                   className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
@@ -340,8 +389,12 @@ const Enroll = () => {
               </div>
             </div>
             <DataTable
-            updateHandler={handleUpdateModalOpen}
-              data={TableEnrolls}
+              updateHandler={handleUpdateModalOpen}
+              data={TableEnrolls.filter((item) =>
+                Object.values(item).some((value) =>
+                  String(value).toLowerCase().includes(searchText.toLowerCase())
+                )
+              )}
               columns={columns}
               exportedFileName={`Enrollments-${
                 TableEnrolls.length > 0
@@ -429,7 +482,7 @@ const Enroll = () => {
                 >
                   Group
                 </label>
-                <select
+                <Select
                   name="group_id"
                   id="group_id"
                   value={formData.group_id}
@@ -443,7 +496,7 @@ const Enroll = () => {
                       {group.group_name}
                     </option>
                   ))}
-                </select>
+                </Select>
                 {errors.group_id && (
                   <p className="mt-1 text-sm text-red-600">{errors.group_id}</p>
                 )}

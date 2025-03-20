@@ -11,7 +11,7 @@ import axios from "axios";
 import url from "../data/Url";
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
-
+import { Select } from "antd";
 const UserReport = () => {
   const [groups, setGroups] = useState([]);
   const [TableDaybook, setTableDaybook] = useState([]);
@@ -158,8 +158,8 @@ const UserReport = () => {
     fetchGroups();
   }, []);
 
-  const handleGroupPayment = async (event) => {
-    const groupId = event.target.value;
+  const handleGroupPayment = async (groupId) => {
+    
     setSelectedAuctionGroupId(groupId);
     //handleGroupChange(groupId);
     setSelectedGroup(groupId);
@@ -523,8 +523,8 @@ const UserReport = () => {
   }, [selectedGroup]);
   if (screenLoading)
     return (
-      <div className="w-screen  flex  justify-start items-start m-28 h-full">
-        <CircularLoader color="text-green-600"/>;
+      <div className="w-screen m-24">
+        <CircularLoader color="text-green-600" />;
       </div>
     );
 
@@ -534,24 +534,38 @@ const UserReport = () => {
         <div className="flex mt-20">
           {/* <Sidebar /> */}
           <div className="flex-grow p-7">
-            <h1 className="text-2xl font-semibold">Reports - Customer</h1>
+            <h1 className="text-2xl font-semibold text-center">
+              Reports - Customer
+            </h1>
             <div className="mt-6 mb-8">
               <div className="mb-2">
-                <div className="flex justify-start items-center w-full gap-4">
+                <div className="flex justify-center items-center w-full gap-4 bg-blue-50 rounded-md shadow-md p-2">
                   <div className="mb-2">
-                    <label>Customer</label>
-                    <select
-                      value={selectedAuctionGroupId}
+                    <label className="flex w-auto p-4 gap-2 justify-center items-center select-none font-semibold  shadow-sm mb-2 rounded-sm" htmlFor={"SS"}>
+                      {" "}
+                      Search Or Select Customer
+                    </label>
+                    <Select
+                    id="SS"
+                      value={selectedAuctionGroupId || undefined}
                       onChange={handleGroupPayment}
-                      className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      placeholder="Search or Select Customer"
+                      filterOption={(input, option) =>
+                        option.children.toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      style={{height:"50px",width:"600px"}}
                     >
-                      <option value="">Select Customer</option>
+                      <Select.Option value="">Select Customer</Select.Option>
                       {groups.map((group) => (
                         <option key={group._id} value={group._id}>
                           {group.full_name} - {group.phone_number}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </div>
                 </div>
               </div>

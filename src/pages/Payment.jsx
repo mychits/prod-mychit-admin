@@ -19,7 +19,10 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import { FaWhatsappSquare } from "react-icons/fa";
 import PrintModal from "../components/modals/PrintModal";
 import PaymentPrint from "../components/printFormats/PaymentPrint";
-
+import Navbar from "../components/layouts/Navbar";
+import { Select ,Dropdown} from "antd";
+import { IoMdMore } from "react-icons/io";
+import { Link } from "react-router-dom";
 const Payment = () => {
   const [groups, setGroups] = useState([]);
   const [actualGroups, setActualGroups] = useState([]);
@@ -44,7 +47,12 @@ const Payment = () => {
   const today = new Date().toISOString().split("T")[0];
   const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(false);
-
+  const [searchText, setSearchText] = useState("");
+ 
+  const onGlobalSearchChangeHandler = (e) => {
+    const { value } = e.target;
+    setSearchText(value);
+  };
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -258,8 +266,8 @@ const Payment = () => {
     }
   };
 
-  const handleGroupPayment = async (event) => {
-    const groupId = event.target.value;
+  const handleGroupPayment = async (groupId) => {
+    
     setSelectedAuctionGroupId(groupId);
     handleGroupPaymentChange(groupId);
   };
@@ -290,8 +298,8 @@ const Payment = () => {
             date: formatPayDate(group.pay_date),
             collected_by: group?.collected_by?.name || "Admin",
             action: (
-              <div className="flex justify-end gap-2">
-                <a
+              <div className="flex justify-center gap-2">
+                {/* <a
                   href={`/print/${group._id}`}
                   className="border border-blue-400 text-white px-4 py-2 rounded-md shadow hover:border-blue-700 transition duration-200"
                 >
@@ -302,7 +310,38 @@ const Payment = () => {
                   className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
                 >
                   <MdDelete color="red" />
-                </button>
+                </button> */}
+                <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <Link
+                        to={`/print/${group._id}`}
+                        className="text-blue-600 "
+                      >
+                       Print
+                      </Link>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600 "
+                          onClick={() => handleDeleteModalOpen(group._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
               </div>
             ),
           }));
@@ -594,6 +633,7 @@ const Payment = () => {
     <>
       <div>
         <div className="flex mt-20">
+        <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true}/>
           <Sidebar />
           <CustomAlert
             type={alertConfig.type}
@@ -605,22 +645,29 @@ const Payment = () => {
             <h1 className="text-2xl font-semibold">Payments</h1>
             <div className="mt-6 mb-8">
               <div className="mb-10">
-                <label className="font-bold">Select Group</label>
+                <label className="font-bold">Search or Select Group</label>
                 <div className="flex justify-between items-center w-full">
-                  <select
-                    value={selectedAuctionGroupId}
+                  <Select
+                  placeholder="Search or Select Group"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  className="w-full max-w-md"
+                  filterOption={(input, option) =>
+                    option.children.toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                    value={selectedAuctionGroupId || undefined}
                     onChange={handleGroupPayment}
-                    className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                   
                   >
-                    <option value="" disabled>
-                      Select Group
-                    </option>
+                   
                     {actualGroups.map((group) => (
-                      <option key={group._id} value={group._id}>
+                      <Select.Option key={group._id} value={group._id}>
                         {group.group_name}
-                      </option>
+                      </Select.Option>
                     ))}
-                  </select>
+                  </Select>
                   <div>
                     <button
                       onClick={() => setShowModal(true)}
@@ -650,7 +697,12 @@ const Payment = () => {
               />
               {TablePayments && TablePayments.length > 0 && !loading ? (
                 <DataTable
-                  data={TablePayments}
+                 
+                  data={TablePayments.filter((item) =>
+                    Object.values(item).some((value) =>
+                      String(value).toLowerCase().includes(searchText.toLowerCase())
+                    )
+                  )}
                   columns={columns}
                   exportedFileName={`Payments ${
                     TablePayments.length > 0

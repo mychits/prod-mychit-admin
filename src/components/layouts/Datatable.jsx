@@ -7,7 +7,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import CircularLoader from "../loaders/CircularLoader";
-
+import { Select } from "antd";
 const DataTable = ({
   updateHandler = () => {},
   catcher = "_id",
@@ -33,14 +33,13 @@ const DataTable = ({
     setActive(tempData);
   }, [data]);
   const onSelectRow = (_id) => {
-    if(Object.keys(active).length>1){
-    const tempActive = active;
-    Object.keys(active).forEach((key) => {
-      tempActive[key] = false;
-    
-    });
-    setActive({ ...tempActive, [_id]: true });
-  }
+    if (Object.keys(active).length > 1) {
+      const tempActive = active;
+      Object.keys(active).forEach((key) => {
+        tempActive[key] = false;
+      });
+      setActive({ ...tempActive, [_id]: true });
+    }
   };
   const searchData = (data) => {
     if (!searchQuery) return data;
@@ -251,25 +250,40 @@ const DataTable = ({
             <tr className="bg-gray-50">
               {safeColumns.map((column) => (
                 <td key={`filter-${column.key}`} className="px-6 py-2">
-                  <select
-                    value={filters[column.key] || ""}
-                    onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        [column.key]: e.target.value,
-                      }))
-                    }
-                    className="w-full px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">All</option>
-                    {[...new Set(safeData.map((item) => item[column.key]))].map(
-                      (value) => (
-                        <option key={String(value)} value={String(value)}>
-                          {value}
-                        </option>
-                      )
-                    )}
-                  </select>
+                  {column.key.toLowerCase() !== "action" && (
+                    <Select
+                    popupMatchSelectWidth={false}
+                      showSearch
+                      value={filters[column.key] || ""}
+                      onChange={(value) =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          [column.key]: value,
+                        }))
+                      }
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                     
+                    >
+                      <Select.Option value="">All</Select.Option>
+                      {[
+                        ...new Set(safeData.map((item) => item[column.key])),
+                      ].map((value) => {
+                        return (
+                          <Select.Option
+                            key={String(value)}
+                            value={String(value)}
+                          >
+                            {value}
+                          </Select.Option>
+                        );
+                      })}
+                    </Select>
+                  )}
                 </td>
               ))}
             </tr>
@@ -282,7 +296,7 @@ const DataTable = ({
                     ? "bg-blue-200"
                     : changeColor(index)
                     ? "hover:bg-gray-200 bg-gray-100"
-                    :  " hover:bg-gray-200 bg-white" //
+                    : " hover:bg-gray-200 bg-white" //
                 } cursor-pointer `}
               >
                 {safeColumns.map((column) => (

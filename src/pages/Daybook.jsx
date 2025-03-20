@@ -11,7 +11,7 @@ import axios from "axios";
 import url from "../data/Url";
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
-
+import { Select } from "antd";
 const Daybook = () => {
   const [groups, setGroups] = useState([]);
   const [TableDaybook, setTableDaybook] = useState([]);
@@ -156,10 +156,10 @@ const Daybook = () => {
     }
   };
 
-  const handleGroupPayment = async (event) => {
-    const groupId = event.target.value;
+  const handleGroupPayment =  (groupId) => {
+    
     setSelectedAuctionGroupId(groupId);
-    handleGroupChange(groupId);
+    
   };
 
   // const handleGroupPaymentChange = async (groupId) => {
@@ -212,7 +212,9 @@ const Daybook = () => {
             name: group.user_id?.full_name,
             phone_number: group.user_id.phone_number,
             ticket: group.ticket,
-            receipt:group.receipt_no ? group.receipt_no :(`#${group.old_receipt_no.split("-")[1]}`),
+            receipt: group.receipt_no
+              ? group.receipt_no
+              : `#${group.old_receipt_no.split("-")[1]}`,
             amount: group.amount,
             mode: group.pay_type,
             collected_by: group?.collected_by?.name || "Admin",
@@ -375,47 +377,73 @@ const Daybook = () => {
                       className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
                     />
                   </div>
-                  <div className="mb-2">
+                  <div className="mb-2 flex flex-col">
                     <label>Group</label>
-                    <select
-                      value={selectedAuctionGroupId}
+                    <Select
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      value={selectedAuctionGroupId || undefined}
                       onChange={handleGroupPayment}
-                      className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                      placeholder="Search Or Select Group"
+                      filterOption={(input, option) =>
+                        option.children.toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      className="w-full max-w-xs h-11"
                     >
-                      <option value="">Select Group</option>
+                       <Select.Option  value={""}>All</Select.Option>
                       {groups.map((group) => (
-                        <option key={group._id} value={group._id}>
+                        <Select.Option key={group._id} value={group._id}>
                           {group.group_name}
-                        </option>
+                        </Select.Option>
                       ))}
-                    </select>
+                    </Select>
                   </div>
-                  <div className="mb-2">
+                  <div className="mb-2 flex flex-col">
                     <label>Customers</label>
-                    <select
-                      value={selectedCustomers}
-                      onChange={(e) => setSelectedCustomers(e.target.value)}
-                      className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                    <Select
+                     showSearch
+                     popupMatchSelectWidth={false}
+                      value={selectedCustomers || undefined}
+                      filterOption={(input, option) =>
+                        option.children.toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                        placeholder="Search Or Select Customer"
+                      onChange={(groupId) => setSelectedCustomers(groupId)}
+                      className="w-full max-w-xs h-11"
+                      // className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                     >
-                      <option value="">Select Customer</option>
+                      <Select.Option value="">All</Select.Option>
                       {filteredUsers.map((group) => (
-                        <option key={group?._id} value={group?._id}>
+                        <Select.Option key={group?._id} value={group?._id}>
                           {group?.full_name} - {group.phone_number}
-                        </option>
+                        </Select.Option>
                       ))}
-                    </select>
+                    </Select>
                   </div>
-                  <div className="mb-2">
+                  <div className="mb-2 flex flex-col">
                     <label>Payment Mode</label>
-                    <select
-                      value={selectedPaymentMode}
-                      onChange={(e) => setSelectedPaymentMode(e.target.value)}
-                      className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                    <Select
+                      value={selectedPaymentMode ||undefined}
+                      showSearch
+                       placeholder="Search Or Select Payment"
+                      popupMatchSelectWidth={false}
+                      onChange={(groupId) => setSelectedPaymentMode(groupId) }
+                      filterOption={(input, option) =>
+                        option.children.toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                     className="w-full max-w-xs h-11"
+                      // className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                     >
-                      <option value="">Select Payment Mode</option>
-                      <option value="cash">Cash</option>
-                      <option value="online">Online</option>
-                    </select>
+                      <Select.Option value="">All</Select.Option>
+                      <Select.Option value="cash">Cash</Select.Option>
+                      <Select.Option value="online">Online</Select.Option>
+                    </Select>
                   </div>
                   <div>
                     <h1 className="text-md mt-6">
@@ -440,9 +468,7 @@ const Daybook = () => {
                   />
                 </div>
               ) : (
-                
-                  <CircularLoader/>
-                
+                <CircularLoader />
               )}
             </div>
           </div>
@@ -479,23 +505,23 @@ const Daybook = () => {
                   >
                     Customers
                   </label>
-                  <select
+                  <Select
                     name="user_id"
                     value={`${formData.user_id}-${formData.ticket}`}
                     onChange={handleChangeUser}
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
-                    <option value="">Select Customer</option>
+                    <Select.Option value="">Select Customer</Select.Option>
                     {filteredUsers.map((user) => (
-                      <option
+                      <Select.Option
                         key={`${user?.user_id?._id}-${user.tickets}`}
                         value={`${user?.user_id?._id}-${user.tickets}`}
                       >
                         {user?.user_id?.full_name} | {user.tickets}
-                      </option>
+                      </Select.Option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
                   <div className="w-1/2">

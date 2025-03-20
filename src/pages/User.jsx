@@ -8,9 +8,10 @@ import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
-
+import { Dropdown } from "antd";
+import { IoMdMore } from "react-icons/io";
+import Navbar from "../components/layouts/Navbar";
 const User = () => {
-  
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,6 +26,7 @@ const User = () => {
     type: "info",
   });
   const [errors, setErrors] = useState({});
+
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -46,7 +48,12 @@ const User = () => {
     adhaar_no: "",
     pan_no: "",
   });
-
+  const [searchText, setSearchText] = useState("");
+  const GlobalSearchChangeHandler = (e) => {
+    const { value } = e.target;
+    console.log("first",value)
+    setSearchText(value);
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -178,31 +185,62 @@ const User = () => {
         const response = await api.get("/user/get-user");
         setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
-          _id:group._id,
+          _id: group._id,
           id: index + 1,
           name: group.full_name,
           phone_number: group.phone_number,
           address: group.address,
           pincode: group.pincode,
-          customer_id: group.customer_id || `Updating soon...`,
+          customer_id: group.customer_id,
           action: (
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-center gap-2">
               {/* <button
                 onClick={() => handleUpdateModalOpen(group._id)}
                 className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
               >
                 <CiEdit color="green" />
               </button> */}
-              <button
+              {/* <button
                 onClick={() => handleDeleteModalOpen(group._id)}
                 className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
               >
                 <MdDelete color="red" />
-              </button>
+              </button> */}
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(group._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(group._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
             </div>
           ),
         }));
-        let fData =formattedData.map((ele) => {
+        let fData = formattedData.map((ele) => {
           if (
             ele?.address &&
             typeof ele.address === "string" &&
@@ -211,7 +249,7 @@ const User = () => {
             ele.address = ele.address.replaceAll(",", " ");
           return ele;
         });
-       if(!fData) setTableUsers(formattedData);
+        if (!fData) setTableUsers(formattedData);
         setTableUsers(fData);
       } catch (error) {
         console.error("Error fetching user data:", error.message);
@@ -339,6 +377,10 @@ const User = () => {
       <div>
         <div className="flex mt-20">
           <Sidebar />
+          <Navbar
+            onGlobalSearchChangeHandler={GlobalSearchChangeHandler}
+            visibility={true}
+          />
           <CustomAlert
             type={alertConfig.type}
             isVisible={alertConfig.visibility}
@@ -361,9 +403,13 @@ const User = () => {
               </div>
             </div>
             <DataTable
-            catcher="_id"
-            updateHandler={handleUpdateModalOpen}
-              data={TableUsers}
+              catcher="_id"
+              updateHandler={handleUpdateModalOpen}
+              data={TableUsers.filter((item) =>
+                Object.values(item).some((value) =>
+                  String(value).toLowerCase().includes(searchText.toLowerCase())
+                )
+              )}
               columns={columns}
               exportedFileName={`Customers-${
                 TableUsers.length > 0

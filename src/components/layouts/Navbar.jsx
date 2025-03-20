@@ -7,8 +7,10 @@ import ResponsiveMenu from "./ResponsiveMenu";
 import Modal from "../modals/Modal";
 import { AiTwotoneGold } from "react-icons/ai";
 import { NavLink } from "react-router-dom";
+import GlobalSearchBar from "../search/GlobalSearchBar";
 
-const Navbar = () => {
+const Navbar = ({onGlobalSearchChangeHandler=()=>{},visibility=false}) => {
+  
   const [open, setOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   return (
@@ -20,7 +22,9 @@ const Navbar = () => {
             <p>MyChits</p>
             <p className="text-primary">Chit</p>
           </div>
-
+          <div>
+            <GlobalSearchBar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={visibility}/>
+          </div>
           <NavLink
             className={({ isActive }) =>
               isActive

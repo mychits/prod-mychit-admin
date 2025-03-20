@@ -9,7 +9,7 @@ import { BsEye } from "react-icons/bs";
 import DataTable from "../components/layouts/Datatable";
 import { EyeIcon } from "lucide-react";
 import CircularLoader from "../components/loaders/CircularLoader";
-
+import { Select } from "antd";
 const AuctionReport = () => {
   const [groups, setGroups] = useState([]);
   const [TableAuctions, setTableAuctions] = useState([]);
@@ -130,8 +130,8 @@ const AuctionReport = () => {
     }
   };
 
-  const handleGroupAuction = async (event) => {
-    const groupId = event.target.value;
+  const handleGroupAuction = async (groupId) => {
+   
     setSelectedAuctionGroupId(groupId);
     handleGroupAuctionChange(groupId);
   };
@@ -183,6 +183,7 @@ const AuctionReport = () => {
               // ),
             },
             ...response.data.map((group, index) => ({
+              _id:group._id,
               id: index + 2,
               date: formatPayDate(group.auction_date),
               name: group.user_id?.full_name,
@@ -196,12 +197,12 @@ const AuctionReport = () => {
                 " Auction",
               action: (
                 <div className="flex justify-end gap-2">
-                  <button
+                  {/* <button
                     onClick={() => handleUpdateModalOpen(group._id)}
                     className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
                   >
                     <EyeIcon color="green" />
-                  </button>
+                  </button> */}
                   <button
                     onClick={() => handleDeleteModalOpen(group._id)}
                     className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
@@ -316,23 +317,32 @@ const AuctionReport = () => {
         <div className="flex mt-20">
           {/* <Sidebar /> */}
           <div className="flex-grow p-7">
-            <h1 className="text-2xl font-semibold">Auction Report</h1>
-            <div className="mt-6 mb-8">
-              <div className="mb-10">
-                <label>Select Group</label>
-                <div className="flex justify-between items-center w-full">
-                  <select
-                    value={selectedAuctionGroupId}
+            <h1 className="text-2xl font-semibold text-center">Auction Report</h1>
+            <div className="mt-6 mb-8 bg-blue-50">
+              <div className="mb-10 ">
+                <label  className="flex w-auto p-4 gap-2 justify-center items-center select-none font-semibold  shadow-sm mb-2 rounded-sm" htmlFor={"SS"}> Search Or Select Group</label>
+                <div className="flex justify-center items-center w-full">
+                  <Select
+                  id="SS"
+                  showSearch
+                  popupMatchSelectWidth={false}
+                    value={selectedAuctionGroupId || undefined}
                     onChange={handleGroupAuction}
-                    className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                    placeholder="Search or Select Auction"
+                    style={{height:"50px",width:"600px"}}
+                    filterOption={(input, option) =>
+                      option.children.toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
                   >
-                    <option value="">Select Group</option>
+                    
                     {groups.map((group) => (
                       <option key={group._id} value={group._id}>
                         {group.group_name}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                   {/* <button
                     onClick={() => setShowModal(true)}
                     className="ml-4 bg-blue-700 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
@@ -343,8 +353,8 @@ const AuctionReport = () => {
                 <p className="text-xl items-center mt-5"></p>
                 {filteredAuction[0]?.group_id?.group_type === "double" && (
                   <>
-                    <p className="text-xl items-center">
-                      Balance: {double.amount}
+                    <p className="text-xl text-right font-bold">
+                      Balance: ₹{double.amount}
                     </p>
                   </>
                 )}
@@ -352,6 +362,7 @@ const AuctionReport = () => {
               <div className="">
                 {filteredAuction && filteredAuction.length > 0 ? (
                   <DataTable
+                  updateHandler={handleUpdateModalOpen}
                     data={TableAuctions}
                     columns={columns}
                     exportedFileName={`AuctionsReport-${
@@ -435,11 +446,11 @@ const AuctionReport = () => {
           </div>
           <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
             <div className="py-6 px-5 lg:px-8 text-left">
-              <h3 className="mb-4 text-xl font-bold text-gray-900">
+              <h3 className="mb-4 text-xl font-bold text-gray-900 ">
                 Add Auction
               </h3>
               <form className="space-y-6" onSubmit={handleSubmit}>
-                <div className="w-full">
+                <div className="w-full bg-blue-50 rounded-md shadow-md p-2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"

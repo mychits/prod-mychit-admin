@@ -8,7 +8,9 @@ import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
-
+import Navbar from "../components/layouts/Navbar";
+import { IoMdMore } from "react-icons/io";
+import { Dropdown } from "antd";
 const Lead = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
@@ -24,6 +26,12 @@ const Lead = () => {
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [errors, setErrors] = useState({});
+
+const [searchText, setSearchText] = useState("");
+const onGlobalSearchChangeHandler = (e) => {
+  const { value } = e.target;
+  setSearchText(value);
+};
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -183,19 +191,50 @@ const Lead = () => {
               ? group?.lead_agent?.name
               : "",
           action: (
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-center gap-2">
               {/* <button
                 onClick={() => handleUpdateModalOpen(group._id)}
                 className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
               >
                 <CiEdit color="green" />
               </button> */}
-              <button
+              {/* <button
                 onClick={() => handleDeleteModalOpen(group._id)}
                 className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
               >
                 <MdDelete color="red" />
-              </button>
+              </button> */}
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(group._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(group._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
             </div>
           ),
         }));
@@ -338,6 +377,7 @@ const Lead = () => {
     <>
       <div>
         <div className="flex mt-20">
+        <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true}/>
           <Sidebar />
           <CustomAlert
             type={alertConfig.type}
@@ -363,7 +403,11 @@ const Lead = () => {
        
               <DataTable  
               updateHandler={handleUpdateModalOpen}
-                data={TableGroups}
+              data={TableGroups.filter((item) =>
+                Object.values(item).some((value) =>
+                  String(value).toLowerCase().includes(searchText.toLowerCase())
+                )
+              )}
                 columns={columns}
                 exportedFileName={`Leads-${
                   TableGroups.length > 0
