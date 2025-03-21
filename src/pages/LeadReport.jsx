@@ -8,8 +8,10 @@ import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
 import TabModal from "../components/modals/TabModal";
 import { IoMdMore } from "react-icons/io";
-import CustomContextMenu from "../components/contextMenu/CustomContextMenu";
 import CircularLoader from "../components/loaders/CircularLoader";
+import Navbar from "../components/layouts/Navbar";
+import filterOption from "../helpers/filterOption";
+import { Dropdown } from "antd";
 const LeadReport = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
@@ -27,7 +29,10 @@ const LeadReport = () => {
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [errors, setErrors] = useState({});
-
+  const [searchText, setSearchText] = useState("");
+  const onGlobalSearchChangeHandler = (e) => {
+    setSearchText(e.target.value);
+  };
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -153,23 +158,38 @@ const LeadReport = () => {
                 ? group?.lead_agent?.name
                 : "",
             action: (
-              <div className="flex justify-center gap-2 relative">
-                {/* <button
-
-              
+              <div className="flex justify-center gap-2 ">
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: "1",
+                        label: (
+                          <div
+                            className="text-green-600"
+                            onClick={() => handleUpdateModalOpen(group._id)}
+                          >
+                            Edit
+                          </div>
+                        ),
+                      },
+                      {
+                        key: "2",
+                        label: (
+                          <div
+                            className="text-red-600"
+                            onClick={() => handleDeleteModalOpen(group._id)}
+                          >
+                            Delete
+                          </div>
+                        ),
+                      },
+                    ],
+                  }}
+                  placement="bottomLeft"
                 >
-                  <IoMdMore color="black" />
-                  <CustomContextMenu
-                    onClickHandler={() => onContextMenuPressed(group._id)}
-                  /> 
-                </button> */}
-
-                <button
-                  onClick={() => handleDeleteModalOpen(group._id)}
-                  className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-                >
-                  <MdDelete color="red" />
-                </button>
+                  <IoMdMore className="text-bold" />
+                </Dropdown>
               </div>
             ),
           }));
@@ -343,12 +363,37 @@ const LeadReport = () => {
               : "",
           action: (
             <div className="flex justify-center gap-2 relative">
-              <button
-                onClick={() => handleDeleteModalOpen(group._id)}
-                className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(group._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(group._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
               >
-                <MdDelete color="red" />
-              </button>
+                <IoMdMore className="text-bold" />
+              </Dropdown>
             </div>
           ),
         }));
@@ -371,6 +416,10 @@ const LeadReport = () => {
   return (
     <div className="w-full">
       <div>
+        <Navbar
+          onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+          visibility={true}
+        />
         <div className=" flex mt-20">
           <CustomAlert
             type={alertConfig.type}
@@ -466,16 +515,14 @@ const LeadReport = () => {
                 </div>
               </div>
             </div>
-            {loader ?
-            
-            
-            <div className="flex w-full justify-center items-center">
-            <CircularLoader />;
-          </div>
-            :(
-              <DataTable  
+            {loader ? (
+              <div className="flex w-full justify-center items-center">
+                <CircularLoader />;
+              </div>
+            ) : (
+              <DataTable
                 updateHandler={handleUpdateModalOpen}
-                data={TableGroups}
+                data={filterOption(TableGroups, searchText)}
                 columns={columns}
                 exportedFileName={`Leads-${
                   TableGroups.length > 0

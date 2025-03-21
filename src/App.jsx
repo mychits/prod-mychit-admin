@@ -43,7 +43,6 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                 
                   <Home />
                 </ProtectedRoute>
               }
@@ -61,7 +60,6 @@ function App() {
               path="/group"
               element={
                 <ProtectedRoute>
-                
                   <Group />
                 </ProtectedRoute>
               }
@@ -70,7 +68,6 @@ function App() {
               path="/week-group"
               element={
                 <ProtectedRoute>
-                 
                   <WeekGroup />
                 </ProtectedRoute>
               }
@@ -80,7 +77,6 @@ function App() {
               path="/user"
               element={
                 <ProtectedRoute>
-                
                   <User />
                 </ProtectedRoute>
               }
@@ -89,7 +85,6 @@ function App() {
               path="/enrollment"
               element={
                 <ProtectedRoute>
-                 
                   <Enroll />
                 </ProtectedRoute>
               }
@@ -98,7 +93,6 @@ function App() {
               path="/auction"
               element={
                 <ProtectedRoute>
-                 
                   <Auction />
                 </ProtectedRoute>
               }
@@ -107,7 +101,6 @@ function App() {
               path="/payment"
               element={
                 <ProtectedRoute>
-                  
                   <Payment />
                 </ProtectedRoute>
               }
@@ -116,7 +109,6 @@ function App() {
               path="/agent"
               element={
                 <ProtectedRoute>
-                 
                   <Agent />
                 </ProtectedRoute>
               }
@@ -175,12 +167,10 @@ function App() {
               path="/reports"
               element={
                 <ProtectedRoute>
-                  <Navbar />
                   <Reports />
                 </ProtectedRoute>
               }
             >
-            
               <Route path="daybook" element={<Daybook />} />
               <Route path="receipt" element={<Receipt />} />
               <Route path="group-report" element={<GroupReport />} />

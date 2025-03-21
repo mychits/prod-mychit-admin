@@ -13,6 +13,8 @@ import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
 import EndlessCircularLoader from "../components/loaders/EndlessCircularLoader";
 import CircularLoader from "../components/loaders/CircularLoader";
+import Navbar from "../components/layouts/Navbar";
+import filterOption from "../helpers/filterOption";
 const Receipt = () => {
   const [groups, setGroups] = useState([]);
   const [TableDaybook, setTableDaybook] = useState([]);
@@ -31,6 +33,10 @@ const Receipt = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [receiptNo, setReceiptNo] = useState("");
   const [paymentMode, setPaymentMode] = useState("cash");
+  const [searchText, setSearchText] = useState("");
+  const onGlobalSearchChangeHandler = (e) => {
+    setSearchText(e.target.value);
+  };
   const [selectedFromDate, setSelectedFromDate] = useState(() => {
     const today = new Date();
     return today.toISOString().split("T")[0];
@@ -198,8 +204,8 @@ const Receipt = () => {
 
   const formatPayDate = (dateString) => {
     const date = new Date(dateString);
-    const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options).replace(",","");
+    const options = { day: "numeric", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-US", options).replace(",", "");
   };
 
   useEffect(() => {
@@ -220,7 +226,7 @@ const Receipt = () => {
           );
 
           setFilteredAuction(validPayments);
-          console.log("payment:",validPayments);
+          console.log("payment:", validPayments);
 
           const totalAmount = validPayments.reduce(
             (sum, payment) => sum + Number(payment.amount || 0),
@@ -229,16 +235,19 @@ const Receipt = () => {
           setPayments(totalAmount);
 
           const formattedData = validPayments.map((group, index) => ({
+            _id:group._id,
             id: index + 1,
             date: formatPayDate(group.pay_date),
             group: group.group_id.group_name,
             name: group.user_id?.full_name,
             phone_number: group.user_id?.phone_number,
-            receipt_no:group?.receipt_no ? group.receipt_no :`#${group.old_receipt_no.split("-")[1]}`,
+            receipt_no: group?.receipt_no
+              ? group.receipt_no
+              : `#${group.old_receipt_no.split("-")[1]}`,
             ticket: group.ticket,
             amount: group.amount,
             mode: group.pay_type,
-            collected_by: group?.collected_by?.name || "Admin"
+            collected_by: group?.collected_by?.name || "Admin",
           }));
 
           setTableDaybook(formattedData);
@@ -384,9 +393,12 @@ const Receipt = () => {
 
   return (
     <>
-      <div className="w-screen" >
+      <div className="w-screen">
         <div className="flex mt-20">
-          {/* <Sidebar /> */}
+          <Navbar
+            onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+            visibility={true}
+          />
           <CustomAlert
             type={alertConfig.type}
             isVisible={alertConfig.visibility}
@@ -429,7 +441,6 @@ const Receipt = () => {
                         </option>
                       ))}
                     </select>
-                    
                   </div>
                   <div className="mb-2">
                     <label>Customer</label>
@@ -469,19 +480,20 @@ const Receipt = () => {
               {filteredAuction && filteredAuction.length > 0 ? (
                 <div className="mt-10">
                   <DataTable
-                    data={TableDaybook}
+                    data={filterOption(TableDaybook,searchText)}
                     columns={columns}
-                    exportedFileName={`ReportsReceipt-${TableDaybook.length > 0
+                    exportedFileName={`ReportsReceipt-${
+                      TableDaybook.length > 0
                         ? TableDaybook[0].name +
-                        " to " +
-                        TableDaybook[TableDaybook.length - 1].name
+                          " to " +
+                          TableDaybook[TableDaybook.length - 1].name
                         : "empty"
-                      }.csv`}
+                    }.csv`}
                   />
                 </div>
               ) : (
                 <div className="mt-10 text-center text-gray-500">
-                 <CircularLoader/>
+                  <CircularLoader />
                 </div>
               )}
             </div>
@@ -646,7 +658,7 @@ const Receipt = () => {
               <h3 className="mb-4 text-xl font-bold text-gray-900">
                 View Auction
               </h3>
-              <form className="space-y-6" onSubmit={() => { }}>
+              <form className="space-y-6" onSubmit={() => {}}>
                 <div>
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -658,7 +670,7 @@ const Receipt = () => {
                     type="text"
                     name="group_id"
                     value={currentUpdateGroup?.group_id?.group_name}
-                    onChange={() => { }}
+                    onChange={() => {}}
                     id="name"
                     placeholder="Enter the Group Name"
                     readOnly
@@ -712,7 +724,7 @@ const Receipt = () => {
                     type="text"
                     name="group_id"
                     value={`${currentUpdateGroup?.user_id?.full_name} | ${currentUpdateGroup?.ticket}`}
-                    onChange={() => { }}
+                    onChange={() => {}}
                     id="name"
                     placeholder="Enter the User Name"
                     readOnly
@@ -734,7 +746,7 @@ const Receipt = () => {
                       currentUpdateGroup?.group_id?.group_value -
                       currentUpdateGroup?.win_amount
                     }
-                    onChange={() => { }}
+                    onChange={() => {}}
                     id="name"
                     placeholder="Enter the Bid Amount"
                     readOnly
@@ -842,7 +854,7 @@ const Receipt = () => {
                       type="date"
                       name="auction_date"
                       value={currentUpdateGroup?.auction_date}
-                      onChange={() => { }}
+                      onChange={() => {}}
                       id="date"
                       placeholder="Enter the Date"
                       readOnly
@@ -860,7 +872,7 @@ const Receipt = () => {
                       type="date"
                       name="next_date"
                       value={currentUpdateGroup?.next_date}
-                      onChange={() => { }}
+                      onChange={() => {}}
                       id="date"
                       placeholder="Enter the Date"
                       readOnly

@@ -482,7 +482,7 @@ const Enroll = () => {
                 >
                   Group
                 </label>
-                <Select
+                <select
                   name="group_id"
                   id="group_id"
                   value={formData.group_id}
@@ -496,7 +496,7 @@ const Enroll = () => {
                       {group.group_name}
                     </option>
                   ))}
-                </Select>
+                </select>
                 {errors.group_id && (
                   <p className="mt-1 text-sm text-red-600">{errors.group_id}</p>
                 )}

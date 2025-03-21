@@ -12,6 +12,8 @@ import url from "../data/Url";
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { Select } from "antd";
+import Navbar from "../components/layouts/Navbar";
+import filterOption from "../helpers/filterOption";
 const Daybook = () => {
   const [groups, setGroups] = useState([]);
   const [TableDaybook, setTableDaybook] = useState([]);
@@ -37,7 +39,12 @@ const Daybook = () => {
   const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
   const [selectedCustomers, setSelectedCustomers] = useState("");
   const [payments, setPayments] = useState([]);
+  const [searchText, setSearchText] = useState("");
 
+  const onGlobalSearchChangeHandler = (e) => {
+    const { value } = e.target;
+    setSearchText(value);
+  };
   const [formData, setFormData] = useState({
     group_id: "",
     user_id: "",
@@ -156,10 +163,8 @@ const Daybook = () => {
     }
   };
 
-  const handleGroupPayment =  (groupId) => {
-    
+  const handleGroupPayment = (groupId) => {
     setSelectedAuctionGroupId(groupId);
-    
   };
 
   // const handleGroupPaymentChange = async (groupId) => {
@@ -207,6 +212,7 @@ const Daybook = () => {
           );
           setPayments(totalAmount || 0);
           const formattedData = response.data.map((group, index) => ({
+            _id:group._id,
             id: index + 1,
             group: group.group_id.group_name,
             name: group.user_id?.full_name,
@@ -362,7 +368,7 @@ const Daybook = () => {
     <>
       <div className="w-screen">
         <div className="flex mt-20">
-          {/* <Sidebar /> */}
+          <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold">Reports - Daybook</h1>
             <div className="mt-6 mb-8">
@@ -386,13 +392,14 @@ const Daybook = () => {
                       onChange={handleGroupPayment}
                       placeholder="Search Or Select Group"
                       filterOption={(input, option) =>
-                        option.children.toString()
+                        option.children
+                          .toString()
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
                       className="w-full max-w-xs h-11"
                     >
-                       <Select.Option  value={""}>All</Select.Option>
+                      <Select.Option value={""}>All</Select.Option>
                       {groups.map((group) => (
                         <Select.Option key={group._id} value={group._id}>
                           {group.group_name}
@@ -403,15 +410,16 @@ const Daybook = () => {
                   <div className="mb-2 flex flex-col">
                     <label>Customers</label>
                     <Select
-                     showSearch
-                     popupMatchSelectWidth={false}
+                      showSearch
+                      popupMatchSelectWidth={false}
                       value={selectedCustomers || undefined}
                       filterOption={(input, option) =>
-                        option.children.toString()
+                        option.children
+                          .toString()
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                        placeholder="Search Or Select Customer"
+                      placeholder="Search Or Select Customer"
                       onChange={(groupId) => setSelectedCustomers(groupId)}
                       className="w-full max-w-xs h-11"
                       // className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
@@ -427,17 +435,18 @@ const Daybook = () => {
                   <div className="mb-2 flex flex-col">
                     <label>Payment Mode</label>
                     <Select
-                      value={selectedPaymentMode ||undefined}
+                      value={selectedPaymentMode || undefined}
                       showSearch
-                       placeholder="Search Or Select Payment"
+                      placeholder="Search Or Select Payment"
                       popupMatchSelectWidth={false}
-                      onChange={(groupId) => setSelectedPaymentMode(groupId) }
+                      onChange={(groupId) => setSelectedPaymentMode(groupId)}
                       filterOption={(input, option) =>
-                        option.children.toString()
+                        option.children
+                          .toString()
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                     className="w-full max-w-xs h-11"
+                      className="w-full max-w-xs h-11"
                       // className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                     >
                       <Select.Option value="">All</Select.Option>
@@ -456,7 +465,7 @@ const Daybook = () => {
               {filteredAuction && filteredAuction.length > 0 ? (
                 <div className="mt-10">
                   <DataTable
-                    data={TableDaybook}
+                    data={filterOption(TableDaybook,searchText)}
                     columns={columns}
                     exportedFileName={`Daybook-${
                       TableDaybook.length > 0

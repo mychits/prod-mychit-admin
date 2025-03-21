@@ -1,17 +1,13 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
-import Sidebar from "../components/layouts/Sidebar";
+
 import api from "../instance/TokenInstance";
-import { MdDelete } from "react-icons/md";
-import { CiEdit } from "react-icons/ci";
-import Modal from "../components/modals/Modal";
-import { BsEye } from "react-icons/bs";
-import UploadModal from "../components/modals/UploadModal";
-import axios from "axios";
-import url from "../data/Url";
+
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { Select } from "antd";
+import Navbar from "../components/layouts/Navbar";
+import filterOption from "../helpers/filterOption";
 const UserReport = () => {
   const [groups, setGroups] = useState([]);
   const [TableDaybook, setTableDaybook] = useState([]);
@@ -71,7 +67,10 @@ const UserReport = () => {
   const [availableTickets, setAvailableTickets] = useState([]);
   const [screenLoading, setScreenLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("groupDetails");
-
+  const [searchText, setSearchText] = useState("");
+  const onGlobalSearchChangeHandler = (e) => {
+    setSearchText(e.target.value);
+  };
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
@@ -159,7 +158,6 @@ const UserReport = () => {
   }, []);
 
   const handleGroupPayment = async (groupId) => {
-    
     setSelectedAuctionGroupId(groupId);
     //handleGroupChange(groupId);
     setSelectedGroup(groupId);
@@ -241,7 +239,7 @@ const UserReport = () => {
         );
         if (response.data && response.data.length > 0) {
           setFilteredAuction(response.data);
-
+          
           const formattedData = response.data
             .map((group, index) => {
               const groupName = group?.enrollment?.group?.group_name || ""; // Empty if null
@@ -261,6 +259,7 @@ const UserReport = () => {
               }
 
               return {
+              
                 id: index + 1,
                 group: groupName,
                 ticket: tickets,
@@ -371,6 +370,7 @@ const UserReport = () => {
           const formattedData = response.data.map((group, index) => {
             balance += Number(group.amount);
             return {
+              _id:group._id,
               id: index + 1,
               date: formatPayDate(group?.pay_date),
               amount: group.amount,
@@ -448,7 +448,9 @@ const UserReport = () => {
           setTotalAmount(totalAmount);
 
           const formattedData = response.data.map((group, index) => ({
+          
             id: index + 1,
+           
             name: group?.user?.full_name,
             phone_number: group?.user?.phone_number,
             ticket: group.ticket,
@@ -533,6 +535,10 @@ const UserReport = () => {
       <div className="w-screen">
         <div className="flex mt-20">
           {/* <Sidebar /> */}
+          <Navbar
+            onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+            visibility={true}
+          />
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold text-center">
               Reports - Customer
@@ -541,25 +547,28 @@ const UserReport = () => {
               <div className="mb-2">
                 <div className="flex justify-center items-center w-full gap-4 bg-blue-50 rounded-md shadow-md p-2">
                   <div className="mb-2">
-                    <label className="flex w-auto p-4 gap-2 justify-center items-center select-none font-semibold  shadow-sm mb-2 rounded-sm" htmlFor={"SS"}>
+                    <label
+                      className="flex w-auto p-4 gap-2 justify-center items-center select-none font-semibold  shadow-sm mb-2 rounded-sm"
+                      htmlFor={"SS"}
+                    >
                       {" "}
                       Search Or Select Customer
                     </label>
                     <Select
-                    id="SS"
+                      id="SS"
                       value={selectedAuctionGroupId || undefined}
                       onChange={handleGroupPayment}
                       showSearch
                       popupMatchSelectWidth={false}
                       placeholder="Search or Select Customer"
                       filterOption={(input, option) =>
-                        option.children.toString()
+                        option.children
+                          .toString()
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                      style={{height:"50px",width:"600px"}}
+                      style={{ height: "50px", width: "600px" }}
                     >
-                      <Select.Option value="">Select Customer</Select.Option>
                       {groups.map((group) => (
                         <option key={group._id} value={group._id}>
                           {group.full_name} - {group.phone_number}
@@ -708,15 +717,15 @@ const UserReport = () => {
                               {TableAuctions && TableAuctions.length > 0 ? (
                                 <div className="mt-5">
                                   <DataTable
-                                    data={TableAuctions}
+                                    data={filterOption(TableAuctions,searchText)}
                                     columns={Auctioncolumns}
                                     exportedFileName={`CustomerReport-${
                                       TableAuctions.length > 0
-                                        ? TableAuctions[0].group +
+                                        ? TableAuctions[0].date +
                                           " to " +
                                           TableAuctions[
                                             TableAuctions.length - 1
-                                          ].group
+                                          ].date
                                         : "empty"
                                     }.csv`}
                                   />

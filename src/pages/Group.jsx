@@ -12,6 +12,7 @@ import CustomAlert from "../components/alerts/CustomAlert";
 import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
+import filterOption from "../helpers/filterOption";
 
 const Group = () => {
   const [groups, setGroups] = useState([]);
@@ -404,11 +405,7 @@ const Group = () => {
             <DataTable
               catcher="_id"
               updateHandler={handleUpdateModalOpen}
-              data={TableGroups.filter((item) =>
-                Object.values(item).some((value) =>
-                  String(value).toLowerCase().includes(searchText.toLowerCase())
-              )
-            )}
+              data={filterOption(TableGroups,searchText)}
               columns={columns}
               exportedFileName={`Groups-${
                 TableGroups.length > 0

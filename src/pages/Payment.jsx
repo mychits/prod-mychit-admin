@@ -288,6 +288,7 @@ const Payment = () => {
         if (response.data && response.data.length > 0) {
           //setFilteredAuction(response.data);
           const formattedData = response.data.map((group, index) => ({
+            _id:group._id,
             id: index + 1,
             name: group?.user_id?.full_name,
             phone_number: group?.user_id?.phone_number,

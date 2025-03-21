@@ -10,6 +10,8 @@ import DataTable from "../components/layouts/Datatable";
 import { EyeIcon } from "lucide-react";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { Select } from "antd";
+import Navbar from "../components/layouts/Navbar";
+import filterOption from "../helpers/filterOption";
 const AuctionReport = () => {
   const [groups, setGroups] = useState([]);
   const [TableAuctions, setTableAuctions] = useState([]);
@@ -26,7 +28,7 @@ const AuctionReport = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [double, setDouble] = useState({});
-
+  const [searchText,setSearchText] = useState("");
   const [formData, setFormData] = useState({
     group_id: "",
     user_id: "",
@@ -42,7 +44,9 @@ const AuctionReport = () => {
     group_type: "",
     auction_type: "normal",
   });
-
+const onGlobalSearchChangeHandler = (e)=>{
+  setSearchText(e.target.value)
+}
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -315,7 +319,7 @@ const AuctionReport = () => {
     <>
       <div className="w-screen">
         <div className="flex mt-20">
-          {/* <Sidebar /> */}
+         <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true}/>
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold text-center">Auction Report</h1>
             <div className="mt-6 mb-8 bg-blue-50">
@@ -363,7 +367,7 @@ const AuctionReport = () => {
                 {filteredAuction && filteredAuction.length > 0 ? (
                   <DataTable
                   updateHandler={handleUpdateModalOpen}
-                    data={TableAuctions}
+                    data={filterOption(TableAuctions,searchText)}
                     columns={columns}
                     exportedFileName={`AuctionsReport-${
                       TableAuctions.length > 0

@@ -14,6 +14,8 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import { FcSearch } from "react-icons/fc";
 
 import {Select} from "antd";
+import Navbar from "../components/layouts/Navbar";
+import filterOption from "../helpers/filterOption";
 const GroupReport = () => {
   const [groups, setGroups] = useState([]);
   const [TableDaybook, setTableDaybook] = useState([]);
@@ -63,7 +65,11 @@ const GroupReport = () => {
   const [availableTickets, setAvailableTickets] = useState([]);
 
   const [activeTab, setActiveTab] = useState("groupDetails");
+  const [searchText,setSearchText] = useState("");
+  const onGlobalSearchChangeHandler = (e)=>{
+    setSearchText(e.target.value)
 
+  }
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
@@ -178,8 +184,10 @@ const GroupReport = () => {
             (sum, payment) => sum + Number(payment.amount || 0),
             0
           );
+          console.log("total paymnets",response.data)
           setPayments(totalAmount);
           const formattedData = response.data.map((group, index) => ({
+            
             id: index + 1,
             group: group.group_id.group_name,
             name: group.user_id?.full_name,
@@ -229,6 +237,7 @@ const GroupReport = () => {
           }, 0);
 
           const formattedData = response.data.map((group, index) => ({
+            _id:group._id,
             id: index + 1,
             date: group.auction_date,
             name: group.user_id?.full_name,
@@ -462,6 +471,7 @@ const GroupReport = () => {
       <div className="w-screen">
         <div className="flex mt-20">
           {/* <Sidebar /> */}
+           <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold text-center">Reports - Group</h1>
             <div className="mt-6 mb-8">
@@ -666,7 +676,7 @@ const GroupReport = () => {
                               {filteredAuction && filteredAuction.length > 0 ? (
                                 <div className="mt-10">
                                   <DataTable
-                                    data={TableAuctions}
+                                    data={filterOption(TableAuctions,searchText)}
                                     columns={Auctioncolumns}
                                     exportedFileName={`GroupReport-${
                                       TableAuctions.length > 0
