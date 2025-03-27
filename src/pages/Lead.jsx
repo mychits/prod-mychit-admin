@@ -27,11 +27,11 @@ const Lead = () => {
   const [agents, setAgents] = useState([]);
   const [errors, setErrors] = useState({});
 
-const [searchText, setSearchText] = useState("");
-const onGlobalSearchChangeHandler = (e) => {
-  const { value } = e.target;
-  setSearchText(value);
-};
+  const [searchText, setSearchText] = useState("");
+  const onGlobalSearchChangeHandler = (e) => {
+    const { value } = e.target;
+    setSearchText(value);
+  };
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -174,7 +174,7 @@ const onGlobalSearchChangeHandler = (e) => {
         console.log("response data", response.data);
         setLeads(response.data);
         const formattedData = response.data.map((group, index) => ({
-          _id:group._id,
+          _id: group._id,
           id: index + 1,
           name: group.lead_name,
           phone: group.lead_phone,
@@ -377,7 +377,10 @@ const onGlobalSearchChangeHandler = (e) => {
     <>
       <div>
         <div className="flex mt-20">
-        <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true}/>
+          <Navbar
+            onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+            visibility={true}
+          />
           <Sidebar />
           <CustomAlert
             type={alertConfig.type}
@@ -400,24 +403,24 @@ const onGlobalSearchChangeHandler = (e) => {
                 </button>
               </div>
             </div>
-       
-              <DataTable  
+
+            <DataTable
               updateHandler={handleUpdateModalOpen}
               data={TableGroups.filter((item) =>
                 Object.values(item).some((value) =>
                   String(value).toLowerCase().includes(searchText.toLowerCase())
                 )
               )}
-                columns={columns}
-                exportedFileName={`Leads-${
-                  TableGroups.length > 0
-                    ? TableGroups[0].date +
-                      " to " +
-                      TableGroups[TableGroups.length - 1].date
-                    : "empty"
-                }.csv`}
-              />
-      
+              columns={columns}
+              exportedFileName={`Leads-${
+                TableGroups.length > 0
+                  ? TableGroups[0].date +
+                    " to " +
+                    TableGroups[TableGroups.length - 1].date
+                  : "empty"
+              }.csv`}
+            />
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {/* {filteredGroups.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
@@ -714,13 +717,15 @@ const onGlobalSearchChangeHandler = (e) => {
                   </div>
                 </>
               )}
-              <button
-                type="submit"
-                className="w-full text-white bg-blue-700 hover:bg-blue-800
+              <div className="w-full flex justify-end">
+                <button
+                  type="submit"
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
                                 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-              >
-                Add
-              </button>
+                >
+                  Save Lead
+                </button>
+              </div>
             </form>
           </div>
         </Modal>
@@ -965,13 +970,15 @@ const onGlobalSearchChangeHandler = (e) => {
                   </div>
                 </>
               )}
+               <div className="w-full flex justify-end">
               <button
                 type="submit"
-                className="w-full text-white bg-blue-700 hover:bg-blue-800
+                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
               >
                 Update
               </button>
+              </div>
             </form>
           </div>
         </Modal>

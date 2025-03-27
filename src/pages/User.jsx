@@ -11,6 +11,7 @@ import CustomAlert from "../components/alerts/CustomAlert";
 import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
+import filterOption from "../helpers/filterOption";
 const User = () => {
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
@@ -391,6 +392,7 @@ const User = () => {
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
                 <h1 className="text-2xl font-semibold">Customers</h1>
+                
                 <button
                   onClick={() => {
                     setShowModal(true);
@@ -405,11 +407,7 @@ const User = () => {
             <DataTable
               catcher="_id"
               updateHandler={handleUpdateModalOpen}
-              data={TableUsers.filter((item) =>
-                Object.values(item).some((value) =>
-                  String(value).toLowerCase().includes(searchText.toLowerCase())
-                )
-              )}
+              data={filterOption(TableUsers,searchText)}
               columns={columns}
               exportedFileName={`Customers-${
                 TableUsers.length > 0
@@ -664,13 +662,15 @@ const User = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
                 )}
               </div>
+              <div className="w-full flex justify-end">
               <button
                 type="submit"
-                className="w-full text-white bg-blue-700 hover:bg-blue-800
+                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
               >
-                Add
+                Save Customer
               </button>
+              </div>
             </form>
           </div>
         </Modal>
@@ -844,13 +844,15 @@ const User = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
                 )}
               </div>
+              <div className="w-full flex justify-end">
               <button
                 type="submit"
-                className="w-full text-white bg-blue-700 hover:bg-blue-800
+                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
               >
                 Update
               </button>
+              </div>
             </form>
           </div>
         </Modal>

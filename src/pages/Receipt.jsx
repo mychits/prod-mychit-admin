@@ -434,7 +434,7 @@ const Receipt = () => {
                       onChange={handleGroupPayment}
                       className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                     >
-                      <option value="">Select Group</option>
+                      <option value="">All </option>
                       {groups.map((group) => (
                         <option key={group._id} value={group._id}>
                           {group.group_name}
@@ -449,7 +449,7 @@ const Receipt = () => {
                       onChange={(e) => setSelectedCustomers(e.target.value)}
                       className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                     >
-                      <option value="">Select Customer</option>
+                      <option value="">All</option>
                       {filteredUsers.map((group) => (
                         <option key={group?._id} value={group?._id}>
                           {group?.full_name} - {group.phone_number}
@@ -464,7 +464,7 @@ const Receipt = () => {
                       onChange={(e) => setSelectedPaymentMode(e.target.value)}
                       className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                     >
-                      <option value="">Select Payment Mode</option>
+                      <option value="">All</option>
                       <option value="cash">Cash</option>
                       <option value="online">Online</option>
                     </select>

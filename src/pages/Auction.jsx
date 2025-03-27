@@ -13,6 +13,7 @@ import CustomAlert from "../components/alerts/CustomAlert";
 import Navbar from "../components/layouts/Navbar";
 import { Select } from "antd";
 import { IoMdMore } from "react-icons/io";
+import filterOption from "../helpers/filterOption";
 const Auction = () => {
   const [groups, setGroups] = useState([]);
   const [TableAuctions, setTableAuctions] = useState([]);
@@ -475,11 +476,7 @@ const Auction = () => {
                 <DataTable
                 updateHandler={handleUpdateModalOpen}
                
-                  data={TableAuctions.filter((item) =>
-                    Object.values(item).some((value) =>
-                      String(value).toLowerCase().includes(searchText.toLowerCase())
-                    )
-                  )}
+                  data={filterOption(TableAuctions,searchText)}
                   columns={columns}
                   exportedFileName={`Auctions ${
                     TableAuctions.length > 0
@@ -843,13 +840,15 @@ const Auction = () => {
                     )}
                   </div>
                 </div>
+                <div className="w-full flex justify-end">
                 <button
                   type="submit"
-                  className="w-full text-white bg-blue-700 hover:bg-blue-800
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 >
-                  Add
+                  Save Auction
                 </button>
+                </div>
               </form>
             </div>
           </Modal>

@@ -5,7 +5,7 @@ import Navbar from "../components/layouts/Navbar";
 const subMenus = [
   { title: "Daybook", link: "/reports/daybook" },
   { title: "Group Report", link: "/reports/group-report" },
-  // { title: "All Group Report", link: "/reports/all-group-report" },
+  { title: "All Customer Report", link: "/reports/all-user-report" },
   { title: "Customer Report", link: "/reports/user-report" },
   { title: "Receipt Report", link: "/reports/receipt" },
   { title: "Auction Report", link: "/reports/auction-report" },
@@ -15,7 +15,7 @@ const Reports = () => {
   return (
     <div>
       <div className="w-screen flex mt-20">
-       
+       {document.location.pathname ==="/reports" && <Navbar/>}
         <Sidebar />
         <div className="flex-grow">
           <div className="w-[300px] bg-gray-50 h-full  p-4">

@@ -5,11 +5,12 @@ import api from "../instance/TokenInstance";
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import Modal from "../components/modals/Modal";
+import { IoMdMore } from "react-icons/io";
 import { BsEye } from "react-icons/bs";
 import DataTable from "../components/layouts/Datatable";
 import { EyeIcon } from "lucide-react";
 import CircularLoader from "../components/loaders/CircularLoader";
-import { Select } from "antd";
+import { Dropdown, Select } from "antd";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 const AuctionReport = () => {
@@ -28,7 +29,7 @@ const AuctionReport = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [double, setDouble] = useState({});
-  const [searchText,setSearchText] = useState("");
+  const [searchText, setSearchText] = useState("");
   const [formData, setFormData] = useState({
     group_id: "",
     user_id: "",
@@ -44,9 +45,9 @@ const AuctionReport = () => {
     group_type: "",
     auction_type: "normal",
   });
-const onGlobalSearchChangeHandler = (e)=>{
-  setSearchText(e.target.value)
-}
+  const onGlobalSearchChangeHandler = (e) => {
+    setSearchText(e.target.value);
+  };
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -135,7 +136,6 @@ const onGlobalSearchChangeHandler = (e)=>{
   };
 
   const handleGroupAuction = async (groupId) => {
-   
     setSelectedAuctionGroupId(groupId);
     handleGroupAuctionChange(groupId);
   };
@@ -187,7 +187,7 @@ const onGlobalSearchChangeHandler = (e)=>{
               // ),
             },
             ...response.data.map((group, index) => ({
-              _id:group._id,
+              _id: group._id,
               id: index + 2,
               date: formatPayDate(group.auction_date),
               name: group.user_id?.full_name,
@@ -207,12 +207,43 @@ const onGlobalSearchChangeHandler = (e)=>{
                   >
                     <EyeIcon color="green" />
                   </button> */}
-                  <button
+                  {/* <button
                     onClick={() => handleDeleteModalOpen(group._id)}
                     className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
                   >
                     <MdDelete color="red" />
-                  </button>
+                  </button> */}
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          key: "1",
+                          label: (
+                            <div
+                              className="text-green-600"
+                              onClick={() => handleUpdateModalOpen(group._id)}
+                            >
+                              Edit
+                            </div>
+                          ),
+                        },
+                        {
+                          key: "2",
+                          label: (
+                            <div
+                              className="text-red-600"
+                              onClick={() => handleDeleteModalOpen(group._id)}
+                            >
+                              Delete
+                            </div>
+                          ),
+                        },
+                      ],
+                    }}
+                    placement="bottomLeft"
+                  >
+                    <IoMdMore className="text-bold" />
+                  </Dropdown>
                 </div>
               ),
             })),
@@ -319,28 +350,39 @@ const onGlobalSearchChangeHandler = (e)=>{
     <>
       <div className="w-screen">
         <div className="flex mt-20">
-         <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true}/>
+          <Navbar
+            onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+            visibility={true}
+          />
           <div className="flex-grow p-7">
-            <h1 className="text-2xl font-semibold text-center">Auction Report</h1>
+            <h1 className="text-2xl font-semibold text-center">
+              Auction Report
+            </h1>
             <div className="mt-6 mb-8 bg-blue-50">
               <div className="mb-10 ">
-                <label  className="flex w-auto p-4 gap-2 justify-center items-center select-none font-semibold  shadow-sm mb-2 rounded-sm" htmlFor={"SS"}> Search Or Select Group</label>
+                <label
+                  className="flex w-auto p-4 gap-2 justify-center items-center select-none font-semibold  shadow-sm mb-2 rounded-sm"
+                  htmlFor={"SS"}
+                >
+                  {" "}
+                  Search Or Select Group
+                </label>
                 <div className="flex justify-center items-center w-full">
                   <Select
-                  id="SS"
-                  showSearch
-                  popupMatchSelectWidth={false}
+                    id="SS"
+                    showSearch
+                    popupMatchSelectWidth={false}
                     value={selectedAuctionGroupId || undefined}
                     onChange={handleGroupAuction}
                     placeholder="Search or Select Auction"
-                    style={{height:"50px",width:"600px"}}
+                    style={{ height: "50px", width: "600px" }}
                     filterOption={(input, option) =>
-                      option.children.toString()
+                      option.children
+                        .toString()
                         .toLowerCase()
                         .includes(input.toLowerCase())
                     }
                   >
-                    
                     {groups.map((group) => (
                       <option key={group._id} value={group._id}>
                         {group.group_name}
@@ -366,8 +408,8 @@ const onGlobalSearchChangeHandler = (e)=>{
               <div className="">
                 {filteredAuction && filteredAuction.length > 0 ? (
                   <DataTable
-                  updateHandler={handleUpdateModalOpen}
-                    data={filterOption(TableAuctions,searchText)}
+                    updateHandler={handleUpdateModalOpen}
+                    data={filterOption(TableAuctions, searchText)}
                     columns={columns}
                     exportedFileName={`AuctionsReport-${
                       TableAuctions.length > 0
@@ -378,7 +420,7 @@ const onGlobalSearchChangeHandler = (e)=>{
                     }.csv`}
                   />
                 ) : (
-                 <CircularLoader/>
+                  <CircularLoader />
                 )}
               </div>
 

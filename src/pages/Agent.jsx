@@ -11,6 +11,7 @@ import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
 import Navbar from "../components/layouts/Navbar";
+import filterOption from "../helpers/filterOption";
 const Agent = () => {
   const [users, setUsers] = useState([]);
   const [TableAgents, setTableAgents] = useState([]);
@@ -376,7 +377,7 @@ const Agent = () => {
             </div>
             <DataTable
             updateHandler={handleUpdateModalOpen}
-              data={TableAgents.filter((item)=>Object.values(item).some(value=>String(value).toLowerCase().includes(searchText.toLowerCase())))}
+              data={filterOption(TableAgents,searchText)}
               columns={columns}
               exportedFileName={`Employees-${
                 TableAgents.length > 0
@@ -629,13 +630,15 @@ const Agent = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
                 )}
               </div>
+              <div className="w-full flex justify-end">
               <button
                 type="submit"
-                className="w-full text-white bg-blue-700 hover:bg-blue-800
-              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
+              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
               >
-                Add
+                Save Employee
               </button>
+              </div>
             </form>
           </div>
         </Modal>
@@ -807,13 +810,15 @@ const Agent = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
                 )}
               </div>
+              <div className="w-full flex justify-end">
               <button
                 type="submit"
-                className="w-full text-white bg-blue-700 hover:bg-blue-800
+                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
               >
                 Update
               </button>
+              </div>
             </form>
           </div>
         </Modal>

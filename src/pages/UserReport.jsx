@@ -239,7 +239,7 @@ const UserReport = () => {
         );
         if (response.data && response.data.length > 0) {
           setFilteredAuction(response.data);
-          
+
           const formattedData = response.data
             .map((group, index) => {
               const groupName = group?.enrollment?.group?.group_name || ""; // Empty if null
@@ -259,7 +259,6 @@ const UserReport = () => {
               }
 
               return {
-              
                 id: index + 1,
                 group: groupName,
                 ticket: tickets,
@@ -370,7 +369,7 @@ const UserReport = () => {
           const formattedData = response.data.map((group, index) => {
             balance += Number(group.amount);
             return {
-              _id:group._id,
+              _id: group._id,
               id: index + 1,
               date: formatPayDate(group?.pay_date),
               amount: group.amount,
@@ -448,9 +447,8 @@ const UserReport = () => {
           setTotalAmount(totalAmount);
 
           const formattedData = response.data.map((group, index) => ({
-          
             id: index + 1,
-           
+
             name: group?.user?.full_name,
             phone_number: group?.user?.phone_number,
             ticket: group.ticket,
@@ -717,7 +715,10 @@ const UserReport = () => {
                               {TableAuctions && TableAuctions.length > 0 ? (
                                 <div className="mt-5">
                                   <DataTable
-                                    data={filterOption(TableAuctions,searchText)}
+                                    data={filterOption(
+                                      TableAuctions,
+                                      searchText
+                                    )}
                                     columns={Auctioncolumns}
                                     exportedFileName={`CustomerReport-${
                                       TableAuctions.length > 0

@@ -12,6 +12,7 @@ import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import { Select } from "antd";
+import filterOption from "../helpers/filterOption";
 const Enroll = () => {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
@@ -77,7 +78,6 @@ const Enroll = () => {
   }, []);
 
   const handleGroupChange = async (groupId) => {
-   
     setSelectedGroup(groupId);
 
     if (groupId) {
@@ -361,11 +361,12 @@ const Enroll = () => {
               </div>
               <div className="flex justify-between items-center w-full">
                 <Select
-                 showSearch
-                 popupMatchSelectWidth={false}
+                  showSearch
+                  popupMatchSelectWidth={false}
                   value={selectedGroup || undefined}
                   filterOption={(input, option) =>
-                    option.children.toString()
+                    option.children
+                      .toString()
                       .toLowerCase()
                       .includes(input.toLowerCase())
                   }
@@ -373,7 +374,6 @@ const Enroll = () => {
                   onChange={handleGroupChange}
                   className="border   w-full max-w-md"
                 >
-                 
                   {groups.map((group) => (
                     <Select.Option key={group._id} value={group._id}>
                       {group.group_name}
@@ -390,11 +390,7 @@ const Enroll = () => {
             </div>
             <DataTable
               updateHandler={handleUpdateModalOpen}
-              data={TableEnrolls.filter((item) =>
-                Object.values(item).some((value) =>
-                  String(value).toLowerCase().includes(searchText.toLowerCase())
-                )
-              )}
+              data={filterOption(TableEnrolls, searchText)}
               columns={columns}
               exportedFileName={`Enrollments-${
                 TableEnrolls.length > 0
@@ -583,14 +579,14 @@ const Enroll = () => {
                   <span className="text-gray-700">Send Via Whatsapp</span>
                 </div>
               </div>
-
+              <div className="w-full flex justify-end">
               <button
                 type="submit"
                 disabled={loading || availableTicketsAdd.length === 0}
-                className={`w-full text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center ${
+                className={`w-1/4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center ${
                   loading
                     ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
+                    : "bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 border-2 border-black"
                 }`}
               >
                 {loading ? (
@@ -598,9 +594,10 @@ const Enroll = () => {
                     <p>Loading...</p>
                   </>
                 ) : (
-                  <>Add</>
+                  <>Save Enrollment</>
                 )}
               </button>
+              </div>
             </form>
           </div>
         </Modal>

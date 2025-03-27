@@ -377,7 +377,10 @@ const Group = () => {
   return (
     <>
       <div>
-        <Navbar visibility={true} onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} />
+        <Navbar
+          visibility={true}
+          onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+        />
         <CustomAlert
           type={alertConfig.type}
           isVisible={alertConfig.visibility}
@@ -405,7 +408,7 @@ const Group = () => {
             <DataTable
               catcher="_id"
               updateHandler={handleUpdateModalOpen}
-              data={filterOption(TableGroups,searchText)}
+              data={filterOption(TableGroups, searchText)}
               columns={columns}
               exportedFileName={`Groups-${
                 TableGroups.length > 0
@@ -738,13 +741,15 @@ const Group = () => {
                   )}
                 </div>
               </div>
-              <button
-                type="submit"
-                className="w-full text-white bg-blue-700 hover:bg-blue-800
-              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-              >
-                Add
-              </button>
+              <div className="w-full flex justify-end">
+                <button
+                  type="submit"
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
+              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
+                >
+                  Save Group
+                </button>
+              </div>
             </form>
           </div>
         </Modal>
@@ -1019,13 +1024,15 @@ const Group = () => {
                   )}
                 </div>
               </div>
+              <div className="w-full flex justify-end">
               <button
                 type="submit"
-                className="w-full text-white bg-blue-700 hover:bg-blue-800
-              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
+              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
               >
                 Update
               </button>
+              </div>
             </form>
           </div>
         </Modal>

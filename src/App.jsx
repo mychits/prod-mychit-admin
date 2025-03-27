@@ -31,6 +31,7 @@ import AllGroupReport from "./pages/AllGroupReport";
 import Reports from "./pages/Reports";
 import LeadReport from "./pages/LeadReport";
 import Sidebar from "./components/layouts/Sidebar";
+import AllUserReport from "./pages/AllUserReport";
 
 function App() {
   return (
@@ -178,6 +179,7 @@ function App() {
               <Route path="auction-report" element={<AuctionReport />} />
               <Route path="lead-report" element={<LeadReport />} />
               <Route path="user-report" element={<UserReport />} />
+              <Route path="all-user-report" element={<AllUserReport />} />
             </Route>
 
             <Route
