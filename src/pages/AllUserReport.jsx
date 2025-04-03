@@ -21,6 +21,7 @@ const AllUserReport = () => {
         const reportResponse = await api.get("/user/all-customers-report");
         const usersList = [];
         let count =0;
+        console.log(reportResponse)
         reportResponse.data.forEach((usrData) => {
           
           if (usrData?.data) {
@@ -40,6 +41,7 @@ const AllUserReport = () => {
                   sl_no:count,
                   _id: usrData._id,
                   userName: usrData.userName,
+                  userPhone:usrData.phone_number,
                   customerId: usrData.customer_id,
                   amountPaid: totalPaidAmount,
                   paymentsTicket: data.payments.ticket,
@@ -102,6 +104,7 @@ const AllUserReport = () => {
   const Auctioncolumns = [
     { key: "sl_no", header: "SL. NO" },
     { key: "userName", header: "Customer Name" },
+    { key: "userPhone", header: "Phone Number" },
     { key: "customerId", header: "Customer Id" },
     { key: "groupName", header: "Group Name" },
     { key: "paymentsTicket", header: "Ticket" },

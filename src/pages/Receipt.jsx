@@ -204,7 +204,7 @@ const Receipt = () => {
 
   const formatPayDate = (dateString) => {
     const date = new Date(dateString);
-    const options = { day: "numeric", month: "short", year: "numeric" };
+    const options = { day: "numeric", month: "long", year: "numeric" };
     return date.toLocaleDateString("en-US", options).replace(",", "");
   };
 
@@ -237,7 +237,7 @@ const Receipt = () => {
           const formattedData = validPayments.map((group, index) => ({
             _id:group._id,
             id: index + 1,
-            date: formatPayDate(group.pay_date),
+            date: group.pay_date,
             group: group.group_id.group_name,
             name: group.user_id?.full_name,
             phone_number: group.user_id?.phone_number,

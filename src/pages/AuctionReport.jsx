@@ -162,7 +162,7 @@ const AuctionReport = () => {
           const formattedData = [
             {
               id: 1,
-              date: prevDate(response?.data[0]?.auction_date),
+              date: response?.data[0]?.auction_date,
               name: "Commencement",
               phone_number: "Commencement",
               ticket: "Commencement",
@@ -189,7 +189,7 @@ const AuctionReport = () => {
             ...response.data.map((group, index) => ({
               _id: group._id,
               id: index + 2,
-              date: formatPayDate(group.auction_date),
+              date: group.auction_date,
               name: group.user_id?.full_name,
               phone_number: group.user_id?.phone_number,
               ticket: group.ticket,
