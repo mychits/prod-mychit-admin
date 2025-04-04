@@ -4,6 +4,7 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      display: ['print'],
       colors: {
         primary: "#b10528",
         secondary: "#081A51",

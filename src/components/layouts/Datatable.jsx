@@ -8,8 +8,11 @@ import {
 } from "lucide-react";
 import CircularLoader from "../loaders/CircularLoader";
 import { Select } from "antd";
+import logo from "../../assets/images/mychits.png";
 const DataTable = ({
   updateHandler = () => {},
+  printHeaderValues = [],
+  printHeaderKeys = [],
   catcher = "_id",
   isExportEnabled = true,
   data = [],
@@ -33,14 +36,13 @@ const DataTable = ({
     setActive(tempData);
   }, [data]);
   const onSelectRow = (_id) => {
-   
-      const tempActive = active;
-      if(Object.keys(active)<=1){
+    const tempActive = active;
+    if (Object.keys(active).length > 1) {
       Object.keys(active).forEach((key) => {
         tempActive[key] = false;
       });
       setActive({ ...tempActive, [_id]: true });
-      }
+    }
   };
   const searchData = (data) => {
     if (!searchQuery) return data;
@@ -105,71 +107,75 @@ const DataTable = ({
   };
   const printToPDF = () => {
     const printContent = document.createElement("div");
+
     printContent.innerHTML = `
-          <style>
-            @media print {
-              body * {
-                visibility: hidden;
-              }
-              #print-section, #print-section * {
-                visibility: visible;
-              }
-              #print-section {
-                position: absolute;
-                left: 0;
-                top: 0;
-              }
-              @page {
-                size: auto;
-                margin: 20mm;
-              }
-              table {
-                width: 100%;
-                border-collapse: collapse;
-              }
-              th, td {
-                border: 1px solid #ddd;
-                padding: 8px;
-                text-align: left;
-              }
-              thead {
-                background-color: #f3f4f6;
-              }
-            }
-          </style>
-          <div id="print-section">
-            <table>
-              <thead>
-                <tr>
-                  ${safeColumns
-                    .map(
-                      (column) => `
-                    <th>${column.header}</th>
-                  `
-                    )
-                    .join("")}
-                </tr>
-              </thead>
-              <tbody>
-                ${processedData
-                  .map(
-                    (row) => `
-                  <tr>
-                    ${safeColumns
-                      .map(
-                        (column) => `
-                      <td>${row[column.key] || "-"}</td>
+  <style>
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .printable, .printable * {
+        visibility: visible;
+      }
+      .printable {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    }
+  </style>
+
+  <div class="printable">
+  
+    <header class="print:flex">
+    <div class="grid grid-cols-12 w-full gap-6 my-9">
+    ${printHeaderKeys
+      .map(
+        (headerKeys, index) =>
+          `<h1 class="col-span-5 text-xl"><span class="font-semibold">${headerKeys} :</span> ${printHeaderValues[index]} </h1>`
+      )
+      .join("")}
+      </div>
+      
+      </header>
+    <table class="print:w-full print:h-full">
+      <thead>
+        <tr class="print:border-[1px] print:border-gray-700 print:bg-gray-100">
+          ${safeColumns
+            .map((column) =>
+              column.header.toLowerCase() === "action"
+                ? ""
+                : `
+                <th class="p-[8px] border-[1px] border-gray-700">${column.header}</th>
+              `
+            )
+            .join("")}
+        </tr>
+      </thead>
+      <tbody>
+        ${processedData
+          .map(
+            (row) => `
+              <tr class="border-[1px] border-gray-700">
+                ${safeColumns
+                  .map((column) =>
+                    column.key.toLowerCase() === "action"
+                      ? ""
+                      : `
+                      <td class="p-[8px] border-[1px] border-gray-700">${
+                        row[column.key] || " - "
+                      }</td>
                     `
-                      )
-                      .join("")}
-                  </tr>
-                `
                   )
                   .join("")}
-              </tbody>
-            </table>
-          </div>
-        `;
+              </tr>
+            `
+          )
+          .join("")}
+      </tbody>
+    </table>
+  </div>
+`;
 
     document.body.appendChild(printContent);
     window.print();
@@ -253,8 +259,8 @@ const DataTable = ({
                 <td key={`filter-${column.key}`} className="px-6 py-2">
                   {column.key.toLowerCase() !== "action" && (
                     <Select
-                    className="w-full max-w-xs "
-                    popupMatchSelectWidth={false}
+                      className="w-full max-w-xs "
+                      popupMatchSelectWidth={false}
                       showSearch
                       value={filters[column.key] || ""}
                       onChange={(value) =>
@@ -262,7 +268,6 @@ const DataTable = ({
                           ...prev,
                           [column.key]: value,
                         }))
-                        
                       }
                       filterOption={(input, option) =>
                         option.children
@@ -270,7 +275,6 @@ const DataTable = ({
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                     
                     >
                       <Select.Option value="">All</Select.Option>
                       {[

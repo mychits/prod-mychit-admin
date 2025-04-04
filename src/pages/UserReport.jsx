@@ -49,14 +49,7 @@ const UserReport = () => {
   const [selectedAuctionGroupId, setSelectedAuctionGroupId] = useState("");
   const [filteredAuction, setFilteredAuction] = useState([]);
   const [groupInfo, setGroupInfo] = useState({});
-  const [showModal, setShowModal] = useState(false);
-  const [showModalDelete, setShowModalDelete] = useState(false);
-  const [currentGroup, setCurrentGroup] = useState(null);
-  const [showModalUpdate, setShowModalUpdate] = useState(false);
-  const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [receiptNo, setReceiptNo] = useState("");
-  const [paymentMode, setPaymentMode] = useState("cash");
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
     return today.toISOString().split("T")[0];
@@ -68,6 +61,7 @@ const UserReport = () => {
   const [screenLoading, setScreenLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("groupDetails");
   const [searchText, setSearchText] = useState("");
+  const [groupDetails, setGroupDetails] = useState(" ");
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
@@ -95,7 +89,22 @@ const UserReport = () => {
   };
 
   useEffect(() => {
+    const fetchGroupById = async () => {
+      try {
+        const response = await api.get(
+          `/group/get-by-id-group/${EnrollGroupId.groupId}`
+        );
+        if (response.status >= 400) throw new Error("API ERROR");
+        setGroupDetails(response.data);
+      } catch (err) {
+        console.log("Failed to fetch group details by ID:", err.message);
+      }
+    };
+    fetchGroupById();
+  }, [EnrollGroupId]);
+  useEffect(() => {
     setScreenLoading(true);
+
     const fetchGroups = async () => {
       setDetailLoading(true);
       try {
@@ -186,7 +195,7 @@ const UserReport = () => {
           },
         });
         if (response.data && response.data.length > 0) {
-          setFilteredAuction(response.data);
+          setFilteredAuction(response);
           const paymentData = response.data;
           const totalAmount = paymentData.reduce(
             (sum, payment) => sum + Number(payment.amount || 0),
@@ -232,6 +241,7 @@ const UserReport = () => {
   ];
 
   const handleGroupAuctionChange = async (groupId) => {
+    setFilteredAuction([]);
     if (groupId) {
       try {
         const response = await api.post(
@@ -445,10 +455,8 @@ const UserReport = () => {
             0
           );
           setTotalAmount(totalAmount);
-
           const formattedData = response.data.map((group, index) => ({
             id: index + 1,
-
             name: group?.user?.full_name,
             phone_number: group?.user?.phone_number,
             ticket: group.ticket,
@@ -549,7 +557,6 @@ const UserReport = () => {
                       className="flex w-auto p-4 gap-2 justify-center items-center select-none font-semibold  shadow-sm mb-2 rounded-sm"
                       htmlFor={"SS"}
                     >
-                      {" "}
                       Search Or Select Customer
                     </label>
                     <Select
@@ -811,6 +818,9 @@ const UserReport = () => {
                                 Groups and Tickets
                               </label>
                               <select
+                                onClick={() =>
+                                  console.log("set enroll group", EnrollGroupId)
+                                }
                                 value={
                                   EnrollGroupId.groupId
                                     ? `${EnrollGroupId.groupId}|${EnrollGroupId.ticket}`
@@ -839,8 +849,30 @@ const UserReport = () => {
                           </div>
 
                           {TableEnrolls && TableEnrolls.length > 0 ? (
-                            <div className="mt-10">
+                            <div
+                              className="mt-10"
+                             
+                            >
                               <DataTable
+                                printHeaderKeys={[
+                                  "Customer Name",
+                                  "Customer Id",
+                                  "Phone Number",
+                                  "Ticket Number",
+                                  "Group Name",
+                                  "Start Date",
+                                  "End Date",
+                                ]}
+                                printHeaderValues={[
+                                  group.full_name,
+                                  group.customer_id,
+                                  group.phone_number,
+                                  EnrollGroupId.ticket,
+                                  groupDetails.group_name,
+                                  new Date(groupDetails.start_date).toLocaleDateString("en-GB"),
+                                  new Date(groupDetails.end_date).toLocaleDateString("en-GB"),
+
+                                ]}
                                 data={TableEnrolls}
                                 columns={Basiccolumns}
                               />
