@@ -1,8 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
-
 import api from "../instance/TokenInstance";
-
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { Select } from "antd";
@@ -29,7 +27,6 @@ const UserReport = () => {
     return today.toISOString().split("T")[0];
   });
   const [totalAmount, setTotalAmount] = useState(0);
-
   const [groupPaidDate, setGroupPaidDate] = useState("");
   const [groupToBePaidDate, setGroupToBePaidDate] = useState("");
   const [detailsLoading, setDetailLoading] = useState(false);
@@ -43,9 +40,6 @@ const UserReport = () => {
   const [Totalpaid, setTotalPaid] = useState("");
   const [Totalprofit, setTotalProfit] = useState("");
   const [NetTotalprofit, setNetTotalProfit] = useState("");
-
-  const [selectedAuctionGroup, setSelectedAuctionGroup] = useState("");
-  const [selectedGroupId, setSelectedGroupId] = useState("");
   const [selectedAuctionGroupId, setSelectedAuctionGroupId] = useState("");
   const [filteredAuction, setFilteredAuction] = useState([]);
   const [groupInfo, setGroupInfo] = useState({});
@@ -62,6 +56,9 @@ const UserReport = () => {
   const [activeTab, setActiveTab] = useState("groupDetails");
   const [searchText, setSearchText] = useState("");
   const [groupDetails, setGroupDetails] = useState(" ");
+  const [loanCustomers, setLoanCustomers] = useState([]);
+  const [borrowersData, setBorrowersData] = useState([]);
+  const [borrowerId, setBorrowerId] = useState("No");
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
@@ -88,6 +85,75 @@ const UserReport = () => {
     setToDate(e.target.value);
   };
 
+  const BasicLoanColumns = [
+    { key: "id", header: "SL. NO" },
+    { key: "pay_date", header: "Payment Date" },
+    { key: "receipt_no", header: "Receipt No" },
+    { key: "amount", header: "Amount" },
+    { key: "pay_type", header: "Payment Type" },
+    { key: "balance", header: "Balance" },
+  ];
+
+  useEffect(() => {
+    const fetchBorrowerByID = async () => {
+      setBorrowersData([]);
+      try {
+        const response = await api.get(
+          `/loan-payment/get-all-loan-payments/${borrowerId}`
+        );
+        if (response.status >= 400)
+          throw new Error("Failed to fetch loan payments");
+        if (response.data && response.data.length > 0) {
+          // setBorrowersData(response.data);
+
+          const Paid = response.data;
+          setGroupPaid(Paid[0].groupPaidAmount);
+
+          const toBePaid = response.data;
+          setGroupToBePaid(toBePaid[0].totalToBePaidAmount);
+
+          let balance = 0;
+          const formattedData = response.data.map((loanPayment, index) => {
+            balance += Number(loanPayment.amount);
+            return {
+              _id: loanPayment._id,
+              id: index + 1,
+              pay_date: formatPayDate(loanPayment?.pay_date),
+              amount: loanPayment.amount,
+              receipt_no: loanPayment.receipt_no,
+              pay_type: loanPayment.pay_type,
+              balance,
+            };
+          });
+          formattedData.push({
+            _id:"",
+            id: "",
+            pay_date: "",
+            receipt_no: "",
+            amount: "",
+            pay_type: "",
+            balance
+          });
+          setBorrowersData(formattedData);
+        } else {
+          setBorrowersData([]);
+        }
+      } catch (error) {
+        console.error("Error fetching loan payment data:", error);
+        // setFilteredUsers([]);
+        setBorrowersData([]);
+      }
+    };
+    fetchBorrowerByID();
+  }, [borrowerId]);
+
+  const handleChangeBorrowerId = (e) => {
+    const value = e.target.value;
+    if (value) {
+      setBorrowerId(value);
+    }
+  };
+
   useEffect(() => {
     const fetchGroupById = async () => {
       try {
@@ -102,6 +168,7 @@ const UserReport = () => {
     };
     fetchGroupById();
   }, [EnrollGroupId]);
+
   useEffect(() => {
     setScreenLoading(true);
 
@@ -120,7 +187,23 @@ const UserReport = () => {
     };
     fetchGroups();
   }, []);
-
+  useEffect(() => {
+    const fetchBorrower = async () => {
+      try {
+        const response = await api.get(
+          `/loans/get-borrower-by-user-id/${selectedGroup}`
+        );
+        setLoanCustomers(response.data);
+        console.log(response.data, "response data is fetched");
+        if (response.status >= 400) throw new Error("Failed to send message");
+      } catch (err) {
+        console.log("failed to fetch loan customers", err.message);
+      }
+    };
+    setBorrowersData([])
+    setBorrowerId("No")
+    fetchBorrower();
+  }, [selectedGroup]);
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -252,8 +335,8 @@ const UserReport = () => {
 
           const formattedData = response.data
             .map((group, index) => {
-              const groupName = group?.enrollment?.group?.group_name || ""; // Empty if null
-              const tickets = group?.enrollment?.tickets || ""; // Empty if null
+              const groupName = group?.enrollment?.group?.group_name || "";
+              const tickets = group?.enrollment?.tickets || "";
               const groupType = group?.enrollment?.group?.group_type;
               const groupInstall =
                 parseInt(group?.enrollment?.group?.group_install) || 0;
@@ -265,7 +348,7 @@ const UserReport = () => {
                 group?.firstAuction?.firstDividentHead || 0;
 
               if (!group?.enrollment?.group) {
-                return null; // Return null if group is null
+                return null;
               }
 
               return {
@@ -609,6 +692,16 @@ const UserReport = () => {
                       </button>
                       <button
                         className={`px-6 py-2 font-medium ${
+                          activeTab === "loanReport"
+                            ? "border-b-2 border-blue-500 text-blue-500"
+                            : "text-gray-500"
+                        }`}
+                        onClick={() => handleTabChange("loanReport")}
+                      >
+                        Loan Report
+                      </button>
+                      <button
+                        className={`px-6 py-2 font-medium ${
                           activeTab === "dateWiseReport"
                             ? "border-b-2 border-blue-500 text-blue-500"
                             : "text-gray-500"
@@ -849,10 +942,7 @@ const UserReport = () => {
                           </div>
 
                           {TableEnrolls && TableEnrolls.length > 0 ? (
-                            <div
-                              className="mt-10"
-                             
-                            >
+                            <div className="mt-10">
                               <DataTable
                                 printHeaderKeys={[
                                   "Customer Name",
@@ -869,9 +959,12 @@ const UserReport = () => {
                                   group.phone_number,
                                   EnrollGroupId.ticket,
                                   groupDetails.group_name,
-                                  new Date(groupDetails.start_date).toLocaleDateString("en-GB"),
-                                  new Date(groupDetails.end_date).toLocaleDateString("en-GB"),
-
+                                  new Date(
+                                    groupDetails.start_date
+                                  ).toLocaleDateString("en-GB"),
+                                  new Date(
+                                    groupDetails.end_date
+                                  ).toLocaleDateString("en-GB"),
                                 ]}
                                 data={TableEnrolls}
                                 columns={Basiccolumns}
@@ -879,6 +972,44 @@ const UserReport = () => {
                             </div>
                           ) : (
                             <CircularLoader />
+                          )}
+                        </div>
+                      </>
+                    )}
+
+                    {activeTab === "loanReport" && (
+                      <>
+                        <div>
+                          <div className="flex gap-4">
+                            <div className="flex flex-col flex-1">
+                              <label className="mb-1 text-sm font-medium text-gray-700">
+                                Loan ID
+                              </label>
+                              <select
+                                onChange={handleChangeBorrowerId}
+                                className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                              >
+                                <option value="10">Select Loan ID</option>
+                                {loanCustomers.map((borrower) => {
+                                  return (
+                                    <option value={borrower._id}>
+                                      {borrower.loan_id}
+                                    </option>
+                                  );
+                                })}
+                              </select>
+                            </div>
+                          </div>
+
+                          {borrowersData && borrowersData.length > 0 ? (
+                            <div className="mt-10">
+                              <DataTable
+                                data={borrowersData}
+                                columns={BasicLoanColumns}
+                              />
+                            </div>
+                          ) : (
+                            <></>
                           )}
                         </div>
                       </>

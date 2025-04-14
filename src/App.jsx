@@ -32,6 +32,10 @@ import Reports from "./pages/Reports";
 import LeadReport from "./pages/LeadReport";
 import Sidebar from "./components/layouts/Sidebar";
 import AllUserReport from "./pages/AllUserReport";
+import Loan from "./pages/Loan";
+import Pigme from "./pages/Pigme";
+import PigmeReport from "./pages/PigmeReport"
+import LoanReport from "./pages/LoanReport"
 
 function App() {
   return (
@@ -89,6 +93,22 @@ function App() {
                   <Enroll />
                 </ProtectedRoute>
               }
+            />
+            <Route
+            path="/loan"
+            element={
+              <ProtectedRoute>
+                <Loan/>
+              </ProtectedRoute>
+            }
+            />
+               <Route
+            path="/pigme"
+            element={
+              <ProtectedRoute>
+                <Pigme/>
+              </ProtectedRoute>
+            }
             />
             <Route
               path="/auction"
@@ -180,6 +200,8 @@ function App() {
               <Route path="lead-report" element={<LeadReport />} />
               <Route path="user-report" element={<UserReport />} />
               <Route path="all-user-report" element={<AllUserReport />} />
+              <Route path="loan-report" element={<LoanReport />} />
+              <Route path="pigme-report" element={<PigmeReport />} />
             </Route>
 
             <Route

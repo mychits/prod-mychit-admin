@@ -214,15 +214,15 @@ const Daybook = () => {
           const formattedData = response.data.map((group, index) => ({
             _id:group._id,
             id: index + 1,
-            group: group.group_id.group_name,
-            name: group.user_id?.full_name,
-            phone_number: group.user_id.phone_number,
-            ticket: group.ticket,
-            receipt: group.receipt_no
-              ? group.receipt_no
-              : `#${group.old_receipt_no.split("-")[1]}`,
-            amount: group.amount,
-            mode: group.pay_type,
+            group: group?.group_id?.group_name || group?.pay_for,
+            name: group?.user_id?.full_name,
+            category:group?.pay_for || "Chit",
+            phone_number: group?.user_id.phone_number,
+            ticket: group?.ticket,
+            receipt: group?.receipt_no,
+            old_receipt_no:group?.old_receipt_no,
+            amount: group?.amount,
+            mode: group?.pay_type,
             collected_by: group?.collected_by?.name || "Admin",
           }));
           setTableDaybook(formattedData);
@@ -247,10 +247,12 @@ const Daybook = () => {
   const columns = [
     { key: "id", header: "SL. NO" },
     { key: "group", header: "Group Name" },
+    { key: "category", header: "Category" },
     { key: "name", header: "Customer Name" },
     { key: "phone_number", header: "Customer Phone Number" },
     { key: "ticket", header: "Ticket" },
     { key: "receipt", header: "Receipt" },
+    { key: "old_receipt_no", header: "Old Receipt" },
     { key: "amount", header: "Amount" },
     { key: "mode", header: "Payment Mode" },
     { key: "collected_by", header: "Collected By" },

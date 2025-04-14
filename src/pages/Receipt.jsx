@@ -174,7 +174,7 @@ const Receipt = () => {
   const handleGroupPayment = async (event) => {
     const groupId = event.target.value;
     setSelectedAuctionGroupId(groupId);
-    handleGroupChange(groupId);
+    // handleGroupChange(groupId);
   };
 
   // const handleGroupPaymentChange = async (groupId) => {
@@ -235,18 +235,18 @@ const Receipt = () => {
           setPayments(totalAmount);
 
           const formattedData = validPayments.map((group, index) => ({
-            _id:group._id,
+            _id:group?._id,
             id: index + 1,
-            date: group.pay_date,
-            group: group.group_id.group_name,
-            name: group.user_id?.full_name,
-            phone_number: group.user_id?.phone_number,
-            receipt_no: group?.receipt_no
-              ? group.receipt_no
-              : `#${group.old_receipt_no.split("-")[1]}`,
-            ticket: group.ticket,
-            amount: group.amount,
-            mode: group.pay_type,
+            date: group?.pay_date,
+            group: group?.group_id?.group_name || group.pay_for,
+            name: group?.user_id?.full_name,
+            category:group?.pay_for || "Chit",
+            phone_number: group?.user_id?.phone_number,
+            receipt_no: group?.receipt_no,
+            old_receipt_no:group?.old_receipt_no,
+            ticket: group?.ticket,
+            amount: group?.amount,
+            mode: group?.pay_type,
             collected_by: group?.collected_by?.name || "Admin",
           }));
 
@@ -275,8 +275,10 @@ const Receipt = () => {
     { key: "date", header: "Date" },
     { key: "group", header: "Group Name" },
     { key: "name", header: "Customer Name" },
+    { key: "category", header: "Category" },
     { key: "phone_number", header: "Customer Phone Number" },
     { key: "receipt_no", header: "Receipt Number" },
+    { key: "old_receipt_no", header: "Old Receipt" },
     { key: "ticket", header: "Ticket" },
     { key: "amount", header: "Amount" },
     { key: "mode", header: "Payment Mode" },

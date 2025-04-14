@@ -16,14 +16,11 @@ const LeadReport = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showModal, setShowModal] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState(false);
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
-  const [selectiveGroups, setSelectiveGroups] = useState([]);
   const [loader, setLoader] = useState(false);
-  const [secondaryLoader, setSecondaryLoader] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState("");
   const [leads, setLeads] = useState([]);
   const [users, setUsers] = useState([]);

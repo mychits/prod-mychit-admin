@@ -14,7 +14,8 @@ import { FaPeopleArrows, FaUserLock } from "react-icons/fa";
 import { GiGoldBar } from "react-icons/gi";
 import { IoPeopleOutline } from "react-icons/io5";
 import { GoGraph } from "react-icons/go";
-
+import { GiTakeMyMoney } from "react-icons/gi";
+import { PiCalculatorBold } from "react-icons/pi";
 const MenuSidebar = [
   {
     id: "$1",
@@ -49,29 +50,41 @@ const MenuSidebar = [
     icon: <IoPeopleOutline />,
     link: "/lead",
   },
-  { id: "$7", title: "Auctions ", icon: <RiAuctionLine />, link: "/auction" },
-  { id: "$8", title: "Payments ", icon: <BsCash />, link: "/payment" },
   {
-    id: "$9",
+    id: "$7",
+    title: "Loans",
+    icon: <GiTakeMyMoney />,
+    link: "/loan",
+  },
+  {
+    id: "$8",
+    title: "Pigme",
+    icon: <PiCalculatorBold />,
+    link: "/pigme",
+  },
+  { id: "$9", title: "Auctions ", icon: <RiAuctionLine />, link: "/auction" },
+  { id: "$10", title: "Payments ", icon: <BsCash />, link: "/payment" },
+  {
+    id: "$11",
     title: "Reports",
     icon: <GrAnalytics />,
     link: "/reports",
   },
   {
-    id: "$10",
+    id: "$12",
     title: "Marketing",
     icon: <GoGraph />,
     link: "/marketing",
   },
   {
-    id: "$11",
+    id: "$13",
     title: "Profile",
     spacing: true,
     icon: <CgProfile />,
     link: "/profile",
   },
   {
-    id: "$12",
+    id: "$14",
     title: "Other Sites",
     icon: <CgWebsite />,
     submenu: true,
@@ -80,28 +93,31 @@ const MenuSidebar = [
         id: "#1",
         title: "Gold Admin",
         link: "http://gold-admin-web.s3-website.eu-north-1.amazonaws.com/",
+        newTab:true
       }, // External link
       {
         id: "#2",
         title: "Chit Plans Admin",
         link: "https://erp.admin.mychits.co.in/chit-enrollment-plan/admin/",
+        newTab:true
       }, // External link
       {
         id: "#3",
         title: "Chit Enrollment Request",
         link: "https://erp.admin.mychits.co.in/src/request/enrollment.php?user-role=&user-code=",
+        newTab:true
       }, // External link
       // { title: "Consolidated", link: "/consolidate" },
     ],
   },
   {
-    id: "$13",
+    id: "$15",
     title: "Setting",
     icon: <IoIosSettings />,
     link: "/lead-setting",
   },
   {
-    id: "$14",
+    id: "$16",
     title: "Help & Support",
     icon: <IoIosHelpCircle />,
     link: "/help",
@@ -150,7 +166,7 @@ const Sidebar = () => {
         <ul className="pt-2">
           {MenuSidebar.map((menu, index) => (
             <Fragment key={menu.id}>
-              <a href={menu.link} onClick={() => toggleSubMenu(index)}>
+              <a href={menu.link} onClick={() => toggleSubMenu(index)} >
                 <li
                   className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md ${
                     menu.spacing ? "mt-9" : "mt-2"
@@ -177,8 +193,9 @@ const Sidebar = () => {
                     <Fragment key={submenuItem.id}>
                       {/* Use target="_blank" for external links */}
 
-                      <a href={submenuItem.link} rel="noopener noreferrer">
+                      <a href={submenuItem.link} rel="noopener noreferrer" target={`${submenuItem.newTab?"_blank":"_self"}`}>
                         <li
+                           
                           className={`${
                             submenuItem.red ? "text-red-300" : "text-gray-300"
                           } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
