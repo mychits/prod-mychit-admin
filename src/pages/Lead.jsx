@@ -11,6 +11,7 @@ import CustomAlert from "../components/alerts/CustomAlert";
 import Navbar from "../components/layouts/Navbar";
 import { IoMdMore } from "react-icons/io";
 import { Dropdown } from "antd";
+import CircularLoader from "../components/loaders/CircularLoader";
 const Lead = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
@@ -404,22 +405,28 @@ const Lead = () => {
               </div>
             </div>
 
-            <DataTable
-              updateHandler={handleUpdateModalOpen}
-              data={TableGroups.filter((item) =>
-                Object.values(item).some((value) =>
-                  String(value).toLowerCase().includes(searchText.toLowerCase())
-                )
-              )}
-              columns={columns}
-              exportedFileName={`Leads-${
-                TableGroups.length > 0
-                  ? TableGroups[0].date +
-                    " to " +
-                    TableGroups[TableGroups.length - 1].date
-                  : "empty"
-              }.csv`}
-            />
+            {TableGroups.length > 0 ? (
+              <DataTable
+                updateHandler={handleUpdateModalOpen}
+                data={TableGroups.filter((item) =>
+                  Object.values(item).some((value) =>
+                    String(value)
+                      .toLowerCase()
+                      .includes(searchText.toLowerCase())
+                  )
+                )}
+                columns={columns}
+                exportedFileName={`Leads-${
+                  TableGroups.length > 0
+                    ? TableGroups[0].date +
+                      " to " +
+                      TableGroups[TableGroups.length - 1].date
+                    : "empty"
+                }.csv`}
+              />
+            ) : (
+              <CircularLoader />
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {/* {filteredGroups.length === 0 ? (
@@ -970,14 +977,14 @@ const Lead = () => {
                   </div>
                 </>
               )}
-               <div className="w-full flex justify-end">
-              <button
-                type="submit"
-                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+              <div className="w-full flex justify-end">
+                <button
+                  type="submit"
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-              >
-                Update
-              </button>
+                >
+                  Update
+                </button>
               </div>
             </form>
           </div>

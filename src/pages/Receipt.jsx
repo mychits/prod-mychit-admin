@@ -34,6 +34,7 @@ const Receipt = () => {
   const [receiptNo, setReceiptNo] = useState("");
   const [paymentMode, setPaymentMode] = useState("cash");
   const [searchText, setSearchText] = useState("");
+  const [isLoading,setIsLoading] = useState(false);
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
@@ -211,6 +212,7 @@ const Receipt = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
+        setIsLoading(true)
         const response = await api.get(`/payment/get-report-receipt`, {
           params: {
             from_date: selectedFromDate,
@@ -258,6 +260,8 @@ const Receipt = () => {
         console.error("Error fetching payment data:", error);
         setFilteredAuction([]);
         setPayments(0);
+      }finally{
+        setIsLoading(false)
       }
     };
 
@@ -479,7 +483,7 @@ const Receipt = () => {
                   </div>
                 </div>
               </div>
-              {filteredAuction && filteredAuction.length > 0 ? (
+              {filteredAuction && filteredAuction.length > 0 &&(!isLoading)? (
                 <div className="mt-10">
                   <DataTable
                     data={filterOption(TableDaybook,searchText)}
@@ -495,7 +499,7 @@ const Receipt = () => {
                 </div>
               ) : (
                 <div className="mt-10 text-center text-gray-500">
-                  <CircularLoader />
+                  <CircularLoader isLoading={isLoading} failure={(filteredAuction.length<=0)}/>
                 </div>
               )}
             </div>

@@ -8,6 +8,7 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 const UserReport = () => {
   const [groups, setGroups] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [TableDaybook, setTableDaybook] = useState([]);
   const [TableAuctions, setTableAuctions] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState("");
@@ -126,13 +127,13 @@ const UserReport = () => {
             };
           });
           formattedData.push({
-            _id:"",
+            _id: "",
             id: "",
             pay_date: "",
             receipt_no: "",
             amount: "",
             pay_type: "",
-            balance
+            balance,
           });
           setBorrowersData(formattedData);
         } else {
@@ -200,8 +201,8 @@ const UserReport = () => {
         console.log("failed to fetch loan customers", err.message);
       }
     };
-    setBorrowersData([])
-    setBorrowerId("No")
+    setBorrowersData([]);
+    setBorrowerId("No");
     fetchBorrower();
   }, [selectedGroup]);
   useEffect(() => {
@@ -445,6 +446,7 @@ const UserReport = () => {
       setBasicLoading(true);
 
       try {
+        setIsLoading(true);
         const response = await api.get(
           `/enroll/get-user-payment?group_id=${EnrollGroupId.groupId}&ticket=${EnrollGroupId.ticket}&user_id=${selectedGroup}`
         );
@@ -493,6 +495,7 @@ const UserReport = () => {
         setTableEnrolls([]);
       } finally {
         setBasicLoading(false);
+        setIsLoading(false);
       }
     };
     fetchEnroll();
@@ -812,7 +815,9 @@ const UserReport = () => {
                               <h3 className="text-lg font-medium mb-4">
                                 Enrolled Groups
                               </h3>
-                              {TableAuctions && TableAuctions.length > 0 ? (
+                              {filteredAuction &&
+                              filteredAuction.length > 0 &&
+                              !isLoading ? (
                                 <div className="mt-5">
                                   <DataTable
                                     data={filterOption(
@@ -832,7 +837,7 @@ const UserReport = () => {
                                   />
                                 </div>
                               ) : (
-                                <CircularLoader />
+                                <CircularLoader isLoading={isLoading} />
                               )}
                             </div>
                             <div className="flex gap-4 mt-5">
@@ -941,7 +946,7 @@ const UserReport = () => {
                             </div>
                           </div>
 
-                          {TableEnrolls && TableEnrolls.length > 0 ? (
+                          {TableEnrolls && (TableEnrolls.length > 0) &&(!basicLoading) ? (
                             <div className="mt-10">
                               <DataTable
                                 printHeaderKeys={[
@@ -971,7 +976,7 @@ const UserReport = () => {
                               />
                             </div>
                           ) : (
-                            <CircularLoader />
+                            <CircularLoader isLoading={basicLoading} />
                           )}
                         </div>
                       </>

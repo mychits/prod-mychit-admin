@@ -12,6 +12,7 @@ import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
+import CircularLoader from "../components/loaders/CircularLoader";
 const User = () => {
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
@@ -52,7 +53,7 @@ const User = () => {
   const [searchText, setSearchText] = useState("");
   const GlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
-    console.log("first",value)
+    console.log("first", value);
     setSearchText(value);
   };
   const handleChange = (e) => {
@@ -392,7 +393,7 @@ const User = () => {
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
                 <h1 className="text-2xl font-semibold">Customers</h1>
-                
+
                 <button
                   onClick={() => {
                     setShowModal(true);
@@ -404,19 +405,23 @@ const User = () => {
                 </button>
               </div>
             </div>
-            <DataTable
-              catcher="_id"
-              updateHandler={handleUpdateModalOpen}
-              data={filterOption(TableUsers,searchText)}
-              columns={columns}
-              exportedFileName={`Customers-${
-                TableUsers.length > 0
-                  ? TableUsers[0].name +
-                    " to " +
-                    TableUsers[TableUsers.length - 1].name
-                  : "empty"
-              }.csv`}
-            />
+            {TableUsers.length > 0 ? (
+              <DataTable
+                catcher="_id"
+                updateHandler={handleUpdateModalOpen}
+                data={filterOption(TableUsers, searchText)}
+                columns={columns}
+                exportedFileName={`Customers-${
+                  TableUsers.length > 0
+                    ? TableUsers[0].name +
+                      " to " +
+                      TableUsers[TableUsers.length - 1].name
+                    : "empty"
+                }.csv`}
+              />
+            ) : (
+              <CircularLoader />
+            )}
             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {filteredUsers.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
@@ -663,13 +668,13 @@ const User = () => {
                 )}
               </div>
               <div className="w-full flex justify-end">
-              <button
-                type="submit"
-                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+                <button
+                  type="submit"
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-              >
-                Save Customer
-              </button>
+                >
+                  Save Customer
+                </button>
               </div>
             </form>
           </div>
@@ -845,13 +850,13 @@ const User = () => {
                 )}
               </div>
               <div className="w-full flex justify-end">
-              <button
-                type="submit"
-                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+                <button
+                  type="submit"
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-              >
-                Update
-              </button>
+                >
+                  Update
+                </button>
               </div>
             </form>
           </div>

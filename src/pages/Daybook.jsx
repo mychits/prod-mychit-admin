@@ -36,6 +36,7 @@ const Daybook = () => {
     const today = new Date();
     return today.toISOString().split("T")[0];
   });
+  const [isLoading,setIsLoading] = useState(false);
   const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
   const [selectedCustomers, setSelectedCustomers] = useState("");
   const [payments, setPayments] = useState([]);
@@ -195,6 +196,7 @@ const Daybook = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
+        setIsLoading(true);
         const response = await api.get(`/payment/get-report-daybook`, {
           params: {
             pay_date: selectedDate,
@@ -233,6 +235,8 @@ const Daybook = () => {
         console.error("Error fetching payment data:", error);
         setFilteredAuction([]);
         setPayments(0);
+      }finally{
+        setIsLoading(false)
       }
     };
 
@@ -464,7 +468,7 @@ const Daybook = () => {
                   </div>
                 </div>
               </div>
-              {filteredAuction && filteredAuction.length > 0 ? (
+              {filteredAuction && (filteredAuction.length > 0) && !isLoading ? (
                 <div className="mt-10">
                   <DataTable
                     data={filterOption(TableDaybook,searchText)}
@@ -479,7 +483,7 @@ const Daybook = () => {
                   />
                 </div>
               ) : (
-                <CircularLoader />
+                <CircularLoader isLoading={isLoading} failure={(filteredAuction.length <= 0)}/>
               )}
             </div>
           </div>

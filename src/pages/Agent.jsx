@@ -12,6 +12,7 @@ import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
+import CircularLoader from "../components/loaders/CircularLoader";
 const Agent = () => {
   const [users, setUsers] = useState([]);
   const [TableAgents, setTableAgents] = useState([]);
@@ -375,7 +376,7 @@ const Agent = () => {
                 </button>
               </div>
             </div>
-            <DataTable
+           {TableAgents.length>0 ?( <DataTable
             updateHandler={handleUpdateModalOpen}
               data={filterOption(TableAgents,searchText)}
               columns={columns}
@@ -385,8 +386,8 @@ const Agent = () => {
                     " to " +
                     TableAgents[TableAgents.length - 1].name
                   : "empty"
-              }.csv`}
-            />
+              }.csv`} 
+            />):<CircularLoader/>}
             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {filteredUsers.length === 0 ? (
                 <div className="flex justify-center items-center h-64">

@@ -336,7 +336,7 @@ const Payment = () => {
     if (groupId) {
       try {
         const response = await api.get(`/payment/get-group-payment/${groupId}`);
-        setLoading(false);
+      
         if (response.data && response.data.length > 0) {
           const formattedData = response.data.map((group, index) => ({
             _id: group._id,
@@ -390,9 +390,11 @@ const Payment = () => {
           setFilteredAuction([]);
         }
       } catch (error) {
-        setLoading(false);
+       
         console.error("Error fetching payment data:", error);
         setFilteredAuction([]);
+      }finally{
+        setLoading(false)
       }
     } else {
       setFilteredAuction([]);
@@ -759,7 +761,7 @@ const Payment = () => {
                 formData={formData}
                 filteredAuction={filteredAuction}
               />
-              {TablePayments && TablePayments.length > 0 && !loading ? (
+              {TablePayments && TablePayments.length > 0 && (!loading) ? (
                 <DataTable
                   data={TablePayments.filter((item) =>
                     Object.values(item).some((value) =>
@@ -779,7 +781,7 @@ const Payment = () => {
                 />
               ) : (
                 <div className="mt-10 text-center text-gray-500">
-                  <CircularLoader />
+                  <CircularLoader isLoading={loading} />
                 </div>
               )}
             </div>

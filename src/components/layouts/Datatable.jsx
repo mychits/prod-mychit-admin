@@ -191,7 +191,7 @@ const DataTable = ({
   };
 
   if (!safeData.length || !safeColumns.length) {
-    return <CircularLoader />;
+    return <></>;
   }
 
   return (

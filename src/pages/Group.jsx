@@ -13,6 +13,7 @@ import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
+import CircularLoader from "../components/loaders/CircularLoader";
 
 const Group = () => {
   const [groups, setGroups] = useState([]);
@@ -405,7 +406,7 @@ const Group = () => {
               </div>
             </div>
 
-            <DataTable
+           {TableGroups.length>0 ?(<DataTable
               catcher="_id"
               updateHandler={handleUpdateModalOpen}
               data={filterOption(TableGroups, searchText)}
@@ -417,7 +418,7 @@ const Group = () => {
                     TableGroups[TableGroups.length - 1].date.split("T")[0]
                   : "empty"
               }.csv`}
-            />
+            />):(<CircularLoader />)}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {/* {filteredGroups.length === 0 ? (

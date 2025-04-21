@@ -30,6 +30,7 @@ const AuctionReport = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [double, setDouble] = useState({});
   const [searchText, setSearchText] = useState("");
+  const[isLoading,setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     group_id: "",
     user_id: "",
@@ -63,6 +64,7 @@ const AuctionReport = () => {
 
   useEffect(() => {
     const fetchDouble = async () => {
+      setIsLoading(true);
       try {
         const response = await api.get(
           `/double/get-double/${selectedAuctionGroupId}`
@@ -71,6 +73,8 @@ const AuctionReport = () => {
         setDouble(response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
+      }finally{
+        setIsLoading(false)
       }
     };
     fetchDouble();
@@ -406,7 +410,7 @@ const AuctionReport = () => {
                 )}
               </div>
               <div className="">
-                {filteredAuction && filteredAuction.length > 0 ? (
+                {filteredAuction && (filteredAuction.length > 0)&&(!isLoading) ? (
                   <DataTable
                     updateHandler={handleUpdateModalOpen}
                     data={filterOption(TableAuctions, searchText)}
@@ -420,7 +424,7 @@ const AuctionReport = () => {
                     }.csv`}
                   />
                 ) : (
-                  <CircularLoader />
+                  <CircularLoader isLoading={isLoading} />
                 )}
               </div>
 

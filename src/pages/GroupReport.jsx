@@ -1,21 +1,12 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
-import Sidebar from "../components/layouts/Sidebar";
 import api from "../instance/TokenInstance";
-import { MdDelete } from "react-icons/md";
-import { CiEdit } from "react-icons/ci";
-import Modal from "../components/modals/Modal";
-import { BsEye } from "react-icons/bs";
-import UploadModal from "../components/modals/UploadModal";
-import axios from "axios";
-import url from "../data/Url";
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
-import { FcSearch } from "react-icons/fc";
-
 import {Select} from "antd";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
+
 const GroupReport = () => {
   const [groups, setGroups] = useState([]);
   const [TableDaybook, setTableDaybook] = useState([]);
@@ -42,19 +33,10 @@ const GroupReport = () => {
   const [detailsLoading, setDetailLoading] = useState(false);
   const [basicLoading, setBasicLoading] = useState(false);
   const [screenLoading, setScreenLoading] = useState(true);
-
   const [selectedAuctionGroupId, setSelectedAuctionGroupId] = useState("");
-  const [filteredAllAuction, setFilteredAllAuction] = useState([]);
   const [filteredAuction, setFilteredAuction] = useState([]);
   const [groupInfo, setGroupInfo] = useState({});
-  const [showModal, setShowModal] = useState(false);
-  const [showModalDelete, setShowModalDelete] = useState(false);
-  const [currentGroup, setCurrentGroup] = useState(null);
-  const [showModalUpdate, setShowModalUpdate] = useState(false);
-  const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [receiptNo, setReceiptNo] = useState("");
-  const [paymentMode, setPaymentMode] = useState("cash");
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
     return today.toISOString().split("T")[0];
@@ -63,9 +45,10 @@ const GroupReport = () => {
   const [selectedCustomers, setSelectedCustomers] = useState("");
   const [payments, setPayments] = useState([]);
   const [availableTickets, setAvailableTickets] = useState([]);
-
   const [activeTab, setActiveTab] = useState("groupDetails");
   const [searchText,setSearchText] = useState("");
+  const [isLoading,setIsLoading] = useState(false);
+  const [isDateFilterLoading,setIsDateFilterLoading] = useState(true)
   const onGlobalSearchChangeHandler = (e)=>{
     setSearchText(e.target.value)
 
@@ -113,6 +96,7 @@ const GroupReport = () => {
 
   useEffect(() => {
     const fetchGroups = async () => {
+      
       try {
         const response = await api.get(
           `/group/get-by-id-group/${selectedGroup}`
@@ -169,6 +153,7 @@ const GroupReport = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
+      
         const response = await api.get(`/payment/get-report-daybook`, {
           params: {
             pay_date: selectedDate,
@@ -184,7 +169,6 @@ const GroupReport = () => {
             (sum, payment) => sum + Number(payment.amount || 0),
             0
           );
-          console.log("total paymnets",response.data)
           setPayments(totalAmount);
           const formattedData = response.data.map((group, index) => ({
             
@@ -228,6 +212,7 @@ const GroupReport = () => {
   const handleGroupAuctionChange = async (groupId) => {
     if (groupId) {
       try {
+        setIsLoading(true)
         const response = await api.get(`/auction/get-group-auction/${groupId}`);
         if (response.data && response.data.length > 0) {
           setFilteredAuction(response.data);
@@ -263,6 +248,8 @@ const GroupReport = () => {
         console.error("Error fetching enrollment data:", error);
         setFilteredAuction([]);
         setCommission(0);
+      }finally{
+        setIsLoading(false)
       }
     } else {
       setFilteredAuction([]);
@@ -363,7 +350,9 @@ const GroupReport = () => {
 
   useEffect(() => {
     const fetchEnroll = async () => {
+     
       try {
+        setIsDateFilterLoading(true)
         const response = await api.get(
           `/group-report/get-group-enroll-date/${selectedGroup}?fromDate=${formattedFromDate}&toDate=${formattedToDate}`
         );
@@ -408,6 +397,9 @@ const GroupReport = () => {
       } catch (error) {
         console.error("Error fetching enrollment data:", error);
         setFilteredUsers([]);
+        setTableEnrollsDate([]);
+      }finally{
+        setIsDateFilterLoading(false)
       }
     };
     fetchEnroll();
@@ -673,7 +665,7 @@ const GroupReport = () => {
                               <h3 className="text-lg font-medium mb-4">
                                 Auctions
                               </h3>
-                              {filteredAuction && filteredAuction.length > 0 ? (
+                              {filteredAuction && (filteredAuction.length > 0) && (!isLoading)? (
                                 <div className="mt-10">
                                   <DataTable
                                     data={filterOption(TableAuctions,searchText)}
@@ -685,12 +677,12 @@ const GroupReport = () => {
                                           TableAuctions[
                                             TableAuctions.length - 1
                                           ].name
-                                        : "empty"
+                                        : "empty" 
                                     }.csv`}
                                   />
                                 </div>
                               ) : (
-                                <CircularLoader />
+                                <CircularLoader isLoading={isLoading} />
                               )}
                             </div>
                           </div>
@@ -811,7 +803,7 @@ const GroupReport = () => {
                               </div>
                             </div>
                           </div>
-                          {TableEnrolls && TableEnrolls.length > 0 ? (
+                          {TableEnrolls && (TableEnrolls.length > 0)&& !isDateFilterLoading ? (
                             <div className="mt-10">
                               <DataTable
                                 data={TableEnrolls}
@@ -827,7 +819,7 @@ const GroupReport = () => {
                             </div>
                           ) : (
                             <div className="mt-10 text-center text-gray-500">
-                              <CircularLoader seconds={5} />
+                               <CircularLoader isLoading={isDateFilterLoading} />
                             </div>
                           )}
                         </div>
@@ -965,7 +957,7 @@ const GroupReport = () => {
                             </div>
                           </div>
                         </div>
-                        {TableEnrollsDate && TableEnrollsDate.length > 0 ? (
+                        {TableEnrollsDate && (TableEnrollsDate.length > 0)&&(!basicLoading) ? (
                           <div className="mt-10">
                             <DataTable
                               data={TableEnrollsDate}
@@ -983,7 +975,7 @@ const GroupReport = () => {
                           </div>
                         ) : (
                           <div className="mt-10 text-center text-gray-500">
-                            <CircularLoader seconds={5} />
+                            <CircularLoader isLoading={basicLoading}/>
                           </div>
                         )}
                       </div>

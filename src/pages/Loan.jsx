@@ -21,7 +21,7 @@ const Loan = () => {
 
   const [currentUpdateBorrower, setCurrentUpdateBorrower] = useState(null);
   const [searchText, setSearchText] = useState("");
-
+const [isLoading,setIsLoading] = useState(false);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
