@@ -23,16 +23,21 @@ const Agent = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUpdateUser, setCurrentUpdateUser] = useState(null);
   const [errors, setErrors] = useState({});
-  const [searchText,setSearchText] = useState("");
-  const onGlobalSearchChangeHandler = (e)=>{
-    const {value} = e.target
+  const [searchText, setSearchText] = useState("");
+  const [selectedManagerId, setSelectedManagerId] = useState("");
+  const [managers, setManagers] = useState([])
+
+  const onGlobalSearchChangeHandler = (e) => {
+    const { value } = e.target
     setSearchText(value)
   }
+
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
     type: "info",
   });
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -42,6 +47,14 @@ const Agent = () => {
     pincode: "",
     adhaar_no: "",
     pan_no: "",
+    app_permission: {
+      collection: true,
+      daybook: true,
+      targets: true,
+      leads: true,
+      commission: true,
+      reports: true,
+    },
   });
 
   const [updateFormData, setUpdateFormData] = useState({
@@ -53,6 +66,14 @@ const Agent = () => {
     pincode: "",
     adhaar_no: "",
     pan_no: "",
+    app_permission: {
+      collection: true,
+      daybook: true,
+      targets: true,
+      leads: true,
+      commission: true,
+      reports: true,
+    },
   });
 
   const handleChange = (e) => {
@@ -66,6 +87,7 @@ const Agent = () => {
       [name]: "",
     }));
   };
+
   const validateForm = (type) => {
     const newErrors = {};
     const data = type === "addEmployee" ? formData : updateFormData;
@@ -136,7 +158,11 @@ const Agent = () => {
 
     try {
       if (isValidate) {
-        const response = await api.post("/agent/add-agent", formData, {
+        const dataToSend = {
+          ...formData,
+          reporting_manager: selectedManagerId,
+        };
+        const response = await api.post("/agent/add-agent", dataToSend, {
           headers: {
             "Content-Type": "application/json",
           },
@@ -152,7 +178,16 @@ const Agent = () => {
           pincode: "",
           adhaar_no: "",
           pan_no: "",
+          app_permission: {
+            collection: true,
+            daybook: true,
+            targets: true,
+            leads: true,
+            commission: true,
+            reports: true,
+          },
         });
+        setSelectedManagerId("")
         setAlertConfig({
           visibility: true,
           message: "Agent Added Successfully",
@@ -187,7 +222,7 @@ const Agent = () => {
         const response = await api.get("/agent/get-agent");
         setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
-          _id:group._id,
+          _id: group._id,
           id: index + 1,
           name: group.name,
           phone_number: group.phone_number,
@@ -200,7 +235,7 @@ const Agent = () => {
               >
                 <CiEdit color="green" />
               </button> */}
-               <Dropdown
+              <Dropdown
                 menu={{
                   items: [
                     {
@@ -268,6 +303,7 @@ const Agent = () => {
   const handleUpdateModalOpen = async (userId) => {
     try {
       const response = await api.get(`/agent/get-agent-by-id/${userId}`);
+      console.log(console.log(response.data))
       setCurrentUpdateUser(response.data);
       setUpdateFormData({
         name: response.data.name,
@@ -278,7 +314,16 @@ const Agent = () => {
         adhaar_no: response.data.adhaar_no,
         pan_no: response.data.pan_no,
         address: response.data.address,
+        app_permission: {
+          collection: response.data?.app_permission?.collection === true || response.data?.app_permission?.collection === 'true',
+          daybook: response.data?.app_permission?.daybook === true || response.data?.app_permission?.daybook === 'true',
+          targets: response.data?.app_permission?.targets === true || response.data?.app_permission?.targets === 'true',
+          leads: response.data?.app_permission?.leads === true || response.data?.app_permission?.leads === 'true',
+          commission: response.data?.app_permission?.commission === true || response.data?.app_permission?.commission === 'true',
+          reports: response.data?.app_permission?.reports === true || response.data?.app_permission?.reports === 'true',
+        }
       });
+      setSelectedManagerId(response.data.reporting_manager || "");
       setShowModalUpdate(true);
       setErrors({});
     } catch (error) {
@@ -316,11 +361,16 @@ const Agent = () => {
     const isValid = validateForm();
     try {
       if (isValid) {
+        const dataToSend = {
+          ...updateFormData,
+          reporting_manager: selectedManagerId,
+        };
         const response = await api.put(
           `/agent/update-agent/${currentUpdateUser._id}`,
-          updateFormData
+          dataToSend
         );
         setShowModalUpdate(false);
+        setSelectedManagerId("")
         setAlertConfig({
           visibility: true,
           message: "Agent Updated Successfully",
@@ -349,11 +399,28 @@ const Agent = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchManagers = async () => {
+      try {
+        const response = await api.get("/manager/get-manager");
+        setManagers(response.data);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }
+    };
+    fetchManagers();
+  }, []);
+
+  const handleManager = async (event) => {
+    const groupId = event.target.value;
+    setSelectedManagerId(groupId);
+  };
+
   return (
     <>
       <div>
         <div className="flex mt-20">
-        <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true}/>
+          <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
           <Sidebar />
           <CustomAlert
             type={alertConfig.type}
@@ -376,18 +443,17 @@ const Agent = () => {
                 </button>
               </div>
             </div>
-           {TableAgents.length>0 ?( <DataTable
-            updateHandler={handleUpdateModalOpen}
-              data={filterOption(TableAgents,searchText)}
+            {TableAgents.length > 0 ? (<DataTable
+              updateHandler={handleUpdateModalOpen}
+              data={filterOption(TableAgents, searchText)}
               columns={columns}
-              exportedFileName={`Employees-${
-                TableAgents.length > 0
-                  ? TableAgents[0].name +
-                    " to " +
-                    TableAgents[TableAgents.length - 1].name
-                  : "empty"
-              }.csv`} 
-            />):<CircularLoader/>}
+              exportedFileName={`Employees-${TableAgents.length > 0
+                ? TableAgents[0].name +
+                " to " +
+                TableAgents[TableAgents.length - 1].name
+                : "empty"
+                }.csv`}
+            />) : <CircularLoader />}
             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {filteredUsers.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
@@ -443,6 +509,7 @@ const Agent = () => {
             </div> */}
           </div>
         </div>
+
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
@@ -631,18 +698,225 @@ const Agent = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
                 )}
               </div>
+              <div className="w-full">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="category"
+                >
+                  Reporting Manager
+                </label>
+                <select
+                  value={selectedManagerId}
+                  onChange={handleManager}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                >
+                  <option value="" hidden>
+                    Select Reporting Manager
+                  </option>
+                  {managers.map((group) => (
+                    <option key={group._id} value={group._id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mt-10">
+                <label className="text-lg font-bold">App permissions</label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Collection</span>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.app_permission.collection}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        app_permission: {
+                          ...formData.app_permission,
+                          collection: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4
+                              peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                  <span className="ml-3 text-sm text-gray-600">
+                    {formData.app_permission.collection ? "Yes" : "No"}
+                  </span>
+                </label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Daybook</span>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.app_permission.daybook}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        app_permission: {
+                          ...formData.app_permission,
+                          daybook: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4
+                              peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                  <span className="ml-3 text-sm text-gray-600">
+                    {formData.app_permission.daybook ? "Yes" : "No"}
+                  </span>
+                </label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Targets</span>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.app_permission.targets}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        app_permission: {
+                          ...formData.app_permission,
+                          targets: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4
+                              peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                  <span className="ml-3 text-sm text-gray-600">
+                    {formData.app_permission.targets ? "Yes" : "No"}
+                  </span>
+                </label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Leads</span>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.app_permission.leads}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        app_permission: {
+                          ...formData.app_permission,
+                          leads: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4
+                              peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                  <span className="ml-3 text-sm text-gray-600">
+                    {formData.app_permission.leads ? "Yes" : "No"}
+                  </span>
+                </label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Commission</span>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.app_permission.commission}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        app_permission: {
+                          ...formData.app_permission,
+                          commission: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4
+                              peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                  <span className="ml-3 text-sm text-gray-600">
+                    {formData.app_permission.commission ? "Yes" : "No"}
+                  </span>
+                </label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Reports</span>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.app_permission.reports}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        app_permission: {
+                          ...formData.app_permission,
+                          reports: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4
+                              peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                  <span className="ml-3 text-sm text-gray-600">
+                    {formData.app_permission.reports ? "Yes" : "No"}
+                  </span>
+                </label>
+              </div>
+
               <div className="w-full flex justify-end">
-              <button
-                type="submit"
-                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
+                <button
+                  type="submit"
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
-              >
-                Save Employee
-              </button>
+                >
+                  Save Employee
+                </button>
               </div>
             </form>
           </div>
         </Modal>
+
         <Modal
           isVisible={showModalUpdate}
           onClose={() => setShowModalUpdate(false)}
@@ -811,18 +1085,224 @@ const Agent = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
                 )}
               </div>
+              <div className="w-full">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="category"
+                >
+                  Reporting Manager
+                </label>
+                <select
+                  value={selectedManagerId}
+                  onChange={handleManager}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                >
+                  <option value="" hidden>
+                    Select Reporting Manager
+                  </option>
+                  {managers.map((group) => (
+                    <option key={group._id} value={group._id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mt-10">
+                <label className="text-lg font-bold">App permissions</label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Collection</span>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={updateFormData.app_permission.collection}
+                    onChange={(e) =>
+                      setUpdateFormData({
+                        ...updateFormData,
+                        app_permission: {
+                          ...updateFormData.app_permission,
+                          collection: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4
+                              peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                  <span className="ml-3 text-sm text-gray-600">
+                    {updateFormData.app_permission.collection ? "Yes" : "No"}
+                  </span>
+                </label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Daybook</span>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={updateFormData.app_permission.daybook}
+                    onChange={(e) =>
+                      setUpdateFormData({
+                        ...updateFormData,
+                        app_permission: {
+                          ...updateFormData.app_permission,
+                          daybook: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4
+                              peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                  <span className="ml-3 text-sm text-gray-600">
+                    {updateFormData.app_permission.daybook ? "Yes" : "No"}
+                  </span>
+                </label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Targets</span>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={updateFormData.app_permission.targets}
+                    onChange={(e) =>
+                      setUpdateFormData({
+                        ...updateFormData,
+                        app_permission: {
+                          ...updateFormData.app_permission,
+                          targets: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4
+                              peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                  <span className="ml-3 text-sm text-gray-600">
+                    {updateFormData.app_permission.targets ? "Yes" : "No"}
+                  </span>
+                </label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Leads</span>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={updateFormData.app_permission.leads}
+                    onChange={(e) =>
+                      setUpdateFormData({
+                        ...updateFormData,
+                        app_permission: {
+                          ...updateFormData.app_permission,
+                          leads: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4
+                              peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                  <span className="ml-3 text-sm text-gray-600">
+                    {updateFormData.app_permission.leads ? "Yes" : "No"}
+                  </span>
+                </label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Commission</span>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={updateFormData.app_permission.commission}
+                    onChange={(e) =>
+                      setUpdateFormData({
+                        ...updateFormData,
+                        app_permission: {
+                          ...updateFormData.app_permission,
+                          commission: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4
+                              peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                  <span className="ml-3 text-sm text-gray-600">
+                    {updateFormData.app_permission.commission ? "Yes" : "No"}
+                  </span>
+                </label>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-900">Reports</span>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={updateFormData.app_permission.reports}
+                    onChange={(e) =>
+                      setUpdateFormData({
+                        ...updateFormData,
+                        app_permission: {
+                          ...updateFormData.app_permission,
+                          reports: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4
+                              peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                  ></div>
+                  <span className="ml-3 text-sm text-gray-600">
+                    {updateFormData.app_permission.reports ? "Yes" : "No"}
+                  </span>
+                </label>
+              </div>
               <div className="w-full flex justify-end">
-              <button
-                type="submit"
-                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+                <button
+                  type="submit"
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-              >
-                Update
-              </button>
+                >
+                  Update
+                </button>
               </div>
             </form>
           </div>
         </Modal>
+
         <Modal
           isVisible={showModalDelete}
           onClose={() => {

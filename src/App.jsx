@@ -36,6 +36,7 @@ import Loan from "./pages/Loan";
 import Pigme from "./pages/Pigme";
 import PigmeReport from "./pages/PigmeReport"
 import LoanReport from "./pages/LoanReport"
+import Manager from "./pages/Manager";
 
 function App() {
   return (
@@ -95,20 +96,20 @@ function App() {
               }
             />
             <Route
-            path="/loan"
-            element={
-              <ProtectedRoute>
-                <Loan/>
-              </ProtectedRoute>
-            }
+              path="/loan"
+              element={
+                <ProtectedRoute>
+                  <Loan />
+                </ProtectedRoute>
+              }
             />
-               <Route
-            path="/pigme"
-            element={
-              <ProtectedRoute>
-                <Pigme/>
-              </ProtectedRoute>
-            }
+            <Route
+              path="/pigme"
+              element={
+                <ProtectedRoute>
+                  <Pigme />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/auction"
@@ -131,6 +132,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Agent />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/manager"
+              element={
+                <ProtectedRoute>
+                  <Manager />
                 </ProtectedRoute>
               }
             />

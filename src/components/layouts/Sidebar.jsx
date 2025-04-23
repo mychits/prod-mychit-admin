@@ -16,6 +16,7 @@ import { IoPeopleOutline } from "react-icons/io5";
 import { GoGraph } from "react-icons/go";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { PiCalculatorBold } from "react-icons/pi";
+import { FaPersonCane } from "react-icons/fa6";
 const MenuSidebar = [
   {
     id: "$1",
@@ -37,6 +38,12 @@ const MenuSidebar = [
     title: "Enrollments ",
     icon: <FaPeopleArrows />,
     link: "/enrollment",
+  },
+  {
+    id: "$5",
+    title: "Managers",
+    icon: <FaPersonCane />,
+    link: "/manager",
   },
   {
     id: "$5",
