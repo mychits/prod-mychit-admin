@@ -25,6 +25,7 @@ const Manager = () => {
     const [currentUpdateUser, setCurrentUpdateUser] = useState(null);
     const [errors, setErrors] = useState({});
     const [searchText, setSearchText] = useState("");
+    const [isLoading,setIsLoading] = useState(false);
 
     const onGlobalSearchChangeHandler = (e) => {
         const { value } = e.target
@@ -140,6 +141,7 @@ const Manager = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
+                setIsLoading(true);
                 const response = await api.get("/manager/get-manager");
                 setUsers(response.data);
                 const formattedData = response.data.map((group, index) => ({
@@ -192,6 +194,8 @@ const Manager = () => {
                 setTableAgents(formattedData);
             } catch (error) {
                 console.error("Error fetching user data:", error);
+            }finally{
+                setIsLoading(false);
             }
         };
         fetchUsers();
@@ -348,7 +352,7 @@ const Manager = () => {
                                 TableAgents[TableAgents.length - 1].name
                                 : "empty"
                                 }.csv`}
-                        />) : <CircularLoader />}
+                        />) : <CircularLoader isLoading={isLoading} failure={TableAgents.length <= 0 } data="Managers Data"/>}
                     </div>
                 </div>
 

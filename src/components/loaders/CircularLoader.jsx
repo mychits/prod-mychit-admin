@@ -28,7 +28,9 @@ const CircularLoader = ({
               className="w-3/4 h-1/2"
             />
             <div className="text-center text-2xl font-bold text-blue-700">
-              No {data} found
+              No <span className="text-blue-800">
+              {data}
+                </span> Found
             </div>
           </div>
         </div>

@@ -10,6 +10,7 @@ import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import { FaCalculator } from "react-icons/fa";
+import CircularLoader from "../components/loaders/CircularLoader";
 const Pigme = () => {
   const [users, setUsers] = useState([]);
   const [pigmeCustomers, setPigmeCustomers] = useState([]);
@@ -20,7 +21,7 @@ const Pigme = () => {
   const [currentCustomer, setCurrentCustomer] = useState(null);
   const [currentUpdateCustomer, setCurrentUpdateCustomer] = useState(null);
   const [searchText, setSearchText] = useState("");
-
+  const [isLoading,setIsLoading] = useState(false);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -146,6 +147,7 @@ const Pigme = () => {
   useEffect(() => {
     const fetchBorrowers = async () => {
       try {
+        setIsLoading(true);
         const response = await api.get("/pigme/get-all-pigme-customers");
         setPigmeCustomers(response.data);
         const formattedData = response.data.map((pigmeCustomer, index) => ({
@@ -203,6 +205,8 @@ const Pigme = () => {
         setTableBorrowers(formattedData);
       } catch (error) {
         console.error("Error fetching group data:", error);
+      }finally{
+        setIsLoading(false);
       }
     };
     fetchBorrowers();
@@ -326,7 +330,7 @@ const Pigme = () => {
               </div>
             </div>
 
-            <DataTable
+          {tableBorrowers?.length>0 ?  (<DataTable
               catcher="_id"
               updateHandler={handleUpdateModalOpen}
               data={filterOption(tableBorrowers, searchText)}
@@ -338,7 +342,7 @@ const Pigme = () => {
                     tableBorrowers[tableBorrowers.length - 1].date
                   : "empty"
               }.csv`}
-            />
+            />):<CircularLoader isLoading={isLoading} data="Pigme Data" failure={tableBorrowers?.length<=0}/>}
           </div>
         </div>
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>

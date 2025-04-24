@@ -25,6 +25,7 @@ const Group = () => {
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [isLoading,setIsLoading] = useState(false);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -197,6 +198,7 @@ const Group = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
+        setIsLoading(true);
         const response = await api.get("/group/get-group-admin");
         setGroups(response.data);
         const formattedData = response.data.map((group, index) => ({
@@ -264,6 +266,8 @@ const Group = () => {
         setTableGroups(formattedData);
       } catch (error) {
         console.error("Error fetching group data:", error);
+      }finally{
+        setIsLoading(false);
       }
     };
     fetchGroups();
@@ -418,7 +422,7 @@ const Group = () => {
                     TableGroups[TableGroups.length - 1].date.split("T")[0]
                   : "empty"
               }.csv`}
-            />):(<CircularLoader />)}
+            />):(<CircularLoader isLoading={isLoading} failure={TableGroups.length<=0} data={"Group Data"}/>)}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {/* {filteredGroups.length === 0 ? (

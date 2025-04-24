@@ -21,6 +21,7 @@ const User = () => {
   const [showModalDelete, setShowModalDelete] = useState(false);
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isLoading,setIsLoading] = useState(false);
   const [currentUpdateUser, setCurrentUpdateUser] = useState(null);
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
@@ -184,6 +185,7 @@ const User = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        setIsLoading(true);
         const response = await api.get("/user/get-user");
         setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
@@ -255,6 +257,8 @@ const User = () => {
         setTableUsers(fData);
       } catch (error) {
         console.error("Error fetching user data:", error.message);
+      }finally{
+        setIsLoading(false);
       }
     };
     fetchUsers();
@@ -405,7 +409,7 @@ const User = () => {
                 </button>
               </div>
             </div>
-            {TableUsers.length > 0 ? (
+            {TableUsers?.length > 0 ? (
               <DataTable
                 catcher="_id"
                 updateHandler={handleUpdateModalOpen}
@@ -420,7 +424,7 @@ const User = () => {
                 }.csv`}
               />
             ) : (
-              <CircularLoader />
+              <CircularLoader isLoading={isLoading} failure={TableUsers.length <= 0} data="Customer Data"/>
             )}
             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {filteredUsers.length === 0 ? (

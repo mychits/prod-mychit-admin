@@ -6,7 +6,7 @@ import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import Modal from "../components/modals/Modal";
 import { BsEye } from "react-icons/bs";
-import {Dropdown} from "antd"
+import { Dropdown } from "antd";
 import DataTable from "../components/layouts/Datatable";
 import { EyeIcon } from "lucide-react";
 import CustomAlert from "../components/alerts/CustomAlert";
@@ -14,6 +14,7 @@ import Navbar from "../components/layouts/Navbar";
 import { Select } from "antd";
 import { IoMdMore } from "react-icons/io";
 import filterOption from "../helpers/filterOption";
+import CircularLoader from "../components/loaders/CircularLoader";
 const Auction = () => {
   const [groups, setGroups] = useState([]);
   const [TableAuctions, setTableAuctions] = useState([]);
@@ -31,6 +32,7 @@ const Auction = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [double, setDouble] = useState({});
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
@@ -195,7 +197,6 @@ const Auction = () => {
   };
 
   const handleGroupAuction = async (groupId) => {
-  
     setSelectedAuctionGroupId(groupId);
     handleGroupAuctionChange(groupId);
   };
@@ -214,6 +215,8 @@ const Auction = () => {
   const handleGroupAuctionChange = async (groupId) => {
     setSelectedAuctionGroup(groupId);
     if (groupId) {
+      setTableAuctions([]);
+      setIsLoading(true);
       try {
         const response = await api.get(`/auction/get-group-auction/${groupId}`);
         if (response.data && response.data.length > 0) {
@@ -228,25 +231,9 @@ const Auction = () => {
               bid_amount: 0,
               amount: 0,
               auction_type: "Commencement Auction",
-              // action: (
-              //   <div className="flex justify-end gap-2">
-              //     <button
-              //       onClick={() => console.log("Custom View Action")}
-              //       className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-              //     >
-              //       <EyeIcon color="green" />
-              //     </button>
-              //     <button
-              //       onClick={() => console.log("Custom Delete Action")}
-              //       className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-              //     >
-              //       <MdDelete color="red" />
-              //     </button>
-              //   </div>
-              // ),
             },
             ...response.data.map((group, index) => ({
-              _id:group._id,
+              _id: group._id,
               id: index + 2,
               date: formatPayDate(group.auction_date),
               name: group.user_id?.full_name,
@@ -260,49 +247,38 @@ const Auction = () => {
                 " Auction",
               action: (
                 <div className="flex justify-center gap-2">
-                  {/* <button
-                    onClick={() => handleUpdateModalOpen(group._id)}
-                    className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
+      
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          key: "1",
+                          label: (
+                            <div
+                              className="text-green-600"
+                              onClick={() => handleUpdateModalOpen(group._id)}
+                            >
+                              Edit
+                            </div>
+                          ),
+                        },
+                        {
+                          key: "2",
+                          label: (
+                            <div
+                              className="text-red-600"
+                              onClick={() => handleDeleteModalOpen(group._id)}
+                            >
+                              Delete
+                            </div>
+                          ),
+                        },
+                      ],
+                    }}
+                    placement="bottomLeft"
                   >
-                    <EyeIcon color="green" />
-                  </button> */}
-                  {/* <button
-                    onClick={() => handleDeleteModalOpen(group._id)}
-                    className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-                  >
-                    <MdDelete color="red" />
-                  </button> */}
-                   <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: "1",
-                      label: (
-                        <div
-                          className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(group._id)}
-                        >
-                          Edit
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "2",
-                      label: (
-                        <div
-                          className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(group._id)}
-                        >
-                          Delete
-                        </div>
-                      ),
-                    },
-                  ],
-                }}
-                placement="bottomLeft"
-              >
-                <IoMdMore className="text-bold" />
-              </Dropdown>
+                    <IoMdMore className="text-bold" />
+                  </Dropdown>
                 </div>
               ),
             })),
@@ -314,6 +290,8 @@ const Auction = () => {
       } catch (error) {
         console.error("Error fetching enrollment data:", error);
         setFilteredAuction([]);
+      }finally{
+        setIsLoading(false)
       }
     } else {
       setFilteredAuction([]);
@@ -419,7 +397,10 @@ const Auction = () => {
     <>
       <div>
         <div className="flex mt-20">
-        <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true}/>
+          <Navbar
+            onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+            visibility={true}
+          />
           <Sidebar />
 
           <CustomAlert
@@ -440,13 +421,13 @@ const Auction = () => {
                     showSearch
                     className="w-full max-w-md"
                     filterOption={(input, option) =>
-                      option.children.toString()
+                      option.children
+                        .toString()
                         .toLowerCase()
                         .includes(input.toLowerCase())
                     }
-                        placeholder="Search or Select Group"
+                    placeholder="Search or Select Group"
                   >
-                    
                     {groups.map((group) => (
                       <Select.Option key={group?._id} value={group?._id}>
                         {group.group_name}
@@ -464,7 +445,7 @@ const Auction = () => {
                   </button>
                 </div>
                 <p className="text-xl items-center mt-5"></p>
-                {filteredAuction[0]?.group_id?.group_type  && ( //
+                {filteredAuction[0]?.group_id?.group_type && ( //
                   <>
                     <p className="text-xl items-center">
                       Balance: {double.amount}
@@ -473,84 +454,23 @@ const Auction = () => {
                 )}
               </div>
               <div className="">
-                <DataTable
-                updateHandler={handleUpdateModalOpen}
-               
-                  data={filterOption(TableAuctions,searchText)}
-                  columns={columns}
-                  exportedFileName={`Auctions ${
-                    TableAuctions.length > 0
-                      ? TableAuctions[1].date +
-                        " to " +
-                        TableAuctions[TableAuctions.length - 1].date
-                      : "empty"
-                  }.csv`}
-                />
-              </div>
-              {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-6">
-                {filteredAuction.length === 0 ? (
-                  <div className="flex justify-center items-center h-64">
-                    <p className="text-gray-500 text-lg">
-                      {selectedAuctionGroup
-                        ? "No Auction is present for the selected group"
-                        : "Select Group to View"}
-                    </p>
-                  </div>
+                {TableAuctions?.length > 0 ? (
+                  <DataTable
+                    updateHandler={handleUpdateModalOpen}
+                    data={filterOption(TableAuctions, searchText)}
+                    columns={columns}
+                    exportedFileName={`Auctions ${
+                      TableAuctions.length > 0
+                        ? TableAuctions[1].date +
+                          " to " +
+                          TableAuctions[TableAuctions.length - 1].date
+                        : "empty"
+                    }.csv`}
+                  />
                 ) : (
-                  filteredAuction.map((user) => (
-                    <div
-                      key={user._id}
-                      className="bg-white border border-gray-300 rounded-xl p-6 shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-xl"
-                    >
-                      <div className="flex flex-col items-center">
-                        <h2 className="text-xl font-bold mb-3 text-gray-700 text-center">
-                          {user.user_id?.full_name}
-                        </h2>
-                        <div className="flex gap-16 py-3">
-                          <p className="text-gray-500 mb-2 text-center">
-                            <span className="font-medium text-gray-700 text-xl">
-                              {user.user_id?.phone_number}
-                            </span>
-                            <br />
-                            <span className="font-bold text-sm">
-                              Phone Number
-                            </span>
-                          </p>
-                          <p className="text-gray-500 mb-4 text-center">
-                            <span className="font-medium text-gray-700 text-xl">
-                              {user.ticket}
-                            </span>
-                            <br />
-                            <span className="font-bold text-sm">Ticket</span>
-                          </p>
-                          <p className="text-gray-500 mb-4 text-center">
-                            <span className="font-medium text-gray-700 text-xl">
-                              {user.win_amount}
-                            </span>
-                            <br />
-                            <span className="font-bold text-sm">Amount</span>
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => handleUpdateModalOpen(user._id)}
-                          className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-                        >
-                          <BsEye color="green" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteModalOpen(user._id)}
-                          className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-                        >
-                          <MdDelete color="red" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                  <CircularLoader isLoading={isLoading} data="Auction Data" failure={TableAuctions?.length <= 0 && selectedAuctionGroupId}/>
                 )}
-              </div> */}
+              </div>
             </div>
           </div>
           <Modal
@@ -664,14 +584,17 @@ const Auction = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
                     <option value="">Select Customer</option>
-                    {filteredUsers.map((user) => (
-                      user?.user_id?._id && <option
-                        key={`${user.user_id._id}-${user.tickets}`}
-                        value={`${user.user_id._id}-${user.tickets}`}
-                      >
-                        {user.user_id.full_name} | {user.tickets}
-                      </option>
-                    ))}
+                    {filteredUsers.map(
+                      (user) =>
+                        user?.user_id?._id && (
+                          <option
+                            key={`${user.user_id._id}-${user.tickets}`}
+                            value={`${user.user_id._id}-${user.tickets}`}
+                          >
+                            {user.user_id.full_name} | {user.tickets}
+                          </option>
+                        )
+                    )}
                   </select>
                   {errors.customer && (
                     <p className="mt-1 text-sm text-red-500">
@@ -841,13 +764,13 @@ const Auction = () => {
                   </div>
                 </div>
                 <div className="w-full flex justify-end">
-                <button
-                  type="submit"
-                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+                  <button
+                    type="submit"
+                    className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                >
-                  Save Auction
-                </button>
+                  >
+                    Save Auction
+                  </button>
                 </div>
               </form>
             </div>

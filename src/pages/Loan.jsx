@@ -10,6 +10,7 @@ import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import { FaCalculator } from "react-icons/fa";
+import CircularLoader from "../components/loaders/CircularLoader";
 const Loan = () => {
   const [users, setUsers] = useState([]);
   const [borrowers, setBorrowers] = useState([]);
@@ -150,6 +151,7 @@ const [isLoading,setIsLoading] = useState(false);
   useEffect(() => {
     const fetchBorrowers = async () => {
       try {
+        setIsLoading(true);
         const response = await api.get("/loans/get-all-borrowers");
         setBorrowers(response.data);
         const formattedData = response.data.map((borrower, index) => ({
@@ -204,6 +206,8 @@ const [isLoading,setIsLoading] = useState(false);
         setTableBorrowers(formattedData);
       } catch (error) {
         console.error("Error fetching group data:", error);
+      }finally{
+        setIsLoading(false);
       }
     };
     fetchBorrowers();
@@ -331,7 +335,7 @@ const [isLoading,setIsLoading] = useState(false);
               </div>
             </div>
 
-            <DataTable
+           {(tableBorrowers.length>0) ?(<DataTable
               catcher="_id"
               updateHandler={handleUpdateModalOpen}
               data={filterOption(tableBorrowers, searchText)}
@@ -343,7 +347,7 @@ const [isLoading,setIsLoading] = useState(false);
                     tableBorrowers[tableBorrowers.length - 1].date
                   : "empty"
               }.csv`}
-            />
+            />):<CircularLoader isLoading={isLoading} data="Loan Data" failure={tableBorrowers?.length<=0}/>}
           </div>
         </div>
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>

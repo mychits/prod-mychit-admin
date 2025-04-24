@@ -25,12 +25,12 @@ const Agent = () => {
   const [errors, setErrors] = useState({});
   const [searchText, setSearchText] = useState("");
   const [selectedManagerId, setSelectedManagerId] = useState("");
-  const [managers, setManagers] = useState([])
-
+  const [managers, setManagers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const onGlobalSearchChangeHandler = (e) => {
-    const { value } = e.target
-    setSearchText(value)
-  }
+    const { value } = e.target;
+    setSearchText(value);
+  };
 
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
@@ -135,7 +135,9 @@ const Agent = () => {
     } else if (!regex.aadhaar.test(data.adhaar_no)) {
       newErrors.adhaar_no = "Invalid Aadhaar number (12 digits required)";
     }
-
+    if(!selectedManagerId){
+      newErrors.reporting_manager = "Reporting Manager is required";
+    }
     if (!data.pan_no) {
       newErrors.pan_no = "PAN number is required";
     } else if (!regex.pan.test(data.pan_no.toUpperCase())) {
@@ -187,7 +189,7 @@ const Agent = () => {
             reports: true,
           },
         });
-        setSelectedManagerId("")
+        setSelectedManagerId("");
         setAlertConfig({
           visibility: true,
           message: "Agent Added Successfully",
@@ -219,6 +221,7 @@ const Agent = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        setIsLoading(true);
         const response = await api.get("/agent/get-agent");
         setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
@@ -272,6 +275,8 @@ const Agent = () => {
         setTableAgents(formattedData);
       } catch (error) {
         console.error("Error fetching user data:", error);
+      }finally{
+        setIsLoading(false);
       }
     };
     fetchUsers();
@@ -303,7 +308,6 @@ const Agent = () => {
   const handleUpdateModalOpen = async (userId) => {
     try {
       const response = await api.get(`/agent/get-agent-by-id/${userId}`);
-      console.log(console.log(response.data))
       setCurrentUpdateUser(response.data);
       setUpdateFormData({
         name: response.data.name,
@@ -315,13 +319,25 @@ const Agent = () => {
         pan_no: response.data.pan_no,
         address: response.data.address,
         app_permission: {
-          collection: response.data?.app_permission?.collection === true || response.data?.app_permission?.collection === 'true',
-          daybook: response.data?.app_permission?.daybook === true || response.data?.app_permission?.daybook === 'true',
-          targets: response.data?.app_permission?.targets === true || response.data?.app_permission?.targets === 'true',
-          leads: response.data?.app_permission?.leads === true || response.data?.app_permission?.leads === 'true',
-          commission: response.data?.app_permission?.commission === true || response.data?.app_permission?.commission === 'true',
-          reports: response.data?.app_permission?.reports === true || response.data?.app_permission?.reports === 'true',
-        }
+          collection:
+            response.data?.app_permission?.collection === true ||
+            response.data?.app_permission?.collection === "true",
+          daybook:
+            response.data?.app_permission?.daybook === true ||
+            response.data?.app_permission?.daybook === "true",
+          targets:
+            response.data?.app_permission?.targets === true ||
+            response.data?.app_permission?.targets === "true",
+          leads:
+            response.data?.app_permission?.leads === true ||
+            response.data?.app_permission?.leads === "true",
+          commission:
+            response.data?.app_permission?.commission === true ||
+            response.data?.app_permission?.commission === "true",
+          reports:
+            response.data?.app_permission?.reports === true ||
+            response.data?.app_permission?.reports === "true",
+        },
       });
       setSelectedManagerId(response.data.reporting_manager || "");
       setShowModalUpdate(true);
@@ -370,7 +386,7 @@ const Agent = () => {
           dataToSend
         );
         setShowModalUpdate(false);
-        setSelectedManagerId("")
+        setSelectedManagerId("");
         setAlertConfig({
           visibility: true,
           message: "Agent Updated Successfully",
@@ -420,7 +436,10 @@ const Agent = () => {
     <>
       <div>
         <div className="flex mt-20">
-          <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
+          <Navbar
+            onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+            visibility={true}
+          />
           <Sidebar />
           <CustomAlert
             type={alertConfig.type}
@@ -443,17 +462,22 @@ const Agent = () => {
                 </button>
               </div>
             </div>
-            {TableAgents.length > 0 ? (<DataTable
-              updateHandler={handleUpdateModalOpen}
-              data={filterOption(TableAgents, searchText)}
-              columns={columns}
-              exportedFileName={`Employees-${TableAgents.length > 0
-                ? TableAgents[0].name +
-                " to " +
-                TableAgents[TableAgents.length - 1].name
-                : "empty"
+            {TableAgents?.length > 0 ? (
+              <DataTable
+                updateHandler={handleUpdateModalOpen}
+                data={filterOption(TableAgents, searchText)}
+                columns={columns}
+                exportedFileName={`Employees-${
+                  TableAgents.length > 0
+                    ? TableAgents[0].name +
+                      " to " +
+                      TableAgents[TableAgents.length - 1].name
+                    : "empty"
                 }.csv`}
-            />) : <CircularLoader />}
+              />
+            ) : (
+              <CircularLoader isLoading={isLoading} failure={TableAgents?.length <= 0} data="Employee Data"/>
+            )}
             {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {filteredUsers.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
@@ -719,12 +743,17 @@ const Agent = () => {
                     </option>
                   ))}
                 </select>
+                {errors.reporting_manager && (
+                  <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
+                )}
               </div>
               <div className="mt-10">
                 <label className="text-lg font-bold">App permissions</label>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-900">Collection</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Collection
+                </span>
                 <label className="inline-flex relative items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -736,6 +765,7 @@ const Agent = () => {
                           ...formData.app_permission,
                           collection: e.target.checked,
                         },
+                      
                       })
                     }
                     className="sr-only peer"
@@ -754,7 +784,9 @@ const Agent = () => {
                 </label>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-900">Daybook</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Daybook
+                </span>
                 <label className="inline-flex relative items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -784,7 +816,9 @@ const Agent = () => {
                 </label>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-900">Targets</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Targets
+                </span>
                 <label className="inline-flex relative items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -844,7 +878,9 @@ const Agent = () => {
                 </label>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-900">Commission</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Commission
+                </span>
                 <label className="inline-flex relative items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -874,7 +910,9 @@ const Agent = () => {
                 </label>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-900">Reports</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Reports
+                </span>
                 <label className="inline-flex relative items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -1106,12 +1144,17 @@ const Agent = () => {
                     </option>
                   ))}
                 </select>
+                {errors.reporting_manager && (
+                  <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
+                )}
               </div>
               <div className="mt-10">
                 <label className="text-lg font-bold">App permissions</label>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-900">Collection</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Collection
+                </span>
                 <label className="inline-flex relative items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -1141,7 +1184,9 @@ const Agent = () => {
                 </label>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-900">Daybook</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Daybook
+                </span>
                 <label className="inline-flex relative items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -1171,7 +1216,9 @@ const Agent = () => {
                 </label>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-900">Targets</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Targets
+                </span>
                 <label className="inline-flex relative items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -1231,7 +1278,9 @@ const Agent = () => {
                 </label>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-900">Commission</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Commission
+                </span>
                 <label className="inline-flex relative items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -1261,7 +1310,9 @@ const Agent = () => {
                 </label>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-900">Reports</span>
+                <span className="text-sm font-medium text-gray-900">
+                  Reports
+                </span>
                 <label className="inline-flex relative items-center cursor-pointer">
                   <input
                     type="checkbox"

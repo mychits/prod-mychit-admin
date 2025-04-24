@@ -40,7 +40,7 @@ const Payment = () => {
   const whatsappEnable = true;
   const [paymentMode, setPaymentMode] = useState("cash");
   const today = new Date().toISOString().split("T")[0];
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [paymentFor, setPaymentFor] = useState(dataPaymentsFor.typeChit);
@@ -331,10 +331,11 @@ const Payment = () => {
   };
 
   const handleGroupPaymentChange = async (groupId) => {
-    setLoading(true);
     setSelectedAuctionGroup(groupId);
     if (groupId) {
       try {
+        setTablePayments([])
+        setIsLoading(true);
         const response = await api.get(`/payment/get-group-payment/${groupId}`);
       
         if (response.data && response.data.length > 0) {
@@ -394,7 +395,7 @@ const Payment = () => {
         console.error("Error fetching payment data:", error);
         setFilteredAuction([]);
       }finally{
-        setLoading(false)
+        setIsLoading(false)
       }
     } else {
       setFilteredAuction([]);
@@ -761,7 +762,7 @@ const Payment = () => {
                 formData={formData}
                 filteredAuction={filteredAuction}
               />
-              {TablePayments && TablePayments.length > 0 && (!loading) ? (
+              {TablePayments && TablePayments.length > 0 ? (
                 <DataTable
                   data={TablePayments.filter((item) =>
                     Object.values(item).some((value) =>
@@ -781,7 +782,7 @@ const Payment = () => {
                 />
               ) : (
                 <div className="mt-10 text-center text-gray-500">
-                  <CircularLoader isLoading={loading} />
+                  <CircularLoader isLoading={isLoading} data="Payments Data" failure={TablePayments.length<=0 && selectedAuctionGroupId } />
                 </div>
               )}
             </div>

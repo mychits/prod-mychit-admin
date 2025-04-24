@@ -13,6 +13,7 @@ import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import { Select } from "antd";
 import filterOption from "../helpers/filterOption";
+import CircularLoader from "../components/loaders/CircularLoader";
 const Enroll = () => {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
@@ -27,6 +28,7 @@ const Enroll = () => {
   const [currentGroup, setCurrentGroup] = useState(null);
   const [availableTicketsAdd, setAvailableTicketsAdd] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isDataTableLoading, setIsDataTableLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const whatsappEnable = true;
   const [alertConfig, setAlertConfig] = useState({
@@ -82,6 +84,8 @@ const Enroll = () => {
 
     if (groupId) {
       try {
+        setTableEnrolls([])
+        setIsDataTableLoading(true);
         const response = await api.get(`/enroll/get-group-enroll/${groupId}`);
         if (response.data && response.data.length > 0) {
           setFilteredUsers(response.data);
@@ -146,6 +150,9 @@ const Enroll = () => {
       } catch (error) {
         console.error("Error fetching enrollment data:", error);
         setFilteredUsers([]);
+        setTableEnrolls([]);
+      } finally {
+        setIsDataTableLoading(false);
       }
     } else {
       setFilteredUsers([]);
@@ -388,75 +395,21 @@ const Enroll = () => {
                 </button>
               </div>
             </div>
-            <DataTable
-              updateHandler={handleUpdateModalOpen}
-              data={filterOption(TableEnrolls, searchText)}
-              columns={columns}
-              exportedFileName={`Enrollments-${
-                TableEnrolls.length > 0
-                  ? TableEnrolls[0].name +
-                    " to " +
-                    TableEnrolls[TableEnrolls.length - 1].name
-                  : "empty"
-              }.csv`}
-            />
-            {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-6">
-              {filteredUsers.length === 0 ? (
-                <div className="flex justify-center items-center h-64">
-                  <p className="text-gray-500 text-lg">
-                    {selectedGroup
-                      ? "No enrollment is present for the selected group"
-                      : "Select Group to View"}
-                  </p>
-                </div>
-              ) : (
-                filteredUsers.map((user) => (
-                  <div
-                    key={user._id}
-                    className="bg-white border border-gray-300 rounded-xl p-6 shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-xl"
-                  >
-                    <div className="flex flex-col items-center">
-                      <h2 className="text-xl font-bold mb-3 text-gray-700 text-center">
-                        {user.user_id?.full_name}
-                      </h2>
-                      <div className="flex gap-16 py-3">
-                        <p className="text-gray-500 mb-2 text-center">
-                          <span className="font-medium text-gray-700 text-xl">
-                            {user.user_id?.phone_number}
-                          </span>
-                          <br />
-                          <span className="font-bold text-sm">
-                            Phone Number
-                          </span>
-                        </p>
-                        <p className="text-gray-500 mb-4 text-center">
-                          <span className="font-medium text-gray-700 text-xl">
-                            {user.tickets}
-                          </span>
-                          <br />
-                          <span className="font-bold text-sm">Ticket No</span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => handleUpdateModalOpen(user._id)}
-                        className="hidden border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-                      >
-                        <CiEdit color="green" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteModalOpen(user._id)}
-                        className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-                      >
-                        <MdDelete color="red" />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div> */}
+            {TableEnrolls?.length > 0 ? (
+              <DataTable
+                updateHandler={handleUpdateModalOpen}
+                data={filterOption(TableEnrolls, searchText)}
+                columns={columns}
+                exportedFileName={`Enrollments-${
+                  TableEnrolls.length > 0
+                    ? TableEnrolls[0].name +
+                      " to " +
+                      TableEnrolls[TableEnrolls.length - 1].name
+                    : "empty"
+                }.csv`}
+              />
+            ): <CircularLoader isLoading={isDataTableLoading} failure={TableEnrolls?.length<=0 && selectedGroup} data={"Enrollment Data"}/>}
+      
           </div>
         </div>
         <Modal
@@ -580,23 +533,23 @@ const Enroll = () => {
                 </div>
               </div>
               <div className="w-full flex justify-end">
-              <button
-                type="submit"
-                disabled={loading || availableTicketsAdd.length === 0}
-                className={`w-1/4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center ${
-                  loading
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 border-2 border-black"
-                }`}
-              >
-                {loading ? (
-                  <>
-                    <p>Loading...</p>
-                  </>
-                ) : (
-                  <>Save Enrollment</>
-                )}
-              </button>
+                <button
+                  type="submit"
+                  disabled={loading || availableTicketsAdd.length === 0}
+                  className={`w-1/4 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center ${
+                    loading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 border-2 border-black"
+                  }`}
+                >
+                  {loading ? (
+                    <>
+                      <p>Loading...</p>
+                    </>
+                  ) : (
+                    <>Save Enrollment</>
+                  )}
+                </button>
               </div>
             </form>
           </div>
