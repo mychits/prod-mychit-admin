@@ -46,6 +46,7 @@ const Payment = () => {
   const [paymentFor, setPaymentFor] = useState(dataPaymentsFor.typeChit);
   const [borrowers, setBorrowers] = useState([]);
   const [pigmeCustomers, setPigmeCustomers] = useState([]);
+  const [enableGroupColumn, setEnableGroupColumn] = useState(true);
 
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
@@ -102,7 +103,7 @@ const Payment = () => {
     pdf.save(`Receipt_${id}.pdf`);
   };
   useEffect(() => {
-    setBorrowers([])
+    setBorrowers([]);
     const fetchCustomerLoanDetails = async () => {
       try {
         const response = await api.get(
@@ -120,7 +121,7 @@ const Payment = () => {
   }, [selectedGroupId]);
 
   useEffect(() => {
-    setPigmeCustomers([])
+    setPigmeCustomers([]);
     const fetchCustomerLoanDetails = async () => {
       try {
         const response = await api.get(
@@ -185,6 +186,79 @@ const Payment = () => {
     }
   }, [receiptNo]);
 
+  useEffect(() => {
+    const fetchAllPayments = async () => {
+      try {
+        setTablePayments([]);
+        setIsLoading(true);
+        const response = await api.get("/payment/get-payment");
+        if (response.data && response.data.length > 0) {
+          const formattedData = response.data.map((group, index) => {
+            if (!group?.group_id?.group_name) return {};
+            return {
+              _id: group._id,
+              id: index + 1,
+              name: group?.user_id?.full_name,
+              phone_number: group?.user_id?.phone_number,
+              group_name: group?.group_id?.group_name,
+              ticket: group.ticket,
+              receipt: group.receipt_no,
+              old_receipt: group.old_receipt_no,
+              amount: group.amount,
+              date: formatPayDate(group.pay_date),
+              collected_by: group?.collected_by?.name || "Admin",
+              action: (
+                <div className="flex justify-center gap-2">
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          key: "1",
+                          label: (
+                            <Link
+                              to={`/print/${group._id}`}
+                              className="text-blue-600 "
+                            >
+                              Print
+                            </Link>
+                          ),
+                        },
+                        {
+                          key: "2",
+                          label: (
+                            <div
+                              className="text-red-600 "
+                              onClick={() => handleDeleteModalOpen(group._id)}
+                            >
+                              Delete
+                            </div>
+                          ),
+                        },
+                      ],
+                    }}
+                    placement="bottomLeft"
+                  >
+                    <IoMdMore className="text-bold" />
+                  </Dropdown>
+                </div>
+              ),
+            };
+          });
+          setTablePayments(formattedData);
+          setEnableGroupColumn(true);
+        } else {
+          setFilteredAuction([]);
+        }
+      } catch (error) {
+        console.error("Error fetching payment data:", error);
+        setFilteredAuction([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAllPayments();
+  }, []);
   const validateForm = () => {
     const newErrors = {};
 
@@ -234,7 +308,7 @@ const Payment = () => {
     setErrors((prevData) => ({ ...prevData, [name]: "" }));
   };
 
-  const handleChangeUser = (e) => { 
+  const handleChangeUser = (e) => {
     const { name, value } = e.target;
     const [type, data] = value.split("-");
     if (type === "chit") {
@@ -247,7 +321,6 @@ const Payment = () => {
       }));
     }
     if (type === "loan") {
-     
       setFormData((prev) => ({ ...prev, loan: data }));
 
       setPaymentFor(dataPaymentsFor.typeLoan);
@@ -286,15 +359,19 @@ const Payment = () => {
     { key: "id", header: "SL. NO" },
     { key: "name", header: "Customer Name" },
     { key: "phone_number", header: "Customer Phone Number" },
+  ];
+  if (enableGroupColumn) {
+    columns.push({ key: "group_name", header: "Group Name" });
+  }
+  columns.push(
     { key: "ticket", header: "Ticket Number" },
     { key: "old_receipt", header: "Old Receipt" },
     { key: "receipt", header: "Receipt" },
     { key: "amount", header: "Amount" },
     { key: "date", header: "Paid Date" },
     { key: "collected_by", header: "Collected By" },
-    { key: "action", header: "Action" },
-  ];
-
+    { key: "action", header: "Action" }
+  );
   const handleGroup = async (event) => {
     const groupId = event.target.value;
     setSelectedGroupId(groupId);
@@ -333,22 +410,33 @@ const Payment = () => {
   const handleGroupPaymentChange = async (groupId) => {
     setSelectedAuctionGroup(groupId);
     if (groupId) {
+      let url;
+      if (groupId === "all") {
+        url = "/payment/get-payment";
+        setEnableGroupColumn(true)
+      } else {
+        url = `/payment/get-group-payment/${groupId}`;
+        setEnableGroupColumn(false);
+      }
       try {
-        setTablePayments([])
+        setTablePayments([]);
         setIsLoading(true);
-        const response = await api.get(`/payment/get-group-payment/${groupId}`);
-      
+        const response = await api.get(url);
+
         if (response.data && response.data.length > 0) {
-          const formattedData = response.data.map((group, index) => ({
+          const formattedData = response.data.map((group, index) => {
+             if (!group?.group_id?.group_name) return {};
+            return ({
             _id: group._id,
             id: index + 1,
             name: group?.user_id?.full_name,
             phone_number: group?.user_id?.phone_number,
+            group_name: group?.group_id?.group_name,
             ticket: group.ticket,
             receipt: group.receipt_no,
             old_receipt: group.old_receipt_no,
             amount: group.amount,
-            date: formatPayDate(group.pay_date),
+            date: group?.pay_date.split("T"),
             collected_by: group?.collected_by?.name || "Admin",
             action: (
               <div className="flex justify-center gap-2">
@@ -385,17 +473,16 @@ const Payment = () => {
                 </Dropdown>
               </div>
             ),
-          }));
+          })});
           setTablePayments(formattedData);
         } else {
           setFilteredAuction([]);
         }
       } catch (error) {
-       
         console.error("Error fetching payment data:", error);
         setFilteredAuction([]);
-      }finally{
-        setIsLoading(false)
+      } finally {
+        setIsLoading(false);
       }
     } else {
       setFilteredAuction([]);
@@ -716,7 +803,7 @@ const Payment = () => {
                 <label className="font-bold">Search or Select Group</label>
                 <div className="flex justify-between items-center w-full">
                   <Select
-                    placeholder="Search or Select Group"
+                    placeholder="All Payments"
                     popupMatchSelectWidth={false}
                     showSearch
                     className="w-full max-w-md"
@@ -729,6 +816,9 @@ const Payment = () => {
                     value={selectedAuctionGroupId || undefined}
                     onChange={handleGroupPayment}
                   >
+                    <Select.Option key={"#1"} value={"all"}>
+                      All Payments
+                    </Select.Option>
                     {actualGroups.map((group) => (
                       <Select.Option key={group._id} value={group._id}>
                         {group.group_name}
@@ -782,7 +872,13 @@ const Payment = () => {
                 />
               ) : (
                 <div className="mt-10 text-center text-gray-500">
-                  <CircularLoader isLoading={isLoading} data="Payments Data" failure={TablePayments.length<=0 && selectedAuctionGroupId } />
+                  <CircularLoader
+                    isLoading={isLoading}
+                    data="Payments Data"
+                    failure={
+                      TablePayments.length <= 0 && selectedAuctionGroupId
+                    }
+                  />
                 </div>
               )}
             </div>
@@ -841,7 +937,7 @@ const Payment = () => {
                     onChange={handleChangeUser}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
-                    <option value="" >Select Group | Ticket</option>
+                    <option value="">Select Group | Ticket</option>
                     {filteredAuction.map((group) => {
                       if (!group.enrollment.group) return null;
 

@@ -9,12 +9,15 @@ import { BsEye } from "react-icons/bs";
 import UploadModal from "../components/modals/UploadModal";
 import axios from "axios";
 import url from "../data/Url";
+import { Select, Dropdown } from "antd";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
 import EndlessCircularLoader from "../components/loaders/EndlessCircularLoader";
 import CircularLoader from "../components/loaders/CircularLoader";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
+import { IoMdMore } from "react-icons/io";
+import { Link } from "react-router-dom";
 const Receipt = () => {
   const [groups, setGroups] = useState([]);
   const [TableDaybook, setTableDaybook] = useState([]);
@@ -34,7 +37,7 @@ const Receipt = () => {
   const [receiptNo, setReceiptNo] = useState("");
   const [paymentMode, setPaymentMode] = useState("cash");
   const [searchText, setSearchText] = useState("");
-  const [isLoading,setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
@@ -212,7 +215,7 @@ const Receipt = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
         const response = await api.get(`/payment/get-report-receipt`, {
           params: {
             from_date: selectedFromDate,
@@ -237,19 +240,44 @@ const Receipt = () => {
           setPayments(totalAmount);
 
           const formattedData = validPayments.map((group, index) => ({
-            _id:group?._id,
+            _id: group?._id,
             id: index + 1,
             date: group?.pay_date,
             group: group?.group_id?.group_name || group.pay_for,
             name: group?.user_id?.full_name,
-            category:group?.pay_for || "Chit",
+            category: group?.pay_for || "Chit",
             phone_number: group?.user_id?.phone_number,
             receipt_no: group?.receipt_no,
-            old_receipt_no:group?.old_receipt_no,
+            old_receipt_no: group?.old_receipt_no,
             ticket: group?.ticket,
             amount: group?.amount,
             mode: group?.pay_type,
             collected_by: group?.collected_by?.name || "Admin",
+            action: (
+              <div className="flex justify-center gap-2">
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: "1",
+                        label: (
+                          <Link
+                          target="_blank"
+                            to={`/print/${group._id}`}
+                            className="text-blue-600 "
+                          >
+                            Print
+                          </Link>
+                        ),
+                      },
+                    ],
+                  }}
+                  placement="bottomLeft"
+                >
+                  <IoMdMore className="text-bold" />
+                </Dropdown>
+              </div>
+            ),
           }));
 
           setTableDaybook(formattedData);
@@ -260,8 +288,8 @@ const Receipt = () => {
         console.error("Error fetching payment data:", error);
         setFilteredAuction([]);
         setPayments(0);
-      }finally{
-        setIsLoading(false)
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -287,6 +315,7 @@ const Receipt = () => {
     { key: "amount", header: "Amount" },
     { key: "mode", header: "Payment Mode" },
     { key: "collected_by", header: "Collected By" },
+    { key: "action", header: "Action" },
   ];
 
   useEffect(() => {
@@ -483,10 +512,10 @@ const Receipt = () => {
                   </div>
                 </div>
               </div>
-              {filteredAuction && filteredAuction.length > 0 &&(!isLoading)? (
+              {filteredAuction && filteredAuction.length > 0 && !isLoading ? (
                 <div className="mt-10">
                   <DataTable
-                    data={filterOption(TableDaybook,searchText)}
+                    data={filterOption(TableDaybook, searchText)}
                     columns={columns}
                     exportedFileName={`ReportsReceipt-${
                       TableDaybook.length > 0
@@ -499,7 +528,10 @@ const Receipt = () => {
                 </div>
               ) : (
                 <div className="mt-10 text-center text-gray-500">
-                  <CircularLoader isLoading={isLoading} failure={(filteredAuction.length<=0)}/>
+                  <CircularLoader
+                    isLoading={isLoading}
+                    failure={filteredAuction.length <= 0}
+                  />
                 </div>
               )}
             </div>

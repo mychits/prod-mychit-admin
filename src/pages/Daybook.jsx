@@ -11,8 +11,12 @@ import axios from "axios";
 import url from "../data/Url";
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
-import { Select } from "antd";
+import { Select,Dropdown } from "antd";
 import Navbar from "../components/layouts/Navbar";
+
+
+import { IoMdMore } from "react-icons/io";
+import { Link } from "react-router-dom";
 import filterOption from "../helpers/filterOption";
 const Daybook = () => {
   const [groups, setGroups] = useState([]);
@@ -226,6 +230,27 @@ const Daybook = () => {
             amount: group?.amount,
             mode: group?.pay_type,
             collected_by: group?.collected_by?.name || "Admin",
+            action:( <Dropdown
+                              menu={{
+                                items: [
+                                  {
+                                    key: "1",
+                                    label: (
+                                      <Link
+                                      target="_blank"
+                                        to={`/print/${group._id}`}
+                                        className="text-blue-600 "
+                                      >
+                                        Print
+                                      </Link>
+                                    ),
+                                  },
+                                ],
+                              }}
+                              placement="bottomLeft"
+                            >
+                              <IoMdMore className="text-bold" />
+                            </Dropdown>)
           }));
           setTableDaybook(formattedData);
         } else {
@@ -260,6 +285,7 @@ const Daybook = () => {
     { key: "amount", header: "Amount" },
     { key: "mode", header: "Payment Mode" },
     { key: "collected_by", header: "Collected By" },
+    { key: "action", header: "Action" },
   ];
 
   useEffect(() => {
