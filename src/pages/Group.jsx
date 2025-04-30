@@ -14,7 +14,6 @@ import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
-
 const Group = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
@@ -65,7 +64,19 @@ const Group = () => {
     commission: 5,
     reg_fee: "",
   });
+  const handleShareClick = (groupId) => {
 
+    if (!groupId) {
+      console.error("Missing or invalid groupId");
+      return;
+    }
+     
+      window.open(`/enrollment-request-form/?group_id=${groupId}`, '_blank');
+      navigator.clipboard.writeText(location.origin +`/enrollment-request-form/?group_id=${groupId}` );
+      
+    
+  };
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     // apply validation here
@@ -244,6 +255,17 @@ const Group = () => {
                           onClick={() => handleDeleteModalOpen(group._id)}
                         >
                           Delete
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "3", 
+                      label: (
+                        <div
+                           onClick={() => handleShareClick(group?._id)}
+                           className=" text-blue-600 "
+                        >
+                        Copy
                         </div>
                       ),
                     },

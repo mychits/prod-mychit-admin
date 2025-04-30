@@ -17,99 +17,107 @@ import { GoGraph } from "react-icons/go";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { PiCalculatorBold } from "react-icons/pi";
 import { FaPersonCane } from "react-icons/fa6";
+import { FaHandshake } from "react-icons/fa";
+import ids from "../../data/ids"
 const MenuSidebar = [
   {
-    id: "$1",
+    id: ids.one,
     title: "Dashboard",
     icon: <RiDashboardFill />,
     link: "/dashboard",
   },
   { title: "Analytics", icon: <SiGoogleanalytics />, link: "/analytics" },
   {
-    id: "$2",
+    id: ids.two,
     title: "Groups ",
     spacing: true,
     icon: <TbCategoryPlus />,
     link: "/group",
   },
-  { id: "$3", title: "Customers ", icon: <IoIosPersonAdd />, link: "/user" },
+  { id: ids.three, title: "Customers ", icon: <IoIosPersonAdd />, link: "/user" },
   {
-    id: "$4",
+    id: ids.four,
     title: "Enrollments ",
     icon: <FaPeopleArrows />,
     link: "/enrollment",
   },
   {
-    id: "$5",
+    id: ids.five,
+    title: "Enrollment Requests ",
+    icon:<FaHandshake  />,
+    link: "/enrollment-request",
+  },
+  {
+    id: ids.six,
     title: "Managers",
     icon: <FaPersonCane />,
     link: "/manager",
   },
   {
-    id: "$5",
+    id: ids.seven,
     title: "Employees",
     icon: <FaUserLock />,
     link: "/agent",
   },
   {
-    id: "$6",
+    id: ids.eight,
     title: "Leads",
     icon: <IoPeopleOutline />,
     link: "/lead",
   },
   {
-    id: "$7",
+    id: ids.nine,
     title: "Loans",
     icon: <GiTakeMyMoney />,
     link: "/loan",
   },
   {
-    id: "$8",
+    id: ids.ten,
     title: "Pigme",
     icon: <PiCalculatorBold />,
     link: "/pigme",
   },
-  { id: "$9", title: "Auctions ", icon: <RiAuctionLine />, link: "/auction" },
-  { id: "$10", title: "Payments ", icon: <BsCash />, link: "/payment" },
+  { id: ids.eleven, title: "Auctions ", icon: <RiAuctionLine />, link: "/auction" },
+  { id: ids.twelve, title: "Payments ", icon: <BsCash />, link: "/payment" },
   {
-    id: "$11",
+    id: ids.thirteen,
     title: "Reports",
     icon: <GrAnalytics />,
     link: "/reports",
   },
   {
-    id: "$12",
+    id:ids.fourteen,
     title: "Marketing",
     icon: <GoGraph />,
     link: "/marketing",
   },
   {
-    id: "$13",
+    id:ids.fifteen,
     title: "Profile",
     spacing: true,
     icon: <CgProfile />,
     link: "/profile",
   },
   {
-    id: "$14",
+    id: ids.sixteen,
     title: "Other Sites",
     icon: <CgWebsite />,
     submenu: true,
     submenuItems: [
       {
-        id: "#1",
+        id: ids.seventeen,
         title: "Gold Admin",
         link: "http://gold-admin-web.s3-website.eu-north-1.amazonaws.com/",
         newTab:true
       }, // External link
       {
-        id: "#2",
+        id: ids.eighteen,
         title: "Chit Plans Admin",
         link: "https://erp.admin.mychits.co.in/chit-enrollment-plan/admin/",
         newTab:true
       }, // External link
       {
-        id: "#3",
+        id: ids.nineteen,
         title: "Chit Enrollment Request",
         link: "https://erp.admin.mychits.co.in/src/request/enrollment.php?user-role=&user-code=",
         newTab:true
@@ -118,13 +126,13 @@ const MenuSidebar = [
     ],
   },
   {
-    id: "$15",
+    id: ids.twenty,
     title: "Setting",
     icon: <IoIosSettings />,
     link: "/lead-setting",
   },
   {
-    id: "$16",
+    id: ids.twentyOne,
     title: "Help & Support",
     icon: <IoIosHelpCircle />,
     link: "/help",

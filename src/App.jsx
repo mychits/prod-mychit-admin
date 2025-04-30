@@ -37,7 +37,8 @@ import Pigme from "./pages/Pigme";
 import PigmeReport from "./pages/PigmeReport"
 import LoanReport from "./pages/LoanReport"
 import Manager from "./pages/Manager";
-
+import EnrollmentRequestForm from "./pages/EnrollmentRequestForm"
+import EnrollmentRequest from "./pages/EnrollmentRequest";
 function App() {
   return (
     <>
@@ -92,6 +93,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Enroll />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/enrollment-request-form"
+              element={
+                <ProtectedRoute>
+                  <EnrollmentRequestForm />
+                </ProtectedRoute>
+              }
+            />
+              <Route
+              path="/enrollment-request"
+              element={
+                <ProtectedRoute>
+                  <EnrollmentRequest />
                 </ProtectedRoute>
               }
             />
