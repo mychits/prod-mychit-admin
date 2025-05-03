@@ -48,12 +48,6 @@ const MenuSidebar = [
     link: "/enrollment-request",
   },
   {
-    id: ids.six,
-    title: "Managers",
-    icon: <FaPersonCane />,
-    link: "/manager",
-  },
-  {
     id: ids.seven,
     title: "Employees",
     icon: <FaUserLock />,

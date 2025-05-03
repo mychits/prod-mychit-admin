@@ -36,9 +36,9 @@ import Loan from "./pages/Loan";
 import Pigme from "./pages/Pigme";
 import PigmeReport from "./pages/PigmeReport"
 import LoanReport from "./pages/LoanReport"
-import Manager from "./pages/Manager";
 import EnrollmentRequestForm from "./pages/EnrollmentRequestForm"
 import EnrollmentRequest from "./pages/EnrollmentRequest";
+import Designation from "./pages/Designation";
 function App() {
   return (
     <>
@@ -154,10 +154,10 @@ function App() {
             />
 
             <Route
-              path="/manager"
+              path="/designation"
               element={
                 <ProtectedRoute>
-                  <Manager />
+                  <Designation />
                 </ProtectedRoute>
               }
             />
