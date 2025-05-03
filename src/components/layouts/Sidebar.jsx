@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { BsArrowLeftShort, BsChevronDown } from "react-icons/bs";
 import { RiDashboardFill } from "react-icons/ri";
 import { SiGoogleanalytics } from "react-icons/si";
@@ -19,6 +19,7 @@ import { PiCalculatorBold } from "react-icons/pi";
 import { FaPersonCane } from "react-icons/fa6";
 import { FaHandshake } from "react-icons/fa";
 import ids from "../../data/ids"
+import { TbArrowsLeftDown } from "react-icons/tb";
 const MenuSidebar = [
   {
     id: ids.one,
@@ -134,6 +135,7 @@ const MenuSidebar = [
 ];
 
 const Sidebar = () => {
+  const ref = useRef(null);
   const [open, setOpen] = useState(true);
   const [submenuOpenIndex, setSubmenuOpenIndex] = useState(null);
   const toggleSubMenu = (index) => {
@@ -147,6 +149,7 @@ const Sidebar = () => {
   return (
     <>
       <div
+      ref={ref}
         className={`bg-secondary min-h-screen max-h-auto p-5 pt-8 ${
           open ? "w-64" : "w-20"
         } duration-300 relative`}
@@ -222,6 +225,9 @@ const Sidebar = () => {
             </Fragment>
           ))}
         </ul>
+        <div className="rounded-md fixed right-1 bottom-5 bg-blue-900 p-2 bg-opacity-30 hover:bg-opacity-100 active:scale-95" onClick={()=>{ref.current.scrollIntoView({behavior:"smooth"})}}>
+        <TbArrowsLeftDown  className="text-3xl text-white rotate-90"/>
+        </div>
       </div>
     </>
   );
