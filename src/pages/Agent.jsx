@@ -228,6 +228,7 @@ const Agent = () => {
           _id: group._id,
           id: index + 1,
           name: group.name,
+          employeeCode: group.employeeCode || "N/A",
           phone_number: group.phone_number,
           password: group.password,
           action: (
@@ -285,6 +286,7 @@ const Agent = () => {
   const columns = [
     { key: "id", header: "SL. NO" },
     { key: "name", header: "Agent Name" },
+    { key: "employeeCode", header: "Employee ID" },
     { key: "phone_number", header: "Agent Phone Number" },
     { key: "password", header: "Agent Password" },
     { key: "action", header: "Action" },
