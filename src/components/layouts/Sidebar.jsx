@@ -136,6 +136,7 @@ const MenuSidebar = [
 
 const Sidebar = () => {
   const ref = useRef(null);
+   const slideLeftRef = useRef(null)
   const [open, setOpen] = useState(true);
   const [submenuOpenIndex, setSubmenuOpenIndex] = useState(null);
   const toggleSubMenu = (index) => {
@@ -207,7 +208,7 @@ const Sidebar = () => {
 
                       <a href={submenuItem.link} rel="noopener noreferrer" target={`${submenuItem.newTab?"_blank":"_self"}`}>
                         <li
-                           
+                            ref={slideRightRef}
                           className={`${
                             submenuItem.red ? "text-red-300" : "text-gray-300"
                           } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${

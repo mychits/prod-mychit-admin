@@ -395,7 +395,29 @@ const Payment = () => {
       setGroupInfo({});
     }
   };
+  const handleCustomer = async (groupId) => {
+    
+    setSelectedGroupId(groupId);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      user_id: groupId,
+    }));
+    setErrors((prevData) => ({ ...prevData, customer: "" }));
 
+    handleGroupChange(groupId);
+    handleGroupAuctionChange(groupId);
+
+    if (groupId) {
+      try {
+        const response = await api.get(`/group/get-by-id-group/${groupId}`);
+        setGroupInfo(response.data || {});
+      } catch (error) {
+        setGroupInfo({});
+      }
+    } else {
+      setGroupInfo({});
+    }
+  };
   const handleGroupPayment = async (groupId) => {
     setSelectedAuctionGroupId(groupId);
     handleGroupPaymentChange(groupId);
@@ -904,20 +926,30 @@ const Payment = () => {
                   >
                     Customer
                   </label>
-                  <select
-                    value={selectedGroupId}
-                    onChange={handleGroup}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+
+                  <Select
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Or Search Customer"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    
+                    filterOption={(input, option) =>
+                      option.children
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={selectedGroupId || undefined}
+                    onChange={handleCustomer}
                   >
-                    <option value="" hidden>
-                      Select Customer
-                    </option>
+                   
                     {groups.map((group) => (
-                      <option key={group._id} value={group._id}>
+                      <Select.Option key={group._id} value={group._id}>
                         {group.full_name}
-                      </option>
+                      </Select.Option>
                     ))}
-                  </select>
+                  </Select>
+
                   {errors.customer && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.customer}
