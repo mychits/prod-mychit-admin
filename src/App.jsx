@@ -42,7 +42,7 @@ import Designation from "./pages/Designation";
 function App() {
   return (
     <>
-      <div className="overflow-x-hidden">
+      <div className="overflow-x">
         <Suspense fallback={<CircularLoader seconds={30} />}>
           <Routes>
             <Route path="/" element={<Login />} />

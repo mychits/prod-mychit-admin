@@ -21,7 +21,7 @@ const AllUserReport = () => {
         const reportResponse = await api.get("/user/all-customers-report");
         const usersList = [];
         let count =0;
-        console.log(reportResponse)
+        console.info(reportResponse.data)
         reportResponse.data.forEach((usrData) => {
           
           if (usrData?.data) {
@@ -45,8 +45,14 @@ const AllUserReport = () => {
                   customerId: usrData.customer_id,
                   amountPaid: totalPaidAmount,
                   paymentsTicket: data.payments.ticket,
+                  groupValue:data?.enrollment?.group?.group_value,
                   groupName: data.enrollment.group.group_name,
                   profit: totalProfit,
+                  agent:data?.enrollment?.agent,
+                  reffered_customer:data?.enrollment?.reffered_customer,
+                  reffered_lead:data?.enrollment?.reffered_lead,
+                  payment_type:data?.enrollment?.payment_type,
+                  referred_type:data?.enrollment?.referred_type,
                   totalToBePaid:
                     groupType === "double"
                       ? groupInstall * auctionCount + groupInstall
@@ -65,7 +71,7 @@ const AllUserReport = () => {
                         firstDividentHead -
                         totalPaidAmount,
                 };
-
+console.info(tempUsr,)
                 usersList.push(tempUsr);
               }
             });
@@ -107,6 +113,12 @@ const AllUserReport = () => {
     { key: "userPhone", header: "Phone Number" },
     { key: "customerId", header: "Customer Id" },
     { key: "groupName", header: "Group Name" },
+    { key: "groupValue", header: "Group Value" },
+    { key: "referred_type", header: "Referred Type" },
+    { key: "agent", header: "Referred Agent" },
+    { key: "reffered_customer", header: "Referred  Customer" },
+    { key: "reffered_lead", header: "Referred Lead" },
+    { key: "payment_type", header: "Payment Type" },
     { key: "paymentsTicket", header: "Ticket" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
     { key: "profit", header: "Profit" },
