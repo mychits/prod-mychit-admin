@@ -252,7 +252,10 @@ const Receipt = () => {
             ticket: group?.ticket,
             amount: group?.amount,
             mode: group?.pay_type,
-            collected_by: group?.collected_by?.name || "Admin",
+            collected_by:
+              group?.collected_by?.name ||
+              group?.admin_type?.admin_name ||
+              "Super Admin",
             action: (
               <div className="flex justify-center gap-2">
                 <Dropdown
@@ -262,7 +265,7 @@ const Receipt = () => {
                         key: "1",
                         label: (
                           <Link
-                          target="_blank"
+                            target="_blank"
                             to={`/print/${group._id}`}
                             className="text-blue-600 "
                           >

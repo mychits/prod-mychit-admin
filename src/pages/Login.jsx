@@ -27,6 +27,7 @@ const Login = () => {
 
       const { token } = response.data;
       localStorage.setItem("token", token);
+      localStorage.setItem("user",JSON.stringify(response?.data?.admin))
       navigate("/dashboard");
       console.log("Login successful:", token);
     } catch (error) {

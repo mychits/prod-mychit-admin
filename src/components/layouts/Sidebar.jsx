@@ -136,7 +136,6 @@ const MenuSidebar = [
 
 const Sidebar = () => {
   const ref = useRef(null);
-   const slideLeftRef = useRef(null)
   const [open, setOpen] = useState(true);
   const [submenuOpenIndex, setSubmenuOpenIndex] = useState(null);
   const toggleSubMenu = (index) => {

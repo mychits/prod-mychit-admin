@@ -187,6 +187,17 @@ const Payment = () => {
   }, [receiptNo]);
 
   useEffect(() => {
+    const usr = localStorage.getItem("user");
+    let admin_type = null;
+
+    try {
+      if (usr) {
+        admin_type = JSON.parse(usr);
+      }
+    } catch (e) {
+      console.error("Failed to parse user from localStorage:", e);
+    }
+
     const fetchAllPayments = async () => {
       try {
         setTablePayments([]);
@@ -206,7 +217,10 @@ const Payment = () => {
               old_receipt: group.old_receipt_no,
               amount: group.amount,
               date: formatPayDate(group.pay_date),
-              collected_by: group?.collected_by?.name || "Admin",
+              collected_by:
+                group?.collected_by?.name ||
+                group?.admin_type?.admin_name ||
+                "Super Admin",
               action: (
                 <div className="flex justify-center gap-2">
                   <Dropdown
@@ -396,7 +410,6 @@ const Payment = () => {
     }
   };
   const handleCustomer = async (groupId) => {
-    
     setSelectedGroupId(groupId);
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -435,7 +448,7 @@ const Payment = () => {
       let url;
       if (groupId === "all") {
         url = "/payment/get-payment";
-        setEnableGroupColumn(true)
+        setEnableGroupColumn(true);
       } else {
         url = `/payment/get-group-payment/${groupId}`;
         setEnableGroupColumn(false);
@@ -447,55 +460,59 @@ const Payment = () => {
 
         if (response.data && response.data.length > 0) {
           const formattedData = response.data.map((group, index) => {
-             if (!group?.group_id?.group_name) return {};
-            return ({
-            _id: group._id,
-            id: index + 1,
-            name: group?.user_id?.full_name,
-            phone_number: group?.user_id?.phone_number,
-            group_name: group?.group_id?.group_name,
-            ticket: group.ticket,
-            receipt: group.receipt_no,
-            old_receipt: group.old_receipt_no,
-            amount: group.amount,
-            date: group?.pay_date.split("T"),
-            collected_by: group?.collected_by?.name || "Admin",
-            action: (
-              <div className="flex justify-center gap-2">
-                <Dropdown
-                  menu={{
-                    items: [
-                      {
-                        key: "1",
-                        label: (
-                          <Link
-                            to={`/print/${group._id}`}
-                            className="text-blue-600 "
-                          >
-                            Print
-                          </Link>
-                        ),
-                      },
-                      {
-                        key: "2",
-                        label: (
-                          <div
-                            className="text-red-600 "
-                            onClick={() => handleDeleteModalOpen(group._id)}
-                          >
-                            Delete
-                          </div>
-                        ),
-                      },
-                    ],
-                  }}
-                  placement="bottomLeft"
-                >
-                  <IoMdMore className="text-bold" />
-                </Dropdown>
-              </div>
-            ),
-          })});
+            if (!group?.group_id?.group_name) return {};
+            return {
+              _id: group._id,
+              id: index + 1,
+              name: group?.user_id?.full_name,
+              phone_number: group?.user_id?.phone_number,
+              group_name: group?.group_id?.group_name,
+              ticket: group.ticket,
+              receipt: group.receipt_no,
+              old_receipt: group.old_receipt_no,
+              amount: group.amount,
+              date: group?.pay_date.split("T"),
+              collected_by:
+                group?.collected_by?.name ||
+                group?.admin_type?.admin_name ||
+                "Super Admin",
+              action: (
+                <div className="flex justify-center gap-2">
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          key: "1",
+                          label: (
+                            <Link
+                              to={`/print/${group._id}`}
+                              className="text-blue-600 "
+                            >
+                              Print
+                            </Link>
+                          ),
+                        },
+                        {
+                          key: "2",
+                          label: (
+                            <div
+                              className="text-red-600 "
+                              onClick={() => handleDeleteModalOpen(group._id)}
+                            >
+                              Delete
+                            </div>
+                          ),
+                        },
+                      ],
+                    }}
+                    placement="bottomLeft"
+                  >
+                    <IoMdMore className="text-bold" />
+                  </Dropdown>
+                </div>
+              ),
+            };
+          });
           setTablePayments(formattedData);
         } else {
           setFilteredAuction([]);
@@ -609,17 +626,31 @@ const Payment = () => {
         }));
         setShowModal(false);
         let payload;
+        const usr = localStorage.getItem("user");
+        let admin_type = null;
+        try {
+          if (usr) {
+            admin_type = JSON.parse(usr);
+          }
+        } catch (e) {
+          console.error("Failed to parse user from localStorage:", e);
+        }
+
         if (paymentFor === dataPaymentsFor.typeChit) {
           const { loan, pigme, ...chitPayload } = formData;
           payload = chitPayload;
+          payload.admin_type =admin_type?._id
+
         } else if (paymentFor === dataPaymentsFor.typeLoan) {
           const { group_id, ticket, pigme, ...loanPayload } = formData;
           payload = loanPayload;
           payload.pay_for = "Loan";
+          payload.admin_type =admin_type?._id
         } else if (paymentFor === dataPaymentsFor.typePigme) {
           const { group_id, ticket, loan, ...pigmePayload } = formData;
           payload = pigmePayload;
           payload.pay_for = "Pigme";
+          payload.admin_type =admin_type?._id;
         }
         const response = await api.post("/payment/add-payment", payload);
         if (response.status === 201) {
@@ -928,11 +959,10 @@ const Payment = () => {
                   </label>
 
                   <Select
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                     placeholder="Select Or Search Customer"
                     popupMatchSelectWidth={false}
                     showSearch
-                    
                     filterOption={(input, option) =>
                       option.children
                         .toString()
@@ -942,7 +972,6 @@ const Payment = () => {
                     value={selectedGroupId || undefined}
                     onChange={handleCustomer}
                   >
-                   
                     {groups.map((group) => (
                       <Select.Option key={group._id} value={group._id}>
                         {group.full_name}

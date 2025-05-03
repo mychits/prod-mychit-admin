@@ -1,29 +1,47 @@
 import { IoIosLogOut } from "react-icons/io";
 import { MdMenu } from "react-icons/md";
 import { IoIosNotifications } from "react-icons/io";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavbarMenu } from "../../data/menu";
 import ResponsiveMenu from "./ResponsiveMenu";
 import Modal from "../modals/Modal";
 import { AiTwotoneGold } from "react-icons/ai";
 import { NavLink } from "react-router-dom";
 import GlobalSearchBar from "../search/GlobalSearchBar";
+import { CgProfile } from "react-icons/cg";
+const Navbar = ({
+  onGlobalSearchChangeHandler = () => {},
+  visibility = false,
+}) => {
+  const [adminName, setAdminName] = useState("");
+  useEffect(() => {
+    try {
+      const usr = localStorage.getItem("user");
+      if (usr) {
+        const admin = JSON.parse(usr);
+        setAdminName(admin?.admin_name || "Super Admin");
+      }
+    } catch (e) {
+      console.error("Failed to parse user from localStorage:", e);
+    }
+  });
 
-const Navbar = ({onGlobalSearchChangeHandler=()=>{},visibility=false}) => {
-  
   const [open, setOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   return (
     <>
       <nav className="bg-white w-full fixed top-0 left-0 z-10 shadow-md">
-        <div className="container flex justify-between items-center py-2 px-10">
+        <div className=" flex justify-between items-center py-2 px-10">
           <div className="text-2xl flex items-center gap-2 font-bold py-4 uppercase">
             <AiTwotoneGold />
             <p>MyChits</p>
             <p className="text-primary">Chit</p>
           </div>
           <div>
-            <GlobalSearchBar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={visibility}/>
+            <GlobalSearchBar
+              onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+              visibility={visibility}
+            />
           </div>
           <NavLink
             className={({ isActive }) =>
@@ -84,7 +102,7 @@ const Navbar = ({onGlobalSearchChangeHandler=()=>{},visibility=false}) => {
             }
             to={"/marketing/what-add"}
           >
-            Whatsapp 
+            Whatsapp
           </NavLink>
           {/* <div className="hidden md:block">
             <ul className="flex items-center gap-6 text-gray">
@@ -112,6 +130,12 @@ const Navbar = ({onGlobalSearchChangeHandler=()=>{},visibility=false}) => {
             >
               Gold Analytics
             </button> */}
+              <div className="rounded-md bg-red-100 flex p-2 justify-center items-center">
+            <div >
+              <CgProfile className="text-4xl text-red-600 text-center m-1" />
+            </div>
+            <p className="text-black font-semibold  text-center">{adminName}</p>
+          </div>
             <a
               href="/"
               onClick={() => {
@@ -125,6 +149,7 @@ const Navbar = ({onGlobalSearchChangeHandler=()=>{},visibility=false}) => {
           <div className="md:hidden" onClick={() => setOpen(!open)}>
             <MdMenu className="text-4xl" />
           </div>
+        
         </div>
       </nav>
       <ResponsiveMenu open={open} menu={NavbarMenu} />

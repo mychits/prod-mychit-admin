@@ -229,7 +229,9 @@ const Daybook = () => {
             old_receipt_no:group?.old_receipt_no,
             amount: group?.amount,
             mode: group?.pay_type,
-            collected_by: group?.collected_by?.name || "Admin",
+            collected_by: group?.collected_by?.name ||
+            group?.admin_type?.admin_name ||
+            "Super Admin",
             action:( <Dropdown
                               menu={{
                                 items: [

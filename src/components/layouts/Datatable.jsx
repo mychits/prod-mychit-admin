@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Download,
@@ -19,8 +19,6 @@ const DataTable = ({
   columns = [],
   exportedFileName = "export.csv",
 }) => {
-  const slideLeftRef = useRef(null)
-  const slideRightRef = useRef(null)
   const safeData = Array.isArray(data) ? data : [];
   const safeColumns = Array.isArray(columns) ? columns : [];
 
@@ -198,7 +196,6 @@ const DataTable = ({
 
   return (
     <div className="w-full space-y-4">
-      <div onClick={()=>{slideRightRef.current.scrollIntoView({behavior:"smooth"})}}  >next</div>
       <div className="flex justify-between items-center gap-4">
         <div className="flex items-center gap-2 relative">
           <input
@@ -224,7 +221,6 @@ const DataTable = ({
               Export Excel
             </button>
             <button
-           
               onClick={printToPDF}
               className="flex items-center gap-2 px-4 py-2 rounded-md bg-green-700 hover:bg-green-900 text-white 
     transition-colors duration-200 
@@ -237,8 +233,8 @@ const DataTable = ({
         )}
       </div>
 
-      <div className="border rounded-lg overflow-x-auto" >
-        <table className="min-w-full divide-y divide-gray-200" >
+      <div className="border rounded-lg overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               {safeColumns.map((column) => (
@@ -247,7 +243,7 @@ const DataTable = ({
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort(column.key)}
                 >
-                  <div className="flex items-center gap-2"ref={slideRightRef} >
+                  <div className="flex items-center gap-2">
                     {column.header}
                     {sortConfig.key === column.key && (
                       <span>{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
