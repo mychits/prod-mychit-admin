@@ -199,6 +199,7 @@ const Agent = () => {
       try {
         setIsLoading(true);
         const response = await api.get("/agent/get-agent");
+        console.info(response.data,"this is data")
         setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
           _id: group._id,
@@ -206,6 +207,7 @@ const Agent = () => {
           name: group.name,
           phone_number: group.phone_number,
           password: group.password,
+          designation:group?.designation_id?.title,
           action: (
             <div className="flex justify-center  gap-2">
               {/* <button
@@ -262,6 +264,7 @@ const Agent = () => {
     { key: "id", header: "SL. NO" },
     { key: "name", header: "Agent Name" },
     { key: "phone_number", header: "Agent Phone Number" },
+    { key: "designation", header: "Designation" },
     { key: "password", header: "Agent Password" },
     { key: "action", header: "Action" },
   ];
