@@ -25,12 +25,14 @@ const Agent = () => {
   const [errors, setErrors] = useState({});
   const [searchText, setSearchText] = useState("");
   const [selectedManagerId, setSelectedManagerId] = useState("");
+  const [selectedReportingManagerId, setSelectedReportingManagerId] = useState("");
   const [managers, setManagers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
   };
+  const [selectedManagerTitle, setSelectedManagerTitle] = useState("");
 
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
@@ -119,7 +121,7 @@ const Agent = () => {
     } else if (!regex.aadhaar.test(data.adhaar_no)) {
       newErrors.adhaar_no = "Invalid Aadhaar number (12 digits required)";
     }
-    if(!selectedManagerId){
+    if (!selectedManagerId) {
       newErrors.reporting_manager = "Reporting Manager is required";
     }
     if (!data.pan_no) {
@@ -147,7 +149,9 @@ const Agent = () => {
         const dataToSend = {
           ...formData,
           designation_id: selectedManagerId,
+          reporting_manager_id: selectedReportingManagerId
         };
+        console.log(dataToSend)
         const response = await api.post("/agent/add-agent", dataToSend, {
           headers: {
             "Content-Type": "application/json",
@@ -166,11 +170,13 @@ const Agent = () => {
           pan_no: "",
         });
         setSelectedManagerId("");
-        setAlertConfig({
-          visibility: true,
-          message: "Agent Added Successfully",
-          type: "success",
-        });
+        setSelectedReportingManagerId("")
+        console.log("success")
+        // setAlertConfig({
+        //   visibility: true,
+        //   message: "Agent Added Successfully",
+        //   type: "success",
+        // });
       }
     } catch (error) {
       console.error("Error adding agent:", error);
@@ -179,17 +185,19 @@ const Agent = () => {
         error.response.data &&
         error.response.data.message
       ) {
-        setAlertConfig({
-          visibility: true,
-          message: `${error.response.data.message}`,
-          type: "error",
-        });
+        console.log("error")
+        // setAlertConfig({
+        //   visibility: true,
+        //   message: `${error.response.data.message}`,
+        //   type: "error",
+        // });
       } else {
-        setAlertConfig({
-          visibility: true,
-          message: "An unexpected error occurred. Please try again.",
-          type: "error",
-        });
+        console.log("error")
+        // setAlertConfig({
+        //   visibility: true,
+        //   message: "An unexpected error occurred. Please try again.",
+        //   type: "error",
+        // });
       }
     }
   };
@@ -199,7 +207,7 @@ const Agent = () => {
       try {
         setIsLoading(true);
         const response = await api.get("/agent/get-agent");
-        console.info(response.data,"this is data")
+        console.info(response.data, "this is data")
         setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
           _id: group._id,
@@ -207,7 +215,7 @@ const Agent = () => {
           name: group.name,
           phone_number: group.phone_number,
           password: group.password,
-          designation:group?.designation_id?.title,
+          designation: group?.designation_id?.title,
           action: (
             <div className="flex justify-center  gap-2">
               {/* <button
@@ -253,7 +261,7 @@ const Agent = () => {
         setTableAgents(formattedData);
       } catch (error) {
         console.error("Error fetching user data:", error);
-      }finally{
+      } finally {
         setIsLoading(false);
       }
     };
@@ -298,7 +306,9 @@ const Agent = () => {
         pan_no: response.data.pan_no,
         address: response.data.address,
       });
-      setSelectedManagerId(response.data.designation_id || "");
+      setSelectedManagerId(response.data.designation_id?._id || "");
+      setSelectedReportingManagerId(response.data.reporting_manager_id || "");
+      setSelectedManagerTitle(response.data?.designation_id?.title)
       setShowModalUpdate(true);
       setErrors({});
     } catch (error) {
@@ -339,6 +349,7 @@ const Agent = () => {
         const dataToSend = {
           ...updateFormData,
           designation_id: selectedManagerId,
+          reporting_manager_id: selectedReportingManagerId
         };
         const response = await api.put(
           `/agent/update-agent/${currentUpdateUser._id}`,
@@ -346,6 +357,7 @@ const Agent = () => {
         );
         setShowModalUpdate(false);
         setSelectedManagerId("");
+        setSelectedReportingManagerId("")
         setAlertConfig({
           visibility: true,
           message: "Agent Updated Successfully",
@@ -389,6 +401,13 @@ const Agent = () => {
   const handleManager = async (event) => {
     const groupId = event.target.value;
     setSelectedManagerId(groupId);
+    const selected = managers.find((mgr) => mgr._id === groupId);
+    setSelectedManagerTitle(selected?.title || "");
+  };
+
+  const handleReportingManager = async (event) => {
+    const reportingId = event.target.value;
+    setSelectedReportingManagerId(reportingId);
   };
 
   return (
@@ -426,70 +445,16 @@ const Agent = () => {
                 updateHandler={handleUpdateModalOpen}
                 data={filterOption(TableAgents, searchText)}
                 columns={columns}
-                exportedFileName={`Employees-${
-                  TableAgents.length > 0
-                    ? TableAgents[0].name +
-                      " to " +
-                      TableAgents[TableAgents.length - 1].name
-                    : "empty"
-                }.csv`}
+                exportedFileName={`Employees-${TableAgents.length > 0
+                  ? TableAgents[0].name +
+                  " to " +
+                  TableAgents[TableAgents.length - 1].name
+                  : "empty"
+                  }.csv`}
               />
             ) : (
-              <CircularLoader isLoading={isLoading} failure={TableAgents?.length <= 0} data="Employee Data"/>
+              <CircularLoader isLoading={isLoading} failure={TableAgents?.length <= 0} data="Employee Data" />
             )}
-            {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {filteredUsers.length === 0 ? (
-                <div className="flex justify-center items-center h-64">
-                  <p className="text-gray-500 text-lg">
-                    No agents added yet
-                  </p>
-                </div>
-              ) : (
-                filteredUsers.map((user) => (
-                  <div
-                    key={user.id}
-                    className="bg-white border border-gray-300 rounded-xl p-6 shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-xl"
-                  >
-                    <div className="flex flex-col items-center">
-                      <h2 className="text-xl font-bold mb-3 text-gray-700 text-center">
-                        {user.name}
-                      </h2>
-                      <div className="flex gap-16 py-3">
-                        <p className="text-gray-500 mb-2 text-center">
-                          <span className="font-medium text-gray-700 text-xl">
-                            {user.password}
-                          </span>
-                          <br />
-                          <span className="font-bold text-sm">Password</span>
-                        </p>
-                        <p className="text-gray-500 mb-4 text-center">
-                          <span className="font-medium text-gray-700 text-xl">
-                            {user.phone_number}
-                          </span>
-                          <br />
-                          <span className="font-bold text-sm">Phone</span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => handleUpdateModalOpen(user._id)}
-                        className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-                      >
-                        <CiEdit color="green" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteModalOpen(user._id)}
-                        className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-                      >
-                        <MdDelete color="red" />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div> */}
           </div>
         </div>
 
@@ -706,6 +671,36 @@ const Agent = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
                 )}
               </div>
+              {(selectedManagerTitle === "Sales Excecutive" ||
+                selectedManagerTitle === "Business Agent" ||
+                selectedManagerTitle === "Office Executive")
+                && (
+                  <div className="w-full">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="category"
+                    >
+                      Reporting Manager
+                    </label>
+                    <select
+                      value={selectedReportingManagerId}
+                      onChange={handleReportingManager}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    >
+                      <option value="" hidden>
+                        Select Reporting Manager
+                      </option>
+                      {users.map((group) => (
+                        <option key={group._id} value={group._id}>
+                          {group.name} - {group?.designation_id?.title}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.reporting_manager && (
+                      <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
+                    )}
+                  </div>
+                )}
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
@@ -912,6 +907,36 @@ const Agent = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.designation_id}</p>
                 )}
               </div>
+              {(selectedManagerTitle === "Sales Excecutive" ||
+                selectedManagerTitle === "Business Agent" ||
+                selectedManagerTitle === "Office Executive")
+                && (
+                  <div className="w-full">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="category"
+                    >
+                      Reporting Manager
+                    </label>
+                    <select
+                      value={selectedReportingManagerId}
+                      onChange={handleReportingManager}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    >
+                      <option value="" hidden>
+                        Select Reporting Manager
+                      </option>
+                      {users.map((group) => (
+                        <option key={group._id} value={group._id}>
+                          {group.name} - {group?.designation_id?.title}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.reporting_manager && (
+                      <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
+                    )}
+                  </div>
+                )}
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
