@@ -22,6 +22,7 @@ const AuctionReport = lazy(() => import("./pages/AuctionReport"));
 const Print = lazy(() => import("./pages/Print"));
 const AppSettings = lazy(() => import("./pages/AppSettings"));
 const GroupSettings = lazy(() => import("./pages/GroupSettings"));
+const Task = lazy(() => import("./pages/Task")); 
 import ProtectedRoute from "./components/authentication/ProtectedRoute";
 import CircularLoader from "./components/loaders/CircularLoader";
 import Marketing from "./pages/Marketing";
@@ -67,6 +68,16 @@ function App() {
               }
             />
 
+<Route
+  path="/task"
+  element={
+    <ProtectedRoute>
+      <Task />
+    </ProtectedRoute>
+  }
+/>
+
+
             <Route
               path="/group"
               element={
@@ -97,22 +108,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Enroll />
-                </ProtectedRoute>
-              }
-            />
-             <Route
-              path="/enrollment-request-form"
-              element={
-                <ProtectedRoute>
-                  <EnrollmentRequestForm />
-                </ProtectedRoute>
-              }
-            />
-              <Route
-              path="/enrollment-request"
-              element={
-                <ProtectedRoute>
-                  <EnrollmentRequest />
                 </ProtectedRoute>
               }
             />

@@ -22,14 +22,14 @@ import ids from "../../data/ids";
 import { TbArrowsLeftDown } from "react-icons/tb";
 const MenuSidebar = [
   {
-    id: ids.one,
+    id: "$1",
     title: "Dashboard",
     icon: <RiDashboardFill />,
     link: "/dashboard",
   },
   { title: "Analytics", icon: <SiGoogleanalytics />, link: "/analytics" },
   {
-    id: ids.two,
+    id: "$2",
     title: "Groups ",
     spacing: true,
     icon: <TbCategoryPlus />,
@@ -42,16 +42,17 @@ const MenuSidebar = [
     link: "/user",
   },
   {
-    id: ids.four,
+    id: "$4",
     title: "Enrollments ",
     icon: <FaPeopleArrows />,
     link: "/enrollment",
   },
+  
   {
-    id: ids.five,
-    title: "Enrollment Requests ",
-    icon: <FaHandshake />,
-    link: "/enrollment-request",
+    id: "$18",
+    title: "Tasks",
+    icon: <FaUserLock />, 
+    link: "/task",
   },
   {
     id: ids.seven,
@@ -59,20 +60,21 @@ const MenuSidebar = [
     icon: <FaUserLock />,
     link: "/agent",
   },
+  
   {
-    id: ids.eight,
+    id: "$7",
     title: "Leads",
     icon: <IoPeopleOutline />,
     link: "/lead",
   },
   {
-    id: ids.nine,
+    id: "$8",
     title: "Loans",
     icon: <GiTakeMyMoney />,
     link: "/loan",
   },
   {
-    id: ids.ten,
+    id: "$9",
     title: "Pigme",
     icon: <PiCalculatorBold />,
     link: "/pigme",
@@ -85,7 +87,7 @@ const MenuSidebar = [
   },
   { id: ids.twelve, title: "Payments ", icon: <BsCash />, link: "/payment" },
   {
-    id: ids.thirteen,
+    id: "$12",
     title: "Reports",
     icon: <GrAnalytics />,
     link: "/reports",
@@ -104,25 +106,25 @@ const MenuSidebar = [
     link: "/profile",
   },
   {
-    id: ids.sixteen,
+    id: "$15",
     title: "Other Sites",
     icon: <CgWebsite />,
     submenu: true,
     submenuItems: [
       {
-        id: ids.seventeen,
+        id: "#1",
         title: "Gold Admin",
         link: "http://gold-admin-web.s3-website.eu-north-1.amazonaws.com/",
         newTab: true,
       }, // External link
       {
-        id: ids.eighteen,
+        id: "#2",
         title: "Chit Plans Admin",
         link: "https://erp.admin.mychits.co.in/chit-enrollment-plan/admin/",
         newTab: true,
       }, // External link
       {
-        id: ids.nineteen,
+        id: "#3",
         title: "Chit Enrollment Request",
         link: "https://erp.admin.mychits.co.in/src/request/enrollment.php?user-role=&user-code=",
         newTab: true,
@@ -131,13 +133,13 @@ const MenuSidebar = [
     ],
   },
   {
-    id: ids.twenty,
+    id: "$16",
     title: "Setting",
     icon: <IoIosSettings />,
     link: "/lead-setting",
   },
   {
-    id: ids.twentyOne,
+    id: "$17",
     title: "Help & Support",
     icon: <IoIosHelpCircle />,
     link: "/help",
