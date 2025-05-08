@@ -18,7 +18,7 @@ import { GiTakeMyMoney } from "react-icons/gi";
 import { PiCalculatorBold } from "react-icons/pi";
 import { FaPersonCane } from "react-icons/fa6";
 import { FaHandshake } from "react-icons/fa";
-import ids from "../../data/ids"
+import ids from "../../data/ids";
 import { TbArrowsLeftDown } from "react-icons/tb";
 const MenuSidebar = [
   {
@@ -35,7 +35,12 @@ const MenuSidebar = [
     icon: <TbCategoryPlus />,
     link: "/group",
   },
-  { id: ids.three, title: "Customers ", icon: <IoIosPersonAdd />, link: "/user" },
+  {
+    id: ids.three,
+    title: "Customers ",
+    icon: <IoIosPersonAdd />,
+    link: "/user",
+  },
   {
     id: ids.four,
     title: "Enrollments ",
@@ -45,7 +50,7 @@ const MenuSidebar = [
   {
     id: ids.five,
     title: "Enrollment Requests ",
-    icon:<FaHandshake  />,
+    icon: <FaHandshake />,
     link: "/enrollment-request",
   },
   {
@@ -72,7 +77,12 @@ const MenuSidebar = [
     icon: <PiCalculatorBold />,
     link: "/pigme",
   },
-  { id: ids.eleven, title: "Auctions ", icon: <RiAuctionLine />, link: "/auction" },
+  {
+    id: ids.eleven,
+    title: "Auctions ",
+    icon: <RiAuctionLine />,
+    link: "/auction",
+  },
   { id: ids.twelve, title: "Payments ", icon: <BsCash />, link: "/payment" },
   {
     id: ids.thirteen,
@@ -81,13 +91,13 @@ const MenuSidebar = [
     link: "/reports",
   },
   {
-    id:ids.fourteen,
+    id: ids.fourteen,
     title: "Marketing",
     icon: <GoGraph />,
     link: "/marketing",
   },
   {
-    id:ids.fifteen,
+    id: ids.fifteen,
     title: "Profile",
     spacing: true,
     icon: <CgProfile />,
@@ -103,19 +113,19 @@ const MenuSidebar = [
         id: ids.seventeen,
         title: "Gold Admin",
         link: "http://gold-admin-web.s3-website.eu-north-1.amazonaws.com/",
-        newTab:true
+        newTab: true,
       }, // External link
       {
         id: ids.eighteen,
         title: "Chit Plans Admin",
         link: "https://erp.admin.mychits.co.in/chit-enrollment-plan/admin/",
-        newTab:true
+        newTab: true,
       }, // External link
       {
         id: ids.nineteen,
         title: "Chit Enrollment Request",
         link: "https://erp.admin.mychits.co.in/src/request/enrollment.php?user-role=&user-code=",
-        newTab:true
+        newTab: true,
       }, // External link
       // { title: "Consolidated", link: "/consolidate" },
     ],
@@ -149,7 +159,7 @@ const Sidebar = () => {
   return (
     <>
       <div
-      ref={ref}
+        ref={ref}
         className={`bg-secondary min-h-screen max-h-auto p-5 pt-8 ${
           open ? "w-64" : "w-20"
         } duration-300 relative`}
@@ -178,7 +188,7 @@ const Sidebar = () => {
         <ul className="pt-2">
           {MenuSidebar.map((menu, index) => (
             <Fragment key={menu.id}>
-              <a href={menu.link} onClick={() => toggleSubMenu(index)} >
+              <a href={menu.link} onClick={() => toggleSubMenu(index)}>
                 <li
                   className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md ${
                     menu.spacing ? "mt-9" : "mt-2"
@@ -205,9 +215,12 @@ const Sidebar = () => {
                     <Fragment key={submenuItem.id}>
                       {/* Use target="_blank" for external links */}
 
-                      <a href={submenuItem.link} rel="noopener noreferrer" target={`${submenuItem.newTab?"_blank":"_self"}`}>
+                      <a
+                        href={submenuItem.link}
+                        rel="noopener noreferrer"
+                        target={`${submenuItem.newTab ? "_blank" : "_self"}`}
+                      >
                         <li
-                            ref={slideRightRef}
                           className={`${
                             submenuItem.red ? "text-red-300" : "text-gray-300"
                           } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
@@ -225,8 +238,13 @@ const Sidebar = () => {
             </Fragment>
           ))}
         </ul>
-        <div className="rounded-md fixed right-1 bottom-5 bg-blue-900 p-2 bg-opacity-30 hover:bg-opacity-100 active:scale-95" onClick={()=>{ref.current.scrollIntoView({behavior:"smooth"})}}>
-        <TbArrowsLeftDown  className="text-3xl text-white rotate-90"/>
+        <div
+          className="rounded-md fixed right-1 bottom-5 bg-blue-900 p-2 bg-opacity-30 hover:bg-opacity-100 active:scale-95"
+          onClick={() => {
+            ref.current.scrollIntoView({ behavior: "smooth" });
+          }}
+        >
+          <TbArrowsLeftDown className="text-3xl text-white rotate-90" />
         </div>
       </div>
     </>

@@ -796,6 +796,29 @@ const Agent = () => {
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
+              <div className="w-full">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="date"
+                  >
+                    Password
+                  </label>
+                  <input
+                    type="text"
+                    name="password"
+                    value={updateFormData.password}
+                    onChange={handleInputChange}
+                    id="update-password"
+                    placeholder="Enter Password"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                  {errors.password && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.password}
+                    </p>
+                  )}
+                </div>
                 <div className="w-full">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"

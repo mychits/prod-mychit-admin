@@ -14,8 +14,10 @@ import { FaPeopleArrows, FaLayerGroup, FaUserLock } from "react-icons/fa";
 import { GiGoldBar } from "react-icons/gi";
 import { IoPeopleOutline } from "react-icons/io5";
 import { TiSpanner } from "react-icons/ti";
+import { RiAdminLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { Fragment } from "react";
+import { BsPersonCheck } from "react-icons/bs";
 const MenuSidebar = [
   { title: "Dashboard", icon: <RiDashboardFill />, link: "/dashboard" },
   {
@@ -33,17 +35,27 @@ const MenuSidebar = [
   },
   {
     title: "Designations",
-    spacing: true,
+   
     icon: <IoPeopleOutline />,
     link: "/designation",
   },
-  { title: "Payments ", icon: <BsCash />, link: "/payment" },
+  {
+    title: "Administrative Privileges",
+    icon: <RiAdminLine  />,
+    link: "/administrative-privileges",
+  },
+  {
+    title: "Admin Access Rights",
+    icon: <BsPersonCheck    />,
+    link: "/admin-access-rights",
+  },
   {
     title: "Profile",
     spacing: true,
     icon: <CgProfile />,
     link: "/profile",
   },
+  
   { title: "Help & Support", icon: <IoIosHelpCircle />, link: "/help" },
 ];
 
@@ -60,7 +72,7 @@ const SettingSidebar = () => {
   return (
     <>
       <div
-        className={`bg-secondary h-auto p-5 pt-8 ${
+        className={`bg-secondary  min-h-screen p-5 pt-8 ${
           open ? "w-64" : "w-20"
         } duration-300 relative`}
       >

@@ -1,5 +1,5 @@
 import { Route, Routes, useLocation } from "react-router-dom";
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import Navbar from "./components/layouts/Navbar";
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
@@ -39,7 +39,10 @@ import LoanReport from "./pages/LoanReport"
 import EnrollmentRequestForm from "./pages/EnrollmentRequestForm"
 import EnrollmentRequest from "./pages/EnrollmentRequest";
 import Designation from "./pages/Designation";
+import AdministrativePrivileges from "./pages/AdministrativePrivileges";
+import AdminAccessRights from "./pages/AdminAccessRights";
 function App() {
+
   return (
     <>
       <div className="overflow-x">
@@ -210,7 +213,27 @@ function App() {
                 <Route />
               </Route>
             </Route>
-
+            <Route
+                  path="administrative-privileges"
+                  element={
+                    <ProtectedRoute>
+                      <Navbar />
+                      <AdministrativePrivileges />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route />
+                <Route
+                  path="admin-access-rights"
+                  element={
+                    <ProtectedRoute>
+                      <Navbar />
+                      <AdminAccessRights />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route />
+                
             <Route
               path="/reports"
               element={

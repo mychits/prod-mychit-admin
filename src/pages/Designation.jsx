@@ -1,12 +1,9 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import SettingSidebar from "../components/layouts/SettingSidebar";
-import { MdDelete } from "react-icons/md";
-import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
 import { Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
-import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
@@ -371,7 +368,7 @@ const Designation = () => {
                                 TableAgents[TableAgents.length - 1].name
                                 : "empty"
                                 }.csv`}
-                        />) : <CircularLoader isLoading={isLoading} failure={TableAgents.length <= 0} data="Managers Data" />}
+                        />) : <CircularLoader isLoading={isLoading} failure={TableAgents.length <= 0} data="Designation Data" />}
                     </div>
                 </div>
 
