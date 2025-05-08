@@ -41,6 +41,7 @@ import EnrollmentRequest from "./pages/EnrollmentRequest";
 import Designation from "./pages/Designation";
 import AdministrativePrivileges from "./pages/AdministrativePrivileges";
 import AdminAccessRights from "./pages/AdminAccessRights";
+import EmployeeReport from "./pages/EmployeeReport";
 function App() {
 
   return (
@@ -252,6 +253,7 @@ function App() {
               <Route path="all-user-report" element={<AllUserReport />} />
               <Route path="loan-report" element={<LoanReport />} />
               <Route path="pigme-report" element={<PigmeReport />} />
+              <Route path="employee-report" element={<EmployeeReport />} />
             </Route>
 
             <Route

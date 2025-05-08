@@ -327,7 +327,7 @@ const AdministrativePrivileges = () => {
               <CircularLoader
                 isLoading={isLoading}
                 failure={TableGroups.length <= 0}
-                data={"Group Data"}
+                data={"Sub Admin Data"}
               />
             )}
 
