@@ -5,52 +5,49 @@ import { Link, useSearchParams } from "react-router-dom";
 import api from "../instance/TokenInstance";
 
 const EnrollmentRequestForm = () => {
-  const [groups, setGroups] = useState([]);
-  const [selectedGroup, setSelectedGroup] = useState("");
-  //const [editId, setEditId] = useState(null);
-  // const {group_id} = useSearchParams();
+  const [selectedGroup, setSelectedGroup] = useState(""); 
   const [searchParams] = useSearchParams();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [step, setStep] = useState(1);
 
-  //  set new customer details empty
+ 
   const [enrollData, setEnrollData] = useState({
-    selectedPlan: "",
-    customer_title: "",
-    customer_first_name: "",
-    customer_last_name: "",
-    customer_id: "",
-    customer_gender: "",
-    customer_marital_status: "",
-    customer_dateofbirth: null,
-    customer_nationality: "",
-    customer_village: "",
-    customer_taluk: "",
-    customer_father_name: "",
-    customer_district: "",
-    customer_state: "",
-    customer_mobile_no: "",
-    customer_alternate_number: "",
-    customer_referral_name: "",
-    customer_address: "",
-    customer_mail_id: "",
-    customer_pincode: "",
-    customer_add_nominee: "",
-    customer_nominee_name: "",
-    customer_nominee_dateofbirth: null,
-    customer_nominee_phone_number: "",
-    customer_nominee_relationship: "",
-    customer_aadhar_no: "",
-    customer_pan_no: "",
-    customer_aadhar_frontphoto: "null",
-    customer_aadhar_backphoto: "null",
-    customer_pan_frontphoto: "null",
-    customer_pan_backphoto: "null",
-    customer_profilephoto: "null",
-    customer_bank_name: "",
-    customer_bank_branch_name: "",
-    customer_bank_account_number: "",
-    customer_bank_IFSC_code: "",
+    selected_plan: "",
+    title: "",
+    full_name: "",
+    password:"",
+    gender: "",
+    marital_status: "",
+    dateofbirth: null,
+    nationality: "",
+    village: "",
+    taluk: "",
+    father_name: "",
+    district: "",
+    state: "",
+    phone_number: "",
+    alternate_number: "",
+    referral_name: "",
+    address: "",
+    email: "",
+    pincode: "",
+    nominee_name: "",
+    nominee_dateofbirth: null,
+    nominee_phone_number: "",
+    nominee_relationship: "",
+    adhaar_no: "",
+    pan_no: "",
+    aadhar_frontphoto: "null",
+    aadhar_backphoto: "null",
+    pan_frontphoto: "null",
+    pan_backphoto: "null",
+    profilephoto: "null",
+    bank_name: "",
+    bank_branch_name: "",
+    bank_account_number: "",
+    bank_IFSC_code: "",
+    customer_status: "inactive",
+    track_source: "enrollment_form",
   });
 
   useEffect(() => {
@@ -80,14 +77,19 @@ const EnrollmentRequestForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const url = `enrollment-request/add-enrollment-request-data`;
+    const fullName = `${enrollData.first_name} ${enrollData.last_name}`.trim();
+    const fullNameEnrollData = { ...enrollData, full_name: fullName };
 
+
+    try {
+      const url = `user/add-enrollment-request-data`;
+       
+      
       // Create a new FormData object
       const enrollDataObj = new FormData();
 
       // Exclude selectedPlan from enrollData (because we handle it separately)
-      const { selectedPlan, ...restEnrollData } = enrollData;
+      const { selected_plan, ...restEnrollData } = fullNameEnrollData;
 
       // Append the remaining fields (except selectedPlan)
       Object.entries(restEnrollData).forEach(([key, value]) => {
@@ -105,7 +107,7 @@ const EnrollmentRequestForm = () => {
         selectedGroup.group_install &&
         selectedGroup.group_duration
       )
-        enrollDataObj.append("selectedPlan", selectedGroup._id);
+        enrollDataObj.append("selected_plan", selectedGroup._id);
 
       const config = {
         headers: {
@@ -259,8 +261,8 @@ const EnrollmentRequestForm = () => {
                           Title
                         </h1>
                         <select
-                          name="customer_title"
-                          value={enrollData?.customer_title}
+                          name="title"
+                          value={enrollData?.title}
                           onChange={handleChange}
                           className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
                         >
@@ -274,56 +276,71 @@ const EnrollmentRequestForm = () => {
                       </div>
                       <div className="sm:w-1/2 w-full">
                         <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                          Customer First Name
+                          First Name
                         </h1>
                         <input
                           className="bg-gray-50 w-full p-2 rounded-lg mb-4 mt-1 sm:text-lg text-sm  border border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_first_name"
+                          name="first_name"
                           type="text"
                           required
-                          placeholder="Enter Customer First Name"
-                          value={enrollData?.customer_first_name}
+                          placeholder="Enter First Name"
+                          value={enrollData?.first_name}
                           onChange={handleChange}
                         />
                       </div>
                       <div className="sm:w-1/2 w-full">
                         <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                          Customer Last Name
+                          Last Name
                         </h1>
                         <input
                           className="bg-gray-50 w-full p-2 rounded-lg mb-4 mt-1 sm:text-lg text-sm  border border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_last_name"
+                          name="last_name"
                           type="text"
                           required
-                          placeholder="Enter Customer Last Name"
-                          value={enrollData?.customer_last_name || ""}
+                          placeholder="Enter Last Name"
+                          value={enrollData?.last_name || ""}
                           onChange={handleChange}
                         />
                       </div>
                     </div>
 
                     <div className="sm:flex  gap-4">
-                      <div className="sm:w-1/2 w-full">
+
+                    <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold ">
-                          Customer Date of Birth
+                          Password
                         </h2>
                         <input
                           className="w-full p-2 border rounded-md mb-4 mt-1 placeholder:text-black bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_dateofbirth"
+                          name="password"
+                          type="password"
+                          placeholder="Enter Password"
+                          value={enrollData?.password || ""}
+                          onChange={handleChange}
+                        />
+                      </div>
+
+                      <div className="sm:w-1/2 w-full">
+                        <h2 className="text-left sm:text-lg text-sm font-semibold ">
+                          Date of Birth
+                        </h2>
+                        <input
+                          className="w-full p-2 border rounded-md mb-4 mt-1 placeholder:text-black bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                          name="dateofbirth"
                           type="date"
                           placeholder="dd-mm-yyyy"
-                          value={enrollData?.customer_dateofbirth || ""}
+                          value={enrollData?.dateofbirth || ""}
                           onChange={handleChange}
                         />
                       </div>
 
                       <div className="sm:w-1/2 w-full">
                         <h1 className="text-left sm:text-lg text-sm font-semibold  ">
-                          Customer Gender
+                          Gender
                         </h1>
                         <select
-                          name="customer_gender"
-                          value={enrollData?.customer_gender}
+                          name="gender"
+                          value={enrollData?.gender}
                           onChange={handleChange}
                           className="w-full p-2 border rounded-md mb-4 sm:text-lg text-sm  mt-1 bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
                         >
@@ -337,31 +354,31 @@ const EnrollmentRequestForm = () => {
                     <div className="sm:flex gap-4">
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold ">
-                          Customer Phone Number
+                          Phone Number
                         </h2>
 
                         <input
                           className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_phone_number"
+                          name="phone_number"
                           type="tel"
                           inputMode="numeric"
                           placeholder="Enter Phone Number"
-                          value={enrollData?.customer_phone_number}
+                          value={enrollData?.phone_number}
                           onChange={handleChange}
                         />
                       </div>
 
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold  ">
-                          Customer Email ID
+                          Email ID
                         </h2>
 
                         <input
                           className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_mail_id"
+                          name="email"
                           type="email"
                           placeholder="Enter Email ID"
-                          value={enrollData?.customer_mail_id}
+                          value={enrollData?.email}
                           onChange={handleChange}
                         />
                       </div>
@@ -370,11 +387,11 @@ const EnrollmentRequestForm = () => {
                     <div className="sm:flex gap-4">
                       <div className="sm:w-1/2 w-full">
                         <h1 className="text-left sm:text-lg text-sm font-semibold  ">
-                          Customer Marital Status
+                          Marital Status
                         </h1>
                         <select
-                          name="customer_marital_status"
-                          value={enrollData?.customer_marital_status}
+                          name="marital_status"
+                          value={enrollData?.marital_status}
                           onChange={handleChange}
                           className="w-full p-2 border rounded-md mb-4 sm:text-lg text-sm mt-1 bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
                         >
@@ -386,14 +403,14 @@ const EnrollmentRequestForm = () => {
 
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold  ">
-                          Customer Referral Name
+                          Referral Name
                         </h2>
                         <input
                           className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_referral_name"
+                          name="referral_name"
                           type="text"
-                          placeholder="Enter Customer Referral Name"
-                          value={enrollData?.customer_referral_name}
+                          placeholder="Enter Referral Name"
+                          value={enrollData?.referral_name}
                           onChange={handleChange}
                         />
                       </div>
@@ -402,11 +419,11 @@ const EnrollmentRequestForm = () => {
                     <div className="sm:flex gap-4">
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold ">
-                          Customer Nationality
+                          Nationality
                         </h2>
                         <select
-                          name="customer_nationality"
-                          value={enrollData?.customer_nationality}
+                          name="nationality"
+                          value={enrollData?.nationality}
                           onChange={handleChange}
                           className="w-full p-2 border rounded-md mb-4 sm:text-lg text-sm mt-1 bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
                         >
@@ -422,11 +439,11 @@ const EnrollmentRequestForm = () => {
                         </h2>
                         <input
                           className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_alternate_number"
+                          name="alternate_number"
                           type="tel"
                           inputMode="numeric"
                           placeholder="Enter Alternate Number"
-                          value={enrollData?.customer_alternate_number}
+                          value={enrollData?.alternate_number}
                           onChange={handleChange}
                         />
                       </div>
@@ -435,28 +452,28 @@ const EnrollmentRequestForm = () => {
                     <div className="sm:flex gap-4">
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold ">
-                          Customer Village
+                          Village
                         </h2>
                         <input
                           className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_village"
+                          name="village"
                           type="text"
                           placeholder="Enter Village "
-                          value={enrollData?.customer_village}
+                          value={enrollData?.village}
                           onChange={handleChange}
                         />
                       </div>
 
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold">
-                          Customer Taluk
+                          Taluk
                         </h2>
                         <input
                           className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_taluk"
+                          name="taluk"
                           type="text"
                           placeholder="Enter Taluk "
-                          value={enrollData?.customer_taluk}
+                          value={enrollData?.taluk}
                           onChange={handleChange}
                         />
                       </div>
@@ -465,11 +482,11 @@ const EnrollmentRequestForm = () => {
                     <div className="sm:flex gap-4">
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold ">
-                          Customer District
+                          District
                         </h2>
                         <select
-                          name="customer_district"
-                          value={enrollData?.customer_district}
+                          name="district"
+                          value={enrollData?.district}
                           onChange={handleChange}
 
                           className="w-full p-2 border rounded-md  sm:text-lg text-sm mb-4 mt-1 bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
@@ -484,11 +501,11 @@ const EnrollmentRequestForm = () => {
 
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold  ">
-                          Customer State
+                          State
                         </h2>
                         <select
-                          name="customer_state"
-                          value={enrollData?.customer_state}
+                          name="state"
+                          value={enrollData?.state}
                           onChange={handleChange}
                           className="w-full p-2 border rounded-md  sm:text-lg text-sm mb-4 mt-1 bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
                         >
@@ -501,43 +518,43 @@ const EnrollmentRequestForm = () => {
                     </div>
 
                     <h2 className="text-left sm:text-lg text-sm font-semibold  ">
-                      Customer Address
+                      Address
                     </h2>
                     <input
                       className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="customer_address"
+                      name="address"
                       type="text"
                       placeholder="Address"
-                      value={enrollData?.customer_address}
+                      value={enrollData?.address}
                       onChange={handleChange}
                     />
 
                     <div className="sm:flex gap-4">
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold  ">
-                          Customer Father Name
+                          Father Name
                         </h2>
                         <input
                           className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_father_name"
+                          name="father_name"
                           type="text"
                           placeholder="Enter Customer Father Name"
-                          value={enrollData?.customer_father_name}
+                          value={enrollData?.father_name}
                           onChange={handleChange}
                         />
                       </div>
 
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold  ">
-                          Customer Pincode
+                          Pincode
                         </h2>
                         <input
                           className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_pincode"
+                          name="pincode"
                           type="number"
                           placeholder="Enter Pincode"
                           inputMode="numeric"
-                          value={enrollData?.customer_pincode}
+                          value={enrollData?.pincode}
                           onChange={handleChange}
                         />
                       </div>
@@ -567,28 +584,28 @@ const EnrollmentRequestForm = () => {
                     <div className="sm:flex gap-4">
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold  ">
-                          Customer Nominee Name
+                          Nominee Name
                         </h2>
                         <input
                           className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_nominee_name"
+                          name="nominee_name"
                           type="text"
                           placeholder="Enter Nominee Name"
-                          value={enrollData?.customer_nominee_name}
+                          value={enrollData?.nominee_name}
                           onChange={handleChange}
                         />
                       </div>
 
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold  ">
-                          Customer Nominee Date of Birth
+                          Nominee Date of Birth
                         </h2>
                         <input
                           className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_nominee_dateofbirth"
+                          name="nominee_dateofbirth"
                           type="date"
                           placeholder="dd-mm-yyyy"
-                          value={enrollData?.customer_nominee_dateofbirth || ""}
+                          value={enrollData?.nominee_dateofbirth || ""}
                           onChange={handleChange}
                         />
                       </div>
@@ -600,8 +617,8 @@ const EnrollmentRequestForm = () => {
                           Nominee Relationship
                         </h2>
                         <select
-                          name="customer_nominee_relationship"
-                          value={enrollData?.customer_nominee_relationship}
+                          name="nominee_relationship"
+                          value={enrollData?.nominee_relationship}
                           onChange={handleChange}
                           className="w-full p-2 border rounded-md  sm:text-lg text-sm mb-4 mt-1 bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
                         >
@@ -617,14 +634,14 @@ const EnrollmentRequestForm = () => {
 
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold  ">
-                          Customer Nominee Phone Number
+                          Nominee Phone Number
                         </h2>
                         <input
                           className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                          name="customer_nominee_phone_number"
+                          name="nominee_phone_number"
                           type="numeric"
                           placeholder="Enter Nominee Phone Number"
-                          value={enrollData?.customer_nominee_phone_number}
+                          value={enrollData?.nominee_phone_number}
                           onChange={handleChange}
                         />
                       </div>
@@ -661,30 +678,30 @@ const EnrollmentRequestForm = () => {
                 <div className="sm:flex gap-4">
                   <div className="sm:w-1/2 w-full">
                     <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                      Customer Adhaar Number
+                      Aadhar Number
                     </h1>
                     <input
                       className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="customer_aadhar_no"
+                      name="adhaar_no"
                       type="numeric"
                       placeholder="Enter Adhaar Number"
-                      value={enrollData?.customer_aadhar_no}
+                      value={enrollData?.adhaar_no}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="sm:w-1/2 w-full">
                     <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                      Customer Pan Number
+                      Pan Number
                     </h1>
 
                     <input
                       className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="customer_pan_no"
+                      name="pan_no"
                       type="text"
                       accept="image/*"
                       placeholder="Enter Pan Number"
-                      value={enrollData?.customer_pan_no}
+                      value={enrollData?.pan_no}
                       onChange={handleChange}
                     />
                   </div>
@@ -693,12 +710,12 @@ const EnrollmentRequestForm = () => {
                 <div className="sm:flex gap-4">
                   <div className="sm:w-1/2 w-full">
                     <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                      Customer Aadhaar Front Photo
+                      Aadhaar Front Photo
                     </h1>
                     <img src="path/to/image.jpg" alt="" />
                     <input
                       className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="customer_aadhar_frontphoto"
+                      name="aadhar_frontphoto"
                       type="file"
                       accept="image/*"
                       placeholder="No file choosen"
@@ -708,12 +725,12 @@ const EnrollmentRequestForm = () => {
 
                   <div className="sm:w-1/2 w-full">
                     <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                      Customer Aadhaar Back photo
+                      Aadhaar Back photo
                     </h1>
                     <img src="path/to/image.jpg" alt="" />
                     <input
                       className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="customer_aadhar_backphoto"
+                      name="aadhar_backphoto"
                       type="file"
                       accept="image/*"
                       placeholder="No file choosen"
@@ -725,12 +742,12 @@ const EnrollmentRequestForm = () => {
                 <div className="sm:flex gap-4">
                   <div className="sm:w-1/2 w-full">
                     <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                      Customer Pan Front photo
+                      Pan Front photo
                     </h1>
                     <img src="path/to/image.jpg" alt="" />
                     <input
                       className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="customer_pan_frontphoto"
+                      name="pan_frontphoto"
                       type="file"
                       accept="image/*"
                       placeholder="No file choosen"
@@ -740,12 +757,12 @@ const EnrollmentRequestForm = () => {
 
                   <div className="sm:w-1/2 w-full">
                     <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                      Customer Pan Back photo
+                      Pan Back photo
                     </h1>
-                    <img src="path/to/image.jpg" alt="" />
+                    {/* <img src="path/to/image.jpg" alt="" /> */}
                     <input
                       className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="customer_pan_backphoto"
+                      name="pan_backphoto"
                       type="file"
                       accept="image/*"
                       placeholder="No file choosen"
@@ -760,7 +777,7 @@ const EnrollmentRequestForm = () => {
                 <img src="path/to image" alt="" />
                 <input
                   className="w-full p-4 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                  name="customer_profilephoto"
+                  name="profilephoto"
                   type="file"
                   accept="image/*"
                   placeholder="No file choosen"
@@ -798,29 +815,29 @@ const EnrollmentRequestForm = () => {
                 <div className="sm:flex gap-4">
                   <div className="sm:w-1/2 w-full">
                     <h2 className="text-left sm:text-lg text-sm font-semibold ">
-                      Customer Bank Name
+                      Bank Name
                     </h2>
                     <input
                       className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="customer_bank_name"
+                      name="bank_name"
                       type="text"
-                      placeholder="Enter Customer Bank Name "
-                      value={enrollData?.customer_bank_name}
+                      placeholder="Enter Bank Name "
+                      value={enrollData?.bank_name}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="sm:w-1/2 w-full">
                     <h2 className="text-left sm:text-lg text-sm font-semibold">
-                      Customer Bank Branch Name
+                      Bank Branch Name
                     </h2>
 
                     <input
                       className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="customer_bank_branch_name"
+                      name="bank_branch_name"
                       type="text"
-                      placeholder="Enter Customer Bank Branch Name"
-                      value={enrollData?.customer_bank_branch_name}
+                      placeholder="Enter Bank Branch Name"
+                      value={enrollData?.bank_branch_name}
                       onChange={handleChange}
                     />
                   </div>
@@ -829,29 +846,29 @@ const EnrollmentRequestForm = () => {
                 <div className="sm:flex gap-4">
                   <div className="sm:w-1/2 w-full">
                     <h2 className="text-left sm:text-lg text-sm font-semibold ">
-                      Customer Bank Account Number
+                      Bank Account Number
                     </h2>
                     <input
                       className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="customer_bank_account_number"
+                      name="bank_account_number"
                       type="text"
-                      placeholder="Enter Customer Bank Account Number "
-                      value={enrollData?.customer_bank_account_number}
+                      placeholder="Enter Bank Account Number "
+                      value={enrollData?.bank_account_number}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="sm:w-1/2 w-full">
                     <h2 className="text-left sm:text-lg text-sm font-semibold">
-                      Customer Bank IFSC Code
+                      Bank IFSC Code
                     </h2>
 
                     <input
                       className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="customer_bank_IFSC_code"
+                      name="bank_IFSC_code"
                       type="text"
                       placeholder="Enter Customer Bank IFSC Code"
-                      value={enrollData?.customer_bank_IFSC_code}
+                      value={enrollData?.bank_IFSC_code}
                       onChange={handleChange}
                     />
                   </div>
