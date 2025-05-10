@@ -48,6 +48,7 @@ const Agent = () => {
     address: "",
     pincode: "",
     adhaar_no: "",
+    designation_id:"",
     pan_no: "",
   });
 
@@ -59,6 +60,7 @@ const Agent = () => {
     address: "",
     pincode: "",
     adhaar_no: "",
+    designation_id:"",
     pan_no: "",
   });
 
