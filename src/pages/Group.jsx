@@ -1,13 +1,9 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
-import { MdDelete } from "react-icons/md";
-import { CiEdit } from "react-icons/ci";
 import Modal from "../components/modals/Modal";
-import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import { Edit, Trash2 } from "lucide-react";
 import CustomAlert from "../components/alerts/CustomAlert";
 import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
@@ -24,7 +20,7 @@ const Group = () => {
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [searchText, setSearchText] = useState("");
-  const [isLoading,setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -47,7 +43,6 @@ const Group = () => {
     minimum_bid: "",
     maximum_bid: "",
     commission: 5,
-    incentives: "",
     reg_fee: "",
   });
   const [errors, setErrors] = useState({});
@@ -63,22 +58,25 @@ const Group = () => {
     minimum_bid: "",
     maximum_bid: "",
     commission: 5,
-    incentives: "",
     reg_fee: "",
   });
   const handleShareClick = (groupId) => {
-
     if (!groupId) {
       console.error("Missing or invalid groupId");
       return;
     }
-     
-      window.open(`/enrollment-request-form/?group_id=${groupId}`, '_blank');
-      navigator.clipboard.writeText(location.origin +`/enrollment-request-form/?group_id=${groupId}` );
-      
-    
+
+    // window.open(`/enrollment-request-form/?group_id=${groupId}`, "_blank");
+    // navigator.clipboard.writeText(
+    //   location.origin + `/enrollment-request-form/?group_id=${groupId}`
+    // );
+
+    const baseUrl = "http://prod-chit.s3-website.eu-north-1.amazonaws.com";
+    const fullUrl = `${baseUrl}/enrollment-request-form/?group_id=${groupId}`;
+    navigator.clipboard.writeText(fullUrl);
+    window.open(fullUrl, "_blank");
   };
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     // apply validation here
@@ -261,13 +259,13 @@ const Group = () => {
                       ),
                     },
                     {
-                      key: "3", 
+                      key: "3",
                       label: (
                         <div
-                           onClick={() => handleShareClick(group?._id)}
-                           className=" text-blue-600 "
+                          onClick={() => handleShareClick(group?._id)}
+                          className=" text-blue-600 "
                         >
-                        Copy
+                          Copy
                         </div>
                       ),
                     },
@@ -278,19 +276,14 @@ const Group = () => {
                 <IoMdMore className="text-bold" />
               </Dropdown>
 
-              {/* <button
-                onClick={() => handleDeleteModalOpen(group._id)}
-                className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-              >
-                <MdDelete color="red" />
-              </button> */}
+             
             </div>
           ),
         }));
         setTableGroups(formattedData);
       } catch (error) {
         console.error("Error fetching group data:", error);
-      }finally{
+      } finally {
         setIsLoading(false);
       }
     };
@@ -326,8 +319,6 @@ const Group = () => {
         group_install: response.data.group_install,
         group_members: response.data.group_members,
         group_duration: response.data.group_duration,
-        commission: response.data.commission || 5,
-        incentives: response.data.incentives || "",
         start_date: formattedStartDate,
         end_date: formattedEndDate,
         minimum_bid: response.data.minimum_bid,
@@ -436,19 +427,27 @@ const Group = () => {
               </div>
             </div>
 
-           {TableGroups.length>0 ?(<DataTable
-              catcher="_id"
-              updateHandler={handleUpdateModalOpen}
-              data={filterOption(TableGroups, searchText)}
-              columns={columns}
-              exportedFileName={`Groups-${
-                TableGroups.length > 0
-                  ? TableGroups[0].date.split("T")[0] +
-                    " to " +
-                    TableGroups[TableGroups.length - 1].date.split("T")[0]
-                  : "empty"
-              }.csv`}
-            />):(<CircularLoader isLoading={isLoading} failure={TableGroups.length<=0} data={"Group Data"}/>)}
+            {TableGroups.length > 0 ? (
+              <DataTable
+                catcher="_id"
+                updateHandler={handleUpdateModalOpen}
+                data={filterOption(TableGroups, searchText)}
+                columns={columns}
+                exportedFileName={`Groups-${
+                  TableGroups.length > 0
+                    ? TableGroups[0].date.split("T")[0] +
+                      " to " +
+                      TableGroups[TableGroups.length - 1].date.split("T")[0]
+                    : "empty"
+                }.csv`}
+              />
+            ) : (
+              <CircularLoader
+                isLoading={isLoading}
+                failure={TableGroups.length <= 0}
+                data={"Group Data"}
+              />
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {/* {filteredGroups.length === 0 ? (
@@ -676,33 +675,6 @@ const Group = () => {
                   )}
                 </div>
               </div>
-                
-              <div className="flex flex-row justify-between space-x-4">
-  <div className="w-1/2">
-    <label className="block mb-2 text-sm font-medium text-gray-900">Commission %</label>
-    <input
-      type="number"
-      name="commission"
-      value={formData.commission}
-      onChange={handleChange}
-      placeholder="Enter Commission %"
-      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-    />
-  </div>
-  <div className="w-1/2">
-    <label className="block mb-2 text-sm font-medium text-gray-900">Incentives</label>
-    <input
-      type="text"
-      name="incentives"
-      value={formData.incentives}
-      onChange={handleChange}
-      placeholder="Enter Incentives"
-      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-    />
-  </div>
-</div>
-
-
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
                   <label
@@ -1082,40 +1054,14 @@ const Group = () => {
                   )}
                 </div>
               </div>
-              <div className="flex flex-row justify-between space-x-4">
-  <div className="w-1/2">
-    <label className="block mb-2 text-sm font-medium text-gray-900">Commission %</label>
-    <input
-      type="number"
-      name="commission"
-      value={updateFormData.commission}
-      onChange={handleInputChange}
-      placeholder="Enter Commission %"
-      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-    />
-  </div>
-  <div className="w-1/2">
-    <label className="block mb-2 text-sm font-medium text-gray-900">Incentives</label>
-    <input
-      type="text"
-      name="incentives"
-      value={updateFormData.incentives}
-      onChange={handleInputChange}
-      placeholder="Enter Incentives"
-      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-    />
-  </div>
-</div>
-
-
               <div className="w-full flex justify-end">
-              <button
-                type="submit"
-                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
+                <button
+                  type="submit"
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
-              >
-                Update
-              </button>
+                >
+                  Update
+                </button>
               </div>
             </form>
           </div>

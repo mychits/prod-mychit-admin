@@ -5,7 +5,7 @@ import imageInput from "../../assets/images/Agent.png";
 const handleEnrollmentRequestPrint = async (id) => {
     
     try {
-        const response = await api.get(`/enrollment-request/get-enrollment-request-data-by-id/${id}`);
+        const response = await api.get(`/user/get-user-by-id/${id}`);
       
         const enroll = response.data;
 
@@ -211,34 +211,34 @@ const handleEnrollmentRequestPrint = async (id) => {
         drawTextBox1("Customer Details:", 10, 85);
 
         doc.setFontSize(12);
-        drawTextBox3(`Name: ${enroll?.customer_name}`, 10, 100);
+        drawTextBox3(`Name: ${enroll?.full_name}`, 10, 100);
         drawTextBox(
             `DOB: ${enroll?.customer_dateofbirth?.split("T")[0] || "YYYY-MM-DD"}`,
             10,
             115
         );
-        drawTextBox(`Gender: ${enroll?.customer_gender || ""}`, 110, 115);
-        drawTextBox(`Phone: ${enroll?.customer_phone_number}`, 10, 130);
-        drawTextBox(`Email: ${enroll?.customer_mail_id}`, 110, 130);
+        drawTextBox(`Gender: ${enroll?.gender || ""}`, 110, 115);
+        drawTextBox(`Phone: ${enroll?.phone_number}`, 10, 130);
+        drawTextBox(`Email: ${enroll?.email}`, 110, 130);
         drawTextBox(
-            `Marital Status: ${enroll?.customer_marital_status || ""}`,
+            `Marital Status: ${enroll?.marital_status || ""}`,
             10,
             145
         );
         drawTextBox(
-            `Nationality: ${enroll?.customer_nationality || "Indian"}`,
+            `Nationality: ${enroll?.nationality || "Indian"}`,
             110,
             145
         );
-        drawTextBox3(`Address: ${enroll?.customer_address}`, 10, 160);
-        drawTextBox(`Village: ${enroll?.customer_village || ""}`, 10, 175);
-        drawTextBox(`Taluk: ${enroll?.customer_taluk || ""}`, 110, 175);
-        drawTextBox(`District: ${enroll?.customer_district}`, 10, 190);
-        drawTextBox(`State: ${enroll?.customer_state}`, 110, 190);
-        drawTextBox(`Pincode: ${enroll?.customer_pincode}`, 10, 205);
-        drawTextBox(`Father: ${enroll?.customer_father_name || ""}`, 110, 205);
-        drawTextBox(`Aadhaar No: ${enroll?.customer_aadhar_no}`, 10, 220);
-        drawTextBox(`PAN No: ${enroll?.customer_panno || ""}`, 110, 220);
+        drawTextBox3(`Address: ${enroll?.address}`, 10, 160);
+        drawTextBox(`Village: ${enroll?.village || ""}`, 10, 175);
+        drawTextBox(`Taluk: ${enroll?.taluk || ""}`, 110, 175);
+        drawTextBox(`District: ${enroll?.district}`, 10, 190);
+        drawTextBox(`State: ${enroll?.state}`, 110, 190);
+        drawTextBox(`Pincode: ${enroll?.pincode}`, 10, 205);
+        drawTextBox(`Father: ${enroll?.father_name || ""}`, 110, 205);
+        drawTextBox(`Aadhaar No: ${enroll?.adhaar_no}`, 10, 220);
+        drawTextBox(`PAN No: ${enroll?.pan_no || ""}`, 110, 220);
 
         doc.setFontSize(11);
         doc.text(
@@ -320,19 +320,19 @@ const handleEnrollmentRequestPrint = async (id) => {
         doc.setFontSize(15);
         drawTextBox1("Nominee Details:", 10, 120);
         doc.setFontSize(12);
-        drawTextBox(`Name: ${enroll?.customer_nominee_name || ""}`, 10, 135);
+        drawTextBox(`Name: ${enroll?.nominee_name || ""}`, 10, 135);
         drawTextBox(
-            `DOB: ${enroll?.customer_nominee_dateofbirth?.split("T")[0] || ""}`,
+            `DOB: ${enroll?.nominee_dateofbirth?.split("T")[0] || ""}`,
             110,
             135
         );
         drawTextBox(
-            `Relationship: ${enroll?.customer_nominee_relationship || ""}`,
+            `Relationship: ${enroll?.nominee_relationship || ""}`,
             10,
             150
         );
         drawTextBox(
-            `Phone: ${enroll?.customer_nominee_phone_number || ""}`,
+            `Phone: ${enroll?.nominee_phone_number || ""}`,
             110,
             150
         );
@@ -341,19 +341,19 @@ const handleEnrollmentRequestPrint = async (id) => {
         doc.setFontSize(15);
         drawTextBox1("Bank Details:", 10, 165);
         doc.setFontSize(12);
-        drawTextBox(`Bank Name: ${enroll?.customer_bank_name || ""}`, 10, 180);
+        drawTextBox(`Bank Name: ${enroll?.bank_name || ""}`, 10, 180);
         drawTextBox(
-            `Branch Name: ${enroll?.customer_bank_branch_name || ""}`,
+            `Branch Name: ${enroll?.bank_branch_name || ""}`,
             110,
             180
         );
         drawTextBox(
-            `Account Number: ${enroll?.customer_bank_account_number || ""}`,
+            `Account No: ${enroll?.bank_account_number || ""}`,
             10,
             195
         );
         drawTextBox(
-            `IFSC Code: ${enroll?.customer_bank_IFSC_code || ""}`,
+            `IFSC Code: ${enroll?.bank_IFSC_code || ""}`,
             110,
             195
         );
@@ -364,7 +364,8 @@ const handleEnrollmentRequestPrint = async (id) => {
             "Dear Sir,",
             "I / We request you to register & take me/ us a chit holder upon the terms and conditions",
             "laid down by your company & hereby agree & accept all terms and conditions such allotment of chits.",
-            "I / We received a copy of rules & regulation terms and condition of your company (Chit rules under act 1982)",
+            "I / We received a copy of rules & regulation terms and condition of your company (Chit rules under ",
+            " act 1982)",
             "I / We have read completely or caused to be read translated and completely understood the rules.",
         ];
         let y = 215;
@@ -421,7 +422,7 @@ const handleEnrollmentRequestPrint = async (id) => {
         drawTextBoxWithMultipleLines1(274);
 
 
-        const customerName = enroll?.customer_name?.replace(/\s+/g, "_") || "EnrollmentForm";
+        const customerName = `${enroll?.full_name?.replace(/\s+/g, "_")}`  || "EnrollmentForm";
         doc.save(`${customerName}_EnrollmentForm.pdf`);
 
     } catch (error) {

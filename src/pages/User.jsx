@@ -1,10 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
-import { MdDelete } from "react-icons/md";
-import { CiEdit } from "react-icons/ci";
 import Modal from "../components/modals/Modal";
-import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
@@ -13,6 +10,8 @@ import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
+import handleEnrollmentRequestPrint from "../components/printFormats/enrollmentRequestPrint";
+import { Link } from "react-router-dom";
 const User = () => {
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
@@ -21,8 +20,11 @@ const User = () => {
   const [showModalDelete, setShowModalDelete] = useState(false);
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [isLoading,setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [currentUpdateUser, setCurrentUpdateUser] = useState(null);
+  const [selectedGroup, setSelectedGroup] = useState({});
+  const [groups, setGroups] = useState([]);
+  const [files, setFiles] = useState({});
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -39,7 +41,22 @@ const User = () => {
     pincode: "",
     adhaar_no: "",
     pan_no: "",
+    customer_status: "inactive",
+    track_source:"admin_panel",
+   
   });
+
+  
+
+  const handleGroup = async (e) => {
+    try {
+      const { value } = e.target;
+      const response = await api.get(`/group/get-by-id-group/${value}`);
+      setSelectedGroup(response.data);
+    } catch (err) {
+      console.error("failed to fetch group");
+    }
+  };
 
   const [updateFormData, setUpdateFormData] = useState({
     full_name: "",
@@ -50,13 +67,41 @@ const User = () => {
     pincode: "",
     adhaar_no: "",
     pan_no: "",
+    customer_status: "",
+    title: "",
+    gender: "",
+    marital_status: "",
+    dateofbirth: "",
+    nationality: "",
+    village: "",
+    taluk: "",
+    father_name: "",
+    district: "",
+    state: "",
+    alternate_number: "",
+    referral_name: "",
+    nominee_name: "",
+    nominee_dateofbirth: "",
+    nominee_phone_number: "",
+    nominee_relationship: "",
+    aadhar_frontphoto: "",
+    aadhar_backphoto: "",
+    pan_frontphoto: "",
+    pan_backphoto: "",
+    profilephoto: "",
+    bank_name: "",
+    bank_branch_name: "",
+    bank_account_number: "",
+    bank_IFSC_code: "",
+    selected_plan: "",
   });
+
   const [searchText, setSearchText] = useState("");
   const GlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
-    console.log("first", value);
     setSearchText(value);
   };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -68,6 +113,7 @@ const User = () => {
       [name]: "",
     }));
   };
+
   const validateForm = (type) => {
     const newErrors = {};
     const data = type === "addCustomer" ? formData : updateFormData;
@@ -75,7 +121,7 @@ const User = () => {
       email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
       phone: /^[6-9]\d{9}$/,
       pincode: /^\d{6}$/,
-      aadhaar: /^\d{12}$/,
+      adhaar: /^\d{12}$/,
       pan: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
     };
 
@@ -111,9 +157,9 @@ const User = () => {
     }
 
     if (!data.adhaar_no) {
-      newErrors.adhaar_no = "Aadhaar number is required";
-    } else if (!regex.aadhaar.test(data.adhaar_no)) {
-      newErrors.adhaar_no = "Invalid Aadhaar number (12 digits required)";
+      newErrors.adhaar_no = "Aadhar number is required";
+    } else if (!regex.adhaar.test(data.adhaar_no)) {
+      newErrors.adhaar_no = "Invalid Aadhar number (12 digits required)";
     }
     if (data.pan_no && !regex.pan.test(data.pan_no.toUpperCase())) {
       newErrors.pan_no = "Invalid PAN format (e.g., ABCDE1234F)";
@@ -139,8 +185,7 @@ const User = () => {
             "Content-Type": "application/json",
           },
         });
-        // window.location.reload();
-        // alert("User Added Successfully");
+        window.location.reload();
         setAlertConfig({
           type: "success",
           message: "User Added Successfully",
@@ -158,6 +203,7 @@ const User = () => {
           pincode: "",
           adhaar_no: "",
           pan_no: "",
+          customer_status: "inactive",
         });
       } catch (error) {
         console.error("Error adding user:", error);
@@ -196,20 +242,10 @@ const User = () => {
           address: group.address,
           pincode: group.pincode,
           customer_id: group.customer_id,
+          customer_status: group.customer_status,
           action: (
             <div className="flex justify-center gap-2">
-              {/* <button
-                onClick={() => handleUpdateModalOpen(group._id)}
-                className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-              >
-                <CiEdit color="green" />
-              </button> */}
-              {/* <button
-                onClick={() => handleDeleteModalOpen(group._id)}
-                className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-              >
-                <MdDelete color="red" />
-              </button> */}
+           
               <Dropdown
                 menu={{
                   items: [
@@ -218,7 +254,7 @@ const User = () => {
                       label: (
                         <div
                           className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(group._id)}
+                          onClick={() => handleUpdateModalOpen(group?._id)}
                         >
                           Edit
                         </div>
@@ -229,9 +265,33 @@ const User = () => {
                       label: (
                         <div
                           className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(group._id)}
+                          onClick={() => handleDeleteModalOpen(group?._id)}
                         >
                           Delete
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "3", 
+                      label: (
+                        <div
+                          onClick={() =>
+                            handleEnrollmentRequestPrint(group?._id)
+                          }
+                          className=" text-blue-600 "
+                        >
+                          Print
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "4",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleCustomerStatus(group?._id)}
+                        >
+                          Convert
                         </div>
                       ),
                     },
@@ -254,14 +314,27 @@ const User = () => {
           return ele;
         });
         if (!fData) setTableUsers(formattedData);
+        if (!fData) setTableUsers(formattedData);
         setTableUsers(fData);
       } catch (error) {
         console.error("Error fetching user data:", error.message);
-      }finally{
+      } finally {
         setIsLoading(false);
       }
     };
     fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    const fetchGroupData = async () => {
+      try {
+        const res = await api.get("group/get-group");
+        setGroups(res.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchGroupData();
   }, []);
 
   const columns = [
@@ -271,6 +344,7 @@ const User = () => {
     { key: "phone_number", header: "Customer Phone Number" },
     { key: "address", header: "Customer Address" },
     { key: "pincode", header: "Customer Pincode" },
+    { key: "customer_status", header: "Customer Status" },
     { key: "action", header: "Action" },
   ];
 
@@ -292,15 +366,42 @@ const User = () => {
     try {
       const response = await api.get(`/user/get-user-by-id/${userId}`);
       setCurrentUpdateUser(response.data);
+      setSelectedGroup(response?.data?.selected_plan);
       setUpdateFormData({
-        full_name: response.data.full_name,
-        email: response.data.email,
-        phone_number: response.data.phone_number,
-        password: response.data.password,
-        pincode: response.data.pincode,
-        adhaar_no: response.data.adhaar_no,
-        pan_no: response.data.pan_no,
-        address: response.data.address,
+        full_name: response?.data?.full_name,
+        email: response?.data?.email,
+        phone_number: response?.data?.phone_number,
+        password: response?.data?.password,
+        pincode: response?.data?.pincode,
+        adhaar_no: response?.data?.adhaar_no,
+        pan_no: response?.data?.pan_no,
+        address: response?.data?.address,
+        selected_plan: response?.data?.selected_plan?._id || "",
+        title: response?.data?.title,
+        father_name: response?.data?.father_name,
+        gender: response?.data?.gender,
+        marital_status: response?.data?.marital_status,
+        dateofbirth: response?.data?.dateofbirth?.split("T")[0],
+        nationality: response?.data?.nationality,
+        village: response?.data?.village,
+        taluk: response?.data?.taluk,
+        district: response?.data?.district,
+        state: response?.data?.state,
+        alternate_number: response?.data?.alternate_number,
+        referral_name: response?.data?.referral_name,
+        nominee_name: response?.data?.nominee_name,
+        nominee_dateofbirth: response?.data?.nominee_dateofbirth?.split("T")[0],
+        nominee_relationship: response?.data?.nominee_relationship,
+        nominee_phone_number: response?.data?.nominee_phone_number,
+        bank_name: response?.data?.bank_name,
+        bank_branch_name: response?.data?.bank_branch_name,
+        bank_account_number: response?.data?.bank_account_number,
+        bank_IFSC_code: response?.data?.bank_IFSC_code,
+        aadhar_frontphoto: response?.data?.aadhar_frontphoto,
+        aadhar_backphoto: response?.data?.aadhar_backphoto,
+        pan_frontphoto: response?.data?.pan_frontphoto,
+        pan_backphoto: response?.data?.pan_backphoto,
+        profilephoto: response?.data?.profilephoto,
       });
       setShowModalUpdate(true);
       setErrors({});
@@ -308,6 +409,12 @@ const User = () => {
       console.error("Error fetching user:", error);
     }
   };
+
+
+
+
+
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -337,46 +444,84 @@ const User = () => {
       }
     }
   };
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    const isValid = validateForm();
-
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    const file = files[0];
+  
+    if (file) {
+      // Update the form data state with the selected file
+      setUpdateFormData((prevState) => ({
+        ...prevState,
+        [name]: file,
+      }));
+    }
+  };
+  
+  const handleCustomerStatus = async (id) => {
     try {
-      if (isValid) {
-        await api.put(
-          `/user/update-user/${currentUpdateUser._id}`,
-          updateFormData
-        );
-        setShowModalUpdate(false);
+      if (!id) {
+        console.warn("No user ID provided");
+        return;
+      }
+      const response = await api.put(`/user/update-user/${id}`, {
+        customer_status: "active",
+      });
+      if (response.status === 200) {
+        console.info("Customer status updated successfully for user ID:", id);
+      } else {
+        console.warn("Failed to update customer status:", response?.data);
+      }
+    } catch (err) {
+      console.info(err, err.message);
+    }
+  };
 
-        setAlertConfig({
+
+
+
+
+const handleUpdate = async (e) => {
+  e.preventDefault();
+
+  try {
+      const fmData = new FormData();
+
+   
+      Object.entries(updateFormData).forEach(([key, value]) => {
+          if (key === "selected_plan" && selectedGroup?._id) {
+              fmData.append("selected_plan", selectedGroup._id); 
+          } else if (value) {
+              fmData.append(key, value);
+          }
+      });
+
+      await api.put(`/user/update-user/${currentUpdateUser?._id}`, fmData, {
+          headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      setShowModalUpdate(false);
+      setAlertConfig({
           visibility: true,
           message: "User Updated Successfully",
           type: "success",
-        });
-      }
-    } catch (error) {
+      });
+  } catch (error) {
       console.error("Error updating user:", error);
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        setAlertConfig({
+      setAlertConfig({
           visibility: true,
-          message: `${error?.response?.data?.message}`,
+          message: error?.response?.data?.message || "An unexpected error occurred. Please try again.",
           type: "error",
-        });
-      } else {
-        setAlertConfig({
-          visibility: true,
-          message: "An unexpected error occurred. Please try again.",
-          type: "error",
-        });
-      }
-    }
-  };
+      });
+  }
+};
+
+
+
+
+
+
+
+
 
   return (
     <>
@@ -424,61 +569,13 @@ const User = () => {
                 }.csv`}
               />
             ) : (
-              <CircularLoader isLoading={isLoading} failure={TableUsers.length <= 0} data="Customer Data"/>
+              <CircularLoader
+                isLoading={isLoading}
+                failure={TableUsers.length <= 0}
+                data="Customer Data"
+              />
             )}
-            {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {filteredUsers.length === 0 ? (
-                <div className="flex justify-center items-center h-64">
-                  <p className="text-gray-500 text-lg">
-                    No customers added yet
-                  </p>
-                </div>
-              ) : (
-                filteredUsers.map((user) => (
-                  <div
-                    key={user.id}
-                    className="bg-white border border-gray-300 rounded-xl p-6 shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-xl"
-                  >
-                    <div className="flex flex-col items-center">
-                      <h2 className="text-xl font-bold mb-3 text-gray-700 text-center">
-                        {user.full_name}
-                      </h2>
-                      <div className="flex gap-16 py-3">
-                        <p className="text-gray-500 mb-2 text-center">
-                          <span className="font-medium text-gray-700 text-xl">
-                            0
-                          </span>
-                          <br />
-                          <span className="font-bold text-sm">Groups</span>
-                        </p>
-                        <p className="text-gray-500 mb-4 text-center">
-                          <span className="font-medium text-gray-700 text-xl">
-                            {user.phone_number}
-                          </span>
-                          <br />
-                          <span className="font-bold text-sm">Phone</span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => handleUpdateModalOpen(user._id)}
-                        className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-                      >
-                        <CiEdit color="green" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteModalOpen(user._id)}
-                        className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-                      >
-                        <MdDelete color="red" />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div> */}
+          
           </div>
         </div>
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
@@ -497,7 +594,7 @@ const User = () => {
                 <input
                   type="text"
                   name="full_name"
-                  value={formData.full_name}
+                  value={formData?.full_name}
                   onChange={handleChange}
                   id="name"
                   placeholder="Enter the Full Name"
@@ -638,7 +735,7 @@ const User = () => {
                   <input
                     type="text"
                     name="pan_no"
-                    value={formData.pan_no}
+                    value={formData?.pan_no}
                     onChange={handleChange}
                     id="text"
                     placeholder="Enter Pan Number"
@@ -692,6 +789,131 @@ const User = () => {
               Update Customer
             </h3>
             <form className="space-y-6" onSubmit={handleUpdate} noValidate>
+              <div className="w-full">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="group-plan"
+                >
+                  Change Group name
+                </label>
+                <select
+                  name="selectedPlan"
+                  value={selectedGroup?._id}
+                  onChange={handleGroup}
+                  id="group-plan"
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                >
+                  <option value="">Select Plan</option>
+                  {groups.map((group) => (
+                    <option key={group._id} value={group._id}>
+                      {group?.group_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor=""
+                  >
+                    Group Type
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedGroup?.group_type}
+                    id="name"
+                    placeholder="Group Type"
+                    readOnly
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor=""
+                  >
+                    Group Value
+                  </label>
+                  <input
+                    type="text"
+                    name=""
+                    value={selectedGroup?.group_value}
+                    id="name"
+                    placeholder="Group Value"
+                    required
+                    readOnly
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor=""
+                  >
+                    Group Installment
+                  </label>
+                  <input
+                    type="text"
+                    name=""
+                    value={selectedGroup?.group_install}
+                    onChange={handleInputChange}
+                    id="name"
+                    placeholder="Group Installment"
+                    required
+                    readOnly
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor=""
+                  >
+                    Group Duration
+                  </label>
+                  <input
+                    type="text"
+                    name=""
+                    value={selectedGroup?.group_duration}
+                    onChange={handleInputChange}
+                    id="name"
+                    placeholder="Chit Period"
+                    required
+                    readOnly
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="title"
+                >
+                  Title
+                </label>
+                <select
+                  name="title"
+                  value={updateFormData?.title || ""}
+                  onChange={handleInputChange}
+                  id="title"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                >
+                  <option value="">Select Title</option>
+                  <option value="Mr">Mr</option>
+                  <option value="Ms">Ms</option>
+                  <option value="Mrs">Mrs</option>
+                  <option value="M/S">Mrs</option>
+                  <option value="Dr">Dr</option>
+                </select>
+              </div>
+
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -702,7 +924,7 @@ const User = () => {
                 <input
                   type="text"
                   name="full_name"
-                  value={updateFormData.full_name}
+                  value={updateFormData?.full_name}
                   onChange={handleInputChange}
                   id="name"
                   placeholder="Enter the Full Name"
@@ -715,6 +937,7 @@ const User = () => {
                   </p>
                 )}
               </div>
+
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
                   <label
@@ -726,7 +949,7 @@ const User = () => {
                   <input
                     type="email"
                     name="email"
-                    value={updateFormData.email}
+                    value={updateFormData?.email}
                     onChange={handleInputChange}
                     id="text"
                     placeholder="Enter Email"
@@ -747,7 +970,7 @@ const User = () => {
                   <input
                     type="number"
                     name="phone_number"
-                    value={updateFormData.phone_number}
+                    value={updateFormData?.phone_number}
                     onChange={handleInputChange}
                     id="text"
                     placeholder="Enter Phone Number"
@@ -761,8 +984,26 @@ const User = () => {
                   )}
                 </div>
               </div>
+
               <div className="flex flex-row justify-between space-x-4">
-                <div className="w-full">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="email"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="father_name"
+                    value={updateFormData?.father_name}
+                    onChange={handleInputChange}
+                    id="father-name"
+                    placeholder="Enter the Father name"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
@@ -772,7 +1013,7 @@ const User = () => {
                   <input
                     type="text"
                     name="pincode"
-                    value={updateFormData.pincode}
+                    value={updateFormData?.pincode}
                     onChange={handleInputChange}
                     id="text"
                     placeholder="Enter Pincode"
@@ -792,12 +1033,12 @@ const User = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Adhaar Number
+                    Aadhar Number
                   </label>
                   <input
                     type="text"
                     name="adhaar_no"
-                    value={updateFormData.adhaar_no}
+                    value={updateFormData?.adhaar_no}
                     onChange={handleInputChange}
                     id="text"
                     placeholder="Enter Adhaar Number"
@@ -820,7 +1061,7 @@ const User = () => {
                   <input
                     type="text"
                     name="pan_no"
-                    value={updateFormData.pan_no}
+                    value={updateFormData?.pan_no}
                     onChange={handleInputChange}
                     id="text"
                     placeholder="Enter Pan Number"
@@ -835,16 +1076,16 @@ const User = () => {
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="email"
+                  htmlFor="address"
                 >
                   Address
                 </label>
                 <input
                   type="text"
                   name="address"
-                  value={updateFormData.address}
+                  value={updateFormData?.address}
                   onChange={handleInputChange}
-                  id="name"
+                  id="address"
                   placeholder="Enter the Address"
                   required
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
@@ -853,6 +1094,503 @@ const User = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
                 )}
               </div>
+
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="date"
+                  >
+                    Customer Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    name="dateofbirth"
+                    value={
+                      updateFormData?.dateofbirth
+                        ? new Date(updateFormData?.dateofbirth || "")
+                            .toISOString()
+                            .split("T")[0]
+                        : ""
+                    }
+                    onChange={handleInputChange}
+                    id="date"
+                    placeholder="Enter the Date of Birth"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="gender"
+                  >
+                    Gender
+                  </label>
+                  <select
+                    name="gender"
+                    value={updateFormData?.gender || ""}
+                    onChange={handleInputChange}
+                    id="gender"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="marital-status"
+                  >
+                    Marital Status
+                  </label>
+                  <select
+                    name="marital_status"
+                    value={updateFormData?.marital_status || ""}
+                    onChange={handleInputChange}
+                    id="marital-status"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  >
+                    <option value="">Select Marital Status</option>
+                    <option value="Married">Married</option>
+                    <option value="Unmarried">Unmarried</option>
+                  </select>
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="referral-name"
+                  >
+                    Referral Name
+                  </label>
+                  <input
+                    type="text"
+                    name="referral_name"
+                    value={updateFormData?.referral_name}
+                    onChange={handleInputChange}
+                    id="referral-name"
+                    placeholder="Enter the Referral Name"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="nationality"
+                  >
+                    Nationality
+                  </label>
+                  <select
+                    name="nationality"
+                    value={updateFormData?.nationality || ""}
+                    onChange={handleInputChange}
+                    id="nationality"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  >
+                    <option value="">Select Nationality</option>
+                    <option value="Indian">Indian</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="alternate-number"
+                  >
+                    Alternate Phone Number
+                  </label>
+                  <input
+                    type="number"
+                    name="alternate_number"
+                    value={updateFormData?.alternate_number}
+                    onChange={handleInputChange}
+                    id="alternate-number"
+                    placeholder="Enter the Alternate Phone number"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="village"
+                  >
+                    Village
+                  </label>
+                  <input
+                    type="text"
+                    name="village"
+                    value={updateFormData?.village}
+                    onChange={handleInputChange}
+                    id="village"
+                    placeholder="Enter the Village"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="taluk"
+                  >
+                    Taluk
+                  </label>
+                  <input
+                    type="text"
+                    name="taluk"
+                    value={updateFormData?.taluk}
+                    onChange={handleInputChange}
+                    id="taluk"
+                    placeholder="Enter the taluk"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="district"
+                  >
+                    District
+                  </label>
+                  <select
+                    name="district"
+                    value={updateFormData?.district}
+                    onChange={handleChange}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  >
+                    <option value="">Select District</option>
+                    <option value="Bengaluru North">Bengaluru North</option>
+                    <option value="Bengaluru South">Bengaluru South</option>
+                    <option value="Bengaluru Urban">Bengaluru Urban</option>
+                    <option value="Bengaluru Rural">Bengaluru Rural</option>
+                  </select>
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="state"
+                  >
+                    State
+                  </label>
+                  <select
+                    name="state"
+                    value={updateFormData?.state}
+                    onChange={handleChange}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  >
+                    <option value="">Select State</option>
+                    <option value="Karnataka">Karnataka</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <option value="Tamil Nadu">Tamil Nadu</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="nominee"
+                  >
+                    Nominee Name
+                  </label>
+                  <input
+                    type="text"
+                    name="nominee_name"
+                    value={updateFormData?.nominee_name}
+                    onChange={handleInputChange}
+                    id="nominee"
+                    placeholder="Enter the Nominee Name"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="nominee-date"
+                  >
+                    Nominee Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    name="nominee_dateofbirth"
+                    value={
+                      updateFormData?.nominee_dateofbirth
+                        ? new Date(updateFormData?.nominee_dateofbirth)
+                            .toISOString()
+                            .split("T")[0]
+                        : ""
+                    }
+                    onChange={handleInputChange}
+                    id="nominee-date"
+                    placeholder="Enter the Nominee Date of Birth"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="nominee-relationship"
+                  >
+                    Nominee Relationship
+                  </label>
+                  <select
+                    name="nominee_relationship"
+                    value={updateFormData?.nominee_relationship || ""}
+                    onChange={handleInputChange}
+                    id="nominee-relationship"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  >
+                    <option value="">Select Relationship</option>
+                    <option value="Father">Father</option>
+                    <option value="Mother">Mother</option>
+                    <option value="Brother/Sister">Brother/Sister</option>
+                    <option value="Spouse">Spouse</option>
+                    <option value="Son/Daughter">Son/Daughter</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="nominee-phone-number"
+                  >
+                    Nominee Phone Number
+                  </label>
+                  <input
+                    type="number"
+                    name="nominee_phone_number"
+                    value={updateFormData?.nominee_phone_number}
+                    onChange={handleInputChange}
+                    id="nominee-phone-number"
+                    placeholder="Enter the Nominee Phone number"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="aadhar-photo"
+                  >
+                    Aadhaar Front Photo
+                  </label>
+                  <input
+                    type="file"
+                    name="aadhar_frontphoto"
+                    onChange={ handleFileChange}
+                    id="aadhar-photo"
+                    placeholder=" Upload Aadhaar Front Photo"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                  <Link to={updateFormData?.aadhar_frontphoto} download>
+                  <img
+                    src={updateFormData?.aadhar_frontphoto}
+                    alt="Aadhar Front"
+                    className="w-56 mx-2 my-4 h-56"
+                  />
+                  </Link>
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="aadhar-backphoto"
+                  >
+                    Aadhaar Back Photo
+                  </label>
+                  <input
+                    type="file"
+                    name="aadhar_backphoto"
+                    onChange={ handleFileChange}
+                    id="aadhar-backphoto"
+                    placeholder=" Upload Aadhaar Back Photo"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                   <Link to={updateFormData?.aadhar_backphoto} download>
+                  <img
+                    src={updateFormData?.aadhar_backphoto}
+                    alt="Aadhar Back"
+                    className="w-56 mx-2 my-4 h-56"
+                  />
+                  </Link>
+                </div>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="pan-photo"
+                  >
+                    Pan Front Photo
+                  </label>
+                  <input
+                    type="file"
+                    name="pan_frontphoto"
+                    onChange={  handleFileChange}
+                    id="pan-photo"
+                    placeholder=" Upload Pan Front Photo"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                   <Link to={updateFormData?.pan_frontphoto} download>
+                  <img
+                    src={updateFormData?.pan_frontphoto}
+                    alt="Pan Front"
+                    className="w-56 mx-2 my-4 h-56"
+                  />
+                  </Link>
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="pan-backphoto"
+                  >
+                    Pan Back Photo
+                  </label>
+                  <input
+                    type="file"
+                    name="pan_backphoto"
+                    onChange={ handleFileChange}
+                    id="pan-backphoto"
+                    placeholder=" Upload Pan Back Photo"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                  <Link to={updateFormData?.pan_backphoto} download>
+                  <img
+                    src={updateFormData?.pan_backphoto}
+                    alt="Pan Back"
+                    className="w-56 mx-2 my-4 h-56"
+                  />
+                  </Link>
+                </div>
+              </div>
+
+              <div>
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="profile-photo"
+                >
+                  Upload Profile Photo
+                </label>
+                <input
+                  type="file"
+                  name="profilephoto"
+                  onChange={ handleFileChange}
+                  id="profile-photo"
+                  placeholder=" Upload Profile Photo"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                />
+                <Link to={updateFormData?.profilephoto} download>
+                <img
+                  src={updateFormData?.profilephoto}
+                  alt="Profile Photo"
+                  className="w-56 mx-2 my-4 h-56"
+                />
+                </Link>
+
+              </div>
+
+              <label
+                className="block mb-2 text-sm font-medium text-gray-900"
+                htmlFor=""
+              >
+                Bank Details
+              </label>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="bank-name"
+                  >
+                    Bank Name
+                  </label>
+                  <input
+                    type="text"
+                    name="bank_name"
+                    value={updateFormData?.bank_name}
+                    onChange={handleInputChange}
+                    id="bank-name"
+                    placeholder="Enter the Customer Bank Name"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="bank-branch-name"
+                  >
+                    Bank Branch Name
+                  </label>
+                  <input
+                    type="text"
+                    name="bank_branch_name"
+                    value={updateFormData?.bank_branch_name}
+                    onChange={handleInputChange}
+                    id="bank-branch-name"
+                    placeholder="Enter the Bank Branch Name"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="account-number"
+                  >
+                    Bank Account Number
+                  </label>
+                  <input
+                    type="text"
+                    name="bank_account_number"
+                    value={updateFormData?.bank_account_number}
+                    onChange={handleInputChange}
+                    id="account-number"
+                    placeholder="Enter the Customer Bank Account Number"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="ifsc"
+                  >
+                    Bank IFSC Code
+                  </label>
+                  <input
+                    type="text"
+                    name="bank_IFSC_code"
+                    value={updateFormData?.bank_IFSC_code}
+                    onChange={handleInputChange}
+                    id="ifsc"
+                    placeholder="Enter the Bank IFSC Code"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
