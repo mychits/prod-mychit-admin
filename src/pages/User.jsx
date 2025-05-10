@@ -1399,6 +1399,7 @@ const handleUpdate = async (e) => {
                     name="aadhar_frontphoto"
                     onChange={ handleFileChange}
                     id="aadhar-photo"
+                    accept="image/*"
                     placeholder=" Upload Aadhaar Front Photo"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
@@ -1423,6 +1424,7 @@ const handleUpdate = async (e) => {
                     name="aadhar_backphoto"
                     onChange={ handleFileChange}
                     id="aadhar-backphoto"
+                    accept="image/*"
                     placeholder=" Upload Aadhaar Back Photo"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
@@ -1448,6 +1450,7 @@ const handleUpdate = async (e) => {
                     name="pan_frontphoto"
                     onChange={  handleFileChange}
                     id="pan-photo"
+                    accept="image/*"
                     placeholder=" Upload Pan Front Photo"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
@@ -1472,6 +1475,7 @@ const handleUpdate = async (e) => {
                     name="pan_backphoto"
                     onChange={ handleFileChange}
                     id="pan-backphoto"
+                    accept="image/*"
                     placeholder=" Upload Pan Back Photo"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
@@ -1497,6 +1501,7 @@ const handleUpdate = async (e) => {
                   name="profilephoto"
                   onChange={ handleFileChange}
                   id="profile-photo"
+                  accept="image/*"
                   placeholder=" Upload Profile Photo"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />

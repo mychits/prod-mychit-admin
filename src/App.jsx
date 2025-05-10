@@ -22,7 +22,7 @@ const AuctionReport = lazy(() => import("./pages/AuctionReport"));
 const Print = lazy(() => import("./pages/Print"));
 const AppSettings = lazy(() => import("./pages/AppSettings"));
 const GroupSettings = lazy(() => import("./pages/GroupSettings"));
-const Task = lazy(() => import("./pages/Task")); 
+const Task = lazy(() => import("./pages/Task"));
 import ProtectedRoute from "./components/authentication/ProtectedRoute";
 import CircularLoader from "./components/loaders/CircularLoader";
 import Marketing from "./pages/Marketing";
@@ -35,16 +35,15 @@ import Sidebar from "./components/layouts/Sidebar";
 import AllUserReport from "./pages/AllUserReport";
 import Loan from "./pages/Loan";
 import Pigme from "./pages/Pigme";
-import PigmeReport from "./pages/PigmeReport"
-import LoanReport from "./pages/LoanReport"
-import EnrollmentRequestForm from "./pages/EnrollmentRequestForm"
+import PigmeReport from "./pages/PigmeReport";
+import LoanReport from "./pages/LoanReport";
+import EnrollmentRequestForm from "./pages/EnrollmentRequestForm";
 import EnrollmentRequest from "./pages/EnrollmentRequest";
 import Designation from "./pages/Designation";
 import AdministrativePrivileges from "./pages/AdministrativePrivileges";
 import AdminAccessRights from "./pages/AdminAccessRights";
 import EmployeeReport from "./pages/EmployeeReport";
 function App() {
-
   return (
     <>
       <div className="overflow-x">
@@ -68,15 +67,18 @@ function App() {
               }
             />
 
-<Route
-  path="/task"
-  element={
-    <ProtectedRoute>
-      <Task />
-    </ProtectedRoute>
-  }
-/>
-
+            <Route
+              path="/task"
+              element={
+                <ProtectedRoute>
+                  <Task />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/enrollment-request-form"
+              element={<EnrollmentRequestForm />}
+            />
 
             <Route
               path="/group"
@@ -210,26 +212,26 @@ function App() {
               </Route>
             </Route>
             <Route
-                  path="administrative-privileges"
-                  element={
-                    <ProtectedRoute>
-                      <Navbar />
-                      <AdministrativePrivileges />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route />
-                <Route
-                  path="admin-access-rights"
-                  element={
-                    <ProtectedRoute>
-                      <Navbar />
-                      <AdminAccessRights />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route />
-                
+              path="administrative-privileges"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <AdministrativePrivileges />
+                </ProtectedRoute>
+              }
+            />
+            <Route />
+            <Route
+              path="admin-access-rights"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <AdminAccessRights />
+                </ProtectedRoute>
+              }
+            />
+            <Route />
+
             <Route
               path="/reports"
               element={
