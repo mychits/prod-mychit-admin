@@ -500,18 +500,18 @@ const handleUpdate = async (e) => {
       });
 
       setShowModalUpdate(false);
-      setAlertConfig({
-          visibility: true,
-          message: "User Updated Successfully",
-          type: "success",
-      });
+      // setAlertConfig({
+      //     visibility: true,
+      //     message: "User Updated Successfully",
+      //     type: "success",
+      // });
   } catch (error) {
       console.error("Error updating user:", error);
-      setAlertConfig({
-          visibility: true,
-          message: error?.response?.data?.message || "An unexpected error occurred. Please try again.",
-          type: "error",
-      });
+      // setAlertConfig({
+      //     visibility: true,
+      //     message: error?.response?.data?.message || "An unexpected error occurred. Please try again.",
+      //     type: "error",
+      // });
   }
 };
 

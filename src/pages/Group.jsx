@@ -73,7 +73,7 @@ const Group = () => {
 
     const baseUrl = "http://prod-chit.s3-website.eu-north-1.amazonaws.com";
     const fullUrl = `${baseUrl}/enrollment-request-form/?group_id=${groupId}`;
-    navigator.clipboard.writeText(fullUrl);
+    // navigator.clipboard.writeText(fullUrl);
     window.open(fullUrl, "_blank");
   };
 
