@@ -103,39 +103,66 @@ const Group = () => {
     if (!data.group_type) {
       newErrors.group_type = "Group Type is required";
     }
-
-    if (!data.group_value || isNaN(data.group_value) || data.group_value <= 0) {
-      newErrors.group_value = "Group Value must be a positive number";
+ if(!data.group_value ){
+   newErrors.group_value = "Group Value is required";
+ }
+    else if (isNaN(data.group_value) || data.group_value <= 0) {
+      newErrors.group_value = "Group Value must be greater than zero (no";
     }
 
-    if (
+
+  if (
+      !data.group_install 
+    ) {
+      newErrors.group_install =
+        "Group Installment Amount is required";
+    }
+
+    
+    else if (
       !data.group_install ||
       isNaN(data.group_install) ||
       data.group_install <= 0
     ) {
       newErrors.group_install =
-        "Group Installment Amount must be a positive number";
+        "Group Installment Amount must be greater than zero (no symbols).";
     }
 
-    if (
+if(!data.group_members){
+  newErrors.group_members = "Group Members is required";
+    }
+
+
+
+   else if (
       !data.group_members ||
       isNaN(data.group_members) ||
       data.group_members <= 0
     ) {
-      newErrors.group_members = "Group Members must be a positive number";
+      newErrors.group_members = "Group Members must be greater than zero (no symbols).";
     }
 
-    if (
+ if (!data.group_duration ){
+  newErrors.group_duration = "Group Duration is required"
+}
+
+    else if (
       !data.group_duration ||
       isNaN(data.group_duration) ||
       data.group_duration <= 0
     ) {
-      newErrors.group_duration = "Group Duration must be a positive number";
+      newErrors.group_duration = "Group Duration must be greater than zero (no symbols).";
     }
 
-    if (!data.reg_fee || isNaN(data.reg_fee) || data.reg_fee < 0) {
-      newErrors.reg_fee = "Registration Fee must be a zero or positive number";
+     if (!data.reg_fee) {
+      newErrors.reg_fee = "Registration Fee is required";
     }
+
+    else if (!data.reg_fee || isNaN(data.reg_fee) || data.reg_fee < 0) {
+      newErrors.reg_fee = "Registration Fee must be a zero or greater than zero (no symbols).";
+    }
+
+    
 
     if (!data.start_date) {
       newErrors.start_date = "Start Date is required";
@@ -150,16 +177,26 @@ const Group = () => {
       newErrors.end_date = "End Date cannot be earlier than Start Date";
     }
 
-    if (!data.minimum_bid || isNaN(data.minimum_bid) || data.minimum_bid <= 0) {
-      newErrors.minimum_bid = "Minimum Bid must be a positive number";
+     if (!data.minimum_bid) {
+      newErrors.minimum_bid = "Minimum Bid is required";
     }
 
-    if (!data.maximum_bid || isNaN(data.maximum_bid) || data.maximum_bid <= 0) {
-      newErrors.maximum_bid = "Maximum Bid must be a positive number";
+    else if (!data.minimum_bid || isNaN(data.minimum_bid) || data.minimum_bid <= 0) {
+      newErrors.minimum_bid = "Minimum Bid must be greater than zero (no symbols).";
+    }
+
+    
+    if (!data.maximum_bid) {
+      newErrors.maximum_bid = "Maximum Bid is required";
+    } 
+
+   else if (!data.maximum_bid || isNaN(data.maximum_bid) || data.maximum_bid <= 0) {
+      newErrors.maximum_bid = "Maximum Bid must be greater than zero (no symbols).";
     } else if (parseFloat(data.maximum_bid) < parseFloat(data.minimum_bid)) {
       newErrors.maximum_bid =
         "Maximum Bid must be greater than or equal to Minimum Bid";
     }
+
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -511,7 +548,7 @@ const Group = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Group Name
+                  Group Name   <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -534,7 +571,7 @@ const Group = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Group Type
+                  Group Type  <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   name="group_type"
@@ -560,7 +597,7 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Value
+                    Group Value  <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -583,7 +620,7 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Installment Amount
+                    Group Installment Amount  <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -608,7 +645,7 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Members
+                    Group Members   <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -631,7 +668,7 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Duration
+                    Group Duration  <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -656,7 +693,7 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Registration Fee
+                    Registration Fee  <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -681,7 +718,7 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Start Date
+                    Start Date  <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="date"
@@ -729,7 +766,7 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Minimum Bid
+                    Minimum Bid  <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -752,7 +789,7 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Maximum Bid
+                    Maximum Bid  <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"

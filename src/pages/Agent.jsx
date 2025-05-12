@@ -187,20 +187,27 @@ const Agent = () => {
         error.response.data &&
         error.response.data.message
       ) {
-        console.log("error")
-        // setAlertConfig({
-        //   visibility: true,
-        //   message: `${error.response.data.message}`,
-        //   type: "error",
-        // });
+       const errMsg = error.response.data.message.toLowerCase();
+
+      if (errMsg.includes("phone number")) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          phone_number: "Phone number already exists",
+        }));
       } else {
-        console.log("error")
-        // setAlertConfig({
-        //   visibility: true,
-        //   message: "An unexpected error occurred. Please try again.",
-        //   type: "error",
-        // });
+        setAlertConfig({
+          visibility: true,
+          message: error.response.data.message,
+          type: "error",
+        });
       }
+    } else {
+      setAlertConfig({
+        visibility: true,
+        message: "An unexpected error occurred. Please try again.",
+        type: "error",
+      });
+    }
     }
   };
 
@@ -473,7 +480,7 @@ const Agent = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Full Name
+                  Full Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -495,7 +502,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Email
+                    Email  <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -516,7 +523,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Phone Number
+                    Phone Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -541,7 +548,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Password
+                    Password <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -564,7 +571,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Pincode
+                    Pincode <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -589,7 +596,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Adhaar Number
+                    Adhaar Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -612,7 +619,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Pan Number
+                    Pan Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -634,7 +641,7 @@ const Agent = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Address
+                  Address <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -655,7 +662,7 @@ const Agent = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Designation
+                  Designation <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   value={selectedManagerId}
@@ -671,40 +678,9 @@ const Agent = () => {
                     </option>
                   ))}
                 </select>
-                {errors.reporting_manager && (
-                  <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
-                )}
+              
               </div>
-              {(selectedManagerTitle === "Sales Excecutive" ||
-                selectedManagerTitle === "Business Agent" ||
-                selectedManagerTitle === "Office Executive")
-                && (
-                  <div className="w-full">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="category"
-                    >
-                      Reporting Manager
-                    </label>
-                    <select
-                      value={selectedReportingManagerId}
-                      onChange={handleReportingManager}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    >
-                      <option value="" hidden>
-                        Select Reporting Manager
-                      </option>
-                      {users.map((group) => (
-                        <option key={group._id} value={group._id}>
-                          {group.name} - {group?.designation_id?.title}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.reporting_manager && (
-                      <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
-                    )}
-                  </div>
-                )}
+              
               <div className="w-full flex justify-end">
                 <button
                   type="submit"

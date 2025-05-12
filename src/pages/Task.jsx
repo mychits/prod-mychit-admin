@@ -236,7 +236,7 @@ const Task = () => {
           <h2 className="text-xl font-bold mb-4">{currentTask ? "Edit Task" : "Add Task"}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium">Employee</label>
+              <label className="block text-sm font-medium">Employee  <span className="text-red-500 ">*</span> </label>
               <select
                 name="employeeId"
                 value={formData.employeeId}
@@ -271,7 +271,9 @@ const Task = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium">Task Title</label>
+              <label className="block text-sm font-medium">Task Title
+                <span className="text-red-500 ">*</span>
+              </label>
               <input
                 type="text"
                 name="taskTitle"
@@ -283,7 +285,9 @@ const Task = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium">Task Description</label>
+              <label className="block text-sm font-medium">Task Description
+                <span className="text-red-500 ">*</span>
+              </label>
               <textarea
                 name="taskDescription"
                 value={formData.taskDescription}
@@ -294,7 +298,9 @@ const Task = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium">Start Date & Time</label>
+              <label className="block text-sm font-medium">Start Date & Time
+                <span className="text-red-500 ">*</span>
+              </label>
               <input
                 type="datetime-local"
                 name="startDate"
@@ -306,7 +312,9 @@ const Task = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium">End Date & Time</label>
+              <label className="block text-sm font-medium">End Date & Time
+                <span className="text-red-500 ">*</span>
+              </label>
               <input
                 type="datetime-local"
                 name="endDate"

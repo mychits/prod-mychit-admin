@@ -207,6 +207,19 @@ const User = () => {
         });
       } catch (error) {
         console.error("Error adding user:", error);
+
+ if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message &&
+        error.response.data.message.toLowerCase().includes("phone number")
+      ) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          phone_number: "Phone number already exists",
+        }));
+      }
+
         if (
           error.response &&
           error.response.data &&
@@ -589,7 +602,7 @@ const handleUpdate = async (e) => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Full Name
+                  Full Name <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -634,7 +647,7 @@ const handleUpdate = async (e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Phone Number
+                    Phone Number <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -659,7 +672,7 @@ const handleUpdate = async (e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Password
+                    Password <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
@@ -682,7 +695,7 @@ const handleUpdate = async (e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Pincode
+                    Pincode <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -707,7 +720,7 @@ const handleUpdate = async (e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Adhaar Number
+                    Adhaar Number <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -752,7 +765,7 @@ const handleUpdate = async (e) => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Address
+                  Address <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
