@@ -1,4 +1,3 @@
-// pages/Task.jsx
 import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import Navbar from "../components/layouts/Navbar";
@@ -12,6 +11,7 @@ import { IoMdMore } from "react-icons/io";
 
 const Task = () => {
   const [agents, setAgents] = useState([]);
+  const [leads, setLeads] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [tableTasks, setTableTasks] = useState([]);
   const [formData, setFormData] = useState({
@@ -21,26 +21,34 @@ const Task = () => {
     startDate: "",
     endDate: "",
     status: "Pending",
+    lead: "",
   });
   const [modalVisible, setModalVisible] = useState(false);
   const [alert, setAlert] = useState({ visibility: false, message: "", type: "" });
-  const [searchText, setSearchText] = useState("");
   const [currentTask, setCurrentTask] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchAgents = async () => {
-    const res = await api.get("/agent/get-agent");
-    setAgents(res.data);
-  };
-
-  const fetchTasks = async () => {
+  const fetchAllData = async () => {
     try {
       setIsLoading(true);
-      const res = await api.get("/task/get-tasks");
-      setTasks(res.data);
+      const [agentRes, leadRes, taskRes] = await Promise.all([
+        api.get("/agent/get-agent"),
+        api.get("/lead/get-lead"),
+        api.get("/task/get-tasks"),
+      ]);
 
-      const formatted = res.data.map((task, index) => {
-        const emp = agents.find((a) => a._id === task.employeeId);
+      const agentData = agentRes.data;
+      const leadData = leadRes.data;
+      const taskData = taskRes.data;
+
+      setAgents(agentData);
+      setLeads(leadData);
+      setTasks(taskData);
+
+      const formatted = taskData.map((task, index) => {
+        const emp = agentData.find((a) => a._id === task.employeeId);
+        const leadObj = leadData.find((l) => l._id === task.lead);
+
         return {
           _id: task._id,
           id: index + 1,
@@ -48,6 +56,8 @@ const Task = () => {
           employeeCode: emp?.employeeCode || "N/A",
           taskTitle: task.taskTitle,
           status: task.status,
+          lead: task.lead?.name && task.lead?.phone ? `${task.lead.name} (${task.lead.phone})` : "N/A",
+  
           action: (
             <Dropdown
               menu={{
@@ -80,11 +90,15 @@ const Task = () => {
 
       setTableTasks(formatted);
     } catch (err) {
-      console.error("Error fetching tasks", err);
+      console.error("Error fetching all data", err);
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAllData();
+  }, []);
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -92,20 +106,27 @@ const Task = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.info(formData,"formData")
     e.preventDefault();
-    console.log("Submitting Task Data:", formData);
     try {
-      const selectedAgent = agents.find(a => a._id === formData.employeeId);
-      if (!selectedAgent || !selectedAgent.employeeCode) {
-        setAlert({ visibility: true, message: "Invalid employee or missing employee code", type: "error" });
-        return;
-      }
-
+      // const selectedAgent = agents.find(a => a._id === formData.employeeId);
+      // if (!selectedAgent || !selectedAgent.employeeCode) {
+      //   setAlert({ visibility: true, message: "Invalid employee or missing employee code", type: "error" });
+      //   return;
+      // }
+  
+      // const selectedLead = leads.find(l => l._id === formData.lead);
+      // if (!selectedLead) {
+      //   setAlert({ visibility: true, message: "Invalid lead selected", type: "error" });
+      //   return;
+      // }
+  
       const payload = {
         ...formData,
-        employeeCode: selectedAgent.employeeCode,
+        // employeeCode: selectedAgent.employeeCode,
+        // lead,
       };
-
+  
       if (currentTask) {
         await api.put(`/task/update-task/${currentTask}`, payload);
         setAlert({ visibility: true, message: "Task updated successfully", type: "success" });
@@ -113,7 +134,7 @@ const Task = () => {
         await api.post("/task/add-task", payload);
         setAlert({ visibility: true, message: "Task created successfully", type: "success" });
       }
-
+  
       setModalVisible(false);
       setFormData({
         employeeId: "",
@@ -122,14 +143,16 @@ const Task = () => {
         startDate: "",
         endDate: "",
         status: "Pending",
+        lead: "",
       });
       setCurrentTask(null);
-      fetchTasks();
+      fetchAllData();
     } catch (err) {
-      console.error("Task creation error:", err);
+      console.error("Task creation error:", err.response?.data || err.message);
       setAlert({ visibility: true, message: "Something went wrong", type: "error" });
     }
   };
+  
 
   const openEdit = (task) => {
     setCurrentTask(task._id);
@@ -140,6 +163,7 @@ const Task = () => {
       startDate: task.startDate?.slice(0, 16) || "",
       endDate: task.endDate?.slice(0, 16) || "",
       status: task.status || "Pending",
+      lead: task.lead || "",
     });
     setModalVisible(true);
   };
@@ -148,25 +172,18 @@ const Task = () => {
     try {
       await api.delete(`/task/delete-task/${id}`);
       setAlert({ visibility: true, message: "Task deleted", type: "success" });
-      fetchTasks();
+      fetchAllData();
     } catch (err) {
       setAlert({ visibility: true, message: "Delete failed", type: "error" });
     }
   };
-
-  useEffect(() => {
-    fetchAgents();
-  }, []);
-
-  useEffect(() => {
-    if (agents.length > 0) fetchTasks();
-  }, [agents]);
 
   const columns = [
     { key: "employeeName", header: "Employee Name" },
     { key: "employeeCode", header: "Employee ID" },
     { key: "taskTitle", header: "Task Name" },
     { key: "status", header: "Task Status" },
+    { key: "lead", header: "Lead" },
     { key: "action", header: "Action" },
   ];
 
@@ -190,6 +207,7 @@ const Task = () => {
                     startDate: "",
                     endDate: "",
                     status: "Pending",
+                    lead: "",
                   });
                   setCurrentTask(null);
                 }}
@@ -230,6 +248,23 @@ const Task = () => {
                 {agents.map((a) => (
                   <option key={a._id} value={a._id}>
                     {a.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium">Lead</label>
+              <select
+                name="lead"
+                value={formData.lead}
+                onChange={handleInput}
+                className="w-full p-2 border rounded"
+              >
+                <option value="">Select Lead</option>
+                {leads.map((lead) => (
+                  <option key={lead._id} value={lead._id}>
+                  { `${lead?.lead_name} - ${lead?.lead_phone}`}
                   </option>
                 ))}
               </select>
