@@ -99,13 +99,7 @@ const MenuSidebar = [
     icon: <GoGraph />,
     link: "/marketing",
   },
-  {
-    id: ids.fifteen,
-    title: "Profile",
-    spacing: true,
-    icon: <CgProfile />,
-    link: "/profile",
-  },
+ 
   {
     id: "$15",
     title: "Other Sites",
