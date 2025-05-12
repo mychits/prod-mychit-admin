@@ -19,7 +19,7 @@ import { PiCalculatorBold } from "react-icons/pi";
 import { FaPersonCane } from "react-icons/fa6";
 import { FaHandshake } from "react-icons/fa";
 import ids from "../../data/ids";
-import { LuClipboardPen } from "react-icons/lu";
+import { FaClipboardList } from "react-icons/fa";
 import { TbArrowsLeftDown } from "react-icons/tb";
 const MenuSidebar = [
   {
@@ -52,7 +52,7 @@ const MenuSidebar = [
   {
     id: "$18",
     title: "Tasks",
-    icon: <LuClipboardPen />, 
+    icon: <FaClipboardList />, 
     link: "/task",
   },
   {
