@@ -66,15 +66,15 @@ const Group = () => {
       return;
     }
 
-    // window.open(`/enrollment-request-form/?group_id=${groupId}`, "_blank");
-    // navigator.clipboard.writeText(
-    //   location.origin + `/enrollment-request-form/?group_id=${groupId}`
-    // );
+    window.open(`/enrollment-request-form/?group_id=${groupId}`, "_blank");
+    navigator.clipboard.writeText(
+      location.origin + `/enrollment-request-form/?group_id=${groupId}`
+    );
 
-    const baseUrl = "http://prod-chit.s3-website.eu-north-1.amazonaws.com";
-    const fullUrl = `${baseUrl}/enrollment-request-form/?group_id=${groupId}`;
-    // navigator.clipboard.writeText(fullUrl);
-    window.open(fullUrl, "_blank");
+    // const baseUrl = "http://prod-chit.s3-website.eu-north-1.amazonaws.com";
+    // const fullUrl = `${baseUrl}/enrollment-request-form/?group_id=${groupId}`;
+    // // navigator.clipboard.writeText(fullUrl);
+    // window.open(fullUrl, "_blank");
   };
 
   const handleChange = (e) => {

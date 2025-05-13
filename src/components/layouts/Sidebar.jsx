@@ -16,6 +16,7 @@ import { IoPeopleOutline } from "react-icons/io5";
 import { GoGraph } from "react-icons/go";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { PiCalculatorBold } from "react-icons/pi";
+import { PiMapPinAreaBold } from "react-icons/pi";
 import { FaPersonCane } from "react-icons/fa6";
 import { FaHandshake } from "react-icons/fa";
 import ids from "../../data/ids";
@@ -53,6 +54,12 @@ const MenuSidebar = [
     title: "Tasks",
     icon: <FaUserLock />, 
     link: "/task",
+  },
+   {
+    id: ids.twentyTwo,
+    title: "Collection Areas ",
+    icon:<PiMapPinAreaBold />,
+    link: "/collection-area-request",
   },
   {
     id: ids.seven,
