@@ -42,7 +42,8 @@ const Group = () => {
     end_date: "",
     minimum_bid: "",
     maximum_bid: "",
-    commission: 5,
+    commission: 1,
+    incentives: "",
     reg_fee: "",
   });
   const [errors, setErrors] = useState({});
@@ -58,6 +59,7 @@ const Group = () => {
     minimum_bid: "",
     maximum_bid: "",
     commission: 5,
+    incentives: "",
     reg_fee: "",
   });
   const handleShareClick = (groupId) => {
@@ -808,6 +810,36 @@ if(!data.group_members){
                   )}
                 </div>
               </div>
+              <div className="flex flex-row justify-between space-x-4">
+  <div className="w-1/2">
+    <label className="block mb-2 text-sm font-medium text-gray-900">
+      Commission %
+    </label>
+    <input
+      type="number"
+      name="commission"
+      value={formData.commission}
+      onChange={handleChange}
+      placeholder="Enter Commission"
+      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+    />
+  </div>
+  <div className="w-1/2">
+    <label className="block mb-2 text-sm font-medium text-gray-900">
+      Incentives
+    </label>
+    <input
+      type="text"
+      name="incentives"
+      value={formData.incentives}
+      onChange={handleChange}
+      placeholder="Enter Incentives"
+      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+    />
+  </div>
+</div>
+
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
@@ -1091,6 +1123,37 @@ if(!data.group_members){
                   )}
                 </div>
               </div>
+
+              <div className="flex flex-row justify-between space-x-4">
+  <div className="w-1/2">
+    <label className="block mb-2 text-sm font-medium text-gray-900">
+      Commission %
+    </label>
+    <input
+      type="number"
+      name="commission"
+      value={updateFormData.commission}
+      onChange={handleInputChange}
+      placeholder="Enter Commission"
+      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+    />
+  </div>
+  <div className="w-1/2">
+    <label className="block mb-2 text-sm font-medium text-gray-900">
+      Incentives
+    </label>
+    <input
+      type="text"
+      name="incentives"
+      value={updateFormData.incentives}
+      onChange={handleInputChange}
+      placeholder="Enter Incentives"
+      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+    />
+  </div>
+</div>
+
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
