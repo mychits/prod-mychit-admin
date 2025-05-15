@@ -17,11 +17,15 @@ import { GoGraph } from "react-icons/go";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { PiCalculatorBold } from "react-icons/pi";
 import { PiMapPinAreaBold } from "react-icons/pi";
-import { FaPersonCane } from "react-icons/fa6";
-import { FaHandshake } from "react-icons/fa";
+
 import ids from "../../data/ids";
 import { FaClipboardList } from "react-icons/fa";
 import { TbArrowsLeftDown } from "react-icons/tb";
+import { RiUserLocationFill } from "react-icons/ri";
+import { FaMapLocationDot } from "react-icons/fa6";
+import { GiReceiveMoney } from "react-icons/gi";
+import { HiCurrencyRupee } from "react-icons/hi2";
+import { TbSettings } from "react-icons/tb";
 const MenuSidebar = [
   {
     id: "$1",
@@ -55,12 +59,6 @@ const MenuSidebar = [
     title: "Tasks",
     icon: <FaClipboardList />,
     link: "/task",
-  },
-  {
-    id: ids.twentyTwo,
-    title: "Collection Areas ",
-    icon: <PiMapPinAreaBold />,
-    link: "/collection-area-request",
   },
   {
     id: ids.seven,
@@ -109,14 +107,14 @@ const MenuSidebar = [
   {
     id: "$199",
     title: "General Settings",
-    icon: <IoIosSettings />,
+    icon: <TbSettings   />,
     // link:"/general-settings",
     submenu: true,
     submenuItems: [
       {
         id: "#1",
         title: "Collection",
-        icon: <PiMapPinAreaBold />,
+        icon: <HiCurrencyRupee  />,
         hider:true,
         
         newTab: true,
@@ -125,21 +123,21 @@ const MenuSidebar = [
           {
             id: ids.fourteen,
             title: "Collection Area",
-            icon: <PiMapPinAreaBold />,
+            icon: <FaMapLocationDot />,
             link: "/collection-area-request",
           },
           {
             id: ids.fourteen,
             title: "Collection Mapping",
-            icon: <PiMapPinAreaBold />,
+            icon: <RiUserLocationFill />,
             link: "/collection-area-mapping",
           },
-          {
-            id: ids.fourteen,
-            title: "Marketing",
-            icon: <GoGraph />,
-            link: "/marketing",
-          },
+          // {
+          //   id: ids.fourteen,
+          //   title: "Marketing",
+          //   icon: <GoGraph />,
+          //   link: "/marketing",
+          // },
         ],
       },
     ],

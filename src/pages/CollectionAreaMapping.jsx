@@ -16,7 +16,7 @@ const CollectionAreaMapping = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentCollectionAreaMapping, setCurrentCollectionAreaMapping] = useState(null);
   const [tableCollectionAreaMapping, setTableCollectionAreaMapping] = useState([]);
-  const [agentOption, setAgentOptions] = useState([]);
+  const [agentOption, setAgentOption] = useState([]);
   const [areaOption, setAreaOptions] = useState([]);
   const [showModalUpdate, setShowModalUpdate] = useState(false);
    const [showModalDelete, setShowModalDelete] = useState(false);
@@ -53,7 +53,7 @@ const CollectionAreaMapping = () => {
           value: agent._id,
           label: agent.name,
         }));
-        setAgentOptions(options);
+        setAgentOption(options);
         }
       } catch (err) {
         console.error("failed to fetch Employee");

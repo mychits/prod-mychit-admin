@@ -25,6 +25,8 @@ const User = () => {
   const [selectedGroup, setSelectedGroup] = useState({});
   const [groups, setGroups] = useState([]);
   const [files, setFiles] = useState({});
+  const [areas, setAreas] = useState([]);
+  const [areaOption, setAreaOption] = useState([]);
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -41,12 +43,10 @@ const User = () => {
     pincode: "",
     adhaar_no: "",
     pan_no: "",
+    collection_area: "",
     customer_status: "inactive",
-    track_source:"admin_panel",
-   
+    track_source: "admin_panel",
   });
-
-  
 
   const handleGroup = async (e) => {
     try {
@@ -78,7 +78,7 @@ const User = () => {
     father_name: "",
     district: "",
     state: "",
-    area: "",
+    collection_area: "",
     alternate_number: "",
     referral_name: "",
     nominee_name: "",
@@ -103,8 +103,11 @@ const User = () => {
     setSearchText(value);
   };
 
+  const handleAreaChange = () => {};
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Selected Name: ${name}, Selected Value: ${value}`);
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -186,12 +189,12 @@ const User = () => {
             "Content-Type": "application/json",
           },
         });
-        window.location.reload();
-        setAlertConfig({
-          type: "success",
-          message: "User Added Successfully",
-          visibility: true,
-        });
+        // window.location.reload();
+        // setAlertConfig({
+        //   type: "success",
+        //   message: "User Added Successfully",
+        //   visibility: true,
+        // });
 
         setShowModal(false);
         setErrors({});
@@ -209,17 +212,17 @@ const User = () => {
       } catch (error) {
         console.error("Error adding user:", error);
 
- if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message &&
-        error.response.data.message.toLowerCase().includes("phone number")
-      ) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          phone_number: "Phone number already exists",
-        }));
-      }
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message &&
+          error.response.data.message.toLowerCase().includes("phone number")
+        ) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            phone_number: "Phone number already exists",
+          }));
+        }
 
         if (
           error.response &&
@@ -243,11 +246,32 @@ const User = () => {
   };
 
   useEffect(() => {
+    const fetchCollectionArea = async () => {
+      try {
+        const response = await api.get(
+          "/collection-area-request/get-collection-area-data");
+
+      //      const formattedAreas = response.data.map((item) => ({
+      //   _id: item.collection_area?._id,
+      //   route_name: item.collection_area?.route_name,
+      // }));
+        setAreas(response.data)
+       // console.info(response.data, "area fetching");
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchCollectionArea();
+  }, []);
+
+  useEffect(() => {
     const fetchUsers = async () => {
       try {
         setIsLoading(true);
         const response = await api.get("/user/get-user");
+       // console.info(response.data,"collection area");
         setUsers(response.data);
+        
         const formattedData = response.data.map((group, index) => ({
           _id: group._id,
           id: index + 1,
@@ -256,11 +280,10 @@ const User = () => {
           address: group.address,
           pincode: group.pincode,
           customer_id: group.customer_id,
-          area: group.area,
+          collection_area: group?.collection_area?.route_name,
           customer_status: group.customer_status,
           action: (
             <div className="flex justify-center gap-2">
-           
               <Dropdown
                 menu={{
                   items: [
@@ -287,7 +310,7 @@ const User = () => {
                       ),
                     },
                     {
-                      key: "3", 
+                      key: "3",
                       label: (
                         <div
                           onClick={() =>
@@ -343,7 +366,7 @@ const User = () => {
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
-        const res = await api.get("group/get-group");
+        const res = await api.get("group/get-group-admin");
         setGroups(res.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -359,7 +382,7 @@ const User = () => {
     { key: "phone_number", header: "Customer Phone Number" },
     { key: "address", header: "Customer Address" },
     { key: "pincode", header: "Customer Pincode" },
-    { key: "area", header: "Area" },
+    { key: "collection_area", header: "Area" },
     { key: "customer_status", header: "Customer Status" },
     { key: "action", header: "Action" },
   ];
@@ -403,7 +426,7 @@ const User = () => {
         taluk: response?.data?.taluk,
         district: response?.data?.district,
         state: response?.data?.state,
-        area: response?.data?.area,
+        collection_area: response?.data?.collection_area?._id || "",
         alternate_number: response?.data?.alternate_number,
         referral_name: response?.data?.referral_name,
         nominee_name: response?.data?.nominee_name,
@@ -426,12 +449,6 @@ const User = () => {
       console.error("Error fetching user:", error);
     }
   };
-
-
-
-
-
-
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -462,11 +479,10 @@ const User = () => {
     }
   };
 
-  
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
-  
+
     if (file) {
       // Update the form data state with the selected file
       setUpdateFormData((prevState) => ({
@@ -475,7 +491,7 @@ const User = () => {
       }));
     }
   };
-  
+
   const handleCustomerStatus = async (id) => {
     try {
       if (!id) {
@@ -495,52 +511,41 @@ const User = () => {
     }
   };
 
+  const handleUpdate = async (e) => {
+    e.preventDefault();
 
-
-
-
-const handleUpdate = async (e) => {
-  e.preventDefault();
-
-  try {
+    try {
       const fmData = new FormData();
 
-   
       Object.entries(updateFormData).forEach(([key, value]) => {
-          if (key === "selected_plan" && selectedGroup?._id) {
-              fmData.append("selected_plan", selectedGroup._id); 
-          } else if (value) {
-              fmData.append(key, value);
-          }
+        if (key === "selected_plan" && selectedGroup?._id) {
+          fmData.append("selected_plan", selectedGroup._id);
+        } else if (value) {
+          fmData.append(key, value);
+        }
       });
 
       await api.put(`/user/update-user/${currentUpdateUser?._id}`, fmData, {
-          headers: { "Content-Type": "multipart/form-data" },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       setShowModalUpdate(false);
-      setAlertConfig({
-          visibility: true,
-          message: "User Updated Successfully",
-          type: "success",
-      });
-  } catch (error) {
+      // setAlertConfig({
+      //   visibility: true,
+      //   message: "User Updated Successfully",
+      //   type: "success",
+      // });
+    } catch (error) {
       console.error("Error updating user:", error);
-      setAlertConfig({
-          visibility: true,
-          message: error?.response?.data?.message || "An unexpected error occurred. Please try again.",
-          type: "error",
-      });
-  }
-};
-
-
-
-
-
-
-
-
+      // setAlertConfig({
+      //   visibility: true,
+      //   message:
+      //     error?.response?.data?.message ||
+      //     "An unexpected error occurred. Please try again.",
+      //   type: "error",
+      // });
+    }
+  };
 
   return (
     <>
@@ -594,7 +599,6 @@ const handleUpdate = async (e) => {
                 data="Customer Data"
               />
             )}
-          
           </div>
         </div>
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
@@ -786,6 +790,41 @@ const handleUpdate = async (e) => {
                 {errors.address && (
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
                 )}
+              </div>
+              <div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="area"
+                  >
+                    Collection Area
+                  </label>
+                  <select
+                    type="text"
+                    name="collection_area"
+                    value={formData?.collection_area || ""}
+                    // onChange={handleChange}
+                    // options={areaOption}
+                    onChange={(e) => {
+                      console.log(e.target.value,"checking .........");
+                      handleChange(e);
+                    }}
+                    id="area"
+                    placeholder="Select Collection Area"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  >
+                    <option value="">Select Customer</option>
+                    {areas.map((area) => (
+                      <option
+                        key={area?._id}
+                        value={area?._id}
+                      >
+                        {area?.route_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="w-full flex justify-end">
                 <button
@@ -1416,18 +1455,18 @@ const handleUpdate = async (e) => {
                   <input
                     type="file"
                     name="aadhar_frontphoto"
-                    onChange={ handleFileChange}
+                    onChange={handleFileChange}
                     id="aadhar-photo"
                     accept="image/*"
                     placeholder=" Upload Aadhaar Front Photo"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
                   <Link to={updateFormData?.aadhar_frontphoto} download>
-                  <img
-                    src={updateFormData?.aadhar_frontphoto}
-                    alt="Aadhar Front"
-                    className="w-56 mx-2 my-4 h-56"
-                  />
+                    <img
+                      src={updateFormData?.aadhar_frontphoto}
+                      alt="Aadhar Front"
+                      className="w-56 mx-2 my-4 h-56"
+                    />
                   </Link>
                 </div>
 
@@ -1441,18 +1480,18 @@ const handleUpdate = async (e) => {
                   <input
                     type="file"
                     name="aadhar_backphoto"
-                    onChange={ handleFileChange}
+                    onChange={handleFileChange}
                     id="aadhar-backphoto"
                     accept="image/*"
                     placeholder=" Upload Aadhaar Back Photo"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                   <Link to={updateFormData?.aadhar_backphoto} download>
-                  <img
-                    src={updateFormData?.aadhar_backphoto}
-                    alt="Aadhar Back"
-                    className="w-56 mx-2 my-4 h-56"
-                  />
+                  <Link to={updateFormData?.aadhar_backphoto} download>
+                    <img
+                      src={updateFormData?.aadhar_backphoto}
+                      alt="Aadhar Back"
+                      className="w-56 mx-2 my-4 h-56"
+                    />
                   </Link>
                 </div>
               </div>
@@ -1467,18 +1506,18 @@ const handleUpdate = async (e) => {
                   <input
                     type="file"
                     name="pan_frontphoto"
-                    onChange={  handleFileChange}
+                    onChange={handleFileChange}
                     id="pan-photo"
                     accept="image/*"
                     placeholder=" Upload Pan Front Photo"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                   <Link to={updateFormData?.pan_frontphoto} download>
-                  <img
-                    src={updateFormData?.pan_frontphoto}
-                    alt="Pan Front"
-                    className="w-56 mx-2 my-4 h-56"
-                  />
+                  <Link to={updateFormData?.pan_frontphoto} download>
+                    <img
+                      src={updateFormData?.pan_frontphoto}
+                      alt="Pan Front"
+                      className="w-56 mx-2 my-4 h-56"
+                    />
                   </Link>
                 </div>
 
@@ -1492,68 +1531,78 @@ const handleUpdate = async (e) => {
                   <input
                     type="file"
                     name="pan_backphoto"
-                    onChange={ handleFileChange}
+                    onChange={handleFileChange}
                     id="pan-backphoto"
                     accept="image/*"
                     placeholder=" Upload Pan Back Photo"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
                   <Link to={updateFormData?.pan_backphoto} download>
-                  <img
-                    src={updateFormData?.pan_backphoto}
-                    alt="Pan Back"
-                    className="w-56 mx-2 my-4 h-56"
-                  />
+                    <img
+                      src={updateFormData?.pan_backphoto}
+                      alt="Pan Back"
+                      className="w-56 mx-2 my-4 h-56"
+                    />
                   </Link>
                 </div>
               </div>
-              <div className="flex flex-row justify-between space-x-4" >
-              <div className="w-1/2">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="profile-photo"
-                >
-                  Upload Profile Photo
-                </label>
-                <input
-                  type="file"
-                  name="profilephoto"
-                  onChange={ handleFileChange}
-                  id="profile-photo"
-                  accept="image/*"
-                  placeholder=" Upload Profile Photo"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                />
-                <Link to={updateFormData?.profilephoto} download>
-                <img
-                  src={updateFormData?.profilephoto}
-                  alt="Profile Photo"
-                  className="w-56 mx-2 my-4 h-56"
-                />
-                </Link>
-
-              </div>
-               <div className="w-1/2">
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="profile-photo"
+                  >
+                    Upload Profile Photo
+                  </label>
+                  <input
+                    type="file"
+                    name="profilephoto"
+                    onChange={handleFileChange}
+                    id="profile-photo"
+                    accept="image/*"
+                    placeholder=" Upload Profile Photo"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                  <Link to={updateFormData?.profilephoto} download>
+                    <img
+                      src={updateFormData?.profilephoto}
+                      alt="Profile Photo"
+                      className="w-56 mx-2 my-4 h-56"
+                    />
+                  </Link>
+                </div>
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="area"
                   >
-                    Area
+                    Collection Area
                   </label>
-                  <input
+                  <select
                     type="text"
-                    name="area"
-                    value={updateFormData?.area}
-                    onChange={handleInputChange}
+                    name="collection_area"
+                    value={updateFormData?.collection_area || ""}
+                  
+                    onChange={(e) => {
+                      handleInputChange(e);
+                    }}
                     id="area"
-                    placeholder="Enter Area"
+                    placeholder="Select Collection Area"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
+                  >
+                    <option value="">Select Area</option>
+                    {areas.map((area) => (
+                      <option
+                        key={area?._id}
+                        value={area?._id}
+                      >
+                        {area?.route_name}
+                      </option>
+                    ))}
+                    </select>
                 </div>
               </div>
-                
-                
 
               <label
                 className="block mb-2 text-sm font-medium text-gray-900"

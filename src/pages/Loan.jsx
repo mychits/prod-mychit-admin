@@ -155,18 +155,18 @@ const [isLoading,setIsLoading] = useState(false);
         const response = await api.get("/loans/get-all-borrowers");
         setBorrowers(response.data);
         const formattedData = response.data.map((borrower, index) => ({
-          _id: borrower._id,
+          _id: borrower?._id,
           id: index + 1,
-          loan_id: borrower.loan_id,
-          borrower_name: borrower.borrower.full_name,
-          date: borrower.createdAt,
-          loan_amount: borrower.loan_amount,
-          tenure: borrower.tenure,
-          service_charges: borrower.service_charges,
-          daily_payment_amount: borrower.daily_payment_amount,
-          start_date: borrower.start_date.split("T")[0],
-          end_date: borrower.end_date.split("T")[0],
-          note: borrower.note,
+          loan_id: borrower?.loan_id,
+          borrower_name: borrower?.borrower?.full_name,
+          date: borrower?.createdAt,
+          loan_amount: borrower?.loan_amount,
+          tenure: borrower?.tenure,
+          service_charges: borrower?.service_charges,
+          daily_payment_amount: borrower?.daily_payment_amount,
+          start_date: borrower?.start_date.split("T")[0],
+          end_date: borrower?.end_date.split("T")[0],
+          note: borrower?.note,
           action: (
             <div className="flex justify-center gap-2" key={borrower._id}>
               <Dropdown
