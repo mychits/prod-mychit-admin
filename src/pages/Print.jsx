@@ -7,269 +7,184 @@ import api from "../instance/TokenInstance";
 import mychitsLogo from "../assets/images/mychits.png"; 
 
 const ReceiptComponent = () => {
-  const { id } = useParams();
-  const [payment, setPayment] = useState({});
+    const { id } = useParams()
+    const [payment, setPayment] = useState({});
 
-  useEffect(() => {
-    const fetchPayment = async () => {
-      try {
-        const response = await api.get(`/payment/get-payment-by-id/${id}`);
-        if (response.data) {
-          setPayment(response.data);
-        } else {
-          setPayment({});
-        }
-      } catch (error) {
-        console.error("Error fetching payment data:", error);
-        setPayment({});
-      }
+    useEffect(() => {
+        const fetchPayment = async () => {
+            try {
+                const response = await api.get(`/payment/get-payment-by-id/${id}`);
+                if (response.data) {
+                    console.log(response.data);
+                    setPayment(response.data);
+                } else {
+                    setPayment({});
+                }
+            } catch (error) {
+                console.error("Error fetching payment data:", error);
+                setPayment({});
+            }
+        };
+
+        fetchPayment();
+    }, [id]);
+
+    useEffect(() => {
+        console.log(payment);
+    }, [payment]);
+
+    const formatPayDate = (dateString) => {
+        const date = new Date(dateString);
+        const options = { day: 'numeric', month: 'short', year: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
     };
 
-    fetchPayment();
-  }, [id]);
+    const handlePrint = async () => {
+        const receiptElement = document.getElementById("receipt");
+        const canvas = await html2canvas(receiptElement, { scale: 2 });
+        const imgData = canvas.toDataURL("image/png");
 
-  const formatPayDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    const options = { day: "numeric", month: "short", year: "numeric" };
-    return date.toLocaleDateString("en-US", options);
-  };
+        const pdf = new jsPDF("portrait", "mm", "a4");
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const handlePrint = async () => {
-    const receiptElement = document.getElementById("receipt");
-    const scale = 2;
+        pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
+        pdf.save("Receipt.pdf");
+    };
 
-    const canvas = await html2canvas(receiptElement, { scale });
-    const imgData = canvas.toDataURL("image/png");
+    return (
+        <div align="center" style={{ marginTop: "80px" }}>
+            <button
+                onClick={handlePrint}
+                className="border border-blue-400 text-white px-4 py-2 mb-5 rounded-md shadow hover:border-blue-700 transition duration-200 mt-4"
+            >
+                <BiPrinter color="blue" />
+            </button>
+            <div
+                id="receipt"
+                style={{
+                    width: "210mm",
+                    height: "297mm",
+                    padding: "10mm",
+                    border: "1px solid #ddd",
+                    backgroundColor: "#fff",
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    gap: "10mm",
+                }}
+            >
+                <div
+                    style={{
+                        width: "48%",
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        padding: "15px",
+                        boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+                    }}
+                >    <img
+  src={mychitsLogo}
+  alt="Company Logo"
+  width="40"
+  style={{ margin: "0 auto 8px", display: "block" }}
+/>
+                    <h2 style={{ textAlign: "center", margin: 0 }}>MY CHITS</h2>
+                    <p style={{ textAlign: "center", fontSize: "12px", margin: "5px 0" }}>
+                        No.11/36-25, 2nd Main, Kathriguppe Main Road,
+                        <br />
+                        Bangalore, 560085 9483900777
+                    </p>
+                    <hr />
+                    <h3 style={{ textAlign: "center", margin: "5px 0" }}>Receipt</h3>
+                    <div style={{ textAlign: "start" }}>
+                        <p>Receipt No: {payment.receipt_no ? payment.receipt_no : payment.old_receipt_no}</p>
+                        <p>Date: {formatPayDate(payment.pay_date)}</p>
+                        <div style={{marginTop:"4px"}}></div>
+                        <p>Name: {payment?.user_id?.full_name}</p>
+                        <p>Mobile No: {payment?.user_id?.phone_number}</p>
+                        <div style={{marginTop:"4px"}}></div>
+                        <p>Group: {payment?.group_id?.group_name}</p>
+                        <p>Ticket: {payment?.ticket}</p>
+                    </div>
+                    <div
+                        style={{
+                            textAlign: "center",
+                            fontWeight: "bold",
+                            border: "1px solid #000",
+                            padding: "10px",
+                            margin: "10px 0",
+                        }}
+                    >
+                        Received Amount | Rs.{payment?.amount}
+                    </div>
+                    <div style={{ textAlign: "start" }}>
+                        <p>Mode: {payment?.pay_type}</p>
+                        <p>Total: Rs.{payment?.amount}</p>
+                        <p>Collected by: {payment?.collected_by?.name || "Admin"}</p>
+                    </div>
+                    <div style={{marginTop:"4px"}}></div>
+                    <p>Customer Copy</p>
+                </div>
 
-    const pdfWidth = receiptElement.offsetWidth * 0.264583;
-    const pdfHeight = receiptElement.offsetHeight * 0.264583;
+                {/* Right Section */}
+                <div
+                    style={{
+                        width: "48%",
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        padding: "15px",
+                        boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+                    }}
+                >
+                     <img
+  src={mychitsLogo}
+  alt="Company Logo"
+  width="40"
+  style={{ margin: "0 auto 8px", display: "block" }}
+/>
+                    <h2 style={{ textAlign: "center", margin: 0 }}>MY CHITS</h2>
+                    <p style={{ textAlign: "center", fontSize: "12px", margin: "5px 0" }}>
+                        No.11/36-25, 2nd Main, Kathriguppe Main Road,
+                        <br />
+                        Bangalore, 560085 9483900777
+                    </p>
+                    <hr />
+                    <h3 style={{ textAlign: "center", margin: "5px 0" }}>Receipt</h3>
+                    <div style={{ textAlign: "start" }}>
+                        <p>Receipt No: {payment.receipt_no ? payment.receipt_no : payment.old_receipt_no}</p>
+                        <p>Date: {formatPayDate(payment.pay_date)}</p>
+                        <div style={{marginTop:"4px"}}></div>
+                        <p>Name: {payment?.user_id?.full_name}</p>
+                        <p>Mobile No: {payment?.user_id?.phone_number}</p>
+                        <div style={{marginTop:"4px"}}></div>
+                        <p>Group: {payment?.group_id?.group_name}</p>
+                        <p>Ticket: {payment?.ticket}</p>
+                    </div>
+                    <div
+                        style={{
+                            textAlign: "center",
+                            fontWeight: "bold",
+                            border: "1px solid #000",
+                            padding: "10px",
+                            margin: "10px 0",
+                        }}
+                    >
+                        Received Amount | Rs.{payment?.amount}
+                    </div>
+                    <div style={{ textAlign: "start" }}>
+                        <p>Mode: {payment?.pay_type}</p>
+                        <p>Total: Rs.{payment?.amount}</p>
+                        <p>Collected by: {payment?.collected_by?.name || "Admin"}</p>
+                    </div>
+                    <div style={{marginTop:"4px"}}></div>
+                    <p>Admin Copy</p>
+                </div>
+            </div>
 
-    const pdf = new jsPDF({
-      unit: "mm",
-      format: [pdfWidth, pdfHeight],
-    });
+            {/* Print Button */}
 
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("Receipt.pdf");
-  };
-
-  return (
-    <div
-      style={{
-        marginTop: "100px",
-        paddingLeft: "10px",
-        paddingRight: "10px",
-        position: "relative",
-      }}
-    >
-      <button
-        onClick={handlePrint}
-        style={{
-          position: "fixed",
-          top: "15px",
-          left: "15px",
-          backgroundColor: "#2563eb",
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          padding: "8px 12px",
-          cursor: "pointer",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          zIndex: 1000,
-        }}
-      >
-        <BiPrinter size={20} />
-        Print
-      </button>
-
-      <div
-        id="receipt"
-        style={{
-          width: "320px",
-          backgroundColor: "#fff",
-          padding: "20px",
-          margin: "0 auto",
-          border: "1px solid #ddd",
-          borderRadius: "8px",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-          fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-          color: "#222",
-          lineHeight: "1.4",
-        }}
-      >
-        <div style={{ textAlign: "center", marginBottom: "10px" }}>
-          <img
-            src={mychitsLogo}
-            alt="Company Logo"
-            style={{ width: "50px", margin: "0 auto 8px", display: "block" }}
-          />
-          <h2 style={{ margin: 0, fontWeight: "700" }}>MY CHITS</h2>
-          <p style={{ fontSize: "12px", marginTop: "4px", color: "#555" }}>
-            No.11/36-25, 2nd Main, Kathriguppe Main Road,
-            <br />
-            Bangalore, 560085 | 9483900777
-          </p>
-          <hr style={{ borderColor: "#eee", margin: "12px 0" }} />
-          <h3 style={{ margin: "8px 0" }}>Receipt</h3>
         </div>
-
-        <div style={{ fontSize: "14px" }}>
-          <p>
-            <strong>Receipt No:</strong>{" "}
-            {payment.receipt_no ? payment.receipt_no : payment.old_receipt_no}
-          </p>
-          <p>
-            <strong>Date:</strong> {formatPayDate(payment.pay_date)}
-          </p>
-          <p>
-            <strong>Name:</strong> {payment?.user_id?.full_name || "-"}
-          </p>
-          <p>
-            <strong>Mobile No:</strong> {payment?.user_id?.phone_number || "-"}
-          </p>
-          <p>
-            <strong>Group:</strong> {payment?.group_id?.group_name || "-"}
-          </p>
-          <p>
-            <strong>Ticket:</strong> {payment?.ticket || "-"}
-          </p>
-        </div>
-
-        <div
-          style={{
-            margin: "15px 0",
-            padding: "10px",
-            backgroundColor: "#f3f4f6",
-            borderRadius: "6px",
-            fontWeight: "700",
-            fontSize: "16px",
-            textAlign: "center",
-            border: "1px solid #ccc",
-            color: "#111",
-          }}
-        >
-          Received Amount: Rs. {payment?.amount || "0"}
-        </div>
-
-        <div style={{ fontSize: "14px", color: "#444" }}>
-          <p>
-            <strong>Mode:</strong> {payment?.pay_type || "-"}
-          </p>
-          <p>
-            <strong>Total:</strong> Rs. {payment?.amount || "0"}
-          </p>
-          <p>
-            <strong>Collected by:</strong>{" "}
-            {payment?.collected_by?.name || "Admin"}
-          </p>
-        </div>
-
-        <div
-          style={{
-            marginTop: "20px",
-            borderTop: "1px dashed #bbb",
-            paddingTop: "8px",
-            fontSize: "12px",
-            color: "#888",
-            textAlign: "center",
-          }}
-        >
-          Customer Copy
-        </div>
-
-        <div
-          style={{
-            marginTop: "30px",
-            borderTop: "2px solid #000",
-            paddingTop: "8px",
-            fontSize: "12px",
-            color: "#888",
-            textAlign: "center",
-          }}
-        >
-          <p>
-            <img
-              src={mychitsLogo}
-              alt="Company Logo"
-              style={{ width: "50px", margin: "0 auto 8px", display: "block" }}
-            />
-          </p>
-          <h2 style={{ margin: 0, fontWeight: "700" }}>MY CHITS</h2>
-          <p style={{ fontSize: "12px", marginTop: "4px", color: "#555" }}>
-            No.11/36-25, 2nd Main, Kathriguppe Main Road,
-            <br />
-            Bangalore, 560085 | 9483900777
-          </p>
-          <hr style={{ borderColor: "#eee", margin: "12px 0" }} />
-          <h3 style={{ margin: "8px 0" }}>Receipt</h3>
-
-          <p>
-            <strong>Receipt No:</strong>{" "}
-            {payment.receipt_no ? payment.receipt_no : payment.old_receipt_no}
-          </p>
-          <p>
-            <strong>Date:</strong> {formatPayDate(payment.pay_date)}
-          </p>
-          <p>
-            <strong>Name:</strong> {payment?.user_id?.full_name || "-"}
-          </p>
-          <p>
-            <strong>Mobile No:</strong> {payment?.user_id?.phone_number || "-"}
-          </p>
-          <p>
-            <strong>Group:</strong> {payment?.group_id?.group_name || "-"}
-          </p>
-          <p>
-            <strong>Ticket:</strong> {payment?.ticket || "-"}
-          </p>
-
-          <div
-            style={{
-              margin: "15px 0",
-              padding: "10px",
-              backgroundColor: "#f3f4f6",
-              borderRadius: "6px",
-              fontWeight: "700",
-              fontSize: "16px",
-              textAlign: "center",
-              border: "1px solid #ccc",
-              color: "#111",
-            }}
-          >
-            Received Amount: Rs. {payment?.amount || "0"}
-          </div>
-
-          <p>
-            <strong>Mode:</strong> {payment?.pay_type || "-"}
-          </p>
-          <p>
-            <strong>Total:</strong> Rs. {payment?.amount || "0"}
-          </p>
-          <p>
-            <strong>Collected by:</strong>{" "}
-            {payment?.collected_by?.name || "Admin"}
-          </p>
-
-          <div
-            style={{
-              marginTop: "20px",
-              borderTop: "1px dashed #bbb",
-              paddingTop: "8px",
-              fontSize: "12px",
-              color: "#888",
-              textAlign: "center",
-            }}
-          >
-            Office Copy
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default ReceiptComponent;
