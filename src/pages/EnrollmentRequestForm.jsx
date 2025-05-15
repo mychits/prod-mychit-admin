@@ -28,6 +28,7 @@ const EnrollmentRequestForm = () => {
     alternate_number: "",
     referral_name: "",
     address: "",
+    area: "",
     email: "",
     pincode: "",
     nominee_name: "",

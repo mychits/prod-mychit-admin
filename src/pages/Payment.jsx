@@ -955,7 +955,7 @@ const Payment = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"
                   >
-                    Customer
+                    Customer <span className="text-red-500 ">*</span>
                   </label>
 
                   <Select
@@ -991,7 +991,7 @@ const Payment = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"
                   >
-                    Group & Ticket
+                    Group & Ticket <span className="text-red-500 ">*</span>
                   </label>
                   <select
                     name="group_id"
@@ -1082,7 +1082,7 @@ const Payment = () => {
                       className="block mb-2 text-sm font-medium text-gray-900"
                       htmlFor="group_value"
                     >
-                      Amount
+                      Amount <span className="text-red-500 ">*</span>
                     </label>
                     <input
                       type="number"
@@ -1125,7 +1125,7 @@ const Payment = () => {
                       className="block mb-2 text-sm font-medium text-gray-900"
                       htmlFor="transaction_id"
                     >
-                      Transaction ID
+                      Transaction ID  <span className="text-red-500 ">*</span>
                     </label>
                     <input
                       type="text"

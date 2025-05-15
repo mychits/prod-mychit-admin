@@ -74,8 +74,14 @@ const Pigme = () => {
     if (!data.maturity_period) {
       newErrors.maturity_period = "Maturity Period is Required";
     }
+
+     if (
+      !data.payable_amount 
+    ) {
+      newErrors.payable_amount = "Payable Amount is required";
+    }
    
-    if (
+   else if (
       !data.payable_amount ||
       isNaN(data.payable_amount) ||
       data.payable_amount <= 0
@@ -355,7 +361,7 @@ const Pigme = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="customer"
                 >
-                  Select customer Name
+                  Select customer Name  <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   name="customer"
@@ -382,7 +388,7 @@ const Pigme = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="maturity_period"
                 >
-                  Select Maturity period
+                  Select Maturity period  <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   name="maturity_period"
@@ -431,7 +437,7 @@ const Pigme = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="payable_amount"
                   >
-                   Payable Amount
+                   Payable Amount  <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -455,7 +461,7 @@ const Pigme = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="start_date"
                   >
-                    Start Date
+                    Start Date  <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="date"
@@ -478,7 +484,7 @@ const Pigme = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="end_date"
                   >
-                    End Date
+                    End Date  <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="date"

@@ -359,7 +359,7 @@ const [isLoading,setIsLoading] = useState(false);
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="borrower_name"
                 >
-                  Select Borrower Name
+                  Select Borrower Name  <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   name="borrower"
@@ -387,7 +387,7 @@ const [isLoading,setIsLoading] = useState(false);
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="loan_amount"
                   >
-                    Loan Amount
+                    Loan Amount  <span className="text-red-500 ">*</span> 
                   </label>
                   <input
                     type="number"
@@ -410,7 +410,7 @@ const [isLoading,setIsLoading] = useState(false);
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="tenure"
                   >
-                    Tenure in Days
+                    Tenure in Days <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -434,7 +434,7 @@ const [isLoading,setIsLoading] = useState(false);
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="service_charges"
                   >
-                    Service Charges
+                    Service Charges <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -458,7 +458,7 @@ const [isLoading,setIsLoading] = useState(false);
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="daily_payment_amount"
                   >
-                    Daily Payment Amount
+                    Daily Payment Amount  <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -484,7 +484,7 @@ const [isLoading,setIsLoading] = useState(false);
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="start_date"
                   >
-                    Start Date
+                    Start Date  <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="date"
@@ -507,7 +507,7 @@ const [isLoading,setIsLoading] = useState(false);
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="end_date"
                   >
-                    End Date
+                    End Date <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="date"

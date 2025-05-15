@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import Navbar from "../components/layouts/Navbar";
 import CustomAlert from "../components/alerts/CustomAlert";
@@ -9,7 +9,7 @@ import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import DataTable from "../components/layouts/Datatable";
 import filterOption from "../helpers/filterOption";
-import { Select } from "antd";
+
 
 const CollectionArea = () => {
   const [currentCollectionArea, setCurrentCollectionArea] = useState(null);
@@ -17,21 +17,23 @@ const CollectionArea = () => {
   const [currentUpdateCollectionArea, setCurrentUpdateCollectionArea] =
     useState(null);
   const [showModalUpdate, setShowModalUpdate] = useState(false);
-  const [TableCollectionArea, setTableCollectionArea] = useState([]);
+  const [tableCollectionArea, setTableCollectionArea] = useState([]);
   const [collectionArea, setCollectionArea] = useState([]);
-  const [agentOption, setAgentOptions] = useState([]);
   const [collectionAreaData, setCollectionAreaData] = useState({
     route_name: "",
     route_description: "",
-    agent_id: [],
+    route_pincode: " ",
   });
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
  
   const [updateCollectionAreaData, setUpdateCollectionAreaData] = useState({
     route_name: "",
     route_description: "",
-    agent_id: [],
+    route_pincode: "",
+
   });
 
   const [alertConfig, setAlertConfig] = useState({
@@ -52,29 +54,9 @@ const CollectionArea = () => {
       [name]: value,
     }));
   };
-  // const handleSelect = (name, arr) => {
-  //   setCollectionAreaData((prev) => ({
-  //     ...prev,
-  //     [name]: arr,
-  //   }));
-  // };
-  // const handleInputSelect = (name, arr) => {
-  //   setUpdateCollectionAreaData((prev) => ({ ...prev, [name]: arr }));
-  // };
 
- const handleSelect = (name, arr) => {
-  // Convert array to only values if needed
-  const values = arr.map((item) => (typeof item === "object" ? item.value : item));
-  setCollectionAreaData((prev) => ({
-    ...prev,
-    [name]: Array.isArray(arr) ? arr : [],
-  }));
-};
 
-const handleInputSelect = (name, arr) => {
-  const values = arr.map((item) => (typeof item === "object" ? item.value : item));
-  setUpdateCollectionAreaData((prev) => ({ ...prev, [name]: values }));
-};
+
 
 
   const handleInputChange = (e) => {
@@ -98,8 +80,7 @@ const handleInputSelect = (name, arr) => {
           },
         }
       );
-      // window.location.reload();
-      // alert("User Added Successfully");
+
       setAlertConfig({
         type: "success",
         message: "Collection Area Added Successfully",
@@ -107,70 +88,34 @@ const handleInputSelect = (name, arr) => {
       });
 
       setShowModal(false);
-      // setErrors({});
+
       setCollectionAreaData({
         route_name: "",
         route_description: "",
-        agent_id: "",
+        agent_id: [],
       });
     } catch (error) {
       console.error("Error adding user:", error);
-      // if (
-      //   error.response &&
-      //   error.response.data &&
-      //   error.response.data.message
-      // ) {
-      //   setAlertConfig({
-      //     type: "error",
-      //     message: `${error?.response?.data?.message}`,
-      //     visibility: true,
-      //   });
-      // } else {
-      //   setAlertConfig({
-      //     type: "error",
-      //     message: "An unexpected error occurred. Please try again.",
-      //     visibility: true,
-      //   });
-      // }
-    }
-  };
-  // useEffect(() => {
-  //   const fetchAgents = async () => {
-  //     try {
-  //       const response = await api.get("/agent/get-agent");
-  //       if (response.data) {
-  //         const options = response.data.map((agent) => {
-  //           return { value: agent?._id, label: agent?.name };
-  //         });
-  //         setAgentOptions(options);
-  //       }
-  //     } catch (err) {
-  //       console.error("Failed to fetch agents");
-  //     }
-  //   };
-  //   fetchAgents();
-  // }, []);
-
-
-  useEffect(() => {
-  const fetchAgents = async () => {
-    try {
-      const response = await api.get("/agent/get-agent");
-      if (response.data) {
-        // Map to value-label pairs for the Select component
-        const options = response.data.map((agent) => ({
-          value: agent._id,
-          label: agent.name,
-        }));
-        setAgentOptions(options);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setAlertConfig({
+          type: "error",
+          message: `${error?.response?.data?.message}`,
+          visibility: true,
+        });
+      } else {
+        setAlertConfig({
+          type: "error",
+          message: "An unexpected error occurred. Please try again.",
+          visibility: true,
+        });
       }
-    } catch (err) {
-      console.error("Failed to fetch agents:", err);
     }
   };
 
-  fetchAgents();
-}, []);
 
   useEffect(() => {
     const fetchAreaCollection = async () => {
@@ -188,9 +133,7 @@ const handleInputSelect = (name, arr) => {
               id: index + 1,
               name: collectionArea?.route_name,
               description: collectionArea?.route_description,
-              Agent: collectionArea?.agent_id
-                ?.map((agent) => agent.name)
-                .join(),
+              pincode: collectionArea?.route_pincode,
               action: (
                 <div className="flex justify-center gap-2">
                   <Dropdown
@@ -233,16 +176,7 @@ const handleInputSelect = (name, arr) => {
             };
           }
         );
-        // let AreaData = AreaCollectionData.map((ele) => {
-        //   if (
-        //     ele?.address &&
-        //     typeof ele.address === "string" &&
-        //     ele?.address?.includes(",")
-        //   )
-        //     ele.address = ele.address.replaceAll(",", " ");
-        //   return ele;
-        // });
-        // if (!AreaData) setTableCollectionArea(AreaCollectionData);
+   
         setTableCollectionArea(collectionAreaData);
       } catch (error) {
         console.error("Error fetching collection area data:", error.message);
@@ -257,7 +191,7 @@ const handleInputSelect = (name, arr) => {
     { key: "id", header: "SL. NO" },
     { key: "name", header: "Collection Area Name" },
     { key: "description", header: "Collection Area Description" },
-    { key: "Agent", header: "Agent" },
+    { key: "pincode", header: "pincode"},   
     { key: "action", header: "Action" },
   ];
 
@@ -282,10 +216,7 @@ const handleInputSelect = (name, arr) => {
       setUpdateCollectionAreaData({
         route_name: response?.data?.route_name,
         route_description: response?.data?.route_description,
-        agent_id: response?.data?.agent_id?.map((agent) => ({
-          value: agent?._id,
-          label: agent?.name,
-        })),
+        route_pincode: response?.data?.route_pincode,
       });
       setShowModalUpdate(true);
     } catch (error) {
@@ -293,9 +224,9 @@ const handleInputSelect = (name, arr) => {
     }
   };
 
-  // const filteredUsers = collectionArea.filter((area) =>
-  //   area.route_name.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
+  const filteredRoute = collectionArea.filter((area) =>
+    area.route_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleDeleteCollectionArea = async () => {
     if (currentCollectionArea) {
@@ -326,30 +257,30 @@ const handleInputSelect = (name, arr) => {
       setShowModalUpdate(false);
 console.info(updateCollectionAreaData,"testing")
 
-      // setAlertConfig({
-      //   visibility: true,
-      //   message: "Collection Area Updated Successfully",
-      //   type: "success",
-      // });
+      setAlertConfig({
+        visibility: true,
+        message: "Collection Area Updated Successfully",
+        type: "success",
+      });
     } catch (error) {
       console.error("Error updating Collection Area:", error);
-      //   if (
-      //     error.response &&
-      //     error.response.data &&
-      //     error.response.data.message
-      //   ) {
-      //     setAlertConfig({
-      //       visibility: true,
-      //       message: `${error?.response?.data?.message}`,
-      //       type: "error",
-      //     });
-      //   } else {
-      //     setAlertConfig({
-      //       visibility: true,
-      //       message: "An unexpected error occurred. Please try again.",
-      //       type: "error",
-      //     });
-      //   }
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
+          setAlertConfig({
+            visibility: true,
+            message: `${error?.response?.data?.message}`,
+            type: "error",
+          });
+        } else {
+          setAlertConfig({
+            visibility: true,
+            message: "An unexpected error occurred. Please try again.",
+            type: "error",
+          });
+        }
     }
   };
 
@@ -383,17 +314,17 @@ console.info(updateCollectionAreaData,"testing")
                 </button>
               </div>
             </div>
-            {TableCollectionArea?.length > 0 ? (
+            {tableCollectionArea?.length > 0 ? (
               <DataTable
                 catcher="_id"
                 updateHandler={handleUpdateModalOpen}
-                data={filterOption(TableCollectionArea, searchText)}
+                data={filterOption(tableCollectionArea, searchText)}
                 columns={columns}
               />
             ) : (
               <CircularLoader
                 isLoading={isLoading}
-                failure={TableCollectionArea.length <= 0}
+                failure={tableCollectionArea.length <= 0}
                 data=" Collection Area Data"
               />
             )}
@@ -408,7 +339,7 @@ console.info(updateCollectionAreaData,"testing")
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="email"
+                  htmlFor="name"
                 >
                   Collection Area Name
                 </label>
@@ -419,7 +350,7 @@ console.info(updateCollectionAreaData,"testing")
                   onChange={handleChange}
                   id="name"
                   placeholder="Enter the Full Name"
-                  //required
+             
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
               </div>
@@ -437,65 +368,30 @@ console.info(updateCollectionAreaData,"testing")
                   onChange={handleChange}
                   id="desc"
                   placeholder="Enter the Collection Area Description"
-                  //required
+              
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
               </div>
 
-              <div>
+
+               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="agent_select"
+                  htmlFor="pincode"
                 >
-                  Collection Area Agent
+                  Collection Area Pincode
                 </label>
-                <Select
-                  mode="tags"
-                  value={collectionAreaData?.agent_id || []}
-                  onChange={(value) => handleSelect("agent_id", value)}
-                  id="agent_select"
-                  placeholder="Please select"
-                  options={agentOption}
+                <input
+                  type="text"
+                  name="route_pincode"
+                  value={collectionAreaData?.route_pincode}
+                  onChange={handleChange}
+                  id="pincode"
+                  placeholder="Enter the Collection Area Pincode"
+             
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
               </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="aselect"
-                  ></label>
-                </div>
-
-                <div className="w-1/2">
-                  {/* <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="desc"
-                  >
-                    Collection Area Agent
-                  </label>
-                  <Select
-                    className="w-full"
-                    mode="tags"
-                    placeholder="Please select"
-                    // defaultValue={["a10", "c12"]}
-                    // value={collectionAreaData?.agent_id}
-                    // onChange={handleChange}
-                    options={agentOption}
-                  /> */}
-                </div>
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2"></div>
-                <div className="w-1/2"></div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2"></div>
-                <div className="w-1/2"></div>
-              </div>
-              <div></div>
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
@@ -508,6 +404,10 @@ console.info(updateCollectionAreaData,"testing")
             </form>
           </div>
         </Modal>
+
+
+
+
 
         <Modal
           isVisible={showModalUpdate}
@@ -548,46 +448,33 @@ console.info(updateCollectionAreaData,"testing")
                   type="text"
                   name="route_description"
                   value={updateCollectionAreaData?.route_description}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
                   id="desc"
                   placeholder="Enter the Collection Area Description"
-                  //required
+                 
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
               </div>
+
+            
 
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="agent_select"
+                  htmlFor="pincode"
                 >
-                  Collection Area Agent
+                  Collection Area Pincode
                 </label>
-                <Select
-                  mode="tags"
-                  onChange={(value) => handleInputSelect("agent_id", value)}
-                  value={updateCollectionAreaData?.agent_id}
-                  id="agent_select"
-                  name="agent_id"
-                  placeholder="Please select"
-                  options={agentOption}
-                  //required
+                <input
+                  type="text"
+                  name="route_pincode"
+                  value={updateCollectionAreaData?.route_pincode}
+                  onChange={handleInputChange}
+                  id="pincode"
+                  placeholder="Enter the Collection Area Pincode"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
               </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2"></div>
-                <div className="w-1/2"></div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-full"></div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2"></div>
-                <div className="w-1/2"></div>
-              </div>
-              <div></div>
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
@@ -611,7 +498,7 @@ console.info(updateCollectionAreaData,"testing")
             <h3 className="mb-4 text-xl font-bold text-gray-900">
               Delete Collection Area
             </h3>
-            {collectionAreaData && (
+            {currentCollectionArea && (
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -626,7 +513,7 @@ console.info(updateCollectionAreaData,"testing")
                   >
                     Please enter{" "}
                     <span className="text-primary font-bold">
-                      {collectionAreaData?.route_name}
+                      {currentCollectionArea?.route_name}
                     </span>{" "}
                     to confirm deletion.
                   </label>

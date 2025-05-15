@@ -116,8 +116,21 @@ const AdministrativePrivileges = () => {
         console.log(errors);
       }
     } catch (error) {
-      console.error("Error adding sub admin:", error);
-    }
+  console.error("Error adding sub admin:", error);
+
+  if (
+    error.response &&
+    error.response.data &&
+    error.response.data.message &&
+    error.response.data.message.toLowerCase().includes("phone")
+  ) {
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      phoneNumber: "Phone number already exists",
+    }));
+  }
+}
+    
   };
   useEffect(() => {
     const fetchAllAdminRights = async () => {

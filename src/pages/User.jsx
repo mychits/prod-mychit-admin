@@ -78,6 +78,7 @@ const User = () => {
     father_name: "",
     district: "",
     state: "",
+    area: "",
     alternate_number: "",
     referral_name: "",
     nominee_name: "",
@@ -207,6 +208,19 @@ const User = () => {
         });
       } catch (error) {
         console.error("Error adding user:", error);
+
+ if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message &&
+        error.response.data.message.toLowerCase().includes("phone number")
+      ) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          phone_number: "Phone number already exists",
+        }));
+      }
+
         if (
           error.response &&
           error.response.data &&
@@ -242,6 +256,7 @@ const User = () => {
           address: group.address,
           pincode: group.pincode,
           customer_id: group.customer_id,
+          area: group.area,
           customer_status: group.customer_status,
           action: (
             <div className="flex justify-center gap-2">
@@ -344,6 +359,7 @@ const User = () => {
     { key: "phone_number", header: "Customer Phone Number" },
     { key: "address", header: "Customer Address" },
     { key: "pincode", header: "Customer Pincode" },
+    { key: "area", header: "Area" },
     { key: "customer_status", header: "Customer Status" },
     { key: "action", header: "Action" },
   ];
@@ -387,6 +403,7 @@ const User = () => {
         taluk: response?.data?.taluk,
         district: response?.data?.district,
         state: response?.data?.state,
+        area: response?.data?.area,
         alternate_number: response?.data?.alternate_number,
         referral_name: response?.data?.referral_name,
         nominee_name: response?.data?.nominee_name,
@@ -502,18 +519,18 @@ const handleUpdate = async (e) => {
       });
 
       setShowModalUpdate(false);
-      // setAlertConfig({
-      //     visibility: true,
-      //     message: "User Updated Successfully",
-      //     type: "success",
-      // });
+      setAlertConfig({
+          visibility: true,
+          message: "User Updated Successfully",
+          type: "success",
+      });
   } catch (error) {
       console.error("Error updating user:", error);
-      // setAlertConfig({
-      //     visibility: true,
-      //     message: error?.response?.data?.message || "An unexpected error occurred. Please try again.",
-      //     type: "error",
-      // });
+      setAlertConfig({
+          visibility: true,
+          message: error?.response?.data?.message || "An unexpected error occurred. Please try again.",
+          type: "error",
+      });
   }
 };
 
@@ -591,7 +608,7 @@ const handleUpdate = async (e) => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Full Name
+                  Full Name <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -636,7 +653,7 @@ const handleUpdate = async (e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Phone Number
+                    Phone Number <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -661,7 +678,7 @@ const handleUpdate = async (e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Password
+                    Password <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
@@ -684,7 +701,7 @@ const handleUpdate = async (e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Pincode
+                    Pincode <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -709,7 +726,7 @@ const handleUpdate = async (e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Adhaar Number
+                    Adhaar Number <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -754,7 +771,7 @@ const handleUpdate = async (e) => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Address
+                  Address <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -1490,8 +1507,8 @@ const handleUpdate = async (e) => {
                   </Link>
                 </div>
               </div>
-
-              <div>
+              <div className="flex flex-row justify-between space-x-4" >
+              <div className="w-1/2">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="profile-photo"
@@ -1516,6 +1533,27 @@ const handleUpdate = async (e) => {
                 </Link>
 
               </div>
+               <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="area"
+                  >
+                    Area
+                  </label>
+                  <input
+                    type="text"
+                    name="area"
+                    value={updateFormData?.area}
+                    onChange={handleInputChange}
+                    id="area"
+                    placeholder="Enter Area"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
+                
+                
 
               <label
                 className="block mb-2 text-sm font-medium text-gray-900"
