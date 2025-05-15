@@ -157,16 +157,16 @@ const [isLoading,setIsLoading] = useState(false);
         const formattedData = response.data.map((borrower, index) => ({
           _id: borrower._id,
           id: index + 1,
-          loan_id: borrower.loan_id,
-          borrower_name: borrower.borrower.full_name,
-          date: borrower.createdAt,
-          loan_amount: borrower.loan_amount,
-          tenure: borrower.tenure,
-          service_charges: borrower.service_charges,
-          daily_payment_amount: borrower.daily_payment_amount,
-          start_date: borrower.start_date.split("T")[0],
-          end_date: borrower.end_date.split("T")[0],
-          note: borrower.note,
+          loan_id: borrower?.loan_id,
+          borrower_name: borrower?.borrower?.full_name,
+          date: borrower?.createdAt,
+          loan_amount: borrower?.loan_amount,
+          tenure: borrower?.tenure,
+          service_charges: borrower?.service_charges,
+          daily_payment_amount: borrower?.daily_payment_amount,
+          start_date: borrower?.start_date?.split("T")[0],
+          end_date: borrower?.end_date?.split("T")[0],
+          note: borrower?.note,
           action: (
             <div className="flex justify-center gap-2" key={borrower._id}>
               <Dropdown
@@ -231,14 +231,14 @@ const [isLoading,setIsLoading] = useState(false);
       const formattedEndDate = borrowerData?.end_date?.split("T")[0];
       setCurrentUpdateBorrower(response.data);
       setUpdateFormData({
-        borrower: response.data.borrower._id,
-        loan_amount: response.data.loan_amount,
-        tenure: response.data.tenure,
-        service_charges: response.data.service_charges,
-        daily_payment_amount: response.data.daily_payment_amount,
+        borrower: response?.data?.borrower._id,
+        loan_amount: response?.data?.loan_amount,
+        tenure: response?.data?.tenure,
+        service_charges: response?.data?.service_charges,
+        daily_payment_amount: response?.data?.daily_payment_amount,
         start_date: formattedStartDate,
         end_date: formattedEndDate,
-        note: response.data.note,
+        note: response?.data?.note,
       });
       setShowModalUpdate(true);
       setErrors({});

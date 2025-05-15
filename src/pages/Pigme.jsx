@@ -157,17 +157,17 @@ const Pigme = () => {
         const response = await api.get("/pigme/get-all-pigme-customers");
         setPigmeCustomers(response.data);
         const formattedData = response.data.map((pigmeCustomer, index) => ({
-          _id: pigmeCustomer._id,
+          _id: pigmeCustomer?._id,
           id: index + 1,
-          pigme_id: pigmeCustomer.pigme_id,
-          customer_name: pigmeCustomer.customer.full_name,
-          date: pigmeCustomer.createdAt,
-          maturity_period: pigmeCustomer.maturity_period,
-          maturity_interest: pigmeCustomer.maturity_interest,
-          payable_amount: pigmeCustomer.payable_amount,
-          start_date: pigmeCustomer.start_date.split("T")[0],
-          end_date: pigmeCustomer.end_date.split("T")[0],
-          note: pigmeCustomer.note,
+          pigme_id: pigmeCustomer?.pigme_id,
+          customer_name: pigmeCustomer?.customer?.full_name,
+          date: pigmeCustomer?.createdAt,
+          maturity_period: pigmeCustomer?.maturity_period,
+          maturity_interest: pigmeCustomer?.maturity_interest,
+          payable_amount: pigmeCustomer?.payable_amount,
+          start_date: pigmeCustomer?.start_date?.split("T")[0],
+          end_date: pigmeCustomer?.end_date?.split("T")[0],
+          note: pigmeCustomer?.note,
           action: (
             <div className="flex justify-center gap-2" key={pigmeCustomer._id}>
               <Dropdown
@@ -236,13 +236,13 @@ const Pigme = () => {
       const formattedEndDate = PigmeData?.end_date?.split("T")[0];
       setCurrentUpdateCustomer(response.data);
       setUpdateFormData({
-        customer: response.data.customer._id,
-        maturity_period: response.data.maturity_period,
-        maturity_interest: response.data.maturity_interest,
-        payable_amount: response.data.payable_amount,
+        customer: response?.data?.customer._id,
+        maturity_period: response?.data?.maturity_period,
+        maturity_interest: response?.data?.maturity_interest,
+        payable_amount: response?.data?.payable_amount,
         start_date: formattedStartDate,
         end_date: formattedEndDate,
-        note: response.data.note,
+        note: response?.data?.note,
       });
       setShowModalUpdate(true);
       setErrors({});

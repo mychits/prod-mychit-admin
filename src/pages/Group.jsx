@@ -58,7 +58,7 @@ const Group = () => {
     end_date: "",
     minimum_bid: "",
     maximum_bid: "",
-    commission: 5,
+    commission: "",
     incentives: "",
     reg_fee: "",
   });
@@ -352,17 +352,19 @@ if(!data.group_members){
       const formattedEndDate = groupData.end_date.split("T")[0];
       setCurrentUpdateGroup(response.data);
       setUpdateFormData({
-        group_name: response.data.group_name,
-        group_type: response.data.group_type,
-        group_value: response.data.group_value,
-        group_install: response.data.group_install,
-        group_members: response.data.group_members,
-        group_duration: response.data.group_duration,
+        group_name: response?.data?.group_name,
+        group_type: response?.data?.group_type,
+        group_value: response?.data?.group_value,
+        group_install: response?.data?.group_install,
+        group_members: response?.data?.group_members,
+        group_duration: response?.data?.group_duration,
         start_date: formattedStartDate,
         end_date: formattedEndDate,
-        minimum_bid: response.data.minimum_bid,
-        maximum_bid: response.data.maximum_bid,
-        reg_fee: response.data.reg_fee,
+        minimum_bid: response?.data?.minimum_bid,
+        maximum_bid: response?.data?.maximum_bid,
+         commission: response?.data?.commission,
+        incentives: response?.data?.incentives,
+        reg_fee: response?.data?.reg_fee,
       });
       setShowModalUpdate(true);
       setErrors({});

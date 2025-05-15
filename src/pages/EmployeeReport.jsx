@@ -63,6 +63,7 @@ const EmployeeReport = () => {
 
   const processedTableData = employeeCustomerData.map((item, index) => ({
     ...item,
+    enrollmentStartDate:item?.enrollmentStartDate?.split("T")[0],
     sl_no: index + 1,
   }));
 
@@ -76,7 +77,6 @@ const EmployeeReport = () => {
     {
       key: "enrollmentStartDate",
       header: "Enrollment Start Date",
-      render: (row) => row.enrollmentStartDate?.split("T")[0] || "-",
     },
     { key: "ticket", header: "Ticket" },
     { key: "amountPaid", header: "Amount Paid" },

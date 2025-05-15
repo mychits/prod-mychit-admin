@@ -122,7 +122,7 @@ console.info(tempUsr,)
     { key: "paymentsTicket", header: "Ticket" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
     { key: "profit", header: "Profit" },
-    { key: "toBePaidAmount", header: "Net To be Paid" },
+   
     { key: "amountPaid", header: "Amount Paid" },
     { key: "balance", header: "Balance" },
   ];
