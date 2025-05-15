@@ -754,7 +754,7 @@ const Lead = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Lead Name
+                  Lead Name <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -778,7 +778,7 @@ const Lead = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Lead Phone Number
+                    Lead Phone Number <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
@@ -801,7 +801,7 @@ const Lead = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Lead Work/Profession
+                    Lead Work/Profession <span className="text-red-500 ">*</span>
                   </label>
                   <select
                     name="lead_profession"
@@ -850,7 +850,7 @@ const Lead = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Lead Source Type
+                  Lead Source Type <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   name="lead_type"
@@ -925,7 +925,7 @@ const Lead = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Lead Needs and Goals
+                  Lead Needs and Goals <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   name="lead_needs"
@@ -1017,7 +1017,7 @@ const Lead = () => {
                     <span className="text-primary font-bold">
                       {currentGroup.lead_name}
                     </span>{" "}
-                    to confirm deletion.
+                    to confirm deletion. <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"

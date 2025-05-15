@@ -660,7 +660,7 @@ const AdminAccessRights = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Title
+                  Title <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -2030,7 +2030,7 @@ const AdminAccessRights = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Title
+                  Title <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -3488,7 +3488,7 @@ const AdminAccessRights = () => {
                     <span className="text-primary font-bold">
                       {currentUser.title}
                     </span>{" "}
-                    to confirm deletion.
+                    to confirm deletion. <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"

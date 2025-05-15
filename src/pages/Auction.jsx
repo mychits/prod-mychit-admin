@@ -789,7 +789,7 @@ const Auction = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="email"
                   >
-                    Group
+                    Group <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
@@ -869,7 +869,7 @@ const Auction = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="email"
                   >
-                    Customer
+                    Customer <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
@@ -888,7 +888,7 @@ const Auction = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="email"
                   >
-                    Bid Amount
+                    Bid Amount <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -999,7 +999,7 @@ const Auction = () => {
                       className="block mb-2 text-sm font-medium text-gray-900"
                       htmlFor="date"
                     >
-                      Auction Date
+                      Auction Date <span className="text-red-500 ">*</span>
                     </label>
                     <input
                       type="date"
@@ -1017,7 +1017,7 @@ const Auction = () => {
                       className="block mb-2 text-sm font-medium text-gray-900"
                       htmlFor="date"
                     >
-                      Next Date
+                      Next Date <span className="text-red-500 ">*</span>
                     </label>
                     <input
                       type="date"

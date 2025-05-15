@@ -248,14 +248,14 @@ const User = () => {
         const response = await api.get("/user/get-user");
         setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
-          _id: group._id,
+          _id: group?._id,
           id: index + 1,
-          name: group.full_name,
-          phone_number: group.phone_number,
-          address: group.address,
-          pincode: group.pincode,
-          customer_id: group.customer_id,
-          customer_status: group.customer_status,
+          name: group?.full_name,
+          phone_number: group?.phone_number,
+          address: group?.address,
+          pincode: group?.pincode,
+          customer_id: group?.customer_id,
+          customer_status: group?.customer_status,
           action: (
             <div className="flex justify-center gap-2">
            
@@ -932,7 +932,7 @@ const handleUpdate = async (e) => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Full Name
+                  Full Name <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -978,7 +978,7 @@ const handleUpdate = async (e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Phone Number
+                    Phone Number <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -1021,7 +1021,7 @@ const handleUpdate = async (e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Pincode
+                    Pincode <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
@@ -1046,7 +1046,7 @@ const handleUpdate = async (e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Aadhar Number
+                    Aadhar Number <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
@@ -1091,7 +1091,7 @@ const handleUpdate = async (e) => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="address"
                 >
-                  Address
+                  Address <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -1649,7 +1649,7 @@ const handleUpdate = async (e) => {
                     <span className="text-primary font-bold">
                       {currentUser.full_name}
                     </span>{" "}
-                    to confirm deletion.
+                    to confirm deletion. <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"

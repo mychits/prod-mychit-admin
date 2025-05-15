@@ -557,7 +557,7 @@ const Pigme = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="customer"
                 >
-                  Select customer Name
+                  Select customer Name <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   name="customer"
@@ -584,7 +584,7 @@ const Pigme = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="maturity_period"
                 >
-                  Select Maturity period
+                  Select Maturity period <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   name="maturity_period"
@@ -633,7 +633,7 @@ const Pigme = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="payable_amount"
                   >
-                   Payable Amount
+                   Payable Amount <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -657,7 +657,7 @@ const Pigme = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="start_date"
                   >
-                    Start Date
+                    Start Date <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="date"
@@ -680,7 +680,7 @@ const Pigme = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="end_date"
                   >
-                    End Date
+                    End Date <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="date"
@@ -768,7 +768,7 @@ const Pigme = () => {
                     <span className="text-primary font-bold">
                       {currentCustomer.customer.full_name}
                     </span>{" "}
-                    to confirm deletion.
+                    to confirm deletion. <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"

@@ -868,7 +868,7 @@ if(!data.group_members){
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Group Name
+                  Group Name <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -891,7 +891,7 @@ if(!data.group_members){
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Group Type
+                  Group Type <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   name="group_type"
@@ -918,7 +918,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Value
+                    Group Value <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -941,7 +941,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Installment Amount
+                    Group Installment Amount <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -966,7 +966,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Members
+                    Group Members <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -989,7 +989,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Duration
+                    Group Duration <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -1012,8 +1012,8 @@ if(!data.group_members){
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
-                >
-                  Registration Fee
+                > 
+                  Registration Fee <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="number"
@@ -1035,7 +1035,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Start Date
+                    Start Date <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="date"
@@ -1083,7 +1083,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Minimum Bid %
+                    Minimum Bid % <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -1106,7 +1106,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Maximum Bid %
+                    Maximum Bid % <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -1196,7 +1196,7 @@ if(!data.group_members){
                     <span className="text-primary font-bold">
                       {currentGroup.group_name}
                     </span>{" "}
-                    to confirm deletion.
+                    to confirm deletion. <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"

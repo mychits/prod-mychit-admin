@@ -360,7 +360,7 @@ const AdministrativePrivileges = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="name"
                 >
-                  Sub Admin Name
+                  Sub Admin Name <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -383,7 +383,7 @@ const AdministrativePrivileges = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="phoneNumber"
                 >
-                  Phone Number
+                  Phone Number <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -406,7 +406,7 @@ const AdministrativePrivileges = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="password"
                 >
-                  Password
+                  Password <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -427,7 +427,7 @@ const AdministrativePrivileges = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Admin Access Rights
+                  Admin Access Rights <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   value={formData?.admin_access_right_id}
@@ -473,7 +473,7 @@ const AdministrativePrivileges = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="name"
                 >
-                  Admin Name
+                  Admin Name <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -496,7 +496,7 @@ const AdministrativePrivileges = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="phone_number"
                 >
-                  Phone Number
+                  Phone Number <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -519,7 +519,7 @@ const AdministrativePrivileges = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="password"
                 >
-                  Password
+                  Password <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -540,7 +540,7 @@ const AdministrativePrivileges = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Admin Access Role
+                  Admin Access Role <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   value={updateFormData?.admin_access_right_id || ""}
@@ -600,7 +600,7 @@ const AdministrativePrivileges = () => {
                     <span className="text-primary font-bold">
                       {currentAdmin.name}
                     </span>{" "}
-                    to confirm deletion.
+                    to confirm deletion. <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"

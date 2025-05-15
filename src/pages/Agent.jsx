@@ -219,12 +219,12 @@ const Agent = () => {
         console.info(response.data, "this is data")
         setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
-          _id: group._id,
+          _id: group?._id,
           id: index + 1,
-          name: group.name,
-          employeeCode: group.employeeCode || "N/A",
-          phone_number: group.phone_number,
-          password: group.password,
+          name: group?.name,
+          employeeCode: group?.employeeCode || "N/A",
+          phone_number: group?.phone_number,
+          password: group?.password,
           designation: group?.designation_id?.title,
           action: (
             <div className="flex justify-center  gap-2">
@@ -308,14 +308,14 @@ const Agent = () => {
       const response = await api.get(`/agent/get-agent-by-id/${userId}`);
       setCurrentUpdateUser(response.data);
       setUpdateFormData({
-        name: response.data.name,
-        email: response.data.email,
-        phone_number: response.data.phone_number,
-        password: response.data.password,
-        pincode: response.data.pincode,
-        adhaar_no: response.data.adhaar_no,
-        pan_no: response.data.pan_no,
-        address: response.data.address,
+        name: response?.data?.name,
+        email: response?.data?.email,
+        phone_number: response?.data?.phone_number,
+        password: response?.data?.password,
+        pincode: response?.data?.pincode,
+        adhaar_no: response?.data?.adhaar_no,
+        pan_no: response?.data?.pan_no,
+        address: response?.data?.address,
       });
       setSelectedManagerId(response.data.designation_id?._id || "");
       setSelectedReportingManagerId(response.data.reporting_manager_id || "");
@@ -708,7 +708,7 @@ const Agent = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Full Name
+                  Full Name <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -730,7 +730,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Email
+                    Email <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="email"
@@ -751,7 +751,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Phone Number
+                    Phone Number <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -776,7 +776,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Password
+                    Password <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
@@ -799,7 +799,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Pincode
+                    Pincode <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
@@ -824,7 +824,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Adhaar Number
+                    Adhaar Number <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
@@ -847,7 +847,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Pan Number
+                    Pan Number <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
@@ -869,7 +869,7 @@ const Agent = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Address
+                  Address <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -890,7 +890,7 @@ const Agent = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Designation
+                  Designation <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   value={selectedManagerId}
@@ -981,7 +981,7 @@ const Agent = () => {
                     <span className="text-primary font-bold">
                       {currentUser.name}
                     </span>{" "}
-                    to confirm deletion.
+                    to confirm deletion. <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
