@@ -297,7 +297,7 @@ const [isLoading,setIsLoading] = useState(false);
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">Add Loan</h3>
-            <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+            <form className="space-y-6" noValidate>
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
