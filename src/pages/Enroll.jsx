@@ -49,6 +49,7 @@ const Enroll = () => {
     referred_customer: "",
     agent: "",
     referred_lead: "",
+    chit_asking_month: "",
   });
 
   const [updateFormData, setUpdateFormData] = useState({
@@ -60,6 +61,7 @@ const Enroll = () => {
     referred_customer: "",
     agent: "",
     referred_lead: "",
+    chit_asking_month: "",
   });
   const [searchText, setSearchText] = useState("");
   const onGlobalSearchChangeHandler = (e) => {
@@ -98,10 +100,12 @@ const Enroll = () => {
               phone_number: group?.user_id?.phone_number,
               group_name: group?.group_id?.group_name,
               payment_type: group?.payment_type,
+              chit_asking_month: group?.chit_asking_month,
               referred_type: group?.referred_type,
               referred_agent: group?.agent?.name,
               referred_customer: group?.referred_customer?.full_name,
               referred_lead: group?.referred_lead?.lead_name,
+
               ticket: group.tickets,
               action: (
                 <div className="flex justify-center items-center gap-2">
@@ -219,6 +223,7 @@ const Enroll = () => {
               phone_number: group?.user_id?.phone_number,
               group_name: group?.group_id?.group_name,
               payment_type: group?.payment_type,
+              chit_asking_month: group?.chit_asking_month,
               referred_type: group?.referred_type,
               referred_agent: group?.agent?.name,
               referred_customer: group?.referred_customer?.full_name,
@@ -289,6 +294,7 @@ const Enroll = () => {
     { key: "ticket", header: "Ticket Number" },
     { key: "referred_type", header: "Referred Type" },
     { key: "payment_type", header: "Payment Type" },
+    { key: "chit_asking_month", header: "Chit Asking Month" },
     { key: "referred_agent", header: "Referred Employee | ID" },
     { key: "referred_customer", header: "Referred Customer | ID" },
     { key: "referred_lead", header: "Referred Lead | ID" },
@@ -357,6 +363,7 @@ const Enroll = () => {
         referred_type,
         agent,
         referred_lead,
+        chit_asking_month,
       } = formData;
       const ticketsCount = parseInt(no_of_tickets, 10);
       const ticketEntries = availableTicketsAdd
@@ -370,6 +377,7 @@ const Enroll = () => {
           agent,
           referred_lead,
           referred_type,
+          chit_asking_month: Number(chit_asking_month),
           tickets: ticketNumber,
         }));
       console.log(ticketEntries);
@@ -428,7 +436,8 @@ const Enroll = () => {
         referred_customer: response.data?.referred_customer,
         agent: response.data?.agent,
         referred_lead: response.data?.referred_lead,
-        referred_type:response.data?.referred_type
+        referred_type: response.data?.referred_type,
+        chit_asking_month: response.data?.chit_asking_month || "",
       });
       setShowModalUpdate(true);
     } catch (error) {
@@ -651,13 +660,28 @@ const Enroll = () => {
                   name="payment_type"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
-                <option value={""}>Select Payment Type</option>
+                  <option value={""}>Select Payment Type</option>
 
                   {["Daily", "Weekely", "Monthly"].map((pType) => (
                     <option value={pType}>{pType}</option>
                   ))}
                 </select>
               </div>
+
+              <div className="w-full">
+                <label className="block mb-2 text-sm font-medium text-gray-900">
+                  Chit Asking Month 
+                </label>
+                <input
+                  type="number"
+                  name="chit_asking_month"
+                  value={formData.chit_asking_month}
+                  onChange={handleChange}
+                  placeholder="Enter month number (e.g., 1 for Jan)"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                />
+              </div>
+
               <div className="w-full">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -671,7 +695,7 @@ const Enroll = () => {
                   onChange={handleChange}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
-                   <option value={""}>Select Referred Type</option>
+                  <option value={""}>Select Referred Type</option>
                   {[
                     "Self Joining",
                     "Customer",
@@ -690,14 +714,15 @@ const Enroll = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"
                   >
-                    Select Referred Customer <span className="text-red-500 ">*</span> 
-                  </label> 
+                    Select Referred Customer{" "}
+                    <span className="text-red-500 ">*</span>
+                  </label>
                   <select
                     onChange={handleChange}
                     name="referred_customer"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
-                <option value={""}>Select Referred Customer</option>
+                    <option value={""}>Select Referred Customer</option>
 
                     {users.map((user) => (
                       <option value={user._id}>{user?.full_name}</option>
@@ -711,14 +736,15 @@ const Enroll = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"
                   >
-                    Select Referred Leads <span className="text-red-500 ">*</span>
+                    Select Referred Leads{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <select
                     onChange={handleChange}
                     name="referred_lead"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
-                <option value={""}>Select Referred Lead </option> 
+                    <option value={""}>Select Referred Lead </option>
 
                     {leads.map((lead) => (
                       <option value={lead._id}>{lead?.lead_name}</option>
@@ -732,14 +758,15 @@ const Enroll = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"
                   >
-                    Select Referred Employee <span className="text-red-500 ">*</span>
+                    Select Referred Employee{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <select
                     onChange={handleChange}
                     name="agent"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
-                <option value={""}>Select Referred Employee</option>
+                    <option value={""}>Select Referred Employee</option>
 
                     {agents.map((agent) => (
                       <option value={agent._id}>{agent?.name}</option>
@@ -757,7 +784,7 @@ const Enroll = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="email"
                   >
-                    Number of Tickets  <span className="text-red-500 ">*</span>
+                    Number of Tickets <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -903,13 +930,28 @@ const Enroll = () => {
                   name="payment_type"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
-                <option value={""}>Select Payment Type</option>
+                  <option value={""}>Select Payment Type</option>
 
                   {["Daily", "Weekely", "Monthly"].map((pType) => (
                     <option value={pType}>{pType}</option>
                   ))}
                 </select>
               </div>
+              <div className="w-full">
+                <label className="block mb-2 text-sm font-medium text-gray-900">
+                  Chit Asking Month 
+                </label>
+                <input
+                  type="number"
+                  name="chit_asking_month"
+                  value={updateFormData.chit_asking_month}
+                  onChange={handleInputChange}
+                  placeholder="Enter month"
+                  
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                />
+              </div>
+
               <div className="w-full">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -923,7 +965,7 @@ const Enroll = () => {
                   onChange={handleInputChange}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
-                   <option value={""}>Select Referred Type</option>
+                  <option value={""}>Select Referred Type</option>
                   {[
                     "Self Joining",
                     "Customer",
@@ -942,7 +984,8 @@ const Enroll = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"
                   >
-                    Select Referred Customer <span className="text-red-500 ">*</span>
+                    Select Referred Customer{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <select
                     onChange={handleInputChange}
@@ -950,7 +993,7 @@ const Enroll = () => {
                     name="referred_customer"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
-                <option value={""}>Select Referred Customer</option>
+                    <option value={""}>Select Referred Customer</option>
 
                     {users.map((user) => (
                       <option value={user._id}>{user?.full_name}</option>
@@ -964,7 +1007,8 @@ const Enroll = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"
                   >
-                    Select Referred Leads <span className="text-red-500 ">*</span>
+                    Select Referred Leads{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <select
                     onChange={handleInputChange}
@@ -972,7 +1016,7 @@ const Enroll = () => {
                     name="referred_lead"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
-                <option value={""}>Select Referred Lead</option>
+                    <option value={""}>Select Referred Lead</option>
 
                     {leads.map((lead) => (
                       <option value={lead._id}>{lead?.lead_name}</option>
@@ -986,7 +1030,8 @@ const Enroll = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"
                   >
-                    Select Referred Employee <span className="text-red-500 ">*</span>
+                    Select Referred Employee{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <select
                     onChange={handleInputChange}
@@ -994,7 +1039,7 @@ const Enroll = () => {
                     name="agent"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
-                <option value={""}>Select Referred Employee</option>
+                    <option value={""}>Select Referred Employee</option>
 
                     {agents.map((agent) => (
                       <option value={agent._id}>{agent?.name}</option>
