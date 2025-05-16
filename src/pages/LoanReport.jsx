@@ -20,7 +20,7 @@ const LoanReport = () => {
   const [showModalDelete, setShowModalDelete] = useState(false);
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentBorrower, setCurrentBorrower] = useState(null);
-
+const [loader, setLoader] = useState(false);
   const [currentUpdateBorrower, setCurrentUpdateBorrower] = useState(null);
   const [searchText, setSearchText] = useState("");
 const [isLoading,setIsLoading] = useState(false);
@@ -104,9 +104,11 @@ const [isLoading,setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchBorrowers = async () => {
+      setLoader(true);
       try {
         setIsLoading(true);
         const response = await api.get("/loans/get-all-borrowers");
+        setLoader(false);
         setBorrowers(response.data);
         const formattedData = response.data.map((borrower, index) => ({
           _id: borrower?._id,
@@ -159,6 +161,7 @@ const [isLoading,setIsLoading] = useState(false);
         }));
         setTableBorrowers(formattedData);
       } catch (error) {
+        setLoader(true);
         console.error("Error fetching group data:", error);
       }finally{
         setIsLoading(false);
@@ -259,27 +262,28 @@ const [isLoading,setIsLoading] = useState(false);
   ];
 
   return (
-    <>
+    <div className="w-full">
       <div>
         <Navbar
           visibility={true}
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
         />
+      <div className="flex mt-20">
         <CustomAlert
           type={alertConfig.type}
           isVisible={alertConfig.visibility}
           message={alertConfig.message}
         />
-        <div className="flex mt-20">
+        
+        
 
-          <div className="flex-grow p-7">
-            <div className="mt-6 mb-8">
-              <div className="flex-1 text-center w-full">
-                <h1 className="text-2xl font-semibold">Loan Report</h1>
+        <div className="flex-grow p-7">
+          <h1 className="font-bold text-2xl">Loan Report</h1>
+            {loader ? (
+              <div className="flex w-full justify-center items-center">
+                <CircularLoader />;
               </div>
-            </div>
-
-           {(tableBorrowers.length>0) ?(<DataTable
+            ) :(<DataTable
               catcher="_id"
               updateHandler={handleUpdateModalOpen}
               data={filterOption(tableBorrowers, searchText)}
@@ -291,9 +295,11 @@ const [isLoading,setIsLoading] = useState(false);
                     tableBorrowers[tableBorrowers.length - 1].date
                   : "empty"
               }.csv`}
-            />):<CircularLoader isLoading={isLoading} data="Loan Data" failure={tableBorrowers?.length<=0}/>}
-          </div>
+            />) }
         </div>
+        </div>
+        </div>
+
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">Add Loan</h3>
@@ -509,6 +515,7 @@ const [isLoading,setIsLoading] = useState(false);
               </div>
             </form>
           </div>
+       
         </Modal>
         <Modal
           isVisible={showModalUpdate}
@@ -781,7 +788,7 @@ const [isLoading,setIsLoading] = useState(false);
           </div>
         </Modal>
       </div>
-    </>
+    
   );
 };
 

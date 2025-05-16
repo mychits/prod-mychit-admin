@@ -21,8 +21,7 @@ const CollectionArea = () => {
   const [collectionArea, setCollectionArea] = useState([]);
   const [collectionAreaData, setCollectionAreaData] = useState({
     route_name: "",
-    route_description: "",
-    route_pincode: " ",
+    route_pincode: "",
   });
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +30,6 @@ const CollectionArea = () => {
  
   const [updateCollectionAreaData, setUpdateCollectionAreaData] = useState({
     route_name: "",
-    route_description: "",
     route_pincode: "",
 
   });
@@ -91,7 +89,6 @@ const CollectionArea = () => {
 
       setCollectionAreaData({
         route_name: "",
-        route_description: "",
         agent_id: [],
       });
     } catch (error) {
@@ -132,7 +129,6 @@ const CollectionArea = () => {
               _id: collectionArea?._id,
               id: index + 1,
               name: collectionArea?.route_name,
-              description: collectionArea?.route_description,
               pincode: collectionArea?.route_pincode,
               action: (
                 <div className="flex justify-center gap-2">
@@ -190,7 +186,6 @@ const CollectionArea = () => {
   const columns = [
     { key: "id", header: "SL. NO" },
     { key: "name", header: "Collection Area Name" },
-    { key: "description", header: "Collection Area Description" },
     { key: "pincode", header: "pincode"},   
     { key: "action", header: "Action" },
   ];
@@ -215,7 +210,6 @@ const CollectionArea = () => {
       setCurrentUpdateCollectionArea(response?.data);
       setUpdateCollectionAreaData({
         route_name: response?.data?.route_name,
-        route_description: response?.data?.route_description,
         route_pincode: response?.data?.route_pincode,
       });
       setShowModalUpdate(true);
@@ -354,30 +348,10 @@ console.info(updateCollectionAreaData,"testing")
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
               </div>
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="desc"
-                >
-                  Collection Area Description
-                </label>
-                <input
-                  type="text"
-                  name="route_description"
-                  value={collectionAreaData?.route_description}
-                  onChange={handleChange}
-                  id="desc"
-                  placeholder="Enter the Collection Area Description"
-              
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                />
-              </div>
-
-
                <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="pincode"
+                  htmlFor="apincode"
                 >
                   Collection Area Pincode
                 </label>
@@ -386,12 +360,13 @@ console.info(updateCollectionAreaData,"testing")
                   name="route_pincode"
                   value={collectionAreaData?.route_pincode}
                   onChange={handleChange}
-                  id="pincode"
+                  id="apincode"
                   placeholder="Enter the Collection Area Pincode"
              
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
               </div>
+              
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
@@ -436,28 +411,6 @@ console.info(updateCollectionAreaData,"testing")
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 />
               </div>
-
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="desc"
-                >
-                  Collection Area Description
-                </label>
-                <input
-                  type="text"
-                  name="route_description"
-                  value={updateCollectionAreaData?.route_description}
-                  onChange={handleInputChange}
-                  id="desc"
-                  placeholder="Enter the Collection Area Description"
-                 
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                />
-              </div>
-
-            
-
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"

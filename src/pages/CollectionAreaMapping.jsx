@@ -357,23 +357,6 @@ const handleUpdate = async (e) => {
                   <div>
                     <label
                       className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="name"
-                    >
-                      Collection Area Name
-                    </label>
-                     <Select
-                      mode="tags"
-                      value={collectionAreaMapping?.area_ids || []}
-                      onChange={(value) => handleSelect("area_ids", value)}
-                      id="name"
-                      placeholder="Please select"
-                      options={areaOption}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
                       htmlFor="area"
                     >
                       Collection Area Employee
@@ -385,6 +368,23 @@ const handleUpdate = async (e) => {
                       id="area_select"
                       placeholder="Please select"
                       options={agentOption}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="name"
+                    >
+                      Collection Area Name
+                    </label>
+                     <Select
+                      mode="tags"
+                      value={collectionAreaMapping?.area_ids || []}
+                      onChange={(value) => handleSelect("area_ids", value)}
+                      id="name"
+                      placeholder="Please select"
+                      options={areaOption}
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
                   </div>
