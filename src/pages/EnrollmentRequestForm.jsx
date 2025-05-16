@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api from "../instance/TokenInstance";
 
 const EnrollmentRequestForm = () => {
-  const [selectedGroup, setSelectedGroup] = useState(""); 
+  const [selectedGroup, setSelectedGroup] = useState("");
   const [searchParams] = useSearchParams();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [step, setStep] = useState(1);
+  
+  const [errors, setErrors] = useState({});
 
- 
   const [enrollData, setEnrollData] = useState({
     selected_plan: "",
     title: "",
     full_name: "",
-    password:"",
+    password: "",
     gender: "",
     marital_status: "",
     dateofbirth: null,
@@ -27,6 +28,7 @@ const EnrollmentRequestForm = () => {
     alternate_number: "",
     referral_name: "",
     address: "",
+    area: "",
     email: "",
     pincode: "",
     nominee_name: "",
@@ -62,11 +64,70 @@ const EnrollmentRequestForm = () => {
     fetchSelectedGroup();
   }, []);
 
- 
+  const validateForm = (type) => {
+    const newErrors = {};
+    const data = type === "addEnrollCustomer" ? enrollData : null;
+    const regex = {
+      email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      phone: /^[6-9]\d{9}$/,
+      pincode: /^\d{6}$/,
+      adhaar: /^\d{12}$/,
+      pan: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+    };
+
+    if (!data.first_name.trim()) {
+      newErrors.full_name = "Full Name is required";
+    }
+
+    // if (!data.email) {
+    //   newErrors.email = "Email is required";
+    // } else
+    if (data.email && !regex.email.test(data.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    if (!data.phone_number) {
+      newErrors.phone_number = "Phone number is required";
+    } else if (!regex.phone.test(data.phone_number)) {
+      newErrors.phone_number = "Invalid  phone number";
+    }
+
+    if (!data.password) {
+      newErrors.password = "Password is required";
+    }
+    // else if (!regex.password.test(data.password)) {
+    //   newErrors.password =
+    //     "Password must contain at least 5 characters, one uppercase, one lowercase, one number, and one special character";
+    // }
+
+    if (!data.pincode) {
+      newErrors.pincode = "Pincode is required";
+    } else if (!regex.pincode.test(data.pincode)) {
+      newErrors.pincode = "Invalid pincode (6 digits required)";
+    }
+
+    if (!data.adhaar_no) {
+      newErrors.adhaar_no = "Aadhar number is required";
+    } else if (!regex.adhaar.test(data.adhaar_no)) {
+      newErrors.adhaar_no = "Invalid Aadhar number (12 digits required)";
+    }
+    if (data.pan_no && !regex.pan.test(data.pan_no.toUpperCase())) {
+      newErrors.pan_no = "Invalid PAN format (e.g., ABCDE1234F)";
+    }
+
+    if (!data.address.trim()) {
+      newErrors.address = "Address is required";
+    } else if (data.address.trim().length < 3) {
+      newErrors.address = "Address should be at least 3 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
     setEnrollData({ ...enrollData, [e.target.name]: e.target.value });
   };
-
 
   const handleFileChange = (e) => {
     setEnrollData({ ...enrollData, [e.target.name]: e.target.files[0] });
@@ -75,72 +136,64 @@ const EnrollmentRequestForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const fullName = `${enrollData.first_name} ${enrollData.last_name || "" }`.trim();
+    const fullName = `${enrollData.first_name || ""} ${
+      enrollData.last_name || ""
+    }`.trim();
     const fullNameEnrollData = { ...enrollData, full_name: fullName };
+    const isValid = validateForm("addEnrollCustomer");
 
+    if (isValid) {
+      try {
+        const url = `user/add-enrollment-request-data`;
 
-    try {
-      const url = `user/add-enrollment-request-data`;
-       
-      
-      
-      const enrollDataObj = new FormData();
+        const enrollDataObj = new FormData();
 
-    
-      const { selected_plan, ...restEnrollData } = fullNameEnrollData;
+        const { selected_plan, ...restEnrollData } = fullNameEnrollData;
 
-     
-      Object.entries(restEnrollData).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          enrollDataObj.append(key, value);
-        }
-      });
+        Object.entries(restEnrollData).forEach(([key, value]) => {
+          if (value !== null && value !== undefined) {
+            enrollDataObj.append(key, value);
+          }
+        });
 
-      
-      if (
-        selectedGroup &&
-        selectedGroup._id &&
-        selectedGroup.group_name &&
-        selectedGroup.group_value &&
-        selectedGroup.group_install &&
-        selectedGroup.group_duration
-      )
-        enrollDataObj.append("selected_plan", selectedGroup._id);
+        if (
+          selectedGroup &&
+          selectedGroup._id &&
+          selectedGroup.group_name &&
+          selectedGroup.group_value &&
+          selectedGroup.group_install &&
+          selectedGroup.group_duration
+        )
+          enrollDataObj.append("selected_plan", selectedGroup._id);
 
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      };
+        const config = {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        };
 
-    
-      const response = await api.post(url, enrollDataObj, config);
+        const response = await api.post(url, enrollDataObj, config);
 
-      setIsSubmitted(true);
+        setIsSubmitted(true);
 
-      alert("Enrollment successful!");
-    } catch (error) {
-      console.error("Error submitting enrollment:", error);
-      alert("Failed to submit enrollment. Please try again.");
+        alert("Enrollment successful!");
+      } catch (error) {
+        console.error("Error submitting enrollment:", error);
+        alert("Failed to submit enrollment. Please try again.");
+      }
     }
   };
   if (isSubmitted) {
     return (
       <div className="border-2  mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-
         <div className="p-6 flex flex-col items-center space-y-4">
-
-
-
           <h2 className="text-2xl font-medium text-gray-900">Thank You!</h2>
-
 
           <p className="text-gray-600 text-center">
             Your enrollment was successful. We're excited to have you on board!
           </p>
 
           <Link to={"https://maps.app.goo.gl/X7FezFRPiTjuYoVt5"}>
-
             <button className="mt-4 px-6 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition">
               Our Location
             </button>
@@ -151,9 +204,7 @@ const EnrollmentRequestForm = () => {
   } else {
     return (
       <div className="bg-white p-4 rounded-md shadow-2xl sm:my-10 sm:mx-64">
-        <form onSubmit={handleSubmit} >
-         
-
+        <form onSubmit={handleSubmit}>
           <div className="m-3 mt-3 p-4 text-xl sm:text-4xl font-bold rounded-md text-amber-50 bg-blue-900">
             <h2> Chit Enrollment Form </h2>
           </div>
@@ -186,8 +237,9 @@ const EnrollmentRequestForm = () => {
                     type="text"
                     placeholder=""
                     value={
-                      `${selectedGroup?.group_type?.charAt(0)?.toUpperCase() +
-                      selectedGroup?.group_type?.slice(1)
+                      `${
+                        selectedGroup?.group_type?.charAt(0)?.toUpperCase() +
+                        selectedGroup?.group_type?.slice(1)
                       } Group` || ""
                     }
                     disabled
@@ -283,6 +335,7 @@ const EnrollmentRequestForm = () => {
                           value={enrollData?.first_name || ""}
                           onChange={handleChange}
                         />
+                        
                       </div>
                       <div className="sm:w-1/2 w-full">
                         <h1 className="text-left sm:text-lg text-sm font-semibold ">
@@ -292,17 +345,20 @@ const EnrollmentRequestForm = () => {
                           className="bg-gray-50 w-full p-2 rounded-lg mb-4 mt-1 sm:text-lg text-sm  border border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
                           name="last_name"
                           type="text"
-                          required
                           placeholder="Enter Last Name"
                           value={enrollData?.last_name || ""}
                           onChange={handleChange}
                         />
                       </div>
                     </div>
+                    {errors.full_name && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.full_name}
+                          </p>
+                        )}
 
                     <div className="sm:flex  gap-4">
-
-                    <div className="sm:w-1/2 w-full">
+                      <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold ">
                           Password
                         </h2>
@@ -313,7 +369,13 @@ const EnrollmentRequestForm = () => {
                           placeholder="Enter Password"
                           value={enrollData?.password || ""}
                           onChange={handleChange}
+                          required
                         />
+                        {errors.password && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.password}
+                          </p>
+                        )}
                       </div>
 
                       <div className="sm:w-1/2 w-full">
@@ -361,7 +423,13 @@ const EnrollmentRequestForm = () => {
                           placeholder="Enter Phone Number"
                           value={enrollData?.phone_number}
                           onChange={handleChange}
+                          required
                         />
+                        {errors.phone_number && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.phone_number}
+                          </p>
+                        )}
                       </div>
 
                       <div className="sm:w-1/2 w-full">
@@ -376,7 +444,13 @@ const EnrollmentRequestForm = () => {
                           placeholder="Enter Email ID"
                           value={enrollData?.email}
                           onChange={handleChange}
+                          required
                         />
+                        {errors.email && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.email}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -484,14 +558,21 @@ const EnrollmentRequestForm = () => {
                           name="district"
                           value={enrollData?.district}
                           onChange={handleChange}
-
                           className="w-full p-2 border rounded-md  sm:text-lg text-sm mb-4 mt-1 bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
                         >
                           <option value="">Select District</option>
-                          <option value="Bengaluru North">Bengaluru North</option>
-                          <option value="Bengaluru South">Bengaluru South</option>
-                          <option value="Bengaluru Urban">Bengaluru Urban</option>
-                          <option value="Bengaluru Rural">Bengaluru Rural</option>
+                          <option value="Bengaluru North">
+                            Bengaluru North
+                          </option>
+                          <option value="Bengaluru South">
+                            Bengaluru South
+                          </option>
+                          <option value="Bengaluru Urban">
+                            Bengaluru Urban
+                          </option>
+                          <option value="Bengaluru Rural">
+                            Bengaluru Rural
+                          </option>
                         </select>
                       </div>
 
@@ -523,8 +604,13 @@ const EnrollmentRequestForm = () => {
                       placeholder="Address"
                       value={enrollData?.address}
                       onChange={handleChange}
+                      required
                     />
-
+                    {errors.address && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.address}
+                      </p>
+                    )}
                     <div className="sm:flex gap-4">
                       <div className="sm:w-1/2 w-full">
                         <h2 className="text-left sm:text-lg text-sm font-semibold  ">
@@ -552,7 +638,13 @@ const EnrollmentRequestForm = () => {
                           inputMode="numeric"
                           value={enrollData?.pincode}
                           onChange={handleChange}
+                          required
                         />
+                        {errors.pincode && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.pincode}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -650,7 +742,7 @@ const EnrollmentRequestForm = () => {
                       >
                         Back
                       </button>
-                    
+
                       <button
                         type="button"
                         className="w-40 active:scale-95 font-semibold border-2 border-black shadow-md bg-blue-900 hover:bg-indigo-600 text-white p-2 rounded-md"
@@ -664,122 +756,134 @@ const EnrollmentRequestForm = () => {
 
                 {step === 3 && (
                   <div>
-                <div className="bg-[#17216D] rounded-md">
-                  <h2 className="p-4 text-left font-bold rounded-md bg-blue-900 text-xl text-white mb-3">
-                    {" "}
-                    Document Details
-                  </h2>
-                </div>
+                    <div className="bg-[#17216D] rounded-md">
+                      <h2 className="p-4 text-left font-bold rounded-md bg-blue-900 text-xl text-white mb-3">
+                        {" "}
+                        Document Details
+                      </h2>
+                    </div>
 
-                <div className="sm:flex gap-4">
-                  <div className="sm:w-1/2 w-full">
+                    <div className="sm:flex gap-4">
+                      <div className="sm:w-1/2 w-full">
+                        <h1 className="text-left sm:text-lg text-sm font-semibold ">
+                          Aadhar Number
+                        </h1>
+                        <input
+                          className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                          name="adhaar_no"
+                          type="numeric"
+                          placeholder="Enter Adhaar Number"
+                          value={enrollData?.adhaar_no}
+                          onChange={handleChange}
+                          required
+                        />
+                        {errors.adhaar_no && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.adhaar_no}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="sm:w-1/2 w-full">
+                        <h1 className="text-left sm:text-lg text-sm font-semibold ">
+                          Pan Number
+                        </h1>
+
+                        <input
+                          className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                          name="pan_no"
+                          type="text"
+                          accept="image/*"
+                          placeholder="Enter Pan Number"
+                          value={enrollData?.pan_no}
+                          onChange={handleChange}
+                          required
+                        />
+                        {errors.pan_no && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.pan_no}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="sm:flex gap-4">
+                      <div className="sm:w-1/2 w-full">
+                        <h1 className="text-left sm:text-lg text-sm font-semibold ">
+                          Aadhaar Front Photo
+                        </h1>
+
+                        <input
+                          className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                          name="aadhar_frontphoto"
+                          type="file"
+                          accept="image/*"
+                          placeholder="No file choosen"
+                          onChange={handleFileChange}
+                        />
+                      </div>
+
+                      <div className="sm:w-1/2 w-full">
+                        <h1 className="text-left sm:text-lg text-sm font-semibold ">
+                          Aadhaar Back photo
+                        </h1>
+
+                        <input
+                          className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                          name="aadhar_backphoto"
+                          type="file"
+                          accept="image/*"
+                          placeholder="No file choosen"
+                          onChange={handleFileChange}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="sm:flex gap-4">
+                      <div className="sm:w-1/2 w-full">
+                        <h1 className="text-left sm:text-lg text-sm font-semibold ">
+                          Pan Front photo
+                        </h1>
+
+                        <input
+                          className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                          name="pan_frontphoto"
+                          type="file"
+                          accept="image/*"
+                          placeholder="No file choosen"
+                          onChange={handleFileChange}
+                        />
+                      </div>
+
+                      <div className="sm:w-1/2 w-full">
+                        <h1 className="text-left sm:text-lg text-sm font-semibold ">
+                          Pan Back photo
+                        </h1>
+
+                        <input
+                          className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                          name="pan_backphoto"
+                          type="file"
+                          accept="image/*"
+                          placeholder="No file choosen"
+                          onChange={handleFileChange}
+                        />
+                      </div>
+                    </div>
+
                     <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                      Aadhar Number
+                      Upload Profile Photo
                     </h1>
+                    <img src="path/to image" alt="" />
                     <input
-                      className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="adhaar_no"
-                      type="numeric"
-                      placeholder="Enter Adhaar Number"
-                      value={enrollData?.adhaar_no}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div className="sm:w-1/2 w-full">
-                    <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                      Pan Number
-                    </h1>
-
-                    <input
-                      className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="pan_no"
-                      type="text"
-                      accept="image/*"
-                      placeholder="Enter Pan Number"
-                      value={enrollData?.pan_no}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="sm:flex gap-4">
-                  <div className="sm:w-1/2 w-full">
-                    <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                      Aadhaar Front Photo
-                    </h1>
-                   
-                    <input
-                      className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="aadhar_frontphoto"
+                      className="w-full p-4 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                      name="profilephoto"
                       type="file"
                       accept="image/*"
                       placeholder="No file choosen"
                       onChange={handleFileChange}
                     />
-                  </div>
-
-                  <div className="sm:w-1/2 w-full">
-                    <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                      Aadhaar Back photo
-                    </h1>
-                    
-                    <input
-                      className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="aadhar_backphoto"
-                      type="file"
-                      accept="image/*"
-                      placeholder="No file choosen"
-                      onChange={handleFileChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="sm:flex gap-4">
-                  <div className="sm:w-1/2 w-full">
-                    <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                      Pan Front photo
-                    </h1>
-                   
-                    <input
-                      className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="pan_frontphoto"
-                      type="file"
-                      accept="image/*"
-                      placeholder="No file choosen"
-                      onChange={handleFileChange}
-                    />
-                  </div>
-
-                  <div className="sm:w-1/2 w-full">
-                    <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                      Pan Back photo
-                    </h1>
-                   
-                    <input
-                      className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="pan_backphoto"
-                      type="file"
-                      accept="image/*"
-                      placeholder="No file choosen"
-                      onChange={handleFileChange}
-                    />
-                  </div>
-                </div>
-
-                <h1 className="text-left sm:text-lg text-sm font-semibold ">
-                  Upload Profile Photo
-                </h1>
-                <img src="path/to image" alt="" />
-                <input
-                  className="w-full p-4 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                  name="profilephoto"
-                  type="file"
-                  accept="image/*"
-                  placeholder="No file choosen"
-                  onChange={handleFileChange}
-                />
-                     <div className="sm:flex gap-3">
+                    <div className="sm:flex gap-3">
                       <button
                         type="button"
                         className="w-40 active:scale-95 font-semibold border-2 border-black shadow-md bg-blue-900 hover:bg-indigo-600 text-white p-2 rounded-md"
@@ -787,7 +891,7 @@ const EnrollmentRequestForm = () => {
                       >
                         Back
                       </button>
-                    
+
                       <button
                         type="button"
                         className="w-40 active:scale-95 font-semibold border-2 border-black shadow-md bg-blue-900 hover:bg-indigo-600 text-white p-2 rounded-md"
@@ -796,80 +900,80 @@ const EnrollmentRequestForm = () => {
                         Add Bank Details
                       </button>
                     </div>
-                </div>
+                  </div>
                 )}
-             
-             {step === 4 && (
-               <div>
-                <div className="bg-[#17216D] rounded-md mb-3">
-                  <h2 className="p-4 text-left font-bold rounded-md bg-blue-900 text-xl text-white">
-                    {" "}
-                    Bank Details
-                  </h2>
-                </div>
 
-                <div className="sm:flex gap-4">
-                  <div className="sm:w-1/2 w-full">
-                    <h2 className="text-left sm:text-lg text-sm font-semibold ">
-                      Bank Name
-                    </h2>
-                    <input
-                      className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="bank_name"
-                      type="text"
-                      placeholder="Enter Bank Name "
-                      value={enrollData?.bank_name}
-                      onChange={handleChange}
-                    />
-                  </div>
+                {step === 4 && (
+                  <div>
+                    <div className="bg-[#17216D] rounded-md mb-3">
+                      <h2 className="p-4 text-left font-bold rounded-md bg-blue-900 text-xl text-white">
+                        {" "}
+                        Bank Details
+                      </h2>
+                    </div>
 
-                  <div className="sm:w-1/2 w-full">
-                    <h2 className="text-left sm:text-lg text-sm font-semibold">
-                      Bank Branch Name
-                    </h2>
+                    <div className="sm:flex gap-4">
+                      <div className="sm:w-1/2 w-full">
+                        <h2 className="text-left sm:text-lg text-sm font-semibold ">
+                          Bank Name
+                        </h2>
+                        <input
+                          className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                          name="bank_name"
+                          type="text"
+                          placeholder="Enter Bank Name "
+                          value={enrollData?.bank_name}
+                          onChange={handleChange}
+                        />
+                      </div>
 
-                    <input
-                      className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="bank_branch_name"
-                      type="text"
-                      placeholder="Enter Bank Branch Name"
-                      value={enrollData?.bank_branch_name}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
+                      <div className="sm:w-1/2 w-full">
+                        <h2 className="text-left sm:text-lg text-sm font-semibold">
+                          Bank Branch Name
+                        </h2>
 
-                <div className="sm:flex gap-4">
-                  <div className="sm:w-1/2 w-full">
-                    <h2 className="text-left sm:text-lg text-sm font-semibold ">
-                      Bank Account Number
-                    </h2>
-                    <input
-                      className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="bank_account_number"
-                      type="text"
-                      placeholder="Enter Bank Account Number "
-                      value={enrollData?.bank_account_number}
-                      onChange={handleChange}
-                    />
-                  </div>
+                        <input
+                          className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                          name="bank_branch_name"
+                          type="text"
+                          placeholder="Enter Bank Branch Name"
+                          value={enrollData?.bank_branch_name}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
 
-                  <div className="sm:w-1/2 w-full">
-                    <h2 className="text-left sm:text-lg text-sm font-semibold">
-                      Bank IFSC Code
-                    </h2>
+                    <div className="sm:flex gap-4">
+                      <div className="sm:w-1/2 w-full">
+                        <h2 className="text-left sm:text-lg text-sm font-semibold ">
+                          Bank Account Number
+                        </h2>
+                        <input
+                          className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                          name="bank_account_number"
+                          type="text"
+                          placeholder="Enter Bank Account Number "
+                          value={enrollData?.bank_account_number}
+                          onChange={handleChange}
+                        />
+                      </div>
 
-                    <input
-                      className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                      name="bank_IFSC_code"
-                      type="text"
-                      placeholder="Enter Customer Bank IFSC Code"
-                      value={enrollData?.bank_IFSC_code}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-                <div className="sm:flex gap-3">
+                      <div className="sm:w-1/2 w-full">
+                        <h2 className="text-left sm:text-lg text-sm font-semibold">
+                          Bank IFSC Code
+                        </h2>
+
+                        <input
+                          className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                          name="bank_IFSC_code"
+                          type="text"
+                          placeholder="Enter Customer Bank IFSC Code"
+                          value={enrollData?.bank_IFSC_code}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="sm:flex gap-3">
                       <button
                         type="button"
                         className="w-40 active:scale-95 font-semibold border-2 border-black shadow-md bg-blue-900 hover:bg-indigo-600 text-white p-2 rounded-md"
@@ -877,16 +981,16 @@ const EnrollmentRequestForm = () => {
                       >
                         Back
                       </button>
-                  
-                  <button
-                    type="submit"
-                    className="w-40 active:scale-95 font-semibold border-2 border-black shadow-md bg-blue-900 hover:bg-indigo-600 text-white p-2 rounded-md"
-                  >
-                    Submit
-                  </button>
-                </div>
-                </div>
-             )}
+
+                      <button
+                        type="submit"
+                        className="w-40 active:scale-95 font-semibold border-2 border-black shadow-md bg-blue-900 hover:bg-indigo-600 text-white p-2 rounded-md"
+                      >
+                        Submit
+                      </button>
+                    </div>
+                  </div>
+                )}
               </>
             </div>
           </div>

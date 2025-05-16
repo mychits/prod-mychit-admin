@@ -43,6 +43,8 @@ import Designation from "./pages/Designation";
 import AdministrativePrivileges from "./pages/AdministrativePrivileges";
 import AdminAccessRights from "./pages/AdminAccessRights";
 import EmployeeReport from "./pages/EmployeeReport";
+import CollectionArea from "./pages/CollectionArea";
+import CollectionAreaMapping from "./pages/CollectionAreaMapping";
 function App() {
   return (
     <>
@@ -145,6 +147,24 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route
+              path="/collection-area-request"
+              element={
+                <ProtectedRoute>
+                  <CollectionArea />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/collection-area-mapping"
+              element={
+                <ProtectedRoute>
+                  <CollectionAreaMapping />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/agent"
               element={

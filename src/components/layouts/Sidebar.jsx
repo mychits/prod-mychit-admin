@@ -21,6 +21,12 @@ import { FaHandshake } from "react-icons/fa";
 import ids from "../../data/ids";
 import { FaClipboardList } from "react-icons/fa";
 import { TbArrowsLeftDown } from "react-icons/tb";
+import {TbSettings} from "react-icons/tb";
+import { HiCurrencyRupee } from "react-icons/hi2";
+
+import{FaMapLocationDot} from "react-icons/fa6";
+import{RiUserLocationFill} from "react-icons/ri";
+
 const MenuSidebar = [
   {
     id: "$1",
@@ -100,6 +106,46 @@ const MenuSidebar = [
     link: "/marketing",
   },
  
+{
+    id: "$199",
+    title: "General Settings",
+    icon: <TbSettings   />,
+    // link:"/general-settings",
+    submenu: true,
+    submenuItems: [
+      {
+        id: "#1",
+        title: "Collection",
+        icon: <HiCurrencyRupee  />,
+        hider:true,
+        
+        newTab: true,
+        submenu: true,
+        submenuItems: [
+          {
+            id: ids.fourteen,
+            title: "Collection Area",
+            icon: <FaMapLocationDot />,
+            link: "/collection-area-request",
+          },
+          {
+            id: ids.fourteen,
+            title: "Collection Mapping",
+            icon: <RiUserLocationFill />,
+            link: "/collection-area-mapping",
+          },
+          // {
+          //   id: ids.fourteen,
+          //   title: "Marketing",
+          //   icon: <GoGraph />,
+          //   link: "/marketing",
+          // },
+        ],
+      },
+    ],
+  },
+
+
   {
     id: "$15",
     title: "Other Sites",
@@ -145,6 +191,7 @@ const Sidebar = () => {
   const ref = useRef(null);
   const [open, setOpen] = useState(true);
   const [submenuOpenIndex, setSubmenuOpenIndex] = useState(null);
+  const [hider,setHider] = useState(true);
   const toggleSubMenu = (index) => {
     if (submenuOpenIndex === index) {
       setSubmenuOpenIndex(null);
@@ -182,59 +229,88 @@ const Sidebar = () => {
           </h3>
         </div>
 
-        <ul className="pt-2">
-          {MenuSidebar.map((menu, index) => (
-            <Fragment key={menu.id}>
-              <a href={menu.link} onClick={() => toggleSubMenu(index)}>
-                <li
-                  className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md ${
-                    menu.spacing ? "mt-9" : "mt-2"
-                  }`}
-                >
-                  <span className="text-2xl block float-left">{menu.icon}</span>
-                  <span
-                    className={`text-base font-medium flex-1 ${
-                      !open && "hidden"
-                    } `}
-                  >
-                    {menu.title}
-                  </span>
-                  {menu.submenu && open && (
-                    <BsChevronDown
-                      className={`${submenuOpenIndex && "rotate-180"}`}
-                    />
-                  )}
-                </li>
-              </a>
-              {menu.submenu && submenuOpenIndex === index && open && (
-                <ul>
-                  {menu.submenuItems.map((submenuItem, index) => (
-                    <Fragment key={submenuItem.id}>
-                      {/* Use target="_blank" for external links */}
-
-                      <a
-                        href={submenuItem.link}
-                        rel="noopener noreferrer"
-                        target={`${submenuItem.newTab ? "_blank" : "_self"}`}
-                      >
-                        <li
-                          className={`${
-                            submenuItem.red ? "text-red-300" : "text-gray-300"
-                          } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
-                            menu.spacing ? "mt-9" : "mt-2"
-                          }`}
-                        >
-                          {submenuItem?.icon}
-                          {submenuItem.title}
-                        </li>
-                      </a>
-                    </Fragment>
-                  ))}
-                </ul>
-              )}
-            </Fragment>
-          ))}
-        </ul>
+       <ul className="pt-2">
+                 {MenuSidebar.map((menu, index) => (
+                   <Fragment key={menu.id}>
+                     <a href={menu.link} onClick={() => toggleSubMenu(index)}>
+                       <li
+                         className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md ${
+                           menu.spacing ? "mt-9" : "mt-2"
+                         }`}
+                       >
+                         <span className="text-2xl block float-left">{menu.icon}</span>
+                         <span
+                           className={`text-base font-medium flex-1 ${
+                             !open && "hidden"
+                           } `}
+                         >
+                           {menu.title}
+                         </span>
+                         {menu.submenu && open && (
+                           <BsChevronDown
+                             className={`${submenuOpenIndex && "rotate-180"}`}
+                           />
+                         )}
+                       </li>
+                     </a>
+                     {menu.submenu && submenuOpenIndex === index && open && (
+                       <ul>
+                         {menu.submenuItems.map((submenuItem, index) => (
+                           <Fragment key={submenuItem.id}>
+                             {/* Use target="_blank" for external links */}
+       
+                             <a
+                               href={submenuItem.link}
+                               rel="noopener noreferrer"
+                               target={`${submenuItem.newTab ? "_blank" : "_self"}`}
+                             >
+                               <li
+                               onClick={()=>setHider(!hider)}
+                                 className={`${
+                                   submenuItem.red ? "text-red-300" : "text-gray-300"
+                                 } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
+                                   menu.spacing ? "mt-9" : "mt-2"
+                                 }`}
+                               >
+                                 {submenuItem?.icon}
+                                 {submenuItem.title}
+                               </li>
+                             </a>
+       
+                             {submenuItem.submenu && !hider &&
+                               submenuItem.submenuItems.map((submenuItem, index) => (
+                                 <Fragment key={submenuItem.id}>
+                                   {/* Use target="_blank" for external links */}
+       
+                                   <a
+                                     href={submenuItem.link}
+                                     rel="noopener noreferrer"
+                                     target={`${
+                                       submenuItem.newTab ? "_blank" : "_self"
+                                     }`}
+                                   >
+                                     <li
+                                       className={`${
+                                         submenuItem.red
+                                           ? "text-red-300"
+                                           : "text-gray-300"
+                                       } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
+                                         menu.spacing ? "mt-9" : "mt-2"
+                                       }`}
+                                     >
+                                       {submenuItem?.icon}
+                                       {submenuItem.title}
+                                     </li>
+                                   </a>
+                                 </Fragment>
+                               ))}
+                           </Fragment>
+                         ))}
+                       </ul>
+                     )}
+                   </Fragment>
+                 ))}
+               </ul>
         <div
           className="rounded-md fixed right-1 bottom-20 bg-blue-900 p-2 bg-opacity-30 hover:bg-opacity-100 active:scale-95 z-50"
           onClick={() => {

@@ -56,26 +56,74 @@ const Home = () => {
     fetchUsers();
   }, []);
 
-  useEffect(() => {
-    const fetchPayments = async () => {
-      try {
-        const response = await api.get("/payment/get-payment");
-        console.log(response.data);
-        const paymentData = response.data;
-        const totalAmount = paymentData.reduce(
-          (sum, payment) => sum + Number(payment.amount || 0),
-          0
-        );
+  // useEffect(() => {
+  //   const fetchPayments = async () => {
+  //     try {
+  //       const response = await api.get("/payment/get-payment");
+  //       console.log(response.data);
+  //       const paymentData = response.data;
+  //       const totalAmount = paymentData.reduce(
+  //         (sum, payment) => sum + Number(payment.amount || 0),
+  //         0
+  //       );
 
-        setPaymentsValue(totalAmount);
+  //       setPaymentsValue(totalAmount);
+  //     } catch (error) {
+  //       console.error("Error fetching payment data:", error);
+  //     }
+  //   };
+  //   fetchPayments();
+  // }, []);
+
+  // useEffect(() => {
+  //   const fetchMonthlyPayments = async () => {
+  //     try {
+  //       const today = new Date();
+  //       const currentMonth = today.getMonth();
+  //       const currentYear = today.getFullYear();
+  //       const firstDay = `${currentYear}-${String(currentMonth + 1).padStart(
+  //         2,
+  //         "0"
+  //       )}-01`;
+  //       console.log("firstday",firstDay);
+  //       const lastDay = new Date(currentYear, currentMonth + 1, 0);
+  //       const lastDayFormatted = lastDay.toISOString().split("T")[0];
+
+  //       const response = await api.get("/payment/get-report-receipt", {
+  //         params: {
+  //           from_date: firstDay,
+  //           to_date: lastDayFormatted,
+  //         },
+  //       });
+
+  //       setPaymentsPerMonth(response.data);
+
+  //       const totalAmount = response.data.reduce((sum, payment) => {
+  //         console.log("payment", payment.amount);
+  //         return sum + Number(payment.amount || 0);
+  //       }, 0);
+  //       setPaymentsPerMonthValue(totalAmount);
+  //     } catch (err) {
+  //       console.error("Error fetching monthly payment data:", err.message);
+  //     }
+  //   };
+  //   fetchMonthlyPayments();
+  // }, []);
+  useEffect(() => {
+    const fetchTotalAmount = async () => {
+      try {
+        const response = await api.get("/payment/get-total-payment-amount");
+        setTotalAmount(response?.data?.totalAmount || 0);
+        console.info(response?.data?.totalAmount,"response data");
       } catch (error) {
-        console.error("Error fetching payment data:", error);
+        console.error("Error fetching total amount:", error);
       }
     };
-    fetchPayments();
+
+    fetchTotalAmount();
   }, []);
 
-  useEffect(() => {
+    useEffect(() => {
     const fetchMonthlyPayments = async () => {
       try {
         const today = new Date();
@@ -85,30 +133,26 @@ const Home = () => {
           2,
           "0"
         )}-01`;
-        console.log("firstday",firstDay);
         const lastDay = new Date(currentYear, currentMonth + 1, 0);
         const lastDayFormatted = lastDay.toISOString().split("T")[0];
 
-        const response = await api.get("/payment/get-report-receipt", {
+        const response = await api.get("/payment/get-current-month-payment", {
           params: {
             from_date: firstDay,
             to_date: lastDayFormatted,
           },
         });
+        console.info(response?.data);
 
-        setPaymentsPerMonth(response.data);
-
-        const totalAmount = response.data.reduce((sum, payment) => {
-          console.log("payment", payment.amount);
-          return sum + Number(payment.amount || 0);
-        }, 0);
-        setPaymentsPerMonthValue(totalAmount);
+        //setPaymentsPerMonth(response?.data);
+        setPaymentsPerMonthValue(response?.data?.monthlyPayment);
       } catch (err) {
         console.error("Error fetching monthly payment data:", err.message);
       }
     };
     fetchMonthlyPayments();
   }, []);
+
   const cardData = [
     {
       icon: <LiaLayerGroupSolid size={20} />,
