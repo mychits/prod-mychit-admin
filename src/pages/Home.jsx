@@ -19,6 +19,7 @@ const Home = () => {
   const [paymentsPerMonth, setPaymentsPerMonth] = useState([]);
   const [paymentsPerMonthValue, setPaymentsPerMonthValue] = useState("...");
   const [searchValue,setSearchValue] = useState("")
+  const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -181,7 +182,7 @@ const Home = () => {
     {
       icon: <MdOutlinePayments size={16} />,
       text: "Payments",
-      count: `₹${paymentsValue}`,
+      count: `${totalAmount}`,
       bgColor: "bg-red-200",
       iconColor: "bg-red-900",
       redirect: "/payment",
@@ -194,7 +195,7 @@ const Home = () => {
         </div>
       ),
       text: "Current Month Payments",
-      count: `₹${paymentsPerMonthValue}`,
+      count: `${paymentsPerMonthValue}`,
       bgColor: "bg-purple-200",
       iconColor: "bg-purple-900",
       redirect: "/payment",
