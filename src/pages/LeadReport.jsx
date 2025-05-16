@@ -417,7 +417,7 @@ const LeadReport = () => {
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
           visibility={true}
         />
-        <div className=" flex mt-20">
+        <div className=" flex mt-30">
           <CustomAlert
             type={alertConfig.type}
             isVisible={alertConfig.visibility}

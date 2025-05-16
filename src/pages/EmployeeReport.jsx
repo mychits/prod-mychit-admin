@@ -89,7 +89,7 @@ const EmployeeReport = () => {
 
   return (
     <div className="w-screen min-h-screen">
-      <div className="flex mt-20">
+      <div className="flex mt-30">
         <Navbar
          
           visibility={true}

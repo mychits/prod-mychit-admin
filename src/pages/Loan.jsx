@@ -813,7 +813,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     Please enter{" "}
                     <span className="text-primary font-bold">
-                      {currentBorrower.borrower.full_name}
+                      {currentBorrower?.borrower?.full_name}
                     </span>{" "}
                     to confirm deletion. <span className="text-red-500 ">*</span>
                   </label>

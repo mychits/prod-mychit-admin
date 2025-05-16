@@ -1535,32 +1535,32 @@ const User = () => {
                 </div>
               </div>
 
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="profile-photo"
-                >
-                  Upload Profile Photo
-                </label>
-                <input
-                  type="file"
-                  name="profilephoto"
-                  onChange={handleFileChange}
-                  id="profile-photo"
-                  accept="image/*"
-                  placeholder=" Upload Profile Photo"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                />
-                <Link to={updateFormData?.profilephoto} download>
-                  <img
-                    src={updateFormData?.profilephoto}
-                    alt="Profile Photo"
-                    className="w-56 mx-2 my-4 h-56"
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="profile-photo"
+                  >
+                    Upload Profile Photo
+                  </label>
+                  <input
+                    type="file"
+                    name="profilephoto"
+                    onChange={handleFileChange}
+                    id="profile-photo"
+                    accept="image/*"
+                    placeholder=" Upload Profile Photo"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                </Link>
-              </div>
-
-              <div className="w-1/2">
+                  <Link to={updateFormData?.profilephoto} download>
+                    <img
+                      src={updateFormData?.profilephoto}
+                      alt="Profile Photo"
+                      className="w-full my-4 h-56 p-2"
+                    />
+                  </Link>
+                </div>
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="area"
@@ -1591,6 +1591,7 @@ const User = () => {
                     ))}
                     </select>
                 </div>
+              </div>
 
               <label
                 className="block mb-2 text-sm font-medium text-gray-900"

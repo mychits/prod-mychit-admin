@@ -401,7 +401,7 @@ const Daybook = () => {
   return (
     <>
       <div className="w-screen">
-        <div className="flex mt-20">
+        <div className="flex mt-30">
           <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold">Reports - Daybook</h1>
@@ -509,12 +509,18 @@ const Daybook = () => {
                         : "empty"
                     }.csv`}
                   />
+                   <div className="flex justify-end mt-4 pr-4">
+    <span className="text-lg font-semibold">
+      Total Amount: ₹{payments}
+    </span>
+  </div>
                 </div>
               ) : (
                 <CircularLoader isLoading={isLoading} failure={(filteredAuction.length <= 0)}/>
               )}
             </div>
           </div>
+          
           <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
             <div className="py-6 px-5 lg:px-8 text-left">
               <h3 className="mb-4 text-xl font-bold text-gray-900">

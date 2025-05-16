@@ -461,7 +461,7 @@ const GroupReport = () => {
   return (
     <>
       <div className="w-screen">
-        <div className="flex mt-20">
+        <div className="flex mt-30">
           {/* <Sidebar /> */}
            <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
           <div className="flex-grow p-7">

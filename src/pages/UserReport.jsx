@@ -625,7 +625,7 @@ const UserReport = () => {
   return (
     <>
       <div className="w-screen">
-        <div className="flex mt-20">
+        <div className="flex mt-30">
           {/* <Sidebar /> */}
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}

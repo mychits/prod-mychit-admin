@@ -37,6 +37,11 @@ const PigmeReport = () => {
     fetchPigmeData();
   }, []);
 
+  const totalPayableAmount = reportData.reduce(
+    (sum, entry) => sum + (parseFloat(entry.payable_amount) || 0),
+    0
+  );
+
   const pigmeColumns = [
     { key: "sl_no", header: "SL. NO" },
     { key: "pigme_id", header: "Pigme ID" },
@@ -52,7 +57,7 @@ const PigmeReport = () => {
 
   return (
     <div className="w-screen">
-      <div className="flex mt-20">
+      <div className="flex mt-30">
         <Navbar
           onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)}
           visibility={true}
@@ -70,6 +75,12 @@ const PigmeReport = () => {
                 columns={pigmeColumns}
                 exportedFileName="PigmeCustomerReport.csv"
               />
+                 <div className="mt-6 bg-white p-6 rounded-lg shadow text-center">
+                <h4 className="text-lg font-semibold text-gray-700">Total Payable Amount</h4>
+                <p className="text-2xl font-bold text-blue-700">
+                  ₹{totalPayableAmount.toFixed(2)}
+                </p>
+              </div>
             </div>
           </div>
         )}

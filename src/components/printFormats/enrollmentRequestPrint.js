@@ -213,7 +213,7 @@ const handleEnrollmentRequestPrint = async (id) => {
         doc.setFontSize(12);
         drawTextBox3(`Name: ${enroll?.full_name}`, 10, 100);
         drawTextBox(
-            `DOB: ${enroll?.customer_dateofbirth?.split("T")[0] || "YYYY-MM-DD"}`,
+            `DOB: ${enroll?.dateofbirth?.split("T")[0] || "YYYY-MM-DD"}`,
             10,
             115
         );

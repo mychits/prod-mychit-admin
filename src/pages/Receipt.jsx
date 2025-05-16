@@ -432,7 +432,7 @@ const Receipt = () => {
   return (
     <>
       <div className="w-screen">
-        <div className="flex mt-20">
+        <div className="flex mt-30">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
             visibility={true}
@@ -528,6 +528,12 @@ const Receipt = () => {
                         : "empty"
                     }.csv`}
                   />
+ <div className="flex justify-end mt-4 pr-4">
+    <span className="text-lg font-semibold">
+      Total Amount: ₹{payments}
+    </span>
+  </div>
+
                 </div>
               ) : (
                 <div className="mt-10 text-center text-gray-500">
