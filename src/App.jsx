@@ -45,6 +45,7 @@ import AdminAccessRights from "./pages/AdminAccessRights";
 import EmployeeReport from "./pages/EmployeeReport";
 import CollectionArea from "./pages/CollectionArea";
 import CollectionAreaMapping from "./pages/CollectionAreaMapping";
+import FilterGroups from "./pages/FilterGroups";
 function App() {
   return (
     <>
@@ -90,6 +91,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+   <Route
+              path="/filter-groups"
+              element={
+                <ProtectedRoute>
+                  <FilterGroups />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/week-group"
               element={

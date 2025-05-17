@@ -16,16 +16,19 @@ import { IoPeopleOutline } from "react-icons/io5";
 import { GoGraph } from "react-icons/go";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { PiCalculatorBold } from "react-icons/pi";
-import { FaPersonCane } from "react-icons/fa6";
-import { FaHandshake } from "react-icons/fa";
+import { PiMapPinAreaBold } from "react-icons/pi";
+
 import ids from "../../data/ids";
 import { FaClipboardList } from "react-icons/fa";
 import { TbArrowsLeftDown } from "react-icons/tb";
-import {TbSettings} from "react-icons/tb";
-import { HiCurrencyRupee } from "react-icons/hi2";
 
-import{FaMapLocationDot} from "react-icons/fa6";
-import{RiUserLocationFill} from "react-icons/ri";
+import { RiUserLocationFill } from "react-icons/ri";
+import { FaMapLocationDot } from "react-icons/fa6";
+import { GiReceiveMoney } from "react-icons/gi";
+import { HiCurrencyRupee } from "react-icons/hi2";
+import { TbSettings } from "react-icons/tb";
+import { MdOutlineGroups } from "react-icons/md";
+import { FaFilter } from "react-icons/fa";
 
 const MenuSidebar = [
   {
@@ -54,11 +57,11 @@ const MenuSidebar = [
     icon: <FaPeopleArrows />,
     link: "/enrollment",
   },
-  
+
   {
     id: "$18",
     title: "Tasks",
-    icon: <FaClipboardList />, 
+    icon: <FaClipboardList />,
     link: "/task",
   },
   {
@@ -67,7 +70,7 @@ const MenuSidebar = [
     icon: <FaUserLock />,
     link: "/agent",
   },
-  
+
   {
     id: "$7",
     title: "Leads",
@@ -105,45 +108,62 @@ const MenuSidebar = [
     icon: <GoGraph />,
     link: "/marketing",
   },
+
+
  
+
 {
-    id: "$199",
-    title: "General Settings",
-    icon: <TbSettings   />,
-    // link:"/general-settings",
-    submenu: true,
-    submenuItems: [
-      {
-        id: "#1",
-        title: "Collection",
-        icon: <HiCurrencyRupee  />,
-        hider:true,
-        
-        newTab: true,
-        submenu: true,
-        submenuItems: [
-          {
-            id: ids.fourteen,
-            title: "Collection Area",
-            icon: <FaMapLocationDot />,
-            link: "/collection-area-request",
-          },
-          {
-            id: ids.fourteen,
-            title: "Collection Mapping",
-            icon: <RiUserLocationFill />,
-            link: "/collection-area-mapping",
-          },
-          // {
-          //   id: ids.fourteen,
-          //   title: "Marketing",
-          //   icon: <GoGraph />,
-          //   link: "/marketing",
-          // },
-        ],
-      },
-    ],
-  },
+  id: "$199",
+  title: "General Settings",
+  icon: <TbSettings />,
+  submenu: true,
+  submenuItems: [
+    {
+      id: "#1",
+      title: "Collection",
+      icon: <HiCurrencyRupee />,
+      hider: true,
+      newTab: true,
+      submenu: true,
+      submenuItems: [
+        {
+          id: ids.fourteen,
+          title: "Collection Area",
+          icon: <FaMapLocationDot />,
+          link: "/collection-area-request",
+        },
+        {
+          id: ids.fifteen,
+          title: "Collection Mapping",
+          icon: <RiUserLocationFill/>,
+          link: "/collection-area-mapping",
+        },
+      ],
+    },
+    {
+      id: "#2",
+      title: "Groups",
+      icon: <MdOutlineGroups size="25"/>,
+      hider: true,
+      newTab: true,
+      submenu: true,
+      submenuItems: [
+        {
+          id: ids.sixteen,
+          title: "Filter Groups",
+          icon: <FaFilter  />,
+          link: "/filter-groups",
+        },
+        {
+          // id: ids.seventeen,
+          // title: "Group Mapping",
+          // icon: <RiUserLocationFill />,
+          //link: "/group-mapping",
+        },
+      ],
+    },
+  ],
+},
 
 
   {
@@ -228,7 +248,6 @@ const Sidebar = () => {
             MyChits
           </h3>
         </div>
-
        <ul className="pt-2">
                  {MenuSidebar.map((menu, index) => (
                    <Fragment key={menu.id}>
@@ -257,7 +276,7 @@ const Sidebar = () => {
                        <ul>
                          {menu.submenuItems.map((submenuItem, index) => (
                            <Fragment key={submenuItem.id}>
-                             {/* Use target="_blank" for external links */}
+                          
        
                              <a
                                href={submenuItem.link}
@@ -280,7 +299,7 @@ const Sidebar = () => {
                              {submenuItem.submenu && !hider &&
                                submenuItem.submenuItems.map((submenuItem, index) => (
                                  <Fragment key={submenuItem.id}>
-                                   {/* Use target="_blank" for external links */}
+                                
        
                                    <a
                                      href={submenuItem.link}
@@ -310,7 +329,7 @@ const Sidebar = () => {
                      )}
                    </Fragment>
                  ))}
-               </ul>
+        </ul>
         <div
           className="rounded-md fixed right-1 bottom-20 bg-blue-900 p-2 bg-opacity-30 hover:bg-opacity-100 active:scale-95 z-50"
           onClick={() => {
