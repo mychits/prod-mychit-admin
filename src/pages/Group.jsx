@@ -4,12 +4,15 @@ import Sidebar from "../components/layouts/Sidebar";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
 import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
+
+//TODO: remove alerDialog and add CustomAlertDialog
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+
 const Group = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
@@ -21,10 +24,15 @@ const Group = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  //TODO: changes done for non reload component
+  const [reloadTrigger, setReloadTrigger] = useState(0);
+
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
   };
+
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -42,8 +50,8 @@ const Group = () => {
     end_date: "",
     minimum_bid: "",
     maximum_bid: "",
-    commission: 1,
-    incentives: "",
+    commission: "1",
+    incentives: "1",
     reg_fee: "",
   });
   const [errors, setErrors] = useState({});
@@ -67,12 +75,10 @@ const Group = () => {
       console.error("Missing or invalid groupId");
       return;
     }
-
     // window.open(`/enrollment-request-form/?group_id=${groupId}`, "_blank");
     // navigator.clipboard.writeText(
     //   location.origin + `/enrollment-request-form/?group_id=${groupId}`
     // );
-
     const baseUrl = "http://prod-chit.s3-website.eu-north-1.amazonaws.com";
     const fullUrl = `${baseUrl}/enrollment-request-form/?group_id=${groupId}`;
     // navigator.clipboard.writeText(fullUrl);
@@ -105,23 +111,15 @@ const Group = () => {
     if (!data.group_type) {
       newErrors.group_type = "Group Type is required";
     }
- if(!data.group_value ){
-   newErrors.group_value = "Group Value is required";
- }
-    else if (isNaN(data.group_value) || data.group_value <= 0) {
+    if (!data.group_value) {
+      newErrors.group_value = "Group Value is required";
+    } else if (isNaN(data.group_value) || data.group_value <= 0) {
       newErrors.group_value = "Group Value must be greater than zero (no";
     }
 
-
-  if (
-      !data.group_install 
-    ) {
-      newErrors.group_install =
-        "Group Installment Amount is required";
-    }
-
-    
-    else if (
+    if (!data.group_install) {
+      newErrors.group_install = "Group Installment Amount is required";
+    } else if (
       !data.group_install ||
       isNaN(data.group_install) ||
       data.group_install <= 0
@@ -130,41 +128,34 @@ const Group = () => {
         "Group Installment Amount must be greater than zero (no symbols).";
     }
 
-if(!data.group_members){
-  newErrors.group_members = "Group Members is required";
-    }
-
-
-
-   else if (
+    if (!data.group_members) {
+      newErrors.group_members = "Group Members is required";
+    } else if (
       !data.group_members ||
       isNaN(data.group_members) ||
       data.group_members <= 0
     ) {
-      newErrors.group_members = "Group Members must be greater than zero (no symbols).";
+      newErrors.group_members =
+        "Group Members must be greater than zero (no symbols).";
     }
 
- if (!data.group_duration ){
-  newErrors.group_duration = "Group Duration is required"
-}
-
-    else if (
+    if (!data.group_duration) {
+      newErrors.group_duration = "Group Duration is required";
+    } else if (
       !data.group_duration ||
       isNaN(data.group_duration) ||
       data.group_duration <= 0
     ) {
-      newErrors.group_duration = "Group Duration must be greater than zero (no symbols).";
+      newErrors.group_duration =
+        "Group Duration must be greater than zero (no symbols).";
     }
 
-     if (!data.reg_fee) {
+    if (!data.reg_fee) {
       newErrors.reg_fee = "Registration Fee is required";
+    } else if (!data.reg_fee || isNaN(data.reg_fee) || data.reg_fee < 0) {
+      newErrors.reg_fee =
+        "Registration Fee must be a zero or greater than zero (no symbols).";
     }
-
-    else if (!data.reg_fee || isNaN(data.reg_fee) || data.reg_fee < 0) {
-      newErrors.reg_fee = "Registration Fee must be a zero or greater than zero (no symbols).";
-    }
-
-    
 
     if (!data.start_date) {
       newErrors.start_date = "Start Date is required";
@@ -179,26 +170,30 @@ if(!data.group_members){
       newErrors.end_date = "End Date cannot be earlier than Start Date";
     }
 
-     if (!data.minimum_bid) {
+    if (!data.minimum_bid) {
       newErrors.minimum_bid = "Minimum Bid is required";
+    } else if (
+      !data.minimum_bid ||
+      isNaN(data.minimum_bid) ||
+      data.minimum_bid <= 0
+    ) {
+      newErrors.minimum_bid =
+        "Minimum Bid must be greater than zero (no symbols).";
     }
 
-    else if (!data.minimum_bid || isNaN(data.minimum_bid) || data.minimum_bid <= 0) {
-      newErrors.minimum_bid = "Minimum Bid must be greater than zero (no symbols).";
-    }
-
-    
     if (!data.maximum_bid) {
       newErrors.maximum_bid = "Maximum Bid is required";
-    } 
-
-   else if (!data.maximum_bid || isNaN(data.maximum_bid) || data.maximum_bid <= 0) {
-      newErrors.maximum_bid = "Maximum Bid must be greater than zero (no symbols).";
+    } else if (
+      !data.maximum_bid ||
+      isNaN(data.maximum_bid) ||
+      data.maximum_bid <= 0
+    ) {
+      newErrors.maximum_bid =
+        "Maximum Bid must be greater than zero (no symbols).";
     } else if (parseFloat(data.maximum_bid) < parseFloat(data.minimum_bid)) {
       newErrors.maximum_bid =
         "Maximum Bid must be greater than or equal to Minimum Bid";
     }
-
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -215,8 +210,8 @@ if(!data.group_members){
             "Content-Type": "application/json",
           },
         });
-        // alert("Group Added Successfully");
-
+        // TODO: reloadTrigger resetted
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Group Added Successfully",
@@ -265,13 +260,6 @@ if(!data.group_members){
           date: group.createdAt,
           action: (
             <div className="flex justify-center gap-2">
-              {/* <button
-                onClick={() => handleUpdateModalOpen(group._id)}
-                className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-              >
-                <CiEdit color="green" />
-              </button> */}
-
               <Dropdown
                 menu={{
                   items: [
@@ -314,8 +302,6 @@ if(!data.group_members){
               >
                 <IoMdMore className="text-bold" />
               </Dropdown>
-
-             
             </div>
           ),
         }));
@@ -327,7 +313,9 @@ if(!data.group_members){
       }
     };
     fetchGroups();
-  }, []);
+
+    // TODO: reloadTrigger Added as dependency array
+  }, [reloadTrigger]);
 
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -344,7 +332,6 @@ if(!data.group_members){
   };
 
   const handleUpdateModalOpen = async (groupId) => {
-    console.log("group id is ", groupId);
     try {
       const response = await api.get(`/group/get-by-id-group/${groupId}`);
       const groupData = response.data;
@@ -362,7 +349,7 @@ if(!data.group_members){
         end_date: formattedEndDate,
         minimum_bid: response?.data?.minimum_bid,
         maximum_bid: response?.data?.maximum_bid,
-         commission: response?.data?.commission,
+        commission: response?.data?.commission,
         incentives: response?.data?.incentives,
         reg_fee: response?.data?.reg_fee,
       });
@@ -374,7 +361,6 @@ if(!data.group_members){
   };
 
   const handleInputChange = (e) => {
-    console.log("updateFormData", updateFormData);
     const { name, value } = e.target;
 
     setUpdateFormData((prevData) => ({
@@ -388,12 +374,12 @@ if(!data.group_members){
     if (currentGroup) {
       try {
         await api.delete(`/group/delete-group/${currentGroup._id}`);
-        // alert("Group deleted successfully");
         setAlertConfig({
           message: "Group deleted successfully",
           type: "success",
           visibility: true,
         });
+        setReloadTrigger((prev) => prev + 1);
         setShowModalDelete(false);
         setCurrentGroup(null);
       } catch (error) {
@@ -413,14 +399,12 @@ if(!data.group_members){
           updateFormData
         );
         setShowModalUpdate(false);
-        // alert("Group Updated Successfully");
         setAlertConfig({
           message: "Group updated successfully",
           type: "success",
           visibility: true,
         });
-
-        //
+        setReloadTrigger((prev) => prev + 1);
       }
     } catch (error) {
       console.error("Error updating group:", error);
@@ -444,10 +428,14 @@ if(!data.group_members){
           visibility={true}
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
         />
-        <CustomAlert
+        //TODO: remove alerDialog and add CustomAlertDialog
+        <CustomAlertDialog
           type={alertConfig.type}
           isVisible={alertConfig.visibility}
           message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
         />
         <div className="flex mt-20">
           <Sidebar />
@@ -468,7 +456,8 @@ if(!data.group_members){
               </div>
             </div>
 
-            {TableGroups.length > 0 ? (
+            {(TableGroups.length > 0 && !isLoading) ? (
+               //ToDO: isLoading added along with length
               <DataTable
                 catcher="_id"
                 updateHandler={handleUpdateModalOpen}
@@ -490,57 +479,7 @@ if(!data.group_members){
               />
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {/* {filteredGroups.length === 0 ? (
-                <div className="flex justify-center items-center h-64">
-                  <p className="text-gray-500 text-lg">No groups added yet</p>
-                </div>
-              ) : (
-                filteredGroups.map((group) => (
-                  <div
-                    key={group.id}
-                    className="bg-white border border-gray-300 rounded-xl p-6 shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-xl"
-                  >
-                    <div className="flex flex-col items-center">
-                      <h2 className="text-xl font-bold mb-3 text-gray-700 text-center">
-                        {group.group_name}
-                      </h2>
-                      <p className="">{group.group_type.charAt(0).toUpperCase() + group.group_type.slice(1)} Group</p>
-                      <div className="flex gap-16 py-3">
-                        <p className="text-gray-500 mb-2 text-center">
-                          <span className="font-medium text-gray-700 text-lg">
-                            {group.group_members}
-                          </span>
-                          <br />
-                          <span className="font-bold text-sm">Members</span>
-                        </p>
-                        <p className="text-gray-500 mb-4 text-center">
-                          <span className="font-medium text-gray-700 text-lg">
-                            ₹{group.group_install}
-                          </span>
-                          <br />
-                          <span className="font-bold text-sm">Installment</span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => handleUpdateModalOpen(group._id)}
-                        className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-                      >
-                        <CiEdit color="green" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteModalOpen(group._id)}
-                        className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-                      >
-                        <MdDelete color="red" />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )} */}
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"></div>
           </div>
         </div>
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
@@ -552,7 +491,7 @@ if(!data.group_members){
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Group Name   <span className="text-red-500 ">*</span>
+                  Group Name <span className="text-red-500 ">*</span>
                 </label>
                 <input
                   type="text"
@@ -575,7 +514,7 @@ if(!data.group_members){
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Group Type  <span className="text-red-500 ">*</span>
+                  Group Type <span className="text-red-500 ">*</span>
                 </label>
                 <select
                   name="group_type"
@@ -601,7 +540,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Value  <span className="text-red-500 ">*</span>
+                    Group Value <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -624,7 +563,8 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Installment Amount  <span className="text-red-500 ">*</span>
+                    Group Installment Amount{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -649,7 +589,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Members   <span className="text-red-500 ">*</span>
+                    Group Members <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -672,7 +612,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Duration  <span className="text-red-500 ">*</span>
+                    Group Duration <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -697,7 +637,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Registration Fee  <span className="text-red-500 ">*</span>
+                    Registration Fee <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -722,7 +662,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Start Date  <span className="text-red-500 ">*</span>
+                    Start Date <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="date"
@@ -770,7 +710,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Minimum Bid  <span className="text-red-500 ">*</span>
+                    Minimum Bid <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -793,7 +733,7 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Maximum Bid  <span className="text-red-500 ">*</span>
+                    Maximum Bid <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -813,34 +753,33 @@ if(!data.group_members){
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
-  <div className="w-1/2">
-    <label className="block mb-2 text-sm font-medium text-gray-900">
-      Commission %
-    </label>
-    <input
-      type="number"
-      name="commission"
-      value={formData.commission}
-      onChange={handleChange}
-      placeholder="Enter Commission"
-      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-    />
-  </div>
-  <div className="w-1/2">
-    <label className="block mb-2 text-sm font-medium text-gray-900">
-      Incentives
-    </label>
-    <input
-      type="text"
-      name="incentives"
-      value={formData.incentives}
-      onChange={handleChange}
-      placeholder="Enter Incentives"
-      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-    />
-  </div>
-</div>
-
+                <div className="w-1/2">
+                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                    Commission %
+                  </label>
+                  <input
+                    type="number"
+                    name="commission"
+                    value={formData.commission}
+                    onChange={handleChange}
+                    placeholder="Enter Commission"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+                <div className="w-1/2">
+                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                    Incentives %
+                  </label>
+                  <input
+                    type="text"
+                    name="incentives"
+                    value={formData.incentives}
+                    onChange={handleChange}
+                    placeholder="Enter Incentives"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
 
               <div className="w-full flex justify-end">
                 <button
@@ -941,7 +880,8 @@ if(!data.group_members){
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Group Installment Amount <span className="text-red-500 ">*</span>
+                    Group Installment Amount{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -1012,7 +952,7 @@ if(!data.group_members){
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
-                > 
+                >
                   Registration Fee <span className="text-red-500 ">*</span>
                 </label>
                 <input
@@ -1127,34 +1067,33 @@ if(!data.group_members){
               </div>
 
               <div className="flex flex-row justify-between space-x-4">
-  <div className="w-1/2">
-    <label className="block mb-2 text-sm font-medium text-gray-900">
-      Commission %
-    </label>
-    <input
-      type="number"
-      name="commission"
-      value={updateFormData.commission}
-      onChange={handleInputChange}
-      placeholder="Enter Commission"
-      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-    />
-  </div>
-  <div className="w-1/2">
-    <label className="block mb-2 text-sm font-medium text-gray-900">
-      Incentives
-    </label>
-    <input
-      type="text"
-      name="incentives"
-      value={updateFormData.incentives}
-      onChange={handleInputChange}
-      placeholder="Enter Incentives"
-      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-    />
-  </div>
-</div>
-
+                <div className="w-1/2">
+                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                    Commission %
+                  </label>
+                  <input
+                    type="number"
+                    name="commission"
+                    value={updateFormData.commission}
+                    onChange={handleInputChange}
+                    placeholder="Enter Commission"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+                <div className="w-1/2">
+                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                    Incentives
+                  </label>
+                  <input
+                    type="text"
+                    name="incentives"
+                    value={updateFormData.incentives}
+                    onChange={handleInputChange}
+                    placeholder="Enter Incentives"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                </div>
+              </div>
 
               <div className="w-full flex justify-end">
                 <button
@@ -1196,7 +1135,8 @@ if(!data.group_members){
                     <span className="text-primary font-bold">
                       {currentGroup.group_name}
                     </span>{" "}
-                    to confirm deletion. <span className="text-red-500 ">*</span>
+                    to confirm deletion.{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
