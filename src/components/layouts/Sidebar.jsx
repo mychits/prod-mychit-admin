@@ -29,6 +29,7 @@ import { HiCurrencyRupee } from "react-icons/hi2";
 import { TbSettings } from "react-icons/tb";
 import { MdOutlineGroups } from "react-icons/md";
 import { FaFilter } from "react-icons/fa";
+import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 
 const MenuSidebar = [
   {
@@ -37,7 +38,7 @@ const MenuSidebar = [
     icon: <RiDashboardFill />,
     link: "/dashboard",
   },
-  { title: "Analytics", icon: <SiGoogleanalytics />, link: "/analytics" },
+  {id: "$PP", title: "Analytics", icon: <SiGoogleanalytics />, link: "/analytics" },
   {
     id: "$2",
     title: "Groups ",
@@ -118,7 +119,7 @@ const MenuSidebar = [
       {
         id: "#1",
         title: "Collection",
-        icon: <HiCurrencyRupee />,
+        icon: <HiCurrencyRupee size="20" />,
         hider: true,
         newTab: true,
         submenu: true,
@@ -132,13 +133,13 @@ const MenuSidebar = [
           {
             id: ids.fifteen,
             title: "Collection Mapping",
-            icon: <RiUserLocationFill />,
+            icon: <RiUserLocationFill size="20"/>,
             link: "/collection-area-mapping",
           },
         ],
       },
       {
-        id: "#2",
+        id: "*2",
         title: "Groups",
         icon: <MdOutlineGroups size="25" />,
         hider: true,
@@ -148,14 +149,8 @@ const MenuSidebar = [
           {
             id: ids.sixteen,
             title: "Filter Groups",
-            icon: <FaFilter />,
+            icon: <FaFilter size="10" />,
             link: "/filter-groups",
-          },
-          {
-            // id: ids.seventeen,
-            // title: "Group Mapping",
-            // icon: <RiUserLocationFill />,
-            //link: "/group-mapping",
           },
         ],
       },
@@ -208,12 +203,28 @@ const Sidebar = () => {
   const [open, setOpen] = useState(true);
   const [submenuOpenIndex, setSubmenuOpenIndex] = useState(null);
   const [hider, setHider] = useState(true);
+
+  // const toggleSubMenu = (index) => {
+
+  //   if (submenuOpenIndex === index) {
+  //     setSubmenuOpenIndex(null);
+  //   } else {
+  //     setSubmenuOpenIndex(index);
+  //   }
+
+  // };
+
+  const [nestedSubmenuOpenIndex, setNestedSubmenuOpenIndex] = useState({});
+
   const toggleSubMenu = (index) => {
-    if (submenuOpenIndex === index) {
-      setSubmenuOpenIndex(null);
-    } else {
-      setSubmenuOpenIndex(index);
-    }
+    setSubmenuOpenIndex((prevIndex) => (prevIndex === index ? null : index));
+  };
+
+  const toggleNestedSubMenu = (submenuIndex, subIndex) => {
+    setNestedSubmenuOpenIndex((prevState) => ({
+      ...prevState,
+      [submenuIndex]: prevState[submenuIndex] === subIndex ? null : subIndex,
+    }));
   };
 
   return (
@@ -244,87 +255,107 @@ const Sidebar = () => {
             MyChits
           </h3>
         </div>
+
         <ul className="pt-2">
-          {MenuSidebar.map((menu, index) => (
-            <Fragment key={menu.id}>
-              <a href={menu.link} onClick={() => toggleSubMenu(index)}>
-                <li
-                  className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md ${
-                    menu.spacing ? "mt-9" : "mt-2"
-                  }`}
-                >
-                  <span className="text-2xl block float-left">{menu.icon}</span>
-                  <span
-                    className={`text-base font-medium flex-1 ${
-                      !open && "hidden"
+          {MenuSidebar.map((menu, index) => {
+            const isSpecialMenu =
+              menu.title === "Collections" || menu.title === "Groups";
+            const isOpen = submenuOpenIndex === index;
+
+            return (
+              <Fragment key={menu.id} >
+                <a href={menu.link} onClick={() => toggleSubMenu(index)}>
+                  <li
+                    className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md ${
+                      menu.spacing ? "mt-9" : "mt-2"
                     }`}
                   >
-                    {menu.title}
-                  </span>
-                  {menu.submenu && open && (
-                    <BsChevronDown
-                      className={`${
-                        submenuOpenIndex === index ? "rotate-180" : "rotate-0"
-                      } transition-transform duration-200`}
-                    />
-                  )}
-                </li>
-              </a>
-              {menu.submenu && submenuOpenIndex === index && open && (
-                <ul className="ml-4">
-                  {menu.submenuItems.map((submenuItem) => (
-                    <Fragment key={submenuItem.id}>
-                      <a
-                        href={submenuItem.link}
-                        rel="noopener noreferrer"
-                        target={`${submenuItem.newTab ? "_blank" : "_self"}`}
-                      >
-                        <li
-                          onClick={() => setHider(!hider)}
+                    <span className="text-2xl block float-left">
+                      {menu.icon}
+                    </span>
+                    <span
+                      className={`text-base font-medium flex-1 ${
+                        !open && "hidden"
+                      }`}
+                    >
+                      {menu.title}
+                    </span>
+                    {menu.submenu &&
+                      open &&
+                      (isSpecialMenu ? (
+                        isOpen ? (
+                          <AiOutlineMinus className="ml-auto transition-transform duration-200" />
+                        ) : (
+                          <AiOutlinePlus className="ml-auto transition-transform duration-200" />
+                        )
+                      ) : (
+                        <BsChevronDown
                           className={`${
-                            submenuItem.red ? "text-red-300" : "text-gray-300"
-                          } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
-                            menu.spacing ? "mt-9" : "mt-2"
-                          }`}
-                        >
-                          {submenuItem.icon}
-                          {submenuItem.title}
-                        </li>
-                      </a>
+                            isOpen ? "rotate-180" : "rotate-0"
+                          } transition-transform duration-200`}
+                        />
+                      ))}
+                  </li>
+                </a>
 
-                      {submenuItem.submenu && !hider && (
-                        <ul className="ml-4">
-                          {submenuItem.submenuItems.map((subSubItem) => (
-                            <a
-                              key={subSubItem.id}
-                              href={subSubItem.link}
-                              rel="noopener noreferrer"
-                              target={`${
-                                subSubItem.newTab ? "_blank" : "_self"
-                              }`}
-                            >
-                              <li
-                                className={`${
-                                  subSubItem.red
-                                    ? "text-red-300"
-                                    : "text-gray-300"
-                                } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
-                                  menu.spacing ? "mt-9" : "mt-2"
-                                }`}
-                              >
-                                {subSubItem.icon}
-                                {subSubItem.title}
-                              </li>
-                            </a>
-                          ))}
-                        </ul>
-                      )}
-                    </Fragment>
-                  ))}
-                </ul>
-              )}
-            </Fragment>
-          ))}
+            
+                {menu.submenu && isOpen && open && (
+                  <ul className="ml-4">
+                    {menu.submenuItems.map((submenuItem, subIndex) => (
+                      <Fragment key={submenuItem.id}>
+                        <a
+                          href={submenuItem.link}
+                          target={submenuItem.newTab ? "_blank" : "_self"}
+                        >
+                          <li
+                            onClick={() => toggleNestedSubMenu(index, subIndex)}
+                            className={`${
+                              submenuItem.red ? "text-red-300" : "text-gray-300"
+                            } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md`}
+                          >
+                            {submenuItem.icon}
+                            {submenuItem.title}
+                            {submenuItem.submenu &&
+                              (nestedSubmenuOpenIndex[index] === subIndex ? (
+                                <AiOutlineMinus className="ml-auto transition-transform duration-200" />
+                              ) : (
+                                <AiOutlinePlus className={`ml-auto`} />
+                              ))}
+                          </li>
+                        </a>
+
+                        {submenuItem.submenu &&
+                          nestedSubmenuOpenIndex[index] === subIndex && (
+                            <ul className="ml-8">
+                              {submenuItem.submenuItems.map((subSubItem) => (
+                                <a
+                                  key={subSubItem.id}
+                                  href={subSubItem.link}
+                                  target={
+                                    subSubItem.newTab ? "_blank" : "_self"
+                                  }
+                                >
+                                  <li
+                                    className={`${
+                                      subSubItem.red
+                                        ? "text-red-300"
+                                        : "text-gray-300"
+                                    } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md`}
+                                  >
+                                    {subSubItem.icon}
+                                    {subSubItem.title}
+                                  </li>
+                                </a>
+                              ))}
+                            </ul>
+                          )}
+                      </Fragment>
+                    ))}
+                  </ul>
+                )}
+              </Fragment>
+            );
+          })}
         </ul>
 
         <div

@@ -116,7 +116,7 @@ const CollectionAreaMapping = () => {
    
 
       setShowModal(false);
-      setErrors({});
+     
       setCollectionAreaMapping({
         area_ids: [],
         agent_ids: [],
