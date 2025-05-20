@@ -74,6 +74,7 @@ const Payment = () => {
     transaction_id: "",
   });
   const [showPrintModal, setShowPrintModal] = useState(false);
+  const [modifyPayment, setModifyPayment] = useState(false);
   const [printDetails, setPrintDetails] = useState({
     customerName: "",
     groupName: "",
@@ -102,6 +103,15 @@ const Payment = () => {
     pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
     pdf.save(`Receipt_${id}.pdf`);
   };
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    const userObj = JSON.parse(user);
+    
+    if (userObj &&  userObj.admin_access_right_id?.access_permissions?.edit_payment) {
+      const isModify =userObj.admin_access_right_id?.access_permissions?.edit_payment === "true" ? true : false;
+      setModifyPayment(isModify);
+    }
+  }, []);
   useEffect(() => {
     setBorrowers([]);
     const fetchCustomerLoanDetails = async () => {
@@ -639,18 +649,17 @@ const Payment = () => {
         if (paymentFor === dataPaymentsFor.typeChit) {
           const { loan, pigme, ...chitPayload } = formData;
           payload = chitPayload;
-          payload.admin_type =admin_type?._id
-
+          payload.admin_type = admin_type?._id;
         } else if (paymentFor === dataPaymentsFor.typeLoan) {
           const { group_id, ticket, pigme, ...loanPayload } = formData;
           payload = loanPayload;
           payload.pay_for = "Loan";
-          payload.admin_type =admin_type?._id
+          payload.admin_type = admin_type?._id;
         } else if (paymentFor === dataPaymentsFor.typePigme) {
           const { group_id, ticket, loan, ...pigmePayload } = formData;
           payload = pigmePayload;
           payload.pay_for = "Pigme";
-          payload.admin_type =admin_type?._id;
+          payload.admin_type = admin_type?._id;
         }
         const response = await api.post("/payment/add-payment", payload);
         if (response.status === 201) {
@@ -1060,7 +1069,7 @@ const Payment = () => {
                       Payment Date
                     </label>
                     <input
-                    disabled
+                      disabled={!modifyPayment }
                       type="date"
                       name="pay_date"
                       value={formData.pay_date}
@@ -1126,7 +1135,7 @@ const Payment = () => {
                       className="block mb-2 text-sm font-medium text-gray-900"
                       htmlFor="transaction_id"
                     >
-                      Transaction ID  <span className="text-red-500 ">*</span>
+                      Transaction ID <span className="text-red-500 ">*</span>
                     </label>
                     <input
                       type="text"
