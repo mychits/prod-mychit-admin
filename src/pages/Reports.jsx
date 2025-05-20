@@ -8,6 +8,7 @@ const subMenus = [
   { title: "All Customer Report", link: "/reports/all-user-report" },
   { title: "Customer Report", link: "/reports/user-report" },
   { title: "Employee Report", link: "/reports/employee-report" },
+  { title: "Commission Report", link: "/reports/commission-report" },
   { title: "Receipt Report", link: "/reports/receipt" },
   { title: "Auction Report", link: "/reports/auction-report" },
   { title: "Lead Report", link: "/reports/lead-report" },

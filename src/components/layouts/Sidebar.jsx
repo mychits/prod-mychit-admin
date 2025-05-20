@@ -359,7 +359,7 @@ const Sidebar = () => {
         </ul>
 
         <div
-          className="rounded-md fixed right-1 bottom-20 bg-blue-900 p-2 bg-opacity-30 hover:bg-opacity-100 active:scale-95 z-50"
+          className="rounded-md fixed right-1 bottom-20 bg-blue-900 p-2 bg-opacity-30 hover:bg-opacity-100 active:scale-95 z-50 animate-bounce"
           onClick={() => {
             ref.current.scrollIntoView({ behavior: "smooth" });
           }}

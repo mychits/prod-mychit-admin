@@ -15,9 +15,9 @@ const Home = () => {
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [payments, setPayments] = useState([]);
-  const [paymentsValue, setPaymentsValue] = useState("...");
+  const [paymentsValue, setPaymentsValue] = useState("0");
   const [paymentsPerMonth, setPaymentsPerMonth] = useState([]);
-  const [paymentsPerMonthValue, setPaymentsPerMonthValue] = useState("...");
+  const [paymentsPerMonthValue, setPaymentsPerMonthValue] = useState("0");
   const [searchValue,setSearchValue] = useState("")
   const [totalAmount, setTotalAmount] = useState(0);
 
@@ -57,59 +57,7 @@ const Home = () => {
     fetchUsers();
   }, []);
 
-  // useEffect(() => {
-  //   const fetchPayments = async () => {
-  //     try {
-  //       const response = await api.get("/payment/get-payment");
-  //       console.log(response.data);
-  //       const paymentData = response.data;
-  //       const totalAmount = paymentData.reduce(
-  //         (sum, payment) => sum + Number(payment.amount || 0),
-  //         0
-  //       );
-
-  //       setPaymentsValue(totalAmount);
-  //     } catch (error) {
-  //       console.error("Error fetching payment data:", error);
-  //     }
-  //   };
-  //   fetchPayments();
-  // }, []);
-
-  // useEffect(() => {
-  //   const fetchMonthlyPayments = async () => {
-  //     try {
-  //       const today = new Date();
-  //       const currentMonth = today.getMonth();
-  //       const currentYear = today.getFullYear();
-  //       const firstDay = `${currentYear}-${String(currentMonth + 1).padStart(
-  //         2,
-  //         "0"
-  //       )}-01`;
-  //       console.log("firstday",firstDay);
-  //       const lastDay = new Date(currentYear, currentMonth + 1, 0);
-  //       const lastDayFormatted = lastDay.toISOString().split("T")[0];
-
-  //       const response = await api.get("/payment/get-report-receipt", {
-  //         params: {
-  //           from_date: firstDay,
-  //           to_date: lastDayFormatted,
-  //         },
-  //       });
-
-  //       setPaymentsPerMonth(response.data);
-
-  //       const totalAmount = response.data.reduce((sum, payment) => {
-  //         console.log("payment", payment.amount);
-  //         return sum + Number(payment.amount || 0);
-  //       }, 0);
-  //       setPaymentsPerMonthValue(totalAmount);
-  //     } catch (err) {
-  //       console.error("Error fetching monthly payment data:", err.message);
-  //     }
-  //   };
-  //   fetchMonthlyPayments();
-  // }, []);
+ 
   useEffect(() => {
     const fetchTotalAmount = async () => {
       try {
