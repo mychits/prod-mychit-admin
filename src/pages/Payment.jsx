@@ -1060,6 +1060,7 @@ const Payment = () => {
                       Payment Date
                     </label>
                     <input
+                    disabled
                       type="date"
                       name="pay_date"
                       value={formData.pay_date}
