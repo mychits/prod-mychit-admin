@@ -10,6 +10,7 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import SettingSidebar from "../components/layouts/SettingSidebar";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 
 const AdministrativePrivileges = () => {
   const [admins, setAdmins] = useState([]);
@@ -22,6 +23,7 @@ const AdministrativePrivileges = () => {
   const [allAccessRights, setAllAccessRights] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
 
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
@@ -87,7 +89,7 @@ const AdministrativePrivileges = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.info(formData,"this is formData")
+    
     e.preventDefault();
 
     const isValid = validateForm("addAdmin");
@@ -98,7 +100,7 @@ const AdministrativePrivileges = () => {
             "Content-Type": "application/json",
           },
         });
-
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Sub Admin Added Successfully",
@@ -143,7 +145,7 @@ const AdministrativePrivileges = () => {
       }
     };
     fetchAllAdminRights();
-  }, []);
+  }, [reloadTrigger]);
   useEffect(() => {
     const fetchSubAdmins = async () => {
       try {
@@ -167,7 +169,7 @@ const AdministrativePrivileges = () => {
                       label: (
                         <div
                           className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(admin._id)}
+                          onClick={() => handleUpdateModalOpen(admin?._id)}
                         >
                           Edit
                         </div>
@@ -178,7 +180,7 @@ const AdministrativePrivileges = () => {
                       label: (
                         <div
                           className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(admin._id)}
+                          onClick={() => handleDeleteModalOpen(admin?._id)}
                         >
                           Delete
                         </div>
@@ -202,7 +204,7 @@ const AdministrativePrivileges = () => {
       }
     };
     fetchSubAdmins();
-  }, []);
+  }, [reloadTrigger]);
 
   const handleDeleteModalOpen = async (adminId) => {
     try {
@@ -246,10 +248,11 @@ const AdministrativePrivileges = () => {
   const handleDeleteAdmin = async () => {
   
     if (currentAdmin) {
-      console.info(currentAdmin,"this is current admin")
+      
       try {
         await api.delete(`/admin/delete-admin/${currentAdmin._id}`);
         // alert("Group deleted successfully");
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           message: "Admin deleted successfully",
           type: "success",
@@ -275,6 +278,7 @@ const AdministrativePrivileges = () => {
           updateFormData
         );
         setShowModalUpdate(false);
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           message: "Admin updated successfully",
           type: "success",
@@ -303,10 +307,13 @@ const AdministrativePrivileges = () => {
           visibility={true}
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
         />
-        <CustomAlert
+       <CustomAlertDialog
           type={alertConfig.type}
           isVisible={alertConfig.visibility}
           message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
         />
         <div className="flex mt-20">
           <SettingSidebar />
@@ -329,7 +336,7 @@ const AdministrativePrivileges = () => {
               </div>
             </div>
 
-            {TableGroups.length > 0 ? (
+            {(TableGroups.length > 0 && !isLoading) ? (
               <DataTable
                 catcher="_id"
                 updateHandler={handleUpdateModalOpen}

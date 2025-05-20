@@ -5,8 +5,9 @@ import Modal from "../components/modals/Modal";
 import { FaWhatsapp } from "react-icons/fa";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import whatsappApi from "../instance/WhatsappInstance";
+import CircularLoader from "../components/loaders/CircularLoader";
 const WhatsappAdd = () => {
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
@@ -17,12 +18,14 @@ const WhatsappAdd = () => {
     message: "Something went wrong!",
     type: "info",
   });
+  const [isLoading, setIsLoading] = useState(false);
   const [selectUser, setSelectUser] = useState({});
   const [customerCount, setCustomerCount] = useState(0);
   const [selectAll, setSelectAll] = useState({ msg: "No", checked: false });
   const [formData, setFormData] = useState({
     template_name: "",
   });
+   const [reloadTrigger, setReloadTrigger] = useState(0);
   const [errors, setErrors] = useState({});
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,6 +61,7 @@ const WhatsappAdd = () => {
           setFormData({
             template_name: "",
           });
+
           setAlertConfig({
             type: "error",
             message: "Whatsapp Failure",
@@ -66,13 +70,14 @@ const WhatsappAdd = () => {
           
         }
         if (response.status === 201) {
-          console.log("respose raj",response.data);
+       
         
           setShowModal(false);
           setErrors({});
           setFormData({
             template_name: "",
           });
+          setReloadTrigger((prev) => prev + 1);
           setAlertConfig({
             type: "success",
             message: "Whatsapped Successfully",
@@ -112,8 +117,8 @@ const WhatsappAdd = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        setIsLoading(true);
         const response = await api.get("/user/get-user");
-        console.log("response", response.data);
         setUsers(response.data);
         const initialSelected = {};
         response.data.forEach((user) => {
@@ -122,10 +127,12 @@ const WhatsappAdd = () => {
         setSelectUser(initialSelected);
       } catch (error) {
         console.error("Error fetching user data:", error.message);
+      }finally {
+        setIsLoading(false);
       }
     };
     fetchUsers();
-  }, []);
+  }, [reloadTrigger]);
   useEffect(() => {
     const updateUI = () => {
       const formattedData = users.map((group, index) => ({
@@ -156,7 +163,7 @@ const WhatsappAdd = () => {
       setTableUsers(formattedData);
     };
     updateUI();
-  }, [selectUser]);
+  }, [selectUser, reloadTrigger]);
   useEffect(() => {
     const countCustomer = () => {
       let counter = 0;
@@ -168,7 +175,7 @@ const WhatsappAdd = () => {
       setCustomerCount(counter);
     };
     countCustomer();
-  }, [selectUser]);
+  }, [selectUser, reloadTrigger]);
 
   const columns = [
     { key: "action", header: "Action" },
@@ -183,11 +190,14 @@ const WhatsappAdd = () => {
       <div className="w-screen">
         <div className=" flex mt-20">
           {/* <Sidebar /> */}
-          <CustomAlert
-            type={alertConfig.type}
-            isVisible={alertConfig.visibility}
-            message={alertConfig.message}
-          />
+           <CustomAlertDialog
+          type={alertConfig.type}
+          isVisible={alertConfig.visibility}
+          message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
+        />
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
@@ -236,19 +246,25 @@ const WhatsappAdd = () => {
                 </button>
               </div>
             </div>
-
+            {(TableUsers.length > 0 && !isLoading) ? (
             <DataTable
               isExportEnabled={false}
               data={TableUsers}
               columns={columns}
-              exportedFileName={`Customers-${
-                TableUsers.length > 0
+              exportedFileName={`whatsapp-${
+                TableUsers.length > 0 
                   ? TableUsers[0].name +
                     " to " +
                     TableUsers[TableUsers.length - 1].name
                   : "empty"
               }.csv`}
-            />
+            />): (
+              <CircularLoader
+                isLoading={isLoading}
+                failure={TableUsers.length <= 0}
+                data={"Group Data"}
+              />
+            )}
           </div>
         </div>
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>

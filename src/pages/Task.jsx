@@ -4,10 +4,10 @@ import Navbar from "../components/layouts/Navbar";
 import Modal from "../components/modals/Modal";
 import DataTable from "../components/layouts/Datatable";
 import api from "../instance/TokenInstance";
-import CustomAlert from "../components/alerts/CustomAlert";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 
 const Task = () => {
   const [agents, setAgents] = useState([]);
@@ -23,10 +23,16 @@ const Task = () => {
     status: "Pending",
     lead: "",
   });
+
   const [modalVisible, setModalVisible] = useState(false);
-  const [alert, setAlert] = useState({ visibility: false, message: "", type: "" });
+  const [reloadTrigger, setReloadTrigger] = useState(0);
   const [currentTask, setCurrentTask] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+const [alertConfig, setAlertConfig] = useState({
+    visibility: false,
+    message: "Something went wrong!",
+    type: "info",
+  });
 
   const fetchAllData = async () => {
     try {
@@ -47,7 +53,6 @@ const Task = () => {
 
       const formatted = taskData.map((task, index) => {
         const emp = agentData.find((a) => a._id === task.employeeId);
-        const leadObj = leadData.find((l) => l._id === task.lead);
 
         return {
           _id: task._id,
@@ -98,7 +103,7 @@ const Task = () => {
 
   useEffect(() => {
     fetchAllData();
-  }, []);
+  }, [reloadTrigger]);
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -106,33 +111,21 @@ const Task = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.info(formData,"formData")
     e.preventDefault();
     try {
-      // const selectedAgent = agents.find(a => a._id === formData.employeeId);
-      // if (!selectedAgent || !selectedAgent.employeeCode) {
-      //   setAlert({ visibility: true, message: "Invalid employee or missing employee code", type: "error" });
-      //   return;
-      // }
-  
-      // const selectedLead = leads.find(l => l._id === formData.lead);
-      // if (!selectedLead) {
-      //   setAlert({ visibility: true, message: "Invalid lead selected", type: "error" });
-      //   return;
-      // }
-  
       const payload = {
         ...formData,
-        // employeeCode: selectedAgent.employeeCode,
-        // lead,
       };
   
       if (currentTask) {
         await api.put(`/task/update-task/${currentTask}`, payload);
-        setAlert({ visibility: true, message: "Task updated successfully", type: "success" });
+        
+        setAlertConfig({ visibility: true, message: "Task updated successfully", type: "success" });
+        setReloadTrigger((prev) => prev + 1);
       } else {
         await api.post("/task/add-task", payload);
-        setAlert({ visibility: true, message: "Task created successfully", type: "success" });
+        setReloadTrigger((prev) => prev + 1);
+        setAlertConfig({ visibility: true, message: "Task created successfully", type: "success" });
       }
   
       setModalVisible(false);
@@ -149,7 +142,7 @@ const Task = () => {
       fetchAllData();
     } catch (err) {
       console.error("Task creation error:", err.response?.data || err.message);
-      setAlert({ visibility: true, message: "Something went wrong", type: "error" });
+      setAlertConfig({ visibility: true, message: "Something went wrong", type: "error" });
     }
   };
   
@@ -171,10 +164,11 @@ const Task = () => {
   const handleDelete = async (id) => {
     try {
       await api.delete(`/task/delete-task/${id}`);
-      setAlert({ visibility: true, message: "Task deleted", type: "success" });
-      fetchAllData();
+      //fetchAllData();
+      setReloadTrigger((prev) => prev + 1);
+      setAlertConfig({ visibility: true, message: "Task deleted", type: "success" });
     } catch (err) {
-      setAlert({ visibility: true, message: "Delete failed", type: "error" });
+      setAlertConfig({ visibility: true, message: "Delete failed", type: "error" });
     }
   };
 
@@ -191,8 +185,16 @@ const Task = () => {
     <>
       <div className="flex mt-20">
         <Navbar visibility={true} />
+        <CustomAlertDialog
+          type={alertConfig.type}
+          isVisible={alertConfig.visibility}
+          message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
+        />
         <Sidebar />
-        <CustomAlert {...alert} />
+        
         <div className="flex-grow p-7">
           <div className="mt-6 mb-8">
             <div className="flex justify-between items-center w-full">
@@ -218,7 +220,7 @@ const Task = () => {
             </div>
           </div>
 
-          {tableTasks.length > 0 ? (
+          {(tableTasks.length > 0 && !isLoading) ? (
             <DataTable
               updateHandler={(id) => openEdit(tasks.find((t) => t._id === id))}
               data={tableTasks}

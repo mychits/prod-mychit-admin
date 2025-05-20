@@ -4,7 +4,7 @@ import Sidebar from "../components/layouts/Sidebar";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
@@ -19,7 +19,7 @@ const Loan = () => {
   const [showModalDelete, setShowModalDelete] = useState(false);
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentBorrower, setCurrentBorrower] = useState(null);
-
+ const [reloadTrigger, setReloadTrigger] = useState(0);
   const [currentUpdateBorrower, setCurrentUpdateBorrower] = useState(null);
   const [searchText, setSearchText] = useState("");
 const [isLoading,setIsLoading] = useState(false);
@@ -102,14 +102,15 @@ const [isLoading,setIsLoading] = useState(false);
     e.preventDefault();
     const isValid = validateForm("addBorrower");
     try {
-      console.log(isValid);
+   
       if (isValid) {
         const response = await api.post("/loans/add-borrower", formData, {
           headers: {
             "Content-Type": "application/json",
           },
         });
-        if (response.status >= 400) throw new Error("failed to add Borrower");
+      
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Borrower Added Successfully",
@@ -127,9 +128,7 @@ const [isLoading,setIsLoading] = useState(false);
           end_date: "",
           note: "",
         });
-      } else {
-        console.log(errors);
-      }
+      } 
     } catch (error) {
       console.error("Error adding Borrower:", error);
     }
@@ -211,7 +210,7 @@ const [isLoading,setIsLoading] = useState(false);
       }
     };
     fetchBorrowers();
-  }, []);
+  }, [reloadTrigger]);
 
   const handleDeleteModalOpen = async (borrowerId) => {
     try {
@@ -262,6 +261,7 @@ const [isLoading,setIsLoading] = useState(false);
           type: "success",
           visibility: true,
         });
+        setReloadTrigger((prev) => prev + 1);
         setShowModalDelete(false);
         setCurrentBorrower(null);
       } catch (error) {
@@ -280,6 +280,7 @@ const [isLoading,setIsLoading] = useState(false);
           updateFormData
         );
         setShowModalUpdate(false);
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           message: "Borrower updated successfully",
           type: "success",
@@ -311,10 +312,13 @@ const [isLoading,setIsLoading] = useState(false);
           visibility={true}
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
         />
-        <CustomAlert
+       <CustomAlertDialog
           type={alertConfig.type}
           isVisible={alertConfig.visibility}
           message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
         />
         <div className="flex mt-20">
           <Sidebar />
@@ -335,7 +339,7 @@ const [isLoading,setIsLoading] = useState(false);
               </div>
             </div>
 
-           {(tableBorrowers.length>0) ?(<DataTable
+           {(tableBorrowers.length>0 && !isLoading) ?(<DataTable
               catcher="_id"
               updateHandler={handleUpdateModalOpen}
               data={filterOption(tableBorrowers, searchText)}

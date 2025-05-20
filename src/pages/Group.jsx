@@ -247,17 +247,17 @@ const Group = () => {
         const response = await api.get("/group/get-group-admin");
         setGroups(response.data);
         const formattedData = response.data.map((group, index) => ({
-          _id: group._id,
+          _id: group?._id,
           id: index + 1,
-          name: group.group_name,
+          name: group?.group_name,
           type:
-            group.group_type.charAt(0).toUpperCase() +
-            group.group_type.slice(1) +
+            group?.group_type.charAt(0).toUpperCase() +
+            group?.group_type.slice(1) +
             " Group",
-          value: group.group_value,
+          value: group?.group_value,
           installment: group.group_install,
-          members: group.group_members,
-          date: group.createdAt,
+          members: group?.group_members,
+          date: group?.createdAt,
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
@@ -335,8 +335,8 @@ const Group = () => {
     try {
       const response = await api.get(`/group/get-by-id-group/${groupId}`);
       const groupData = response.data;
-      const formattedStartDate = groupData.start_date.split("T")[0];
-      const formattedEndDate = groupData.end_date.split("T")[0];
+      const formattedStartDate = groupData?.start_date?.split("T")[0];
+      const formattedEndDate = groupData?.end_date?.split("T")[0];
       setCurrentUpdateGroup(response.data);
       setUpdateFormData({
         group_name: response?.data?.group_name,

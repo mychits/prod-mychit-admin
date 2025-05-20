@@ -12,6 +12,7 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import { FaCalculator } from "react-icons/fa";
 import CircularLoader from "../components/loaders/CircularLoader";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 const LoanReport = () => {
   const [users, setUsers] = useState([]);
   const [borrowers, setBorrowers] = useState([]);
@@ -24,6 +25,7 @@ const [loader, setLoader] = useState(false);
   const [currentUpdateBorrower, setCurrentUpdateBorrower] = useState(null);
   const [searchText, setSearchText] = useState("");
 const [isLoading,setIsLoading] = useState(false);
+const [reloadTrigger, setReloadTrigger] = useState(0);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -168,7 +170,7 @@ const [isLoading,setIsLoading] = useState(false);
       }
     };
     fetchBorrowers();
-  }, []);
+  }, [reloadTrigger]);
 
   const handleDeleteModalOpen = async (borrowerId) => {
     try {
@@ -214,6 +216,7 @@ const [isLoading,setIsLoading] = useState(false);
     if (currentBorrower) {
       try {
         await api.delete(`/loans/delete-borrower/${currentBorrower._id}`);
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           message: "Borrower deleted successfully",
           type: "success",
@@ -237,6 +240,7 @@ const [isLoading,setIsLoading] = useState(false);
           updateFormData
         );
         setShowModalUpdate(false);
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           message: "Borrower updated successfully",
           type: "success",
@@ -269,10 +273,13 @@ const [isLoading,setIsLoading] = useState(false);
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
         />
       <div className="flex mt-20">
-        <CustomAlert
+        <CustomAlertDialog
           type={alertConfig.type}
           isVisible={alertConfig.visibility}
           message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
         />
         
         

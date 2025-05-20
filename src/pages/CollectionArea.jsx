@@ -9,7 +9,7 @@ import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import DataTable from "../components/layouts/Datatable";
 import filterOption from "../helpers/filterOption";
-
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 
 const CollectionArea = () => {
   const [currentCollectionArea, setCurrentCollectionArea] = useState(null);
@@ -26,7 +26,7 @@ const CollectionArea = () => {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
+const [reloadTrigger, setReloadTrigger] = useState(0);
  
   const [updateCollectionAreaData, setUpdateCollectionAreaData] = useState({
     route_name: "",
@@ -78,7 +78,7 @@ const CollectionArea = () => {
           },
         }
       );
-
+      setReloadTrigger((prev) => prev + 1);
       setAlertConfig({
         type: "success",
         message: "Collection Area Added Successfully",
@@ -181,7 +181,7 @@ const CollectionArea = () => {
       }
     };
     fetchAreaCollection();
-  }, []);
+  }, [reloadTrigger]);
 
   const columns = [
     { key: "id", header: "SL. NO" },
@@ -230,13 +230,14 @@ const CollectionArea = () => {
         );
         setAlertConfig({
           visibility: true,
-          message: "User deleted successfully",
+          message: "Collection Area deleted successfully",
           type: "success",
         });
+        setReloadTrigger((prev) => prev + 1);
         setShowModalDelete(false);
         setCurrentCollectionArea(null);
       } catch (error) {
-        console.error("Error deleting user:", error);
+        console.error("Error deleting Collection Area:", error);
       }
     }
   };
@@ -249,7 +250,7 @@ const CollectionArea = () => {
         updateCollectionAreaData
       );
       setShowModalUpdate(false);
-console.info(updateCollectionAreaData,"testing")
+      setReloadTrigger((prev) => prev + 1);
 
       setAlertConfig({
         visibility: true,
@@ -287,11 +288,14 @@ console.info(updateCollectionAreaData,"testing")
             onGlobalSearchChangeHandler={GlobalSearchChangeHandler}
             visibility={true}
           />
-          <CustomAlert
-            type={alertConfig.type}
-            isVisible={alertConfig.visibility}
-            message={alertConfig.message}
-          />
+          <CustomAlertDialog
+          type={alertConfig.type}
+          isVisible={alertConfig.visibility}
+          message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
+        />
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
@@ -308,7 +312,7 @@ console.info(updateCollectionAreaData,"testing")
                 </button>
               </div>
             </div>
-            {tableCollectionArea?.length > 0 ? (
+            {(tableCollectionArea?.length > 0 && !isLoading) ? (
               <DataTable
                 catcher="_id"
                 updateHandler={handleUpdateModalOpen}

@@ -10,6 +10,7 @@ import CustomAlert from "../components/alerts/CustomAlert";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 
 const AdminAccessRights = () => {
   const [users, setUsers] = useState([]);
@@ -23,6 +24,7 @@ const AdminAccessRights = () => {
   const [errors, setErrors] = useState({});
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
 
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
@@ -183,6 +185,7 @@ const AdminAccessRights = () => {
         });
 
         setShowModal(false);
+        setReloadTrigger((prev) => prev + 1);
         setFormData({
           title: "",
           access_permissions: {
@@ -274,9 +277,9 @@ const AdminAccessRights = () => {
         const response = await api.get("/admin-access-rights/get-all");
         setUsers(response.data);
         const formattedData = response.data.map((adminAccess, index) => ({
-          _id: adminAccess._id,
+          _id: adminAccess?._id,
           id: index + 1,
-          title: adminAccess.title,
+          title: adminAccess?.title,
           action: (
             <div className="flex justify-center  gap-2">
               <Dropdown
@@ -287,7 +290,7 @@ const AdminAccessRights = () => {
                       label: (
                         <div
                           className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(adminAccess._id)}
+                          onClick={() => handleUpdateModalOpen(adminAccess?._id)}
                         >
                           Edit
                         </div>
@@ -298,7 +301,7 @@ const AdminAccessRights = () => {
                       label: (
                         <div
                           className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(adminAccess._id)}
+                          onClick={() => handleDeleteModalOpen(adminAccess?._id)}
                         >
                           Delete
                         </div>
@@ -321,7 +324,7 @@ const AdminAccessRights = () => {
       }
     };
     fetchAdminRights();
-  }, []);
+  }, [reloadTrigger]);
 
   const columns = [
     { key: "id", header: "SL. NO" },
@@ -351,7 +354,7 @@ const AdminAccessRights = () => {
       const response = await api.get(
         `/admin-access-rights/get-by-id/${userId}`
       );
-      console.info(userId, "response data this is data");
+      
       setCurrentUpdateUser(response.data);
       setUpdateFormData({
         title: response.data.title,
@@ -533,6 +536,7 @@ const AdminAccessRights = () => {
         );
         setShowModalDelete(false);
         setCurrentUser(null);
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Manager deleted successfully",
@@ -554,6 +558,7 @@ const AdminAccessRights = () => {
           updateFormData
         );
         setShowModalUpdate(false);
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Designation Updated Successfully",
@@ -594,7 +599,7 @@ const AdminAccessRights = () => {
       }
     };
     fetchAdminAccessRights();
-  }, []);
+  }, [reloadTrigger]);
 
   return (
     <>
@@ -605,11 +610,14 @@ const AdminAccessRights = () => {
             visibility={true}
           />
           <SettingSidebar />
-          <CustomAlert
-            type={alertConfig.type}
-            isVisible={alertConfig.visibility}
-            message={alertConfig.message}
-          />
+          <CustomAlertDialog
+          type={alertConfig.type}
+          isVisible={alertConfig.visibility}
+          message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
+        />
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
@@ -626,7 +634,7 @@ const AdminAccessRights = () => {
                 </button>
               </div>
             </div>
-            {TableAgents.length > 0 ? (
+            {(TableAgents.length > 0 && !isLoading)? (
               <DataTable
                 updateHandler={handleUpdateModalOpen}
                 data={filterOption(TableAgents, searchText)}

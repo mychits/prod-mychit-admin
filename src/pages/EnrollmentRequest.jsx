@@ -144,7 +144,6 @@ console.error("failed to fetch group");
         const response = await api.get(
           "/enrollment-request/get-enrollment-request-data"
         );
-        console.info(response.data,"response data")
         setEnrollmentRequests(response.data);
         const formattedData = response.data.map((data, index) => ({
           sl_no: index + 1,

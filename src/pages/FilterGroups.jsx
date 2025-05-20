@@ -10,6 +10,7 @@ import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 const FilterGroups = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
@@ -21,6 +22,7 @@ const FilterGroups = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -207,7 +209,7 @@ const FilterGroups = () => {
           },
         });
         // alert("Group Added Successfully");
-
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Group Added Successfully",
@@ -244,18 +246,18 @@ const FilterGroups = () => {
         const response = await api.get("/group/get-group-admin");
         setGroups(response.data);
         const formattedData = response.data.map((group, index) => ({
-          _id: group._id,
+          _id: group?._id,
           id: index + 1,
-          name: group.group_name,
+          name: group?.group_name,
           type:
-            group.group_type.charAt(0).toUpperCase() +
-            group.group_type.slice(1) +
+            group?.group_type.charAt(0).toUpperCase() +
+            group?.group_type.slice(1) +
             " Group",
-          value: group.group_value,
-          installment: group.group_install,
-          members: group.group_members,
-          filter_group: group.filter_group,
-          date: group.createdAt,
+          value: group?.group_value,
+          installment: group?.group_install,
+          members: group?.group_members,
+          filter_group: group?.filter_group,
+          date: group?.createdAt,
           action: (
             <div className="flex justify-center gap-2">
               {/* <button
@@ -273,7 +275,7 @@ const FilterGroups = () => {
                       label: (
                         <div
                           className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(group._id)}
+                          onClick={() => handleUpdateModalOpen(group?._id)}
                         >
                           Edit
                         </div>
@@ -284,7 +286,7 @@ const FilterGroups = () => {
                       label: (
                         <div
                           className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(group._id)}
+                          onClick={() => handleDeleteModalOpen(group?._id)}
                         >
                           Delete
                         </div>
@@ -318,7 +320,7 @@ const FilterGroups = () => {
       }
     };
     fetchGroups();
-  }, []);
+  }, [reloadTrigger]);
 
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -335,7 +337,7 @@ const FilterGroups = () => {
   };
 
   const handleUpdateModalOpen = async (groupId) => {
-    console.log("group id is ", groupId);
+    
     try {
       const response = await api.get(`/group/get-by-id-group/${groupId}`);
       const groupData = response.data;
@@ -381,11 +383,13 @@ const FilterGroups = () => {
       try {
         await api.delete(`/group/delete-group/${currentGroup._id}`);
         // alert("Group deleted successfully");
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           message: "Group deleted successfully",
           type: "success",
           visibility: true,
         });
+        
         setShowModalDelete(false);
         setCurrentGroup(null);
       } catch (error) {
@@ -406,6 +410,7 @@ const FilterGroups = () => {
         );
         setShowModalUpdate(false);
         // alert("Group Updated Successfully");
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           message: "Group updated successfully",
           type: "success",
@@ -437,10 +442,13 @@ const FilterGroups = () => {
           visibility={true}
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
         />
-        <CustomAlert
+        <CustomAlertDialog
           type={alertConfig.type}
           isVisible={alertConfig.visibility}
           message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
         />
         <div className="flex mt-20">
           <Sidebar />
@@ -461,7 +469,7 @@ const FilterGroups = () => {
               </div>
             </div>
 
-            {TableGroups.length > 0 ? (
+            {(TableGroups.length > 0   && !isLoading)? (
               <DataTable
                 catcher="_id"
                 updateHandler={handleUpdateModalOpen}
@@ -482,58 +490,6 @@ const FilterGroups = () => {
                 data={"Group Data"}
               />
             )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {/* {filteredGroups.length === 0 ? (
-                <div className="flex justify-center items-center h-64">
-                  <p className="text-gray-500 text-lg">No groups added yet</p>
-                </div>
-              ) : (
-                filteredGroups.map((group) => (
-                  <div
-                    key={group.id}
-                    className="bg-white border border-gray-300 rounded-xl p-6 shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-xl"
-                  >
-                    <div className="flex flex-col items-center">
-                      <h2 className="text-xl font-bold mb-3 text-gray-700 text-center">
-                        {group.group_name}
-                      </h2>
-                      <p className="">{group.group_type.charAt(0).toUpperCase() + group.group_type.slice(1)} Group</p>
-                      <div className="flex gap-16 py-3">
-                        <p className="text-gray-500 mb-2 text-center">
-                          <span className="font-medium text-gray-700 text-lg">
-                            {group.group_members}
-                          </span>
-                          <br />
-                          <span className="font-bold text-sm">Members</span>
-                        </p>
-                        <p className="text-gray-500 mb-4 text-center">
-                          <span className="font-medium text-gray-700 text-lg">
-                            ₹{group.group_install}
-                          </span>
-                          <br />
-                          <span className="font-bold text-sm">Installment</span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => handleUpdateModalOpen(group._id)}
-                        className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-                      >
-                        <CiEdit color="green" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteModalOpen(group._id)}
-                        className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-                      >
-                        <MdDelete color="red" />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )} */}
-            </div>
           </div>
         </div>
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>

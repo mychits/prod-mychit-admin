@@ -57,65 +57,12 @@ const Home = () => {
     fetchUsers();
   }, []);
 
-  // useEffect(() => {
-  //   const fetchPayments = async () => {
-  //     try {
-  //       const response = await api.get("/payment/get-payment");
-  //       console.log(response.data);
-  //       const paymentData = response.data;
-  //       const totalAmount = paymentData.reduce(
-  //         (sum, payment) => sum + Number(payment.amount || 0),
-  //         0
-  //       );
-
-  //       setPaymentsValue(totalAmount);
-  //     } catch (error) {
-  //       console.error("Error fetching payment data:", error);
-  //     }
-  //   };
-  //   fetchPayments();
-  // }, []);
-
-  // useEffect(() => {
-  //   const fetchMonthlyPayments = async () => {
-  //     try {
-  //       const today = new Date();
-  //       const currentMonth = today.getMonth();
-  //       const currentYear = today.getFullYear();
-  //       const firstDay = `${currentYear}-${String(currentMonth + 1).padStart(
-  //         2,
-  //         "0"
-  //       )}-01`;
-  //       console.log("firstday",firstDay);
-  //       const lastDay = new Date(currentYear, currentMonth + 1, 0);
-  //       const lastDayFormatted = lastDay.toISOString().split("T")[0];
-
-  //       const response = await api.get("/payment/get-report-receipt", {
-  //         params: {
-  //           from_date: firstDay,
-  //           to_date: lastDayFormatted,
-  //         },
-  //       });
-
-  //       setPaymentsPerMonth(response.data);
-
-  //       const totalAmount = response.data.reduce((sum, payment) => {
-  //         console.log("payment", payment.amount);
-  //         return sum + Number(payment.amount || 0);
-  //       }, 0);
-  //       setPaymentsPerMonthValue(totalAmount);
-  //     } catch (err) {
-  //       console.error("Error fetching monthly payment data:", err.message);
-  //     }
-  //   };
-  //   fetchMonthlyPayments();
-  // }, []);
   useEffect(() => {
     const fetchTotalAmount = async () => {
       try {
         const response = await api.get("/payment/get-total-payment-amount");
         setTotalAmount(response?.data?.totalAmount || 0);
-        console.info(response?.data?.totalAmount,"response data");
+        
       } catch (error) {
         console.error("Error fetching total amount:", error);
       }
@@ -143,10 +90,7 @@ const Home = () => {
             to_date: lastDayFormatted,
           },
         });
-        console.info(response?.data);
-
-        //setPaymentsPerMonth(response?.data);
-        setPaymentsPerMonthValue(response?.data?.monthlyPayment);
+        setPaymentsPerMonthValue(response?.data?.monthlyPayment  || 0 );
       } catch (err) {
         console.error("Error fetching monthly payment data:", err.message);
       }
@@ -204,7 +148,7 @@ const Home = () => {
   
 const onGlobalSearchChangeHandler = (e)=>{
   const {value} = e.target;
-  console.log("first",value)
+ 
   setSearchValue(value)
 }
 
