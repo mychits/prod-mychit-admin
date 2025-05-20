@@ -4,13 +4,13 @@ import Sidebar from "../components/layouts/Sidebar";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
 import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import handleEnrollmentRequestPrint from "../components/printFormats/enrollmentRequestPrint";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import { Link } from "react-router-dom";
 const User = () => {
   const [users, setUsers] = useState([]);
@@ -26,6 +26,7 @@ const User = () => {
   const [groups, setGroups] = useState([]);
   const [areas, setAreas] = useState([]);
   const [files, setFiles] = useState({});
+  const [reloadTrigger, setReloadTrigger] = useState(0);
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -185,7 +186,8 @@ const User = () => {
             "Content-Type": "application/json",
           },
         });
-        window.location.reload();
+       // window.location.reload();
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           type: "success",
           message: "User Added Successfully",
@@ -255,7 +257,7 @@ const User = () => {
       }
     };
     fetchCollectionArea();
-  }, []);
+  }, [reloadTrigger]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -352,7 +354,7 @@ const User = () => {
       }
     };
     fetchUsers();
-  }, []);
+  }, [reloadTrigger]);
 
   useEffect(() => {
     const fetchGroupData = async () => {
@@ -364,7 +366,7 @@ const User = () => {
       }
     };
     fetchGroupData();
-  }, []);
+  }, [reloadTrigger]);
 
   const columns = [
     { key: "id", header: "SL. NO" },
@@ -459,11 +461,13 @@ const User = () => {
     if (currentUser) {
       try {
         await api.delete(`/user/delete-user/${currentUser._id}`);
+        
         setAlertConfig({
           visibility: true,
           message: "User deleted successfully",
           type: "success",
         });
+        setReloadTrigger((prev) => prev + 1);
         setShowModalDelete(false);
         setCurrentUser(null);
       } catch (error) {
@@ -493,13 +497,19 @@ const User = () => {
       const response = await api.put(`/user/update-user/${id}`, {
         customer_status: "active",
       });
+      setReloadTrigger((prev) => prev + 1);
+        setAlertConfig({
+          visibility: true,
+          message: "User status has been successfully updated to active",
+          type: "success",
+        });
       if (response.status === 200) {
         console.info("Customer status updated successfully for user ID:", id);
       } else {
         console.warn("Failed to update customer status:", response?.data);
       }
     } catch (err) {
-      console.info(err, err.message);
+      console.error(err, err.message);
     }
   };
 
@@ -522,6 +532,7 @@ const User = () => {
       });
 
       setShowModalUpdate(false);
+      setReloadTrigger((prev) => prev + 1);
       setAlertConfig({
         visibility: true,
         message: "User Updated Successfully",
@@ -548,11 +559,14 @@ const User = () => {
             onGlobalSearchChangeHandler={GlobalSearchChangeHandler}
             visibility={true}
           />
-          <CustomAlert
-            type={alertConfig.type}
-            isVisible={alertConfig.visibility}
-            message={alertConfig.message}
-          />
+           <CustomAlertDialog
+          type={alertConfig.type}
+          isVisible={alertConfig.visibility}
+          message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
+        />
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
@@ -570,7 +584,7 @@ const User = () => {
                 </button>
               </div>
             </div>
-            {TableUsers?.length > 0 ? (
+            {(TableUsers?.length > 0   && !isLoading) ? (
               <DataTable
                 catcher="_id"
                 updateHandler={handleUpdateModalOpen}
@@ -797,7 +811,7 @@ const User = () => {
                   // onChange={handleChange}
                   // options={areaOption}
                   onChange={(e) => {
-                    console.log(e.target.value, "checking .........");
+                  
                     handleChange(e);
                   }}
                   id="area"

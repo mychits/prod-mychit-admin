@@ -7,7 +7,7 @@ import Modal from "../components/modals/Modal";
 import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import Navbar from "../components/layouts/Navbar";
 import { IoMdMore } from "react-icons/io";
 import { Dropdown } from "antd";
@@ -21,13 +21,13 @@ const Lead = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
-
+const [reloadTrigger, setReloadTrigger] = useState(0);
   const [selectedGroup, setSelectedGroup] = useState("");
   const [leads, setLeads] = useState([]);
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [errors, setErrors] = useState({});
-
+  const [isLoading, setIsLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
@@ -126,13 +126,13 @@ const Lead = () => {
             "Content-Type": "application/json",
           },
         });
-        if (response.status >= 400) throw new Error("Unable to add Lead");
-
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Lead added successfully",
           type: "success",
         });
+        
         setFormData({
           lead_name: "",
           lead_phone: "",
@@ -166,24 +166,24 @@ const Lead = () => {
       }
     };
     fetchGroups();
-  }, []);
+  }, [reloadTrigger]);
 
   useEffect(() => {
     const fetchLeads = async () => {
       try {
+        setIsLoading(true);
         const response = await api.get("/lead/get-lead");
-        console.log("response data", response.data);
         setLeads(response.data);
         const formattedData = response.data.map((group, index) => ({
           _id: group._id,
           id: index + 1,
-          name: group.lead_name,
-          phone: group.lead_phone,
-          profession: group.lead_profession,
+          name: group?.lead_name,
+          phone: group?.lead_phone,
+          profession: group?.lead_profession,
           lead_needs: group?.lead_needs,
           group_id: group?.group_id?.group_name,
           date: group?.createdAt.split("T")[0],
-          lead_type: group.lead_type === "agent" ? "employee" : group.lead_type,
+          lead_type: group.lead_type === "agent" ? "employee" : group?.lead_type,
           note: group?.note,
           lead_type_name:
             group.lead_type === "customer"
@@ -193,18 +193,6 @@ const Lead = () => {
               : "",
           action: (
             <div className="flex justify-center gap-2">
-              {/* <button
-                onClick={() => handleUpdateModalOpen(group._id)}
-                className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-              >
-                <CiEdit color="green" />
-              </button> */}
-              {/* <button
-                onClick={() => handleDeleteModalOpen(group._id)}
-                className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-              >
-                <MdDelete color="red" />
-              </button> */}
               <Dropdown
                 menu={{
                   items: [
@@ -242,10 +230,12 @@ const Lead = () => {
         setTableGroups(formattedData);
       } catch (error) {
         console.error("Error fetching group data:", error);
+      }finally {
+        setIsLoading(false);
       }
     };
     fetchLeads();
-  }, []);
+  }, [reloadTrigger]);
 
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -264,21 +254,19 @@ const Lead = () => {
   const handleUpdateModalOpen = async (groupId) => {
     try {
       const response = await api.get(`/lead/get-lead-by-id/${groupId}`);
-      console.log("The response data is ", response.data);
+     
       const groupData = response.data;
-      //const formattedStartDate = groupData.start_date.split("T")[0];
-      //  const formattedEndDate = groupData.end_date.split("T")[0];
       setCurrentUpdateGroup(response.data);
       setUpdateFormData({
-        lead_name: response.data.lead_name,
-        lead_phone: response.data.lead_phone,
-        lead_profession: response.data.lead_profession,
-        group_id: response.data.group_id,
+        lead_name: response?.data?.lead_name,
+        lead_phone: response?.data?.lead_phone,
+        lead_profession: response?.data?.lead_profession,
+        group_id: response?.data?.group_id,
         lead_type: response.data.lead_type,
-        lead_customer: response.data.lead_customer,
-        lead_agent: response.data.lead_agent,
-        lead_needs: response.data?.lead_needs,
-        note: response.data.note,
+        lead_customer: response?.data?.lead_customer,
+        lead_agent: response?.data?.lead_agent,
+        lead_needs: response?.data?.lead_needs,
+        note: response?.data?.note,
       });
       setShowModalUpdate(true);
       setErrors({});
@@ -302,7 +290,7 @@ const Lead = () => {
         await api.delete(`/lead/delete-lead/${currentGroup._id}`);
         setShowModalDelete(false);
         setCurrentGroup(null);
-
+       setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Lead deleted successfully",
@@ -330,6 +318,7 @@ const Lead = () => {
           message: "Lead Updated Successfully",
           type: "success",
         });
+        setReloadTrigger((prev) => prev + 1);
       }
     } catch (error) {
       console.error("Error updating group:", error);
@@ -360,7 +349,7 @@ const Lead = () => {
       }
     };
     fetchUsers();
-  }, []);
+  }, [reloadTrigger]);
 
   useEffect(() => {
     const fetchAgents = async () => {
@@ -372,7 +361,7 @@ const Lead = () => {
       }
     };
     fetchAgents();
-  }, []);
+  }, [reloadTrigger]);
 
   return (
     <>
@@ -382,12 +371,16 @@ const Lead = () => {
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
             visibility={true}
           />
+          <CustomAlertDialog
+          type={alertConfig.type}
+          isVisible={alertConfig.visibility}
+          message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
+        />
           <Sidebar />
-          <CustomAlert
-            type={alertConfig.type}
-            isVisible={alertConfig.visibility}
-            message={alertConfig.message}
-          />
+         
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8 ">
@@ -405,7 +398,7 @@ const Lead = () => {
               </div>
             </div>
 
-            {TableGroups.length > 0 ? (
+            {(TableGroups.length > 0 && !isLoading) ? (
               <DataTable
                 updateHandler={handleUpdateModalOpen}
                 data={TableGroups.filter((item) =>
@@ -678,8 +671,8 @@ const Lead = () => {
                     >
                       <option value="">Select Customer</option>
                       {users.map((user) => (
-                        <option key={user._id} value={user._id}>
-                          {user.full_name}
+                        <option key={user?._id} value={user?._id}>
+                          {user?.full_name}
                         </option>
                       ))}
                     </select>

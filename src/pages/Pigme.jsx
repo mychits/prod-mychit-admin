@@ -4,7 +4,7 @@ import Sidebar from "../components/layouts/Sidebar";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
@@ -21,6 +21,7 @@ const Pigme = () => {
   const [currentCustomer, setCurrentCustomer] = useState(null);
   const [currentUpdateCustomer, setCurrentUpdateCustomer] = useState(null);
   const [searchText, setSearchText] = useState("");
+    const [reloadTrigger, setReloadTrigger] = useState(0);
   const [isLoading,setIsLoading] = useState(false);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
@@ -104,7 +105,7 @@ const Pigme = () => {
     e.preventDefault();
     const isValid = validateForm("addCustomer");
     try {
-      console.log(isValid);
+    
       if (isValid) {
         const response = await api.post("/pigme/add-pigme-customer", formData, {
           headers: {
@@ -112,6 +113,7 @@ const Pigme = () => {
           },
         });
         if (response.status >= 400) throw new Error("failed to add Customer");
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Customer Added Successfully",
@@ -128,9 +130,7 @@ const Pigme = () => {
           end_date: "",
           note: "",
         });
-      } else {
-        console.log(errors);
-      }
+      } 
     } catch (error) {
       console.error("Error adding Customer:", error);
     }
@@ -148,7 +148,7 @@ const Pigme = () => {
       }
     };
     fetchCustomers();
-  }, []);
+  }, [reloadTrigger]);
 
   useEffect(() => {
     const fetchBorrowers = async () => {
@@ -216,7 +216,7 @@ const Pigme = () => {
       }
     };
     fetchBorrowers();
-  }, []);
+  }, [reloadTrigger]);
 
   const handleDeleteModalOpen = async (pigmeId) => {
     try {
@@ -261,6 +261,7 @@ const Pigme = () => {
     if (currentCustomer) {
       try {
         await api.delete(`/pigme/delete-pigme-customer/${currentCustomer._id}`);
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           message: "Pigme User deleted successfully",
           type: "success",
@@ -283,6 +284,7 @@ const Pigme = () => {
           updateFormData
         );
         setShowModalUpdate(false);
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           message: "Borrower updated successfully",
           type: "success",
@@ -312,10 +314,13 @@ const Pigme = () => {
           visibility={true}
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
         />
-        <CustomAlert
+          <CustomAlertDialog
           type={alertConfig.type}
           isVisible={alertConfig.visibility}
           message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
         />
         <div className="flex mt-20">
           <Sidebar />
@@ -336,7 +341,7 @@ const Pigme = () => {
               </div>
             </div>
 
-          {tableBorrowers?.length>0 ?  (<DataTable
+          {(tableBorrowers?.length>0 && !isLoading) ?  (<DataTable
               catcher="_id"
               updateHandler={handleUpdateModalOpen}
               data={filterOption(tableBorrowers, searchText)}

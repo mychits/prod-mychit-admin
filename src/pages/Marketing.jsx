@@ -7,6 +7,7 @@ const subMenus = [
     title: "Promotion Login",
     link: "https://app.whatsapppromotion.net/login",
     icon: <FaWhatsapp size={20} />,
+    newTab:true
   },
   {
     title: "Advertisement",
@@ -27,8 +28,9 @@ const Marketing = () => {
         <Sidebar />
         <div className="flex-grow">
           <div className="w-[300px] bg-gray-50 min-h-screen max-h-auto p-4">
-            {subMenus.map(({ title, link, icon, red }) => (
+            {subMenus.map(({ title, link, icon, red,newTab }) => (
               <NavLink
+              target={`${newTab?"_blank":"_self"}`}
                 className={({ isActive }) =>
                   `my-2 flex items-center gap-2 font-medium rounded-md hover:bg-gray-300  p-3 ${
                     red ? "text-red-800" : "text-blue-950"

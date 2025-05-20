@@ -153,7 +153,7 @@ const Agent = () => {
           designation_id: selectedManagerId,
           reporting_manager_id: selectedReportingManagerId
         };
-        console.log(dataToSend)
+        
         const response = await api.post("/agent/add-agent", dataToSend, {
           headers: {
             "Content-Type": "application/json",
@@ -216,7 +216,6 @@ const Agent = () => {
       try {
         setIsLoading(true);
         const response = await api.get("/agent/get-agent");
-        console.info(response.data, "this is data")
         setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
           _id: group?._id,

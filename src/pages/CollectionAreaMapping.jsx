@@ -10,6 +10,7 @@ import { IoMdMore } from "react-icons/io";
 import DataTable from "../components/layouts/Datatable";
 import filterOption from "../helpers/filterOption";
 import { Select } from "antd";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 
 const CollectionAreaMapping = () => {
   const [showModal, setShowModal] = useState(false);
@@ -20,6 +21,7 @@ const CollectionAreaMapping = () => {
   const [areaOption, setAreaOptions] = useState([]);
   const [showModalUpdate, setShowModalUpdate] = useState(false);
    const [showModalDelete, setShowModalDelete] = useState(false);
+   const [reloadTrigger, setReloadTrigger] = useState(0);
    const [currentUpdateCollectionAreaMapping,setCurrentUpdateCollectionAreaMapping] = useState(null);
   
   const [collectionAreaMapping, setCollectionAreaMapping] = useState({
@@ -50,8 +52,8 @@ const CollectionAreaMapping = () => {
 
          if(response.data){
         const options = response.data.map((agent) => ({
-          value: agent._id,
-          label: agent.name,
+          value: agent?._id,
+          label: agent?.name,
         }));
         setAgentOption(options);
         }
@@ -72,8 +74,8 @@ const CollectionAreaMapping = () => {
     
           if(response.data){
         const options = response.data.map((area) => ({
-          value: area._id,
-          label: area.route_name,
+          value: area?._id,
+          label: area?.route_name,
         }));
         setAreaOptions(options);
         }
@@ -86,13 +88,13 @@ const CollectionAreaMapping = () => {
   }, []);
 
   const handleInputSelect = (name, arr) => {
-  const values = arr.map((item) => (typeof item === "object" ? item.value : item));
+  const values = arr.map((item) => (typeof item === "object" ? item?.value : item));
   setUpdateCollectionAreaMapping((prev) => ({ ...prev, [name]: values }));
 };
 
  const handleSelect = (name, arr) => {
 
-  const values = arr.map((item) => (typeof item === "object" ? item.value : item));
+  const values = arr.map((item) => (typeof item === "object" ? item?.value : item));
   setCollectionAreaMapping((prev) => ({
     ...prev,
     [name]: Array.isArray(arr) ? arr : [],
@@ -113,7 +115,12 @@ const CollectionAreaMapping = () => {
           },
         }
       );
-   
+     setReloadTrigger((prev) => prev + 1);
+        setAlertConfig({
+          visibility: true,
+          message: "Collection Area Mapping Added Successfully",
+          type: "success",
+        });
 
       setShowModal(false);
      
@@ -128,6 +135,7 @@ const CollectionAreaMapping = () => {
         error.response.data &&
         error.response.data.message
       ) {
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           type: "error",
           message: `${error?.response?.data?.message}`,
@@ -159,9 +167,9 @@ const CollectionAreaMapping = () => {
             return {
               _id: collectionAreaMap?._id,
               id: index + 1,
-              name: collectionAreaMap?.area_ids?.map((area)=> area.route_name).join(),
+              name: collectionAreaMap?.area_ids?.map((area)=> area?.route_name).join(),
               Agent: collectionAreaMap?.agent_ids
-                ?.map((agent) => agent.name)
+                ?.map((agent) => agent?.name)
                 .join(),
               action: (
                 <div className="flex justify-center gap-2">
@@ -214,7 +222,7 @@ const CollectionAreaMapping = () => {
       }
     };
     fetchCollectionAreaMapping();
-  }, []);
+  }, [reloadTrigger]);
     const columns = [
     { key: "id", header: "SL. NO" },
     { key: "name", header: "Collection Area Name" },
@@ -244,8 +252,8 @@ const handleUpdateModalOpen = async (Id) => {
 
    
         setUpdateCollectionAreaMapping({
-            area_ids: response.data.area_ids.map(area => area._id),
-            agent_ids: response.data.agent_ids.map(agent => agent._id),
+            area_ids: response.data.area_ids.map(area => area?._id),
+            agent_ids: response.data.agent_ids.map(agent => agent?._id),
         });
 
         setCurrentUpdateCollectionAreaMapping(response.data);
@@ -261,15 +269,17 @@ const handleUpdateModalOpen = async (Id) => {
         await api.delete(
           `/collection-area-mapping/delete-collection-area-mapping-by-id/${currentCollectionAreaMapping._id}`
         );
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Area Mapping deleted successfully",
           type: "success",
         });
         setShowModalDelete(false);
+        
         setCurrentCollectionAreaMapping(null);
       } catch (error) {
-        console.error("Error deleting user:", error);
+        console.error("Error deleting Area Mapping:", error);
       }
     }
   };
@@ -281,17 +291,22 @@ const handleUpdate = async (e) => {
       
         const updatedData = {
             ...updateCollectionAreaMapping,
-            area_ids: updateCollectionAreaMapping.area_ids.map(area => area.value || area),
-            agent_ids: updateCollectionAreaMapping.agent_ids.map(agent => agent.value || agent),
+            area_ids: updateCollectionAreaMapping.area_ids.map(area => area?.value || area),
+            agent_ids: updateCollectionAreaMapping.agent_ids.map(agent => agent?.value || agent),
         };
 
         await api.put(
             `/collection-area-mapping/update-collection-area-mapping-by-id/${currentUpdateCollectionAreaMapping._id}`,
             updatedData
         );
-
+        setReloadTrigger((prev) => prev + 1);
+        setAlertConfig({
+          visibility: true,
+          message: "Area Mapping updated successfully",
+          type: "success",
+        });
         setShowModalUpdate(false);
-        console.info(updatedData, "Updated data sent to API");
+       
     } catch (error) {
         console.error("Error updating Collection Area Mapping:", error);
     }
@@ -309,11 +324,14 @@ const handleUpdate = async (e) => {
                 onGlobalSearchChangeHandler={GlobalSearchChangeHandler}
                 visibility={true}
               />
-              <CustomAlert
-                type={alertConfig.type}
-                isVisible={alertConfig.visibility}
-                message={alertConfig.message}
-              />
+              <CustomAlertDialog
+          type={alertConfig.type}
+          isVisible={alertConfig.visibility}
+          message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
+        />
     
               <div className="flex-grow p-7">
                 <div className="mt-6 mb-8">
@@ -330,7 +348,7 @@ const handleUpdate = async (e) => {
                     </button>
                   </div>
                 </div>
-                {tableCollectionAreaMapping?.length > 0 ? (
+                {(tableCollectionAreaMapping?.length > 0 && !isLoading) ? (
                   <DataTable
                     catcher="_id"
                     updateHandler={handleUpdateModalOpen}

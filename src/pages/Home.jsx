@@ -14,9 +14,6 @@ const Home = () => {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
-  const [payments, setPayments] = useState([]);
-  const [paymentsValue, setPaymentsValue] = useState("0");
-  const [paymentsPerMonth, setPaymentsPerMonth] = useState([]);
   const [paymentsPerMonthValue, setPaymentsPerMonthValue] = useState("0");
   const [searchValue,setSearchValue] = useState("")
   const [totalAmount, setTotalAmount] = useState(0);
@@ -57,13 +54,12 @@ const Home = () => {
     fetchUsers();
   }, []);
 
- 
   useEffect(() => {
     const fetchTotalAmount = async () => {
       try {
         const response = await api.get("/payment/get-total-payment-amount");
         setTotalAmount(response?.data?.totalAmount || 0);
-        console.info(response?.data?.totalAmount,"response data");
+        
       } catch (error) {
         console.error("Error fetching total amount:", error);
       }
@@ -91,10 +87,7 @@ const Home = () => {
             to_date: lastDayFormatted,
           },
         });
-        console.info(response?.data);
-
-        //setPaymentsPerMonth(response?.data);
-        setPaymentsPerMonthValue(response?.data?.monthlyPayment);
+        setPaymentsPerMonthValue(response?.data?.monthlyPayment  || 0 );
       } catch (err) {
         console.error("Error fetching monthly payment data:", err.message);
       }
@@ -152,7 +145,7 @@ const Home = () => {
   
 const onGlobalSearchChangeHandler = (e)=>{
   const {value} = e.target;
-  console.log("first",value)
+ 
   setSearchValue(value)
 }
 
