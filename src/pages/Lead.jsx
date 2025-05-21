@@ -77,7 +77,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
   const validateForm = (type) => {
     const newErrors = {};
     const data = type === "addLead" ? formData : updateFormData;
-    if (!data.lead_name.trim()) {
+    if (!data.lead_name.toString().trim()) {
       newErrors.lead_name = "Lead Name is required";
     }
 
@@ -102,7 +102,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     if (data.lead_type === "agent" && !data.lead_agent) {
       newErrors.lead_agent = "Agent selection is required";
     }
-    if (!data.lead_needs.trim()) {
+    if (!data.lead_needs.toString().trim()) {
       newErrors.lead_needs = "Lead Needs and Goals is required";
     }
     // if(!data.note.trim()){
