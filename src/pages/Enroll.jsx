@@ -100,12 +100,12 @@ const Enroll = () => {
               phone_number: group?.user_id?.phone_number,
               group_name: group?.group_id?.group_name,
               payment_type: group?.payment_type,
+              enrollment_date:group?.createdAt ? group?.createdAt?.split("T")[0] :"",
               chit_asking_month: group?.chit_asking_month,
               referred_type: group?.referred_type,
               referred_agent: group?.agent?.name,
               referred_customer: group?.referred_customer?.full_name,
               referred_lead: group?.referred_lead?.lead_name,
-
               ticket: group.tickets,
               action: (
                 <div className="flex justify-center items-center gap-2">
@@ -294,6 +294,7 @@ const Enroll = () => {
     { key: "ticket", header: "Ticket Number" },
     { key: "referred_type", header: "Referred Type" },
     { key: "payment_type", header: "Payment Type" },
+    { key: "enrollment_date", header: "Enrollment Date" },
     { key: "chit_asking_month", header: "Chit Asking Month" },
     { key: "referred_agent", header: "Referred Employee | ID" },
     { key: "referred_customer", header: "Referred Customer | ID" },
