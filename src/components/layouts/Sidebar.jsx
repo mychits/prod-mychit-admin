@@ -38,7 +38,12 @@ const MenuSidebar = [
     icon: <RiDashboardFill />,
     link: "/dashboard",
   },
-  {id: "$PP", title: "Analytics", icon: <SiGoogleanalytics />, link: "/analytics" },
+  {
+    id: "$PP",
+    title: "Analytics",
+    icon: <SiGoogleanalytics />,
+    link: "/analytics",
+  },
   {
     id: "$2",
     title: "Groups ",
@@ -67,9 +72,29 @@ const MenuSidebar = [
   },
   {
     id: ids.seven,
-    title: "Employees",
+    title: "Staff",
     icon: <FaUserLock />,
-    link: "/agent",
+    submenu: true,
+    submenuItems: [
+      {
+        id: "$101",
+        title: "All",
+        icon: <FaUserLock />,
+        link: "/staff",
+      },
+      {
+        id: "$102",
+        title: "Agent",
+        icon: <FaUserLock />,
+        link: "/agent",
+      },
+      {
+        id: "$103",
+        title: "Employee",
+        icon: <FaUserLock />,
+        link: "/employee",
+      },
+    ],
   },
 
   {
@@ -133,7 +158,7 @@ const MenuSidebar = [
           {
             id: ids.fifteen,
             title: "Collection Mapping",
-            icon: <RiUserLocationFill size="20"/>,
+            icon: <RiUserLocationFill size="20" />,
             link: "/collection-area-mapping",
           },
         ],
@@ -263,7 +288,7 @@ const Sidebar = () => {
             const isOpen = submenuOpenIndex === index;
 
             return (
-              <Fragment key={menu.id} >
+              <Fragment key={menu.id}>
                 <a href={menu.link} onClick={() => toggleSubMenu(index)}>
                   <li
                     className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md ${
@@ -298,7 +323,6 @@ const Sidebar = () => {
                   </li>
                 </a>
 
-            
                 {menu.submenu && isOpen && open && (
                   <ul className="ml-4">
                     {menu.submenuItems.map((submenuItem, subIndex) => (

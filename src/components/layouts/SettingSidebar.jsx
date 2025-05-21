@@ -15,9 +15,13 @@ import { GiGoldBar } from "react-icons/gi";
 import { IoPeopleOutline } from "react-icons/io5";
 import { TiSpanner } from "react-icons/ti";
 import { RiAdminLine } from "react-icons/ri";
-import { Link } from "react-router-dom";
-import { Fragment } from "react";
+import { MdOutlineGroups } from "react-icons/md";
 import { BsPersonCheck } from "react-icons/bs";
+import { GoGraph } from "react-icons/go";
+import { Link, useLocation } from "react-router-dom";
+import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
+import { MdAppSettingsAlt } from "react-icons/md";
+
 const MenuSidebar = [
   { title: "Dashboard", icon: <RiDashboardFill />, link: "/dashboard" },
   {
@@ -25,28 +29,42 @@ const MenuSidebar = [
     icon: <SiGoogleanalytics />,
     link: "/analytics",
   },
+
+
   {
     title: "App Settings ",
     spacing: true,
     icon: <TiSpanner />,
     submenu: true,
-    submenuItems: [{ title: "Groups", link: "app-settings/groups" }],
-    // link: "/group",
+    submenuItems: [
+      {
+        title: "Groups",
+        icon: <MdOutlineGroups/>,
+        submenu: true,
+        submenuItems: [
+          {
+            title: "Mobile App Settings",
+            icon: <MdAppSettingsAlt size={20} />,
+            link: "/lead-setting/app-settings/groups", 
+          },
+        ],
+      },
+    ],
   },
+
   {
     title: "Designations",
-   
     icon: <IoPeopleOutline />,
     link: "/designation",
   },
   {
     title: "Administrative Privileges",
-    icon: <RiAdminLine  />,
+    icon: <RiAdminLine />,
     link: "/administrative-privileges",
   },
   {
     title: "Admin Access Rights",
-    icon: <BsPersonCheck    />,
+    icon: <BsPersonCheck />,
     link: "/admin-access-rights",
   },
   {
@@ -55,98 +73,119 @@ const MenuSidebar = [
     icon: <CgProfile />,
     link: "/profile",
   },
-  
   { title: "Help & Support", icon: <IoIosHelpCircle />, link: "/help" },
 ];
 
 const SettingSidebar = () => {
   const [open, setOpen] = useState(true);
-  const [submenuOpenIndex, setSubmenuOpenIndex] = useState(null);
-  const toggleSubMenu = (index) => {
-    if (submenuOpenIndex === index) {
-      setSubmenuOpenIndex(null);
-    } else {
-      setSubmenuOpenIndex(index);
-    }
-  };
-  return (
-    <>
-      <div
-        className={`bg-secondary  min-h-screen p-5 pt-8 ${
-          open ? "w-64" : "w-20"
-        } duration-300 relative`}
-      >
-        <BsArrowLeftShort
-          className={`bg-white text-secondary text-3xl rounded-full absolute -right-3 top-9 border border-secondary cursor-pointer ${
-            !open && "rotate-180"
-          }`}
-          onClick={() => setOpen(!open)}
-        />
-        <div className="inline-flex">
-          <GiGoldBar
-            className={`bg-amber-300 text-4xl rounded cursor-pointer block float-left mr-2 duration-500 ${
-              open && "rotate-[360deg]"
-            }`}
-          />
-          <h3
-            className={`text-white origin-left font-medium text-2xl ${
-              !open && "scale-0"
-            } duration-300 `}
-          >
-            Settings
-          </h3>
-        </div>
+  const location = useLocation();
 
-        <ul className="pt-2">
-          {MenuSidebar.map((menu, index) => (
+  // Store all expanded menu keys (e.g., '0', '0/0')
+  const [expandedMenus, setExpandedMenus] = useState(new Set());
+
+  const toggleExpand = (key) => {
+    setExpandedMenus((prev) => {
+      const newSet = new Set(prev);
+      newSet.has(key) ? newSet.delete(key) : newSet.add(key);
+      return newSet;
+    });
+  };
+
+  const isExpanded = (key) => expandedMenus.has(key);
+
+  const renderMenu = (items, level = 0, pathPrefix = "") => {
+    return items.map((item, index) => {
+      const key = pathPrefix ? `${pathPrefix}/${index}` : `${index}`;
+
+      return (
+        <div key={key} className={`${item.spacing ? "mt-9" : "mt-2"}`}>
+          {item.submenu ? (
             <>
-              <a href={menu.link}>
-                <li
-                  key={index}
-                  className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md ${
-                    menu.spacing ? "mt-9" : "mt-2"
-                  }`}
-                >
-                  <span className="text-2xl block float-left">{menu.icon}</span>
-                  <span
-                    className={`text-base font-medium flex-1 ${
-                      !open && "hidden"
-                    } `}
-                    onClick={() => toggleSubMenu(index)}
-                  >
-                    {menu.title}
-                  </span>
-                  {menu.submenu && open && (
-                    <BsChevronDown
-                      className={`${submenuOpenIndex && "rotate-180"}`}
-                      onClick={() => toggleSubMenu(index)}
-                    />
+              <div
+                className={`text-gray-300 text-sm flex items-center justify-between gap-x-4 cursor-pointer p-2 ${
+                  level > 0 ? "pl-8" : ""
+                } hover:bg-light-white rounded-md`}
+                onClick={() => toggleExpand(key)}
+              >
+                <div className="flex items-center gap-x-4">
+                  {item.icon && <span className="text-2xl">{item.icon}</span>}
+                  {open && (
+                    <span className="text-base font-medium">{item.title}</span>
                   )}
-                </li>
-              </a>
-              {menu.submenu && submenuOpenIndex === index && open && (
-                <ul>
-                  {menu.submenuItems.map((submenuItem, index) => (
-                    <>
-                      <Link to={submenuItem.link}>
-                        <li
-                          key={index}
-                          className={`text-gray-100 text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ${
-                            menu.spacing ? "mt-2" : "mt-2"
-                          }`}
-                        >
-                          {submenuItem.title}
-                        </li>
-                      </Link>
-                    </>
-                  ))}
-                </ul>
+                </div>
+                {open && (
+                  <span className="text-xl">
+                    {item.title === "Groups" ? (
+                      isExpanded(key) ? (
+                        <AiOutlineMinus size={15}/>
+                      ) : (
+                        <AiOutlinePlus size={15}/>
+                      )
+                    ) : (
+                      <BsChevronDown size={15}
+                        className={`transition-transform duration-200 ${
+                          isExpanded(key) ? "rotate-180" : ""
+                        }`}
+                      />
+                    )}
+                  </span>
+                )}
+              </div>
+              {open && isExpanded(key) && item.submenuItems && (
+                <div className="ml-2">
+                  {renderMenu(item.submenuItems, level + 1, key)}
+                </div>
               )}
             </>
-          ))}
-        </ul>
+          ) : (
+            <Link to={item.link || "#"}>
+              <div
+                className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 ${
+                  level > 0 ? "pl-8" : ""
+                } hover:bg-light-white rounded-md ${
+                  location.pathname === item.link ? "bg-light-white" : ""
+                }`}
+              >
+                {item.icon && <span className="text-2xl">{item.icon}</span>}
+                {open && (
+                  <span className="text-base font-medium">{item.title}</span>
+                )}
+              </div>
+            </Link>
+          )}
+        </div>
+      );
+    });
+  };
+
+  return (
+    <div
+      className={`bg-secondary min-h-screen p-5 pt-8 duration-300 relative ${
+        open ? "w-64" : "w-20"
+      }`}
+    >
+      <BsArrowLeftShort
+        className={`bg-white text-secondary text-3xl rounded-full absolute -right-3 top-9 border border-secondary cursor-pointer ${
+          !open && "rotate-180"
+        }`}
+        onClick={() => setOpen(!open)}
+      />
+      <div className="inline-flex">
+        <GiGoldBar
+          className={`bg-amber-300 text-4xl rounded cursor-pointer block float-left mr-2 duration-500 ${
+            open && "rotate-[360deg]"
+          }`}
+        />
+        <h3
+          className={`text-white origin-left font-medium text-2xl duration-300 ${
+            !open && "scale-0"
+          }`}
+        >
+          Settings
+        </h3>
       </div>
-    </>
+      <ul className="pt-2">{renderMenu(MenuSidebar)}</ul>
+    </div>
   );
 };
 

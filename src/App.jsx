@@ -47,6 +47,8 @@ import CollectionArea from "./pages/CollectionArea";
 import CollectionAreaMapping from "./pages/CollectionAreaMapping";
 import FilterGroups from "./pages/FilterGroups";
 import CommissionReport from "./pages/CommissionReport";
+import Staff from "./pages/Staff";
+import Employee from "./pages/Employee";
 function App() {
   return (
     <>
@@ -185,6 +187,22 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/staff"
+              element={
+                <ProtectedRoute>
+                  <Staff />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/employee"
+              element={
+                <ProtectedRoute>
+                  <Employee />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/designation"
@@ -213,7 +231,7 @@ function App() {
                 </>
               }
             />
-            <Route
+             <Route
               path="/lead-setting"
               element={
                 <ProtectedRoute>
@@ -226,7 +244,6 @@ function App() {
                 path="app-settings"
                 element={
                   <ProtectedRoute>
-                    <Navbar />
                     <AppSettings />
                   </ProtectedRoute>
                 }
@@ -235,12 +252,10 @@ function App() {
                   path="groups"
                   element={
                     <ProtectedRoute>
-                      <Navbar />
                       <GroupSettings />
                     </ProtectedRoute>
                   }
                 />
-                <Route />
               </Route>
             </Route>
             <Route
