@@ -17,11 +17,11 @@ import { GoGraph } from "react-icons/go";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { PiCalculatorBold } from "react-icons/pi";
 import { PiMapPinAreaBold } from "react-icons/pi";
-
+import { HiOutlineUserGroup } from "react-icons/hi";
 import ids from "../../data/ids";
 import { FaClipboardList } from "react-icons/fa";
 import { TbArrowsLeftDown } from "react-icons/tb";
-
+import { RiTeamFill } from "react-icons/ri";
 import { RiUserLocationFill } from "react-icons/ri";
 import { FaMapLocationDot } from "react-icons/fa6";
 import { GiReceiveMoney } from "react-icons/gi";
@@ -30,6 +30,7 @@ import { TbSettings } from "react-icons/tb";
 import { MdOutlineGroups } from "react-icons/md";
 import { FaFilter } from "react-icons/fa";
 import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
+import { FaUserTie } from "react-icons/fa6";
 
 const MenuSidebar = [
   {
@@ -79,19 +80,19 @@ const MenuSidebar = [
       {
         id: "$101",
         title: "All",
-        icon: <FaUserLock />,
+        icon: <HiOutlineUserGroup size={20} />,
         link: "/staff",
       },
       {
         id: "$102",
         title: "Agent",
-        icon: <FaUserLock />,
+        icon: <RiTeamFill size={20} />,
         link: "/agent",
       },
       {
         id: "$103",
         title: "Employee",
-        icon: <FaUserLock />,
+        icon: <FaUserTie size={18} />,
         link: "/employee",
       },
     ],
