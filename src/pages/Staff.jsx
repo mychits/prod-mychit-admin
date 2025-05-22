@@ -9,7 +9,7 @@ import Modal from "../components/modals/Modal";
 import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
@@ -28,6 +28,7 @@ const Staff = () => {
   const [selectedReportingManagerId, setSelectedReportingManagerId] = useState("");
   const [managers, setManagers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -63,6 +64,7 @@ const Staff = () => {
     adhaar_no: "",
     designation_id:"",
     pan_no: "",
+    agent_type: "",
   });
 
   const handleChange = (e) => {
@@ -139,6 +141,10 @@ const Staff = () => {
       newErrors.address = "Address should be at least 10 characters";
     }
 
+    if (!data.agent_type.trim()){
+      newErrors.agent_type = "Please select Staff Type";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -171,15 +177,16 @@ const Staff = () => {
           pincode: "",
           adhaar_no: "",
           pan_no: "",
+          agent_type: "",
         });
         setSelectedManagerId("");
         setSelectedReportingManagerId("")
-        console.log("success")
-        // setAlertConfig({
-        //   visibility: true,
-        //   message: "Agent Added Successfully",
-        //   type: "success",
-        // });
+       setReloadTrigger((prev) => prev + 1);
+        setAlertConfig({
+          visibility: true,
+          message: "Agent Added Successfully",
+          type: "success",
+        });
       }
     } catch (error) {
       console.error("Error adding agent:", error);
@@ -226,6 +233,7 @@ const Staff = () => {
           phone_number: group?.phone_number,
           password: group?.password,
           designation: group?.designation_id?.title,
+          agent_type: group?.agent_type,
           action: (
             <div className="flex justify-center  gap-2">
               {/* <button
@@ -276,7 +284,7 @@ const Staff = () => {
       }
     };
     fetchUsers();
-  }, []);
+  }, [reloadTrigger]);
 
   const columns = [
     { key: "id", header: "SL. NO" },
@@ -284,6 +292,7 @@ const Staff = () => {
     { key: "employeeCode", header: "Employee ID" },
     { key: "phone_number", header: "Staff Phone Number" },
     { key: "designation", header: "Designation" },
+    { key: "agent_type", header: "Staff Type"},
     { key: "password", header: "Staff Password" },
     { key: "action", header: "Action" },
   ];
@@ -316,6 +325,7 @@ const Staff = () => {
         adhaar_no: response?.data?.adhaar_no,
         pan_no: response?.data?.pan_no,
         address: response?.data?.address,
+        agent_type: response?.data?.agent_type,
       });
       setSelectedManagerId(response.data.designation_id?._id || "");
       setSelectedReportingManagerId(response.data.reporting_manager_id || "");
@@ -341,6 +351,7 @@ const Staff = () => {
         await api.delete(`/agent/delete-agent/${currentUser._id}`);
         setShowModalDelete(false);
         setCurrentUser(null);
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Agent deleted successfully",
@@ -368,7 +379,8 @@ const Staff = () => {
         );
         setShowModalUpdate(false);
         setSelectedManagerId("");
-        setSelectedReportingManagerId("")
+        setSelectedReportingManagerId("");
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Agent Updated Successfully",
@@ -407,7 +419,7 @@ const Staff = () => {
       }
     };
     fetchManagers();
-  }, []);
+  }, [reloadTrigger]);
 
   const handleManager = async (event) => {
     const groupId = event.target.value;
@@ -430,11 +442,14 @@ const Staff = () => {
             visibility={true}
           />
           <Sidebar />
-          <CustomAlert
-            type={alertConfig.type}
-            isVisible={alertConfig.visibility}
-            message={alertConfig.message}
-          />
+          <CustomAlertDialog
+          type={alertConfig.type}
+          isVisible={alertConfig.visibility}
+          message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
+        />
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
@@ -451,7 +466,7 @@ const Staff = () => {
                 </button>
               </div>
             </div>
-            {TableAgents?.length > 0 ? (
+            {(TableAgents?.length > 0 && !isLoading) ? (
               <DataTable
                 updateHandler={handleUpdateModalOpen}
                 data={filterOption(TableAgents, searchText)}
@@ -697,6 +712,9 @@ const Staff = () => {
                           <option value="agent">Agent</option>
                           <option value="employee">Employee</option>
                         </select>
+                        {errors.agent_type && (
+                  <p className="mt-2 text-sm text-red-600">{errors.agent_type}</p>
+                )}
                 
               </div>
               
@@ -977,8 +995,12 @@ const Staff = () => {
                           <option value="agent">Agent</option>
                           <option value="employee">Employee</option>
                         </select>
+                         {errors.agent_type && (
+                  <p className="mt-2 text-sm text-red-600">{errors.agent_type}</p>
+                )}
                 
               </div>
+              
               <div className="w-full flex justify-end">
                 <button
                   type="submit"

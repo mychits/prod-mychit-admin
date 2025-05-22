@@ -6,16 +6,17 @@ import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
 import { Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
-import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
+
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
+
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 const Employee = () => {
   const [users, setUsers] = useState([]);
-  const [TableAgents, setTableAgents] = useState([]);
+  const [TableEmployees, setTableEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState(false);
@@ -28,6 +29,7 @@ const Employee = () => {
   const [selectedReportingManagerId, setSelectedReportingManagerId] = useState("");
   const [managers, setManagers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -174,12 +176,12 @@ const Employee = () => {
         });
         setSelectedManagerId("");
         setSelectedReportingManagerId("")
-        console.log("success")
-        // setAlertConfig({
-        //   visibility: true,
-        //   message: "Agent Added Successfully",
-        //   type: "success",
-        // });
+        setReloadTrigger((prev) => prev + 1);
+        setAlertConfig({
+          visibility: true,
+          message: "Agent Added Successfully",
+          type: "success",
+        });
       }
     } catch (error) {
       console.error("Error adding agent:", error);
@@ -213,12 +215,13 @@ const Employee = () => {
   };
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchEmployee = async () => {
       try {
         setIsLoading(true);
         const response = await api.get("/agent/get-employee");
-        setUsers(response.data);
-        const formattedData = response?.data?.users?.map((group, index) => ({
+       
+        setUsers(response?.data?.employee);
+        const formattedData = response?.data?.employee?.map((group, index) => ({
           _id: group?._id,
           id: index + 1,
           name: group?.name,
@@ -228,12 +231,6 @@ const Employee = () => {
           designation: group?.designation_id?.title,
           action: (
             <div className="flex justify-center  gap-2">
-              {/* <button
-                onClick={() => handleUpdateModalOpen(group._id)}
-                className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-              >
-                <CiEdit color="green" />
-              </button> */}
               <Dropdown
                 menu={{
                   items: [
@@ -268,15 +265,15 @@ const Employee = () => {
             </div>
           ),
         }));
-        setTableAgents(formattedData);
+        setTableEmployees(formattedData);
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchUsers();
-  }, []);
+    fetchEmployee();
+  }, [reloadTrigger]);
 
   const columns = [
     { key: "id", header: "SL. NO" },
@@ -288,14 +285,14 @@ const Employee = () => {
     { key: "action", header: "Action" },
   ];
 
-//   const filteredUsers = users.filter((user) =>
-//     user.name.toLowerCase().includes(searchTerm.toLowerCase())
-//   );
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleDeleteModalOpen = async (userId) => {
     try {
       const response = await api.get(`/agent/get-employee-by-id/${userId}`);
-      setCurrentUser(response.data);
+      setCurrentUser(response.data?.employee);
       setShowModalDelete(true);
       setErrors({});
     } catch (error) {
@@ -306,20 +303,20 @@ const Employee = () => {
   const handleUpdateModalOpen = async (userId) => {
     try {
       const response = await api.get(`/agent/get-employee-by-id/${userId}`);
-      setCurrentUpdateUser(response.data);
+      setCurrentUpdateUser(response.data?.employee);
       setUpdateFormData({
-        name: response?.data?.name,
-        email: response?.data?.email,
-        phone_number: response?.data?.phone_number,
-        password: response?.data?.password,
-        pincode: response?.data?.pincode,
-        adhaar_no: response?.data?.adhaar_no,
-        pan_no: response?.data?.pan_no,
-        address: response?.data?.address,
+        name: response?.data?.employee?.name,
+        email: response?.data?.employee?.email,
+        phone_number: response?.data?.employee?.phone_number,
+        password: response?.data?.employee?.password,
+        pincode: response?.data?.employee?.pincode,
+        adhaar_no: response?.data?.employee?.adhaar_no,
+        pan_no: response?.data?.employee?.pan_no,
+        address: response?.data?.employee?.address,
       });
-      setSelectedManagerId(response.data.designation_id?._id || "");
-      setSelectedReportingManagerId(response.data.reporting_manager_id || "");
-      setSelectedManagerTitle(response.data?.designation_id?.title)
+      setSelectedManagerId(response.data.designation_id?.employee?._id || "");
+      setSelectedReportingManagerId(response.data.employee?.reporting_manager_id || "");
+      setSelectedManagerTitle(response.data?.designation_id?.employee?.title);
       setShowModalUpdate(true);
       setErrors({});
     } catch (error) {
@@ -341,6 +338,7 @@ const Employee = () => {
         await api.delete(`/agent/delete-employee/${currentUser._id}`);
         setShowModalDelete(false);
         setCurrentUser(null);
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Agent deleted successfully",
@@ -369,6 +367,7 @@ const Employee = () => {
         setShowModalUpdate(false);
         setSelectedManagerId("");
         setSelectedReportingManagerId("")
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Agent Updated Successfully",
@@ -407,7 +406,7 @@ const Employee = () => {
       }
     };
     fetchManagers();
-  }, []);
+  }, [reloadTrigger]);
 
   const handleManager = async (event) => {
     const groupId = event.target.value;
@@ -430,11 +429,14 @@ const Employee = () => {
             visibility={true}
           />
           <Sidebar />
-          <CustomAlert
-            type={alertConfig.type}
-            isVisible={alertConfig.visibility}
-            message={alertConfig.message}
-          />
+          <CustomAlertDialog
+          type={alertConfig.type}
+          isVisible={alertConfig.visibility}
+          message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
+        />
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
@@ -451,20 +453,20 @@ const Employee = () => {
                 </button>
               </div>
             </div>
-            {TableAgents?.length > 0 ? (
+            {(TableEmployees?.length > 0 && !isLoading) ? (
               <DataTable
                 updateHandler={handleUpdateModalOpen}
-                data={filterOption(TableAgents, searchText)}
+                data={filterOption(TableEmployees, searchText)}
                 columns={columns}
-                exportedFileName={`Employees-${TableAgents.length > 0
-                  ? TableAgents[0].name +
+                exportedFileName={`Employees-${TableEmployees.length > 0
+                  ? TableEmployees[0].name +
                   " to " +
-                  TableAgents[TableAgents.length - 1].name
+                  TableEmployees[TableEmployees.length - 1].name
                   : "empty"
                   }.csv`}
               />
             ) : (
-              <CircularLoader isLoading={isLoading} failure={TableAgents?.length <= 0} data="Employee Data" />
+              <CircularLoader isLoading={isLoading} failure={TableEmployees?.length <= 0} data="Employee Data" />
             )}
           </div>
         </div>

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import Navbar from "../components/layouts/Navbar";
-import CustomAlert from "../components/alerts/CustomAlert";
 import CircularLoader from "../components/loaders/CircularLoader";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";

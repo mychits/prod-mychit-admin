@@ -9,7 +9,7 @@ import Modal from "../components/modals/Modal";
 import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
@@ -28,6 +28,7 @@ const Agent = () => {
   const [selectedReportingManagerId, setSelectedReportingManagerId] = useState("");
   const [managers, setManagers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -174,12 +175,12 @@ const Agent = () => {
         });
         setSelectedManagerId("");
         setSelectedReportingManagerId("")
-        console.log("success")
-        // setAlertConfig({
-        //   visibility: true,
-        //   message: "Agent Added Successfully",
-        //   type: "success",
-        // });
+        setReloadTrigger((prev) => prev + 1);
+        setAlertConfig({
+          visibility: true,
+          message: "Agent Added Successfully",
+          type: "success",
+        });
       }
     } catch (error) {
       console.error("Error adding agent:", error);
@@ -213,12 +214,12 @@ const Agent = () => {
   };
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchAgents = async () => {
       try {
         setIsLoading(true);
         const response = await api.get("/agent/get");
-        setUsers(response.data);
-        const formattedData = response.data?.users?.map((group, index) => ({
+        setUsers(response?.data?.agent);
+        const formattedData = response.data?.agent?.map((group, index) => ({
           _id: group?._id,
           id: index + 1,
           name: group?.name,
@@ -275,8 +276,8 @@ const Agent = () => {
         setIsLoading(false);
       }
     };
-    fetchUsers();
-  }, []);
+    fetchAgents();
+  }, [reloadTrigger]);
 
   const columns = [
     { key: "id", header: "SL. NO" },
@@ -288,14 +289,14 @@ const Agent = () => {
     { key: "action", header: "Action" },
   ];
 
-  // const filteredUsers = users.filter((user) =>
-  //   user.name.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleDeleteModalOpen = async (userId) => {
     try {
       const response = await api.get(`/agent/get-by-id/${userId}`);
-      setCurrentUser(response.data);
+      setCurrentUser(response.data?.agent);
       setShowModalDelete(true);
       setErrors({});
     } catch (error) {
@@ -306,20 +307,20 @@ const Agent = () => {
   const handleUpdateModalOpen = async (userId) => {
     try {
       const response = await api.get(`/agent/get-by-id/${userId}`);
-      setCurrentUpdateUser(response.data);
+      setCurrentUpdateUser(response.data?.agent);
       setUpdateFormData({
-        name: response?.data?.name,
-        email: response?.data?.email,
-        phone_number: response?.data?.phone_number,
-        password: response?.data?.password,
-        pincode: response?.data?.pincode,
-        adhaar_no: response?.data?.adhaar_no,
-        pan_no: response?.data?.pan_no,
-        address: response?.data?.address,
+        name: response?.data?.agent?.name,
+        email: response?.data?.agent?.email,
+        phone_number: response?.data?.agent?.phone_number,
+        password: response?.data?.agent?.password,
+        pincode: response?.data?.agent?.pincode,
+        adhaar_no: response?.data?.agent?.adhaar_no,
+        pan_no: response?.data?.agent?.pan_no,
+        address: response?.data?.agent?.address,
       });
-      setSelectedManagerId(response.data.designation_id?._id || "");
-      setSelectedReportingManagerId(response.data.reporting_manager_id || "");
-      setSelectedManagerTitle(response.data?.designation_id?.title)
+      setSelectedManagerId(response.data.designation_id?.agent?._id || "");
+      setSelectedReportingManagerId(response.data?.agent?.reporting_manager_id || "");
+      setSelectedManagerTitle(response.data?.designation_id?.agent?.title)
       setShowModalUpdate(true);
       setErrors({});
     } catch (error) {
@@ -341,6 +342,7 @@ const Agent = () => {
         await api.delete(`/agent/delete/${currentUser._id}`);
         setShowModalDelete(false);
         setCurrentUser(null);
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Agent deleted successfully",
@@ -369,6 +371,7 @@ const Agent = () => {
         setShowModalUpdate(false);
         setSelectedManagerId("");
         setSelectedReportingManagerId("")
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Agent Updated Successfully",
@@ -407,7 +410,7 @@ const Agent = () => {
       }
     };
     fetchManagers();
-  }, []);
+  }, [reloadTrigger]);
 
   const handleManager = async (event) => {
     const groupId = event.target.value;
@@ -430,11 +433,14 @@ const Agent = () => {
             visibility={true}
           />
           <Sidebar />
-          <CustomAlert
-            type={alertConfig.type}
-            isVisible={alertConfig.visibility}
-            message={alertConfig.message}
-          />
+             <CustomAlertDialog
+          type={alertConfig.type}
+          isVisible={alertConfig.visibility}
+          message={alertConfig.message}
+          onClose={() =>
+            setAlertConfig((prev) => ({ ...prev, visibility: false }))
+          }
+        />
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
@@ -451,7 +457,7 @@ const Agent = () => {
                 </button>
               </div>
             </div>
-            {TableAgents?.length > 0 ? (
+            {(TableAgents?.length > 0 && !isLoading) ? (
               <DataTable
                 updateHandler={handleUpdateModalOpen}
                 data={filterOption(TableAgents, searchText)}

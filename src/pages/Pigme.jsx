@@ -236,7 +236,7 @@ const Pigme = () => {
       const formattedEndDate = PigmeData?.end_date?.split("T")[0];
       setCurrentUpdateCustomer(response.data);
       setUpdateFormData({
-        customer: response?.data?.customer._id,
+        customer: response?.data?.customer?._id,
         maturity_period: response?.data?.maturity_period,
         maturity_interest: response?.data?.maturity_interest,
         payable_amount: response?.data?.payable_amount,

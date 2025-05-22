@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
 import { Dropdown, Select } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
