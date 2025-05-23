@@ -56,6 +56,8 @@ const EmployeeProfile = () => {
     status: "",
     dob: "",
     gender: "",
+    alternate_number: "",
+    salary: "",
   });
 
   const [updateFormData, setUpdateFormData] = useState({
@@ -72,9 +74,11 @@ const EmployeeProfile = () => {
     status: "",
     dob: "",
     gender: "",
+    alternate_number: "",
+    salary: "",
   });
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchEmployee = async () => {
       try {
         setIsLoading(true);
@@ -135,7 +139,7 @@ const EmployeeProfile = () => {
     fetchEmployee();
   }, [reloadTrigger]);
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchManagers = async () => {
       try {
         const response = await api.get("/designation/get-designation");
@@ -170,6 +174,7 @@ const EmployeeProfile = () => {
       pincode: /^\d{6}$/,
       aadhaar: /^\d{12}$/,
       pan: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+      alternate_number: /^[6-9]\d{9}$/,
     };
 
     if (!data.name.trim()) {
@@ -187,12 +192,35 @@ const EmployeeProfile = () => {
     } else if (!regex.phone.test(data.phone_number)) {
       newErrors.phone_number = "Invalid  phone number";
     }
+    if (!data.alternate_number) {
+      newErrors.alternate_number = "Alternate Phone number is required";
+    } else if (!regex.alternate_number.test(data.alternate_number)) {
+      newErrors.alternate_number = "Invalid Alternate  phone number";
+    }
 
     if (!data.password) {
       newErrors.password = "Password is required";
     } else if (!regex.password.test(data.password)) {
       newErrors.password =
         "Password must contain at least 5 characters, one uppercase, one lowercase, one number, and one special character";
+    }
+
+    if(!data.status){
+      newErrors.status = "Status is required";
+    }
+
+    if(!data.dob){
+      newErrors.dob = "Date of Birth is required";
+    }
+
+    if(!data.joining_date){
+      newErrors.joining_date = "Joining Date is required";
+    }
+    if(!data.gender){
+      newErrors.gender = "Please Select Gender";
+    }
+    if(!data.salary){
+      newErrors.salary = "Salary is required";
     }
 
     if (!data.pincode) {
@@ -221,6 +249,7 @@ const EmployeeProfile = () => {
       newErrors.address = "Address should be at least 10 characters";
     }
 
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -237,11 +266,15 @@ const EmployeeProfile = () => {
           reporting_manager_id: selectedReportingManagerId,
         };
 
-        const response = await api.post("/agent/add-addtional-info-employee", dataToSend, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await api.post(
+          "/agent/add-addtional-info-employee",
+          dataToSend,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         setShowModal(false);
         setFormData({
@@ -257,6 +290,8 @@ const EmployeeProfile = () => {
           status: "",
           dob: "",
           gender: "",
+          alternate_number: "",
+          salary: "",
         });
         setSelectedManagerId("");
         setSelectedReportingManagerId("");
@@ -298,8 +333,6 @@ const EmployeeProfile = () => {
     }
   };
 
-
-
   const columns = [
     { key: "id", header: "SL. NO" },
     { key: "name", header: "Employee Name" },
@@ -316,7 +349,9 @@ const EmployeeProfile = () => {
 
   const handleDeleteModalOpen = async (userId) => {
     try {
-      const response = await api.get(`/agent/get-additional-info-employee-by-id/${userId}`);
+      const response = await api.get(
+        `/agent/get-additional-info-employee-by-id/${userId}`
+      );
       setCurrentUser(response.data?.employee);
       setShowModalDelete(true);
       setErrors({});
@@ -327,7 +362,9 @@ const EmployeeProfile = () => {
 
   const handleUpdateModalOpen = async (userId) => {
     try {
-      const response = await api.get(`/agent/get-additional-info-employee-by-id/${userId}`);
+      const response = await api.get(
+        `/agent/get-additional-info-employee-by-id/${userId}`
+      );
       setCurrentUpdateUser(response.data?.employee);
       setUpdateFormData({
         name: response?.data?.employee?.name,
@@ -342,6 +379,8 @@ const EmployeeProfile = () => {
         status: response?.data?.employee?.status,
         dob: response?.data?.employee?.dob?.split("T")[0],
         gender: response?.data?.employee?.gender,
+        alternate_number: response?.data?.employee?.alternate_number,
+        salary: response?.data?.employee?.salary,
       });
       setSelectedManagerId(response.data?.employee?.designation_id?._id || "");
       setSelectedReportingManagerId(
@@ -366,7 +405,9 @@ const EmployeeProfile = () => {
   const handleDeleteUser = async () => {
     if (currentUser) {
       try {
-        await api.delete(`/agent/delete-additional-info-employee-by-id/${currentUser._id}`);
+        await api.delete(
+          `/agent/delete-additional-info-employee-by-id/${currentUser._id}`
+        );
         setShowModalDelete(false);
         setCurrentUser(null);
         setReloadTrigger((prev) => prev + 1);
@@ -460,7 +501,7 @@ const EmployeeProfile = () => {
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
-                <h1 className="text-2xl font-semibold">Employees</h1>
+                <h1 className="text-2xl font-semibold">Employee Profile</h1>
                 <button
                   onClick={() => {
                     setShowModal(true);
@@ -663,11 +704,6 @@ const EmployeeProfile = () => {
                 </div>
               </div>
 
-              
-
-
-
-
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -712,34 +748,37 @@ const EmployeeProfile = () => {
                 </select>
               </div>
 
-
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="status"
                   >
-                    Status  <span className="text-red-500">*</span>
+                    Status <span className="text-red-500">*</span>
                   </label>
                   <select
-                          name="status"
-                          value={formData?.status}
-                          onChange={handleChange}
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="active">Agent</option>
-                          <option value="inactive">Employee</option>
-                          <option value="terminated">Terminated</option>
-                        </select>
-                 
+                    name="status"
+                    value={formData?.status}
+                    onChange={handleChange}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  >
+                    <option value="">Select Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="terminated">Terminated</option>
+                  </select>
+                  {errors.status && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.status}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="joiningdate"
                   >
-                    Phone Number <span className="text-red-500">*</span>
+                    Joining Date <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -748,10 +787,13 @@ const EmployeeProfile = () => {
                     onChange={handleChange}
                     id="joiningdate"
                     placeholder="Enter Employee Joining Date"
-              
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                 
+                  {errors.joining_date && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.joining_date}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -760,7 +802,7 @@ const EmployeeProfile = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="dob"
                   >
-                    Date of Birth  <span className="text-red-500">*</span>
+                    Date of Birth <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -769,10 +811,13 @@ const EmployeeProfile = () => {
                     onChange={handleChange}
                     id="dob"
                     placeholder="Enter Employee Date of Birth"
-                    
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                 
+                  {errors.dob && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.dob}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -781,28 +826,72 @@ const EmployeeProfile = () => {
                   >
                     Gender <span className="text-red-500">*</span>
                   </label>
-                   <select
-                          name="gender"
-                          value={formData?.gender}
-                          onChange={handleChange}
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                        >
-                          <option value="">Select Gender</option>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
-                          
-                        </select>
-                 
+                  <select
+                    name="gender"
+                    value={formData?.gender}
+                    onChange={handleChange}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                  {errors.gender && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.gender}
+                    </p>
+                  )}
                 </div>
-                  
+              </div>
+
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="sal"
+                  >
+                    Salary <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="salary"
+                    value={formData.salary}
+                    onChange={handleChange}
+                    id="sal"
+                    placeholder="Enter Your Salary"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                  {errors.salary && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.salary}
+                    </p>
+                  )}
                 </div>
-
-              
-              
-
-
-
-
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="alternate"
+                  >
+                    Alternate Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="alternate_number"
+                    value={formData.alternate_number}
+                    onChange={handleChange}
+                    id="alternate"
+                    placeholder="Enter Alternate Phone Number"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                  {errors.alternate_number && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.alternate_number}
+                    </p>
+                  )}
+                </div>
+              </div>
 
               <div className="w-full flex justify-end">
                 <button
@@ -1067,27 +1156,30 @@ const EmployeeProfile = () => {
                 </div>
               )}
 
-
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="status"
                   >
-                    Status  <span className="text-red-500">*</span>
+                    Status <span className="text-red-500">*</span>
                   </label>
                   <select
-                          name="status"
-                          value={updateFormData?.status}
-                          onChange={handleInputChange}
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="active">Agent</option>
-                          <option value="inactive">Employee</option>
-                          <option value="terminated">Terminated</option>
-                        </select>
-                 
+                    name="status"
+                    value={updateFormData?.status}
+                    onChange={handleInputChange}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  >
+                    <option value="">Select Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="terminated">Terminated</option>
+                  </select>
+                  {errors.status && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.status}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1103,10 +1195,13 @@ const EmployeeProfile = () => {
                     onChange={handleInputChange}
                     id="joiningdate"
                     placeholder="Enter Employee Joining Date"
-              
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                 
+                  {errors.joining_date && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.joining_date}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1115,22 +1210,28 @@ const EmployeeProfile = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="doB"
                   >
-                    Date of Birth  <span className="text-red-500">*</span>
+                    Date of Birth <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
                     name="dob"
-                    value={updateFormData?.dob? new Date(updateFormData?.dob || "")
+                    value={
+                      updateFormData?.dob
+                        ? new Date(updateFormData?.dob || "")
                             .toISOString()
                             .split("T")[0]
-                        : ""}
+                        : ""
+                    }
                     onChange={handleInputChange}
                     id="doB"
                     placeholder="Enter Employee Date of Birth"
-                    
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
-                 
+                  {errors.dob && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.dob}
+                    </p>
+                  )}
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1139,21 +1240,72 @@ const EmployeeProfile = () => {
                   >
                     Gender <span className="text-red-500">*</span>
                   </label>
-                   <select
-                          name="gender"
-                          value={updateFormData?.gender}
-                          onChange={handleInputChange}
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                        >
-                          <option value="">Select Gender</option>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
-                          
-                        </select>
-                 
+                  <select
+                    name="gender"
+                    value={updateFormData?.gender}
+                    onChange={handleInputChange}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                  {errors.gender && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.gender}
+                    </p>
+                  )}
                 </div>
-                  
+              </div>
+
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="sal"
+                  >
+                    Salary <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="salary"
+                    value={updateFormData.salary}
+                    onChange={handleInputChange}
+                    id="sal"
+                    placeholder="Enter Your Salary"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                  {errors.salary && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.salary}
+                    </p>
+                  )}
                 </div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="alternate"
+                  >
+                    Alternate Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="alternate_number"
+                    value={updateFormData.alternate_number}
+                    onChange={handleInputChange}
+                    id="alternate"
+                    placeholder="Enter Alternate Phone Number"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                  {errors.alternate_number && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.alternate_number}
+                    </p>
+                  )}
+                </div>
+              </div>
 
               <div className="w-full flex justify-end">
                 <button
