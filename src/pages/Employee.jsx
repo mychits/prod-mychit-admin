@@ -314,9 +314,9 @@ const Employee = () => {
         pan_no: response?.data?.employee?.pan_no,
         address: response?.data?.employee?.address,
       });
-      setSelectedManagerId(response.data.designation_id?.employee?._id || "");
-      setSelectedReportingManagerId(response.data.employee?.reporting_manager_id || "");
-      setSelectedManagerTitle(response.data?.designation_id?.employee?.title);
+      setSelectedManagerId(response.data?.employee?.designation_id?._id || "");
+      setSelectedReportingManagerId(response.data?.employee?.employee?.reporting_manager_id || "");
+      setSelectedManagerTitle(response.data?.employee?.designation_id?.employee?.title);
       setShowModalUpdate(true);
       setErrors({});
     } catch (error) {

@@ -6,16 +6,15 @@ import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
 import { Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
-import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
-const Agent = () => {
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+const EmployeeProfile = () => {
   const [users, setUsers] = useState([]);
-  const [TableAgents, setTableAgents] = useState([]);
+  const [TableEmployees, setTableEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState(false);
@@ -25,7 +24,8 @@ const Agent = () => {
   const [errors, setErrors] = useState({});
   const [searchText, setSearchText] = useState("");
   const [selectedManagerId, setSelectedManagerId] = useState("");
-  const [selectedReportingManagerId, setSelectedReportingManagerId] = useState("");
+  const [selectedReportingManagerId, setSelectedReportingManagerId] =
+    useState("");
   const [managers, setManagers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [reloadTrigger, setReloadTrigger] = useState(0);
@@ -49,9 +49,13 @@ const Agent = () => {
     address: "",
     pincode: "",
     adhaar_no: "",
-    designation_id:"",
+    designation_id: "",
     pan_no: "",
-    agent_type: "agent"
+    agent_type: "employee",
+    joining_date: "",
+    status: "",
+    dob: "",
+    gender: "",
   });
 
   const [updateFormData, setUpdateFormData] = useState({
@@ -62,8 +66,12 @@ const Agent = () => {
     address: "",
     pincode: "",
     adhaar_no: "",
-    designation_id:"",
+    designation_id: "",
     pan_no: "",
+    joining_date: "",
+    status: "",
+    dob: "",
+    gender: "",
   });
 
   const handleChange = (e) => {
@@ -153,10 +161,10 @@ const Agent = () => {
         const dataToSend = {
           ...formData,
           designation_id: selectedManagerId,
-          reporting_manager_id: selectedReportingManagerId
+          reporting_manager_id: selectedReportingManagerId,
         };
-        
-        const response = await api.post("/agent/add", dataToSend, {
+
+        const response = await api.post("/agent/add-addtional-info-employee", dataToSend, {
           headers: {
             "Content-Type": "application/json",
           },
@@ -172,9 +180,13 @@ const Agent = () => {
           pincode: "",
           adhaar_no: "",
           pan_no: "",
+          joining_date: "",
+          status: "",
+          dob: "",
+          gender: "",
         });
         setSelectedManagerId("");
-        setSelectedReportingManagerId("")
+        setSelectedReportingManagerId("");
         setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
@@ -189,37 +201,38 @@ const Agent = () => {
         error.response.data &&
         error.response.data.message
       ) {
-       const errMsg = error.response.data.message.toLowerCase();
+        const errMsg = error.response.data.message.toLowerCase();
 
-      if (errMsg.includes("phone number")) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          phone_number: "Phone number already exists",
-        }));
+        if (errMsg.includes("phone number")) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            phone_number: "Phone number already exists",
+          }));
+        } else {
+          setAlertConfig({
+            visibility: true,
+            message: error.response.data.message,
+            type: "error",
+          });
+        }
       } else {
         setAlertConfig({
           visibility: true,
-          message: error.response.data.message,
+          message: "An unexpected error occurred. Please try again.",
           type: "error",
         });
       }
-    } else {
-      setAlertConfig({
-        visibility: true,
-        message: "An unexpected error occurred. Please try again.",
-        type: "error",
-      });
-    }
     }
   };
 
   useEffect(() => {
-    const fetchAgents = async () => {
+    const fetchEmployee = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get("/agent/get");
-        setUsers(response?.data?.agent);
-        const formattedData = response.data?.agent?.map((group, index) => ({
+        const response = await api.get("/agent/get-additional-info-employee");
+
+        setUsers(response?.data?.employee);
+        const formattedData = response?.data?.employee?.map((group, index) => ({
           _id: group?._id,
           id: index + 1,
           name: group?.name,
@@ -229,12 +242,6 @@ const Agent = () => {
           designation: group?.designation_id?.title,
           action: (
             <div className="flex justify-center  gap-2">
-              {/* <button
-                onClick={() => handleUpdateModalOpen(group._id)}
-                className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-              >
-                <CiEdit color="green" />
-              </button> */}
               <Dropdown
                 menu={{
                   items: [
@@ -269,23 +276,23 @@ const Agent = () => {
             </div>
           ),
         }));
-        setTableAgents(formattedData);
+        setTableEmployees(formattedData);
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchAgents();
+    fetchEmployee();
   }, [reloadTrigger]);
 
   const columns = [
     { key: "id", header: "SL. NO" },
-    { key: "name", header: "Agent Name" },
+    { key: "name", header: "Employee Name" },
     { key: "employeeCode", header: "Employee ID" },
-    { key: "phone_number", header: "Agent Phone Number" },
+    { key: "phone_number", header: "Employee Phone Number" },
     { key: "designation", header: "Designation" },
-    { key: "password", header: "Agent Password" },
+    { key: "password", header: "Employee Password" },
     { key: "action", header: "Action" },
   ];
 
@@ -295,8 +302,8 @@ const Agent = () => {
 
   const handleDeleteModalOpen = async (userId) => {
     try {
-      const response = await api.get(`/agent/get-by-id/${userId}`);
-      setCurrentUser(response.data?.agent);
+      const response = await api.get(`/agent/get-additional-info-employee-by-id/${userId}`);
+      setCurrentUser(response.data?.employee);
       setShowModalDelete(true);
       setErrors({});
     } catch (error) {
@@ -306,21 +313,27 @@ const Agent = () => {
 
   const handleUpdateModalOpen = async (userId) => {
     try {
-      const response = await api.get(`/agent/get-by-id/${userId}`);
-      setCurrentUpdateUser(response.data?.agent);
+      const response = await api.get(`/agent/get-additional-info-employee-by-id/${userId}`);
+      setCurrentUpdateUser(response.data?.employee);
       setUpdateFormData({
-        name: response?.data?.agent?.name,
-        email: response?.data?.agent?.email,
-        phone_number: response?.data?.agent?.phone_number,
-        password: response?.data?.agent?.password,
-        pincode: response?.data?.agent?.pincode,
-        adhaar_no: response?.data?.agent?.adhaar_no,
-        pan_no: response?.data?.agent?.pan_no,
-        address: response?.data?.agent?.address,
+        name: response?.data?.employee?.name,
+        email: response?.data?.employee?.email,
+        phone_number: response?.data?.employee?.phone_number,
+        password: response?.data?.employee?.password,
+        pincode: response?.data?.employee?.pincode,
+        adhaar_no: response?.data?.employee?.adhaar_no,
+        pan_no: response?.data?.employee?.pan_no,
+        address: response?.data?.employee?.address,
+        joining_date: response?.data?.employee?.joining_date?.split("T")[0],
+        status: response?.data?.employee?.status,
+        dob: response?.data?.employee?.dob?.split("T")[0],
+        gender: response?.data?.employee?.gender,
       });
-      setSelectedManagerId(response.data?.agent?.designation_id?._id || "");
-      setSelectedReportingManagerId(response.data?.agent?.reporting_manager_id || "");
-      setSelectedManagerTitle(response.data?.agent?.designation_id?.title)
+      setSelectedManagerId(response.data?.employee?.designation_id?._id || "");
+      setSelectedReportingManagerId(
+        response.data?.employee?.reporting_manager_id || ""
+      );
+      setSelectedManagerTitle(response.data?.employee?.designation_id?.title);
       setShowModalUpdate(true);
       setErrors({});
     } catch (error) {
@@ -339,7 +352,7 @@ const Agent = () => {
   const handleDeleteUser = async () => {
     if (currentUser) {
       try {
-        await api.delete(`/agent/delete/${currentUser._id}`);
+        await api.delete(`/agent/delete-additional-info-employee-by-id/${currentUser._id}`);
         setShowModalDelete(false);
         setCurrentUser(null);
         setReloadTrigger((prev) => prev + 1);
@@ -362,15 +375,15 @@ const Agent = () => {
         const dataToSend = {
           ...updateFormData,
           designation_id: selectedManagerId,
-          reporting_manager_id: selectedReportingManagerId
+          reporting_manager_id: selectedReportingManagerId,
         };
         const response = await api.put(
-          `/agent/update/${currentUpdateUser._id}`,
+          `/agent/update-additional-info-employee/${currentUpdateUser._id}`,
           dataToSend
         );
         setShowModalUpdate(false);
         setSelectedManagerId("");
-        setSelectedReportingManagerId("")
+        setSelectedReportingManagerId("");
         setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
@@ -433,19 +446,19 @@ const Agent = () => {
             visibility={true}
           />
           <Sidebar />
-             <CustomAlertDialog
-          type={alertConfig.type}
-          isVisible={alertConfig.visibility}
-          message={alertConfig.message}
-          onClose={() =>
-            setAlertConfig((prev) => ({ ...prev, visibility: false }))
-          }
-        />
+          <CustomAlertDialog
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+            onClose={() =>
+              setAlertConfig((prev) => ({ ...prev, visibility: false }))
+            }
+          />
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
-                <h1 className="text-2xl font-semibold">Agents</h1>
+                <h1 className="text-2xl font-semibold">Employees</h1>
                 <button
                   onClick={() => {
                     setShowModal(true);
@@ -453,24 +466,29 @@ const Agent = () => {
                   }}
                   className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
-                  + Add Agent
+                  + Add Employee
                 </button>
               </div>
             </div>
-            {(TableAgents?.length > 0 && !isLoading) ? (
+            {TableEmployees?.length > 0 && !isLoading ? (
               <DataTable
                 updateHandler={handleUpdateModalOpen}
-                data={filterOption(TableAgents, searchText)}
+                data={filterOption(TableEmployees, searchText)}
                 columns={columns}
-                exportedFileName={`Employees-${TableAgents.length > 0
-                  ? TableAgents[0].name +
-                  " to " +
-                  TableAgents[TableAgents.length - 1].name
-                  : "empty"
-                  }.csv`}
+                exportedFileName={`Employees-${
+                  TableEmployees.length > 0
+                    ? TableEmployees[0].name +
+                      " to " +
+                      TableEmployees[TableEmployees.length - 1].name
+                    : "empty"
+                }.csv`}
               />
             ) : (
-              <CircularLoader isLoading={isLoading} failure={TableAgents?.length <= 0} data="Employee Data" />
+              <CircularLoader
+                isLoading={isLoading}
+                failure={TableEmployees?.length <= 0}
+                data="Employee Data"
+              />
             )}
           </div>
         </div>
@@ -478,7 +496,7 @@ const Agent = () => {
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Add Agent
+              Add Employee
             </h3>
             <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               <div>
@@ -508,7 +526,7 @@ const Agent = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Email  <span className="text-red-500">*</span>
+                    Email <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -642,6 +660,12 @@ const Agent = () => {
                   )}
                 </div>
               </div>
+
+              
+
+
+
+
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -684,16 +708,107 @@ const Agent = () => {
                     </option>
                   ))}
                 </select>
-              
               </div>
+
+
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="status"
+                  >
+                    Status  <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                          name="status"
+                          value={formData?.status}
+                          onChange={handleChange}
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                        >
+                          <option value="">Select Status</option>
+                          <option value="active">Agent</option>
+                          <option value="inactive">Employee</option>
+                          <option value="terminated">Terminated</option>
+                        </select>
+                 
+                </div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="joiningdate"
+                  >
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="joining_date"
+                    value={formData.joining_date}
+                    onChange={handleChange}
+                    id="joiningdate"
+                    placeholder="Enter Employee Joining Date"
               
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                 
+                </div>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="dob"
+                  >
+                    Date of Birth  <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="dob"
+                    value={formData.dob}
+                    onChange={handleChange}
+                    id="dob"
+                    placeholder="Enter Employee Date of Birth"
+                    
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                 
+                </div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="gender"
+                  >
+                    Gender <span className="text-red-500">*</span>
+                  </label>
+                   <select
+                          name="gender"
+                          value={formData?.gender}
+                          onChange={handleChange}
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                        >
+                          <option value="">Select Gender</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          
+                        </select>
+                 
+                </div>
+                  
+                </div>
+
+              
+              
+
+
+
+
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
                   className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
                 >
-                  Save Agent
+                  Save Employee
                 </button>
               </div>
             </form>
@@ -706,7 +821,7 @@ const Agent = () => {
         >
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Update Agent
+              Update Employee
             </h3>
             <form className="space-y-6" onSubmit={handleUpdate} noValidate>
               <div>
@@ -777,7 +892,7 @@ const Agent = () => {
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
-              <div className="w-full">
+                <div className="w-full">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
@@ -913,46 +1028,138 @@ const Agent = () => {
                   ))}
                 </select>
                 {errors.designation_id && (
-                  <p className="mt-2 text-sm text-red-600">{errors.designation_id}</p>
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.designation_id}
+                  </p>
                 )}
               </div>
               {(selectedManagerTitle === "Sales Excecutive" ||
                 selectedManagerTitle === "Business Agent" ||
-                selectedManagerTitle === "Office Executive")
-                && (
-                  <div className="w-full">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="category"
-                    >
-                      Reporting Manager
-                    </label>
-                    <select
-                      value={selectedReportingManagerId}
-                      onChange={handleReportingManager}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    >
-                      <option value="" hidden>
-                        Select Reporting Manager
+                selectedManagerTitle === "Office Executive") && (
+                <div className="w-full">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="category"
+                  >
+                    Reporting Manager
+                  </label>
+                  <select
+                    value={selectedReportingManagerId}
+                    onChange={handleReportingManager}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  >
+                    <option value="" hidden>
+                      Select Reporting Manager
+                    </option>
+                    {users.map((group) => (
+                      <option key={group._id} value={group._id}>
+                        {group.name} - {group?.designation_id?.title}
                       </option>
-                      {users.map((group) => (
-                        <option key={group._id} value={group._id}>
-                          {group.name} - {group?.designation_id?.title}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.reporting_manager && (
-                      <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
-                    )}
-                  </div>
-                )}
+                    ))}
+                  </select>
+                  {errors.reporting_manager && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.reporting_manager}
+                    </p>
+                  )}
+                </div>
+              )}
+
+
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="status"
+                  >
+                    Status  <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                          name="status"
+                          value={updateFormData?.status}
+                          onChange={handleInputChange}
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                        >
+                          <option value="">Select Status</option>
+                          <option value="active">Agent</option>
+                          <option value="inactive">Employee</option>
+                          <option value="terminated">Terminated</option>
+                        </select>
+                 
+                </div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="joiningdate"
+                  >
+                    Joining Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="joining_date"
+                    value={updateFormData.joining_date}
+                    onChange={handleInputChange}
+                    id="joiningdate"
+                    placeholder="Enter Employee Joining Date"
+              
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                 
+                </div>
+              </div>
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="doB"
+                  >
+                    Date of Birth  <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="dob"
+                    value={updateFormData?.dob? new Date(updateFormData?.dob || "")
+                            .toISOString()
+                            .split("T")[0]
+                        : ""}
+                    onChange={handleInputChange}
+                    id="doB"
+                    placeholder="Enter Employee Date of Birth"
+                    
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                 
+                </div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="gender"
+                  >
+                    Gender <span className="text-red-500">*</span>
+                  </label>
+                   <select
+                          name="gender"
+                          value={updateFormData?.gender}
+                          onChange={handleInputChange}
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                        >
+                          <option value="">Select Gender</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          
+                        </select>
+                 
+                </div>
+                  
+                </div>
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
                   className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 >
-                  Update Agent
+                  Update Employee
                 </button>
               </div>
             </form>
@@ -968,7 +1175,7 @@ const Agent = () => {
         >
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Delete Agent
+              Delete Employee
             </h3>
             {currentUser && (
               <form
@@ -987,7 +1194,8 @@ const Agent = () => {
                     <span className="text-primary font-bold">
                       {currentUser.name}
                     </span>{" "}
-                    to confirm deletion. <span className="text-red-500 ">*</span>
+                    to confirm deletion.{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
@@ -1013,4 +1221,4 @@ const Agent = () => {
   );
 };
 
-export default Agent;
+export default EmployeeProfile;

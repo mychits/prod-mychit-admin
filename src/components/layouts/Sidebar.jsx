@@ -31,6 +31,8 @@ import { MdOutlineGroups } from "react-icons/md";
 import { FaFilter } from "react-icons/fa";
 import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 import { FaUserTie } from "react-icons/fa6";
+import { FaPersonMilitaryPointing } from "react-icons/fa6"
+import { GiRoundTable } from "react-icons/gi";
 
 const MenuSidebar = [
   {
@@ -74,7 +76,7 @@ const MenuSidebar = [
   {
     id: ids.seven,
     title: "Staff",
-    icon: <FaUserLock />,
+    icon: <GiRoundTable />,
     submenu: true,
     submenuItems: [
       {
@@ -86,7 +88,7 @@ const MenuSidebar = [
       {
         id: "$102",
         title: "Agent",
-        icon: <RiTeamFill size={20} />,
+        icon: <FaPersonMilitaryPointing size={20} />,
         link: "/agent",
       },
       {
@@ -165,7 +167,7 @@ const MenuSidebar = [
         ],
       },
       {
-        id: "*2",
+        id: "#2",
         title: "Groups",
         icon: <MdOutlineGroups size="25" />,
         hider: true,
@@ -179,6 +181,13 @@ const MenuSidebar = [
             link: "/filter-groups",
           },
         ],
+      },
+      {
+        id: "#3",
+        title:"Employee Profile",
+        hider: true,
+        icon: <FaUserTie size={18} />,
+        link: "/employee-profile",
       },
     ],
   },
@@ -230,15 +239,6 @@ const Sidebar = () => {
   const [submenuOpenIndex, setSubmenuOpenIndex] = useState(null);
   const [hider, setHider] = useState(true);
 
-  // const toggleSubMenu = (index) => {
-
-  //   if (submenuOpenIndex === index) {
-  //     setSubmenuOpenIndex(null);
-  //   } else {
-  //     setSubmenuOpenIndex(index);
-  //   }
-
-  // };
 
   const [nestedSubmenuOpenIndex, setNestedSubmenuOpenIndex] = useState({});
 

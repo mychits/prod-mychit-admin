@@ -38,7 +38,6 @@ import Pigme from "./pages/Pigme";
 import PigmeReport from "./pages/PigmeReport";
 import LoanReport from "./pages/LoanReport";
 import EnrollmentRequestForm from "./pages/EnrollmentRequestForm";
-import EnrollmentRequest from "./pages/EnrollmentRequest";
 import Designation from "./pages/Designation";
 import AdministrativePrivileges from "./pages/AdministrativePrivileges";
 import AdminAccessRights from "./pages/AdminAccessRights";
@@ -49,6 +48,7 @@ import FilterGroups from "./pages/FilterGroups";
 import CommissionReport from "./pages/CommissionReport";
 import Staff from "./pages/Staff";
 import Employee from "./pages/Employee";
+import EmployeeProfile from "./pages/EmployeeProfile"
 function App() {
   return (
     <>
@@ -167,6 +167,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CollectionArea />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employee-profile"
+              element={
+                <ProtectedRoute>
+                  <EmployeeProfile />
                 </ProtectedRoute>
               }
             />
