@@ -36,10 +36,10 @@ const Daybook = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [receiptNo, setReceiptNo] = useState("");
   const [paymentMode, setPaymentMode] = useState("cash");
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  });
+  const today = new Date();
+  const todayString = today.toISOString().split("T")[0]
+  const [selectedDate, setSelectedDate] = useState(todayString);
+  const [showFilterField,setShowFilterField] = useState(false)
   const [isLoading,setIsLoading] = useState(false);
   const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
   const [selectedCustomers, setSelectedCustomers] = useState("");
@@ -114,24 +114,22 @@ const Daybook = () => {
     }));
   };
 
-  // const handleGroupChange = async (groupId) => {
-  //     setSelectedGroup(groupId);
-  //     if (groupId) {
-  //         try {
-  //             const response = await api.get(`/enroll/get-group-enroll/${groupId}`);
-  //             if (response.data && response.data.length > 0) {
-  //                 setFilteredUsers(response.data);
-  //             } else {
-  //                 setFilteredUsers([]);
-  //             }
-  //         } catch (error) {
-  //             console.error("Error fetching enrollment data:", error);
-  //             setFilteredUsers([]);
-  //         }
-  //     } else {
-  //         setFilteredUsers([]);
-  //     }
-  // };
+  const handleSelectFilter = (e) => {
+    const { value } = e.target;
+    setShowFilterField(false);
+    const formatDate = (date) => date.toISOString().slice(0, 10);
+    if (value === "Today") {
+      const formattedToday = formatDate(today);
+      setSelectedDate(formattedToday);
+    } else if (value === "Yesterday") {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const formatted = formatDate(yesterday);
+      setSelectedDate(formatted);
+    }else if (value === "Custom") {
+      setShowFilterField(true);
+    }
+  };
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -172,30 +170,7 @@ const Daybook = () => {
     setSelectedAuctionGroupId(groupId);
   };
 
-  // const handleGroupPaymentChange = async (groupId) => {
-  //     setSelectedAuctionGroup(groupId);
-  //     if (groupId) {
-  //         try {
-  //             // Include selectedDate in the query parameters
-  //             const response = await api.get(
-  //                 `/payment/get-group-payment/${groupId}`,
-  //                 {
-  //                     params: { pay_date: selectedDate }, // Send selectedDate as a query parameter
-  //                 }
-  //             );
-  //             if (response.data && response.data.length > 0) {
-  //                 setFilteredAuction(response.data);
-  //             } else {
-  //                 setFilteredAuction([]);
-  //             }
-  //         } catch (error) {
-  //             console.error("Error fetching payment data:", error);
-  //             setFilteredAuction([]);
-  //         }
-  //     } else {
-  //         setFilteredAuction([]);
-  //     }
-  // };
+
 
   useEffect(() => {
     const fetchPayments = async () => {
@@ -408,7 +383,21 @@ const Daybook = () => {
             <div className="mt-6 mb-8">
               <div className="mb-2">
                 <div className="flex justify-start items-center w-full gap-4">
-                  <div className="mb-2">
+                    <div className="mb-2">
+                    <label>Filter Option</label>
+                    <select
+                      onChange={handleSelectFilter}
+                      className="border border-gray-300 rounded px-6 shadow-sm outline-none w-full max-w-md"
+                    >
+                      <option value="Today">Today</option>
+                      <option value="Yesterday">Yesterday</option>
+                    
+                      <option value="Custom">Custom</option>
+                    </select>
+                  </div>
+                  
+                 { showFilterField &&<div className="mb-2">
+                    
                     <label>Date</label>
                     <input
                       type="date"
@@ -416,7 +405,7 @@ const Daybook = () => {
                       onChange={(e) => setSelectedDate(e.target.value)}
                       className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
                     />
-                  </div>
+                  </div>}
                   <div className="mb-2 flex flex-col">
                     <label>Group</label>
                     <Select

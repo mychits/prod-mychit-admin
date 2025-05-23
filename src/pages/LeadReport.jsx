@@ -22,10 +22,13 @@ const LeadReport = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [loader, setLoader] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState("");
+
   const [leads, setLeads] = useState([]);
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [errors, setErrors] = useState({});
+  const [showFilterField,setShowFilterField] = useState(false);
+  const now = new Date();
   const [searchText, setSearchText] = useState("");
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
@@ -217,10 +220,7 @@ const LeadReport = () => {
   const handleUpdateModalOpen = async (groupId) => {
     try {
       const response = await api.get(`/lead/get-lead-by-id/${groupId}`);
-      console.log("The response data is ", response.data);
       const groupData = response.data;
-      //const formattedStartDate = groupData.start_date.split("T")[0];
-      //  const formattedEndDate = groupData.end_date.split("T")[0];
       setCurrentUpdateGroup(response.data);
       setUpdateFormData({
         lead_name: response.data.lead_name,
@@ -396,8 +396,11 @@ const LeadReport = () => {
         }));
         setTableGroups(formattedData);
       } catch (err) {
+        setTableGroups([])
         console.error("Failed to fetch Data", err.message);
-        setLoader(true);
+        
+      }finally{
+        setLoader(false);
       }
     };
 
@@ -409,7 +412,47 @@ const LeadReport = () => {
     selectedGroup,
     selectedNote,
   ]);
+  const handleSelectFilter = (e) => {
+    const { value } = e.target;
+setShowFilterField(false);
 
+const today = new Date();
+const formatDate = (date) => date.toLocaleDateString('en-CA');
+
+if (value === "Today") {
+  const formatted = formatDate(today);
+  setSelectedFromDate(formatted);
+  setSelectedToDate(formatted);
+
+} else if (value === "Yesterday") {
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const formatted = formatDate(yesterday);
+  setSelectedFromDate(formatted);
+  setSelectedToDate(formatted);
+
+} else if (value === "ThisMonth") {
+  const start = new Date(today.getFullYear(), today.getMonth(), 1);
+  const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  setSelectedFromDate(formatDate(start));
+  setSelectedToDate(formatDate(end));
+
+} else if (value === "LastMonth") {
+  const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+  const end = new Date(today.getFullYear(), today.getMonth(), 0);
+  setSelectedFromDate(formatDate(start));
+  setSelectedToDate(formatDate(end));
+
+} else if (value === "ThisYear") {
+  const start = new Date(today.getFullYear(), 0, 1);
+  const end = new Date(today.getFullYear(), 11, 31);
+  setSelectedFromDate(formatDate(start));
+  setSelectedToDate(formatDate(end));
+}else if(value === "Custom"){
+  setShowFilterField(true)
+}
+
+  };
   return (
     <div className="w-full">
       <div>
@@ -428,6 +471,22 @@ const LeadReport = () => {
             <div className="mt-6 mb-8">
               <div className="mb-2">
                 <div className="flex justify-start items-center w-full gap-4">
+                   <div className="mb-2">
+                    <label>Filter Option</label>
+                    <select
+                      onChange={handleSelectFilter}
+                      
+                      className="border border-gray-300 rounded px-6 shadow-sm outline-none w-full max-w-md"
+                    >
+                      <option value="Today">Today</option>
+                      <option value="Yesterday">Yesterday</option>
+                      <option value="ThisMonth">This Month</option>
+                      <option value="LastMonth">Last Month</option>
+                      <option value="ThisYear">This Year</option>
+                      <option value="Custom">Custom</option>
+                    </select>
+                  </div>
+                 {showFilterField && <div className="flex gap-4">
                   <div className="mb-2">
                     <label>From Date</label>
                     <input
@@ -446,6 +505,7 @@ const LeadReport = () => {
                       className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
                     />
                   </div>
+                  </div>}
                   <div className="mb-2">
                     <label>Group</label>
                     <select
@@ -476,7 +536,7 @@ const LeadReport = () => {
                           (lead) => lead?.lead_agent || lead?.lead_customer
                         )
                         .map((lead) => {
-                          console.log("this is lead", lead);
+                          
                           return (
                             <option
                               key={lead?._id}

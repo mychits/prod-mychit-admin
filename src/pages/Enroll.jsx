@@ -2,8 +2,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import api from "../instance/TokenInstance";
-import { CiEdit } from "react-icons/ci";
-import { MdDelete } from "react-icons/md";
+
 import Modal from "../components/modals/Modal";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
@@ -33,6 +32,7 @@ const Enroll = () => {
   const [allEnrollUrl, setAllEnrollUrl] = useState(true);
   const [leads, setLeads] = useState([]);
   const [agents, setAgents] = useState([]);
+  const  date=new Date().toISOString().split("T")[0]
   const whatsappEnable = true;
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
@@ -83,12 +83,12 @@ const Enroll = () => {
   useEffect(() => {
     async function fetchAllEnrollmentData() {
       setAllEnrollUrl(true);
-      let url = `/enroll/get-enroll`;
+    
+      let url = `/enroll-report/get-enroll-report?from_date=${date}&to_date=${date}`;
       try {
         setTableEnrolls([]);
         setIsDataTableLoading(true);
         const response = await api.get(url);
-        console.info(response.data, "response data");
         if (response.data && response.data.length > 0) {
           setFilteredUsers(response.data);
           const formattedData = response.data.map((group, index) => {
@@ -123,17 +123,17 @@ const Enroll = () => {
                             </div>
                           ),
                         },
-                        {
-                          key: "2",
-                          label: (
-                            <div
-                              className="text-red-600"
-                              onClick={() => handleDeleteModalOpen(group._id)}
-                            >
-                              Delete
-                            </div>
-                          ),
-                        },
+                        // {
+                        //   key: "2",
+                        //   label: (
+                        //     <div
+                        //       className="text-red-600"
+                        //       onClick={() => handleDeleteModalOpen(group._id)}
+                        //     >
+                        //       Delete
+                        //     </div>
+                        //   ),
+                        // },
                       ],
                     }}
                     placement="bottomLeft"
@@ -187,7 +187,6 @@ const Enroll = () => {
       try {
         const response = await api.get("/lead/get-lead");
         setLeads(response.data);
-        // console.info(response.data,"leads data")
       } catch (err) {
         console.error("Failed to fetch Leads", err);
       }
@@ -200,14 +199,13 @@ const Enroll = () => {
 
     if (groupId) {
       let url;
-      if (groupId === "all") {
-        url = `/enroll/get-enroll`;
+      if (groupId === "today") {
+        url = `/enroll-report/get-enroll-report?from_date=${date}&to_date=${date}`;
         setAllEnrollUrl(true);
       } else {
         url = `/enroll/get-group-enroll/${groupId}`;
         setAllEnrollUrl(false);
       }
-
       try {
         setTableEnrolls([]);
         setIsDataTableLoading(true);
@@ -245,17 +243,17 @@ const Enroll = () => {
                             </div>
                           ),
                         },
-                        {
-                          key: "2",
-                          label: (
-                            <div
-                              className="text-red-600"
-                              onClick={() => handleDeleteModalOpen(group._id)}
-                            >
-                              Delete
-                            </div>
-                          ),
-                        },
+                        // {
+                        //   key: "2",
+                        //   label: (
+                        //     <div
+                        //       className="text-red-600"
+                        //       onClick={() => handleDeleteModalOpen(group._id)}
+                        //     >
+                        //       Delete
+                        //     </div>
+                        //   ),
+                        // },
                       ],
                     }}
                     placement="bottomLeft"
@@ -532,7 +530,7 @@ const Enroll = () => {
                 <Select
                   showSearch
                   popupMatchSelectWidth={false}
-                  value={selectedGroup || "all"}
+                  value={selectedGroup || "today"}
                   filterOption={(input, option) =>
                     option.children
                       .toString()
@@ -543,8 +541,8 @@ const Enroll = () => {
                   onChange={handleGroupChange}
                   className="border   w-full max-w-md"
                 >
-                  <Select.Option key={"$1"} value={"all"}>
-                    All Customers Enrollments
+                  <Select.Option key={"$1"} value={"today"}>
+                   Today's Enrollment
                   </Select.Option>
                   {groups.map((group) => (
                     <Select.Option key={group._id} value={group._id}>

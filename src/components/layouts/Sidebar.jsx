@@ -38,7 +38,7 @@ const MenuSidebar = [
     icon: <RiDashboardFill />,
     link: "/dashboard",
   },
-  {id: "$PP", title: "Analytics", icon: <SiGoogleanalytics />, link: "/analytics" },
+  // {id: "$PP", title: "Analytics", icon: <SiGoogleanalytics />, link: "/analytics" },
   {
     id: "$2",
     title: "Groups ",

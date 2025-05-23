@@ -47,6 +47,7 @@ import CollectionArea from "./pages/CollectionArea";
 import CollectionAreaMapping from "./pages/CollectionAreaMapping";
 import FilterGroups from "./pages/FilterGroups";
 import CommissionReport from "./pages/CommissionReport";
+import EnrollmentReport from "./pages/EnrollmentReport";
 function App() {
   return (
     <>
@@ -284,6 +285,7 @@ function App() {
               <Route path="pigme-report" element={<PigmeReport />} />
               <Route path="employee-report" element={<EmployeeReport />} />
               <Route path="commission-report" element={<CommissionReport />} />
+              <Route path="enrollment-report" element={<EnrollmentReport />} />
             </Route>
 
             <Route

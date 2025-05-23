@@ -9,6 +9,7 @@ import { SlCalender } from "react-icons/sl";
 import { useEffect, useState } from "react";
 import api from "../instance/TokenInstance";
 import Navbar from "../components/layouts/Navbar";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [groups, setGroups] = useState([]);
@@ -158,8 +159,8 @@ const onGlobalSearchChangeHandler = (e)=>{
           <div className="flex-grow p-7">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 w-full">
               {cardData.map((card, index) => (
-                <a
-                  href={card.redirect}
+                <Link
+                  to={card.redirect}
                   key={index}
                   className={`group flex items-center ${card.bgColor} p-3 rounded-md shadow-sm transform transition-transform duration-300 hover:scale-105`}
                 >
@@ -178,7 +179,7 @@ const onGlobalSearchChangeHandler = (e)=>{
                       {card.count}
                     </span>
                   </div>
-                </a>
+                </Link>
               ))}
             </div>
           </div>

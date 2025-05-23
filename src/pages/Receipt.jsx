@@ -38,17 +38,14 @@ const Receipt = () => {
   const [paymentMode, setPaymentMode] = useState("cash");
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showFilterField, setShowFilterField] = useState(false);
+  const now = new Date();
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
-  const [selectedFromDate, setSelectedFromDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  });
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  });
+  const todayString =now.toISOString().split("T")[0]
+  const [selectedFromDate, setSelectedFromDate] = useState(todayString);
+  const [selectedDate, setSelectedDate] = useState(todayString);
   const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
   const [selectedCustomers, setSelectedCustomers] = useState("");
   const [payments, setPayments] = useState([]);
@@ -121,25 +118,6 @@ const Receipt = () => {
     }));
   };
 
-  // const handleGroupChange = async (groupId) => {
-  //     setSelectedGroup(groupId);
-  //     if (groupId) {
-  //         try {
-  //             const response = await api.get(`/enroll/get-group-enroll/${groupId}`);
-  //             if (response.data && response.data.length > 0) {
-  //                 setFilteredUsers(response.data);
-  //             } else {
-  //                 setFilteredUsers([]);
-  //             }
-  //         } catch (error) {
-  //             console.error("Error fetching enrollment data:", error);
-  //             setFilteredUsers([]);
-  //         }
-  //     } else {
-  //         setFilteredUsers([]);
-  //     }
-  // };
-
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -178,34 +156,49 @@ const Receipt = () => {
   const handleGroupPayment = async (event) => {
     const groupId = event.target.value;
     setSelectedAuctionGroupId(groupId);
-    // handleGroupChange(groupId);
   };
 
-  // const handleGroupPaymentChange = async (groupId) => {
-  //     setSelectedAuctionGroup(groupId);
-  //     if (groupId) {
-  //         try {
-  //             // Include selectedDate in the query parameters
-  //             const response = await api.get(
-  //                 `/payment/get-group-payment/${groupId}`,
-  //                 {
-  //                     params: { pay_date: selectedDate }, // Send selectedDate as a query parameter
-  //                 }
-  //             );
-  //             if (response.data && response.data.length > 0) {
-  //                 setFilteredAuction(response.data);
-  //             } else {
-  //                 setFilteredAuction([]);
-  //             }
-  //         } catch (error) {
-  //             console.error("Error fetching payment data:", error);
-  //             setFilteredAuction([]);
-  //         }
-  //     } else {
-  //         setFilteredAuction([]);
-  //     }
-  // };
+  const handleSelectFilter = (e) => {
+    const { value } = e.target;
+setShowFilterField(false);
 
+const today = new Date();
+const formatDate = (date) => date.toLocaleDateString('en-CA');
+
+if (value === "Today") {
+  const formatted = formatDate(today);
+  setSelectedFromDate(formatted);
+  setSelectedToDate(formatted);
+
+} else if (value === "Yesterday") {
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const formatted = formatDate(yesterday);
+  setSelectedFromDate(formatted);
+  setSelectedToDate(formatted);
+
+} else if (value === "ThisMonth") {
+  const start = new Date(today.getFullYear(), today.getMonth(), 1);
+  const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  setSelectedFromDate(formatDate(start));
+  setSelectedToDate(formatDate(end));
+
+} else if (value === "LastMonth") {
+  const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+  const end = new Date(today.getFullYear(), today.getMonth(), 0);
+  setSelectedFromDate(formatDate(start));
+  setSelectedToDate(formatDate(end));
+
+} else if (value === "ThisYear") {
+  const start = new Date(today.getFullYear(), 0, 1);
+  const end = new Date(today.getFullYear(), 11, 31);
+  setSelectedFromDate(formatDate(start));
+  setSelectedToDate(formatDate(end));
+}else if(value === "Custom"){
+  setShowFilterField(true)
+}
+
+  };
   const formatPayDate = (dateString) => {
     const date = new Date(dateString);
     const options = { day: "numeric", month: "long", year: "numeric" };
@@ -360,7 +353,6 @@ const Receipt = () => {
       const response = await api.post("/payment/add-payment", formData);
       if (response.status === 201) {
         alert("Payment Added Successfully");
-        //window.location.reload();
         setShowModal(false);
       }
     } catch (error) {
@@ -443,28 +435,46 @@ const Receipt = () => {
             message={alertConfig.message}
           />
           <div className="flex-grow p-7">
-            <h1 className="text-2xl font-semibold">Reports - Receipt</h1>
+            <h1 className="text-2xl font-bold">Reports - Receipt</h1>
             <div className="mt-6 mb-8">
               <div className="mb-2">
                 <div className="flex justify-start items-center w-full gap-4">
                   <div className="mb-2">
-                    <label>From Date</label>
-                    <input
-                      type="date"
-                      value={selectedFromDate}
-                      onChange={(e) => setSelectedFromDate(e.target.value)}
-                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
-                    />
+                    <label>Filter Option</label>
+                    <select
+                      onChange={handleSelectFilter}
+                      className="border border-gray-300 rounded px-6 shadow-sm outline-none w-full max-w-md"
+                    >
+                      <option value="Today">Today</option>
+                      <option value="Yesterday">Yesterday</option>
+                      <option value="ThisMonth">This Month</option>
+                      <option value="LastMonth">Last Month</option>
+                      <option value="ThisYear">This Year</option>
+                      <option value="Custom">Custom</option>
+                    </select>
                   </div>
-                  <div className="mb-2">
-                    <label>To Date</label>
-                    <input
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
-                    />
-                  </div>
+                  {showFilterField && (
+                    <div className="flex gap-4">
+                      <div className="mb-2">
+                        <label>From Date</label>
+                        <input
+                          type="date"
+                          value={selectedFromDate}
+                          onChange={(e) => setSelectedFromDate(e.target.value)}
+                          className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
+                        />
+                      </div>
+                      <div className="mb-2">
+                        <label>To Date</label>
+                        <input
+                          type="date"
+                          value={selectedDate}
+                          onChange={(e) => setSelectedDate(e.target.value)}
+                          className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
+                        />
+                      </div>
+                    </div>
+                  )}
                   <div className="mb-2">
                     <label>Group</label>
                     <select
@@ -528,12 +538,11 @@ const Receipt = () => {
                         : "empty"
                     }.csv`}
                   />
- <div className="flex justify-end mt-4 pr-4">
-    <span className="text-lg font-semibold">
-      Total Amount: ₹{payments}
-    </span>
-  </div>
-
+                  <div className="flex justify-end mt-4 pr-4">
+                    <span className="text-lg font-semibold">
+                      Total Amount: ₹{payments}
+                    </span>
+                  </div>
                 </div>
               ) : (
                 <div className="mt-10 text-center text-gray-500">

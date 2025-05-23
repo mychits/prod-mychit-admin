@@ -32,6 +32,7 @@ const EmployeeReport = () => {
     } catch (err) {
       console.error("Error fetching employee report:", err);
       setEmployeeCustomerData([]);
+      setCommissionTotalDetails({});
     } finally {
       setLoading(false);
     }
@@ -214,6 +215,16 @@ const EmployeeReport = () => {
                 </div>
               </div>
                <div className="flex gap-4">
+                <div className="flex flex-col flex-1">
+                  <label className="text-sm font-medium mb-1 ">
+                    Actual Commission
+                  </label>
+                  <input
+                    value={commissionTotalDetails?.total_actual || "-"}
+                    readOnly
+                    className="border border-gray-300 rounded px-4 py-2 bg-white font-bold"
+                  />
+                </div>
                 <div className="flex flex-col flex-1">
                   <label className="text-sm font-medium mb-1">
                     Total Customers
