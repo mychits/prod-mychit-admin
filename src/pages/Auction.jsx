@@ -98,12 +98,12 @@ const Auction = () => {
       newErrors.auction_type = "Auction type is required";
     }
 
-    // Customer validation
+  
     if (!formData.user_id) {
       newErrors.customer = "Customer selection is required";
     }
 
-    // Bid Amount validation
+
     if (!formData.bid_amount) {
       newErrors.bid_amount = "Bid amount is required";
     } else if (
@@ -391,7 +391,7 @@ const Auction = () => {
     }
   };
 
-  console.log(filteredAuction);
+
 
   return (
     <>

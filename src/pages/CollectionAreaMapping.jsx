@@ -61,7 +61,7 @@ const CollectionAreaMapping = () => {
       }
     };
     fetchEmployee();
-  }, []);
+  }, [reloadTrigger]);
 
   useEffect(() => {
     const fetchCollectionArea = async () => {
@@ -84,74 +84,9 @@ const CollectionAreaMapping = () => {
       }
     };
     fetchCollectionArea();
-  }, []);
+  }, [reloadTrigger]);
 
-  const handleInputSelect = (name, arr) => {
-  const values = arr.map((item) => (typeof item === "object" ? item?.value : item));
-  setUpdateCollectionAreaMapping((prev) => ({ ...prev, [name]: values }));
-};
-
- const handleSelect = (name, arr) => {
-
-  const values = arr.map((item) => (typeof item === "object" ? item?.value : item));
-  setCollectionAreaMapping((prev) => ({
-    ...prev,
-    [name]: Array.isArray(arr) ? arr : [],
-  }));
-};
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await api.post(
-        "/collection-area-mapping/add-collection-area-mapping",
-        collectionAreaMapping,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-     setReloadTrigger((prev) => prev + 1);
-        setAlertConfig({
-          visibility: true,
-          message: "Collection Area Mapping Added Successfully",
-          type: "success",
-        });
-
-      setShowModal(false);
-     
-      setCollectionAreaMapping({
-        area_ids: [],
-        agent_ids: [],
-      });
-    } catch (error) {
-      console.error("Error adding Mapping:", error);
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        setReloadTrigger((prev) => prev + 1);
-        setAlertConfig({
-          type: "error",
-          message: `${error?.response?.data?.message}`,
-          visibility: true,
-        });
-      } else {
-        setAlertConfig({
-          type: "error",
-          message: "An unexpected error occurred. Please try again.",
-          visibility: true,
-        });
-      }
-    }
-  };
-   
-
-   useEffect(() => {
+    useEffect(() => {
     const fetchCollectionAreaMapping = async () => {
       try {
         setIsLoading(true);
@@ -222,6 +157,74 @@ const CollectionAreaMapping = () => {
     };
     fetchCollectionAreaMapping();
   }, [reloadTrigger]);
+
+  const handleInputSelect = (name, arr) => {
+  const values = arr.map((item) => (typeof item === "object" ? item?.value : item));
+  setUpdateCollectionAreaMapping((prev) => ({ ...prev, [name]: values }));
+};
+
+ const handleSelect = (name, arr) => {
+
+  const values = arr.map((item) => (typeof item === "object" ? item?.value : item));
+  setCollectionAreaMapping((prev) => ({
+    ...prev,
+    [name]: Array.isArray(arr) ? arr : [],
+  }));
+};
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await api.post(
+        "/collection-area-mapping/add-collection-area-mapping",
+        collectionAreaMapping,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+     setReloadTrigger((prev) => prev + 1);
+        setAlertConfig({
+          visibility: true,
+          message: "Collection Area Mapping Added Successfully",
+          type: "success",
+        });
+
+      setShowModal(false);
+     
+      setCollectionAreaMapping({
+        area_ids: [],
+        agent_ids: [],
+      });
+    } catch (error) {
+      console.error("Error adding Mapping:", error);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setReloadTrigger((prev) => prev + 1);
+        setAlertConfig({
+          type: "error",
+          message: `${error?.response?.data?.message}`,
+          visibility: true,
+        });
+      } else {
+        setAlertConfig({
+          type: "error",
+          message: "An unexpected error occurred. Please try again.",
+          visibility: true,
+        });
+      }
+    }
+  };
+   
+
+ 
+
     const columns = [
     { key: "id", header: "SL. NO" },
     { key: "name", header: "Collection Area Name" },

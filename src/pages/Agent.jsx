@@ -6,7 +6,6 @@ import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
 import { Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
-import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
@@ -65,6 +64,85 @@ const Agent = () => {
     designation_id:"",
     pan_no: "",
   });
+
+
+   useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get("/agent/get");
+        setUsers(response?.data?.agent);
+        const formattedData = response.data?.agent?.map((group, index) => ({
+          _id: group?._id,
+          id: index + 1,
+          name: group?.name,
+          employeeCode: group?.employeeCode || "N/A",
+          phone_number: group?.phone_number,
+          password: group?.password,
+          designation: group?.designation_id?.title,
+          action: (
+            <div className="flex justify-center  gap-2">
+              {/* <button
+                onClick={() => handleUpdateModalOpen(group._id)}
+                className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
+              >
+                <CiEdit color="green" />
+              </button> */}
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(group._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(group._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
+            </div>
+          ),
+        }));
+        setTableAgents(formattedData);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAgents();
+  }, [reloadTrigger]);
+
+   useEffect(() => {
+    const fetchManagers = async () => {
+      try {
+        const response = await api.get("/designation/get-designation");
+        setManagers(response.data);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }
+    };
+    fetchManagers();
+  }, [reloadTrigger]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -213,71 +291,7 @@ const Agent = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchAgents = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get("/agent/get");
-        setUsers(response?.data?.agent);
-        const formattedData = response.data?.agent?.map((group, index) => ({
-          _id: group?._id,
-          id: index + 1,
-          name: group?.name,
-          employeeCode: group?.employeeCode || "N/A",
-          phone_number: group?.phone_number,
-          password: group?.password,
-          designation: group?.designation_id?.title,
-          action: (
-            <div className="flex justify-center  gap-2">
-              {/* <button
-                onClick={() => handleUpdateModalOpen(group._id)}
-                className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-              >
-                <CiEdit color="green" />
-              </button> */}
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: "1",
-                      label: (
-                        <div
-                          className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(group._id)}
-                        >
-                          Edit
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "2",
-                      label: (
-                        <div
-                          className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(group._id)}
-                        >
-                          Delete
-                        </div>
-                      ),
-                    },
-                  ],
-                }}
-                placement="bottomLeft"
-              >
-                <IoMdMore className="text-bold" />
-              </Dropdown>
-            </div>
-          ),
-        }));
-        setTableAgents(formattedData);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchAgents();
-  }, [reloadTrigger]);
+ 
 
   const columns = [
     { key: "id", header: "SL. NO" },
@@ -400,17 +414,7 @@ const Agent = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchManagers = async () => {
-      try {
-        const response = await api.get("/designation/get-designation");
-        setManagers(response.data);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      }
-    };
-    fetchManagers();
-  }, [reloadTrigger]);
+ 
 
   const handleManager = async (event) => {
     const groupId = event.target.value;

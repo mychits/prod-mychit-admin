@@ -65,6 +65,113 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     lead_needs: "",
     note: "",
   });
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await api.get("/group/get-group-admin");
+
+        setGroups(response.data);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }
+    };
+    fetchGroups();
+  }, [reloadTrigger]);
+
+  useEffect(() => {
+    const fetchLeads = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get("/lead/get-lead");
+        setLeads(response.data);
+        const formattedData = response.data.map((group, index) => ({
+          _id: group._id,
+          id: index + 1,
+          name: group?.lead_name,
+          phone: group?.lead_phone,
+          profession: group?.lead_profession,
+          lead_needs: group?.lead_needs,
+          group_id: group?.group_id?.group_name,
+          date: group?.createdAt.split("T")[0],
+          lead_type: group.lead_type === "agent" ? "employee" : group?.lead_type,
+          note: group?.note,
+          lead_type_name:
+            group.lead_type === "customer"
+              ? group?.lead_customer?.full_name
+              : group.lead_type === "agent"
+              ? group?.lead_agent?.name
+              : "",
+          action: (
+            <div className="flex justify-center gap-2">
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(group._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(group._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
+            </div>
+          ),
+        }));
+        setTableGroups(formattedData);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }finally {
+        setIsLoading(false);
+      }
+    };
+    fetchLeads();
+  }, [reloadTrigger]);
+
+
+
+    useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await api.get("/user/get-user");
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchUsers();
+  }, [reloadTrigger]);
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        const response = await api.get("/agent/get-agent");
+        setAgents(response.data);
+      } catch (error) {
+        console.error("Error fetching agent data:", error);
+      }
+    };
+    fetchAgents();
+  }, [reloadTrigger]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -155,87 +262,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     }
   };
 
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const response = await api.get("/group/get-group-admin");
 
-        setGroups(response.data);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      }
-    };
-    fetchGroups();
-  }, [reloadTrigger]);
-
-  useEffect(() => {
-    const fetchLeads = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get("/lead/get-lead");
-        setLeads(response.data);
-        const formattedData = response.data.map((group, index) => ({
-          _id: group._id,
-          id: index + 1,
-          name: group?.lead_name,
-          phone: group?.lead_phone,
-          profession: group?.lead_profession,
-          lead_needs: group?.lead_needs,
-          group_id: group?.group_id?.group_name,
-          date: group?.createdAt.split("T")[0],
-          lead_type: group.lead_type === "agent" ? "employee" : group?.lead_type,
-          note: group?.note,
-          lead_type_name:
-            group.lead_type === "customer"
-              ? group?.lead_customer?.full_name
-              : group.lead_type === "agent"
-              ? group?.lead_agent?.name
-              : "",
-          action: (
-            <div className="flex justify-center gap-2">
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: "1",
-                      label: (
-                        <div
-                          className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(group._id)}
-                        >
-                          Edit
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "2",
-                      label: (
-                        <div
-                          className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(group._id)}
-                        >
-                          Delete
-                        </div>
-                      ),
-                    },
-                  ],
-                }}
-                placement="bottomLeft"
-              >
-                <IoMdMore className="text-bold" />
-              </Dropdown>
-            </div>
-          ),
-        }));
-        setTableGroups(formattedData);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      }finally {
-        setIsLoading(false);
-      }
-    };
-    fetchLeads();
-  }, [reloadTrigger]);
 
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -339,29 +366,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     { key: "action", header: "Action" },
   ];
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await api.get("/user/get-user");
-        setUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-    fetchUsers();
-  }, [reloadTrigger]);
 
-  useEffect(() => {
-    const fetchAgents = async () => {
-      try {
-        const response = await api.get("/agent/get-agent");
-        setAgents(response.data);
-      } catch (error) {
-        console.error("Error fetching agent data:", error);
-      }
-    };
-    fetchAgents();
-  }, [reloadTrigger]);
 
   return (
     <>

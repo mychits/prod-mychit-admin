@@ -96,6 +96,18 @@ const Daybook = () => {
     }
   }, [receiptNo]);
 
+   useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await api.get("/user/get-user");
+        setFilteredUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }
+    };
+    fetchGroups();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -103,6 +115,8 @@ const Daybook = () => {
       [name]: value,
     }));
   };
+
+ 
 
   const handleChangeUser = (e) => {
     const { name, value } = e.target;
@@ -114,36 +128,9 @@ const Daybook = () => {
     }));
   };
 
-  // const handleGroupChange = async (groupId) => {
-  //     setSelectedGroup(groupId);
-  //     if (groupId) {
-  //         try {
-  //             const response = await api.get(`/enroll/get-group-enroll/${groupId}`);
-  //             if (response.data && response.data.length > 0) {
-  //                 setFilteredUsers(response.data);
-  //             } else {
-  //                 setFilteredUsers([]);
-  //             }
-  //         } catch (error) {
-  //             console.error("Error fetching enrollment data:", error);
-  //             setFilteredUsers([]);
-  //         }
-  //     } else {
-  //         setFilteredUsers([]);
-  //     }
-  // };
 
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const response = await api.get("/user/get-user");
-        setFilteredUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      }
-    };
-    fetchGroups();
-  }, []);
+
+  
 
   const handleGroup = async (event) => {
     const groupId = event.target.value;
@@ -172,30 +159,7 @@ const Daybook = () => {
     setSelectedAuctionGroupId(groupId);
   };
 
-  // const handleGroupPaymentChange = async (groupId) => {
-  //     setSelectedAuctionGroup(groupId);
-  //     if (groupId) {
-  //         try {
-  //             // Include selectedDate in the query parameters
-  //             const response = await api.get(
-  //                 `/payment/get-group-payment/${groupId}`,
-  //                 {
-  //                     params: { pay_date: selectedDate }, // Send selectedDate as a query parameter
-  //                 }
-  //             );
-  //             if (response.data && response.data.length > 0) {
-  //                 setFilteredAuction(response.data);
-  //             } else {
-  //                 setFilteredAuction([]);
-  //             }
-  //         } catch (error) {
-  //             console.error("Error fetching payment data:", error);
-  //             setFilteredAuction([]);
-  //         }
-  //     } else {
-  //         setFilteredAuction([]);
-  //     }
-  // };
+
 
   useEffect(() => {
     const fetchPayments = async () => {

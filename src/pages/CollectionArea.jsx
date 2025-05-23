@@ -44,74 +44,6 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     const { value } = e.target;
     setSearchText(value);
   };
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCollectionAreaData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-
-
-
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setUpdateCollectionAreaData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await api.post(
-        "/collection-area-request/add-collection-area-data",
-        collectionAreaData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setReloadTrigger((prev) => prev + 1);
-      setAlertConfig({
-        type: "success",
-        message: "Collection Area Added Successfully",
-        visibility: true,
-      });
-
-      setShowModal(false);
-
-      setCollectionAreaData({
-        route_name: "",
-        agent_id: [],
-      });
-    } catch (error) {
-      console.error("Error adding user:", error);
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        setAlertConfig({
-          type: "error",
-          message: `${error?.response?.data?.message}`,
-          visibility: true,
-        });
-      } else {
-        setAlertConfig({
-          type: "error",
-          message: "An unexpected error occurred. Please try again.",
-          visibility: true,
-        });
-      }
-    }
-  };
-
 
   useEffect(() => {
     const fetchAreaCollection = async () => {
@@ -181,6 +113,82 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     };
     fetchAreaCollection();
   }, [reloadTrigger]);
+
+
+
+
+
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setCollectionAreaData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+
+
+
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUpdateCollectionAreaData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await api.post(
+        "/collection-area-request/add-collection-area-data",
+        collectionAreaData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      setReloadTrigger((prev) => prev + 1);
+      setAlertConfig({
+        type: "success",
+        message: "Collection Area Added Successfully",
+        visibility: true,
+      });
+
+      setShowModal(false);
+
+      setCollectionAreaData({
+        route_name: "",
+        agent_id: [],
+      });
+    } catch (error) {
+      console.error("Error adding user:", error);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setAlertConfig({
+          type: "error",
+          message: `${error?.response?.data?.message}`,
+          visibility: true,
+        });
+      } else {
+        setAlertConfig({
+          type: "error",
+          message: "An unexpected error occurred. Please try again.",
+          visibility: true,
+        });
+      }
+    }
+  };
+
+
+
 
   const columns = [
     { key: "id", header: "SL. NO" },

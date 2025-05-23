@@ -67,6 +67,79 @@ const Employee = () => {
     pan_no: "",
   });
 
+    useEffect(() => {
+    const fetchEmployee = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get("/agent/get-employee");
+       
+        setUsers(response?.data?.employee);
+        const formattedData = response?.data?.employee?.map((group, index) => ({
+          _id: group?._id,
+          id: index + 1,
+          name: group?.name,
+          employeeCode: group?.employeeCode || "N/A",
+          phone_number: group?.phone_number,
+          password: group?.password,
+          designation: group?.designation_id?.title,
+          action: (
+            <div className="flex justify-center  gap-2">
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(group._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(group._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
+            </div>
+          ),
+        }));
+        setTableEmployees(formattedData);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchEmployee();
+  }, [reloadTrigger]);
+
+   useEffect(() => {
+    const fetchManagers = async () => {
+      try {
+        const response = await api.get("/designation/get-designation");
+        setManagers(response.data);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }
+    };
+    fetchManagers();
+  }, [reloadTrigger]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -214,66 +287,7 @@ const Employee = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchEmployee = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get("/agent/get-employee");
-       
-        setUsers(response?.data?.employee);
-        const formattedData = response?.data?.employee?.map((group, index) => ({
-          _id: group?._id,
-          id: index + 1,
-          name: group?.name,
-          employeeCode: group?.employeeCode || "N/A",
-          phone_number: group?.phone_number,
-          password: group?.password,
-          designation: group?.designation_id?.title,
-          action: (
-            <div className="flex justify-center  gap-2">
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: "1",
-                      label: (
-                        <div
-                          className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(group._id)}
-                        >
-                          Edit
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "2",
-                      label: (
-                        <div
-                          className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(group._id)}
-                        >
-                          Delete
-                        </div>
-                      ),
-                    },
-                  ],
-                }}
-                placement="bottomLeft"
-              >
-                <IoMdMore className="text-bold" />
-              </Dropdown>
-            </div>
-          ),
-        }));
-        setTableEmployees(formattedData);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchEmployee();
-  }, [reloadTrigger]);
+
 
   const columns = [
     { key: "id", header: "SL. NO" },
@@ -396,17 +410,7 @@ const Employee = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchManagers = async () => {
-      try {
-        const response = await api.get("/designation/get-designation");
-        setManagers(response.data);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      }
-    };
-    fetchManagers();
-  }, [reloadTrigger]);
+ 
 
   const handleManager = async (event) => {
     const groupId = event.target.value;

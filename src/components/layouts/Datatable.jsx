@@ -311,7 +311,6 @@ const DataTable = ({
                     key={`${index}-${column.key}`}
                     className="px-6 py-4"
                     onDoubleClick={() => {
-                      console.log("row", row);
                       updateHandler(row[catcher]);
                     }}
                   >

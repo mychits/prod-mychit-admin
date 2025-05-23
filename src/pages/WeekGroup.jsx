@@ -46,6 +46,26 @@ const WeekGroup = () => {
     commission: 5,
   });
 
+
+
+    useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await api.get("/group/get-group-admin");
+       
+        const filteredGroups = response.data.filter(
+          (group) => group.group_method === "week"
+        );
+
+        setGroups(filteredGroups);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }
+    };
+    fetchGroups();
+  }, []);
+
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -85,22 +105,7 @@ const WeekGroup = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const response = await api.get("/group/get-group-admin");
-       
-        const filteredGroups = response.data.filter(
-          (group) => group.group_method === "week"
-        );
 
-        setGroups(filteredGroups);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      }
-    };
-    fetchGroups();
-  }, []);
 
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())

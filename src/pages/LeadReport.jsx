@@ -67,45 +67,6 @@ const LeadReport = () => {
   const [selectedLeadSourceName, setSelectedLeadSourceName] = useState("");
   const [selectedNote, setSelectedNote] = useState("");
 
-  const validateForm = (type) => {
-    const newErrors = {};
-    const data = type === "addLead" ? formData : updateFormData;
-    if (!data.lead_name.trim()) {
-      newErrors.lead_name = "Lead Name is required";
-    }
-
-    if (!data.lead_phone) {
-      newErrors.lead_phone = "Phone Number is required";
-    } else if (!/^[6-9]\d{9}$/.test(data.lead_phone)) {
-      newErrors.lead_phone = "Invalid phone number (must be 10 digits)";
-    }
-
-    if (!data.lead_profession) {
-      newErrors.lead_profession = "Profession is required";
-    }
-
-    if (!data.lead_type) {
-      newErrors.lead_type = "Lead Source Type is required";
-    }
-
-    if (data.lead_type === "customer" && !data.lead_customer) {
-      newErrors.lead_customer = "Customer selection is required";
-    }
-
-    if (data.lead_type === "agent" && !data.lead_agent) {
-      newErrors.lead_agent = "Agent selection is required";
-    }
-    if (!data.lead_needs.trim()) {
-      newErrors.lead_needs = "Lead Needs and Goals is required";
-    }
-    // if(!data.note.trim()){
-    //   newErrors.note ="Note Field is Mandatory"
-    // }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -118,10 +79,7 @@ const LeadReport = () => {
     };
     fetchGroups();
   }, []);
-  const onContextMenuPressed = (id) => {
-    setShowContextMenu((prev) => ({ ...prev, [id]: true }));
-    console.log(showContextMenu);
-  };
+
   useEffect(() => {
     const fetchLeads = async () => {
       setLoader(true);
@@ -200,110 +158,7 @@ const LeadReport = () => {
     fetchLeads();
   }, []);
 
-  const filteredGroups = groups.filter((group) =>
-    group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleDeleteModalOpen = async (groupId) => {
-    try {
-      const response = await api.get(`/lead/get-lead-by-id/${groupId}`);
-      setCurrentGroup(response.data);
-      setShowModalDelete(true);
-    } catch (error) {
-      console.error("Error fetching lead:", error);
-    }
-  };
-
-  const handleUpdateModalOpen = async (groupId) => {
-    try {
-      const response = await api.get(`/lead/get-lead-by-id/${groupId}`);
-      console.log("The response data is ", response.data);
-      const groupData = response.data;
-      //const formattedStartDate = groupData.start_date.split("T")[0];
-      //  const formattedEndDate = groupData.end_date.split("T")[0];
-      setCurrentUpdateGroup(response.data);
-      setUpdateFormData({
-        lead_name: response.data.lead_name,
-        lead_phone: response.data.lead_phone,
-        lead_profession: response.data.lead_profession,
-        group_id: response.data.group_id,
-        lead_type: response.data.lead_type,
-        lead_customer: response.data.lead_customer,
-        lead_agent: response.data.lead_agent,
-        lead_needs: response.data?.lead_needs,
-        note: response.data.note,
-      });
-      setShowModalUpdate(true);
-      setErrors({});
-    } catch (error) {
-      console.error("Error fetching group:", error);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setUpdateFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-  };
-
-  const handleDeleteGroup = async () => {
-    if (currentGroup) {
-      try {
-        await api.delete(`/lead/delete-lead/${currentGroup._id}`);
-        setShowModalDelete(false);
-        setCurrentGroup(null);
-
-        setAlertConfig({
-          visibility: true,
-          message: "Lead deleted successfully",
-          type: "success",
-        });
-      } catch (error) {
-        console.error("Error deleting lead:", error);
-      }
-    }
-  };
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    const isValid = validateForm();
-
-    try {
-      if (isValid) {
-        await api.put(
-          `/lead/update-lead/${currentUpdateGroup._id}`,
-          updateFormData
-        );
-        setShowModalUpdate(false);
-        setAlertConfig({
-          visibility: true,
-          message: "Lead Updated Successfully",
-          type: "success",
-        });
-      }
-    } catch (error) {
-      console.error("Error updating group:", error);
-    }
-  };
-
-  const columns = [
-    { key: "id", header: "SL. NO" },
-    { key: "name", header: "Lead Name" },
-    { key: "phone", header: "Lead Phone Number" },
-    { key: "profession", header: "Lead Profession" },
-    { key: "date", header: "Date" },
-    { key: "group_id", header: "Group Name" },
-    { key: "lead_type", header: "Lead Source Type" },
-    { key: "lead_needs", header: "Lead Needs And Goals" },
-    { key: "lead_type_name", header: "Lead Source Name" },
-    { key: "note", header: "Note" },
-    { key: "action", header: "Action" },
-  ];
-
-  useEffect(() => {
+   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await api.get("/user/get-user");
@@ -409,6 +264,157 @@ const LeadReport = () => {
     selectedGroup,
     selectedNote,
   ]);
+
+  const validateForm = (type) => {
+    const newErrors = {};
+    const data = type === "addLead" ? formData : updateFormData;
+    if (!data.lead_name.trim()) {
+      newErrors.lead_name = "Lead Name is required";
+    }
+
+    if (!data.lead_phone) {
+      newErrors.lead_phone = "Phone Number is required";
+    } else if (!/^[6-9]\d{9}$/.test(data.lead_phone)) {
+      newErrors.lead_phone = "Invalid phone number (must be 10 digits)";
+    }
+
+    if (!data.lead_profession) {
+      newErrors.lead_profession = "Profession is required";
+    }
+
+    if (!data.lead_type) {
+      newErrors.lead_type = "Lead Source Type is required";
+    }
+
+    if (data.lead_type === "customer" && !data.lead_customer) {
+      newErrors.lead_customer = "Customer selection is required";
+    }
+
+    if (data.lead_type === "agent" && !data.lead_agent) {
+      newErrors.lead_agent = "Agent selection is required";
+    }
+    if (!data.lead_needs.trim()) {
+      newErrors.lead_needs = "Lead Needs and Goals is required";
+    }
+    // if(!data.note.trim()){
+    //   newErrors.note ="Note Field is Mandatory"
+    // }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+
+  const onContextMenuPressed = (id) => {
+    setShowContextMenu((prev) => ({ ...prev, [id]: true }));
+    console.log(showContextMenu);
+  };
+
+
+  const filteredGroups = groups.filter((group) =>
+    group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleDeleteModalOpen = async (groupId) => {
+    try {
+      const response = await api.get(`/lead/get-lead-by-id/${groupId}`);
+      setCurrentGroup(response.data);
+      setShowModalDelete(true);
+    } catch (error) {
+      console.error("Error fetching lead:", error);
+    }
+  };
+
+  const handleUpdateModalOpen = async (groupId) => {
+    try {
+      const response = await api.get(`/lead/get-lead-by-id/${groupId}`);
+      console.log("The response data is ", response.data);
+      const groupData = response.data;
+      //const formattedStartDate = groupData.start_date.split("T")[0];
+      //  const formattedEndDate = groupData.end_date.split("T")[0];
+      setCurrentUpdateGroup(response.data);
+      setUpdateFormData({
+        lead_name: response.data.lead_name,
+        lead_phone: response.data.lead_phone,
+        lead_profession: response.data.lead_profession,
+        group_id: response.data.group_id,
+        lead_type: response.data.lead_type,
+        lead_customer: response.data.lead_customer,
+        lead_agent: response.data.lead_agent,
+        lead_needs: response.data?.lead_needs,
+        note: response.data.note,
+      });
+      setShowModalUpdate(true);
+      setErrors({});
+    } catch (error) {
+      console.error("Error fetching group:", error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+  };
+
+  const handleDeleteGroup = async () => {
+    if (currentGroup) {
+      try {
+        await api.delete(`/lead/delete-lead/${currentGroup._id}`);
+        setShowModalDelete(false);
+        setCurrentGroup(null);
+
+        setAlertConfig({
+          visibility: true,
+          message: "Lead deleted successfully",
+          type: "success",
+        });
+      } catch (error) {
+        console.error("Error deleting lead:", error);
+      }
+    }
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    const isValid = validateForm();
+
+    try {
+      if (isValid) {
+        await api.put(
+          `/lead/update-lead/${currentUpdateGroup._id}`,
+          updateFormData
+        );
+        setShowModalUpdate(false);
+        setAlertConfig({
+          visibility: true,
+          message: "Lead Updated Successfully",
+          type: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating group:", error);
+    }
+  };
+
+  const columns = [
+    { key: "id", header: "SL. NO" },
+    { key: "name", header: "Lead Name" },
+    { key: "phone", header: "Lead Phone Number" },
+    { key: "profession", header: "Lead Profession" },
+    { key: "date", header: "Date" },
+    { key: "group_id", header: "Group Name" },
+    { key: "lead_type", header: "Lead Source Type" },
+    { key: "lead_needs", header: "Lead Needs And Goals" },
+    { key: "lead_type_name", header: "Lead Source Name" },
+    { key: "note", header: "Note" },
+    { key: "action", header: "Action" },
+  ];
+
+ 
 
   return (
     <div className="w-full">

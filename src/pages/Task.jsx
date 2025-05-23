@@ -34,6 +34,10 @@ const [alertConfig, setAlertConfig] = useState({
     type: "info",
   });
 
+    useEffect(() => {
+    fetchAllData();
+  }, [reloadTrigger]);
+
   const fetchAllData = async () => {
     try {
       setIsLoading(true);
@@ -101,9 +105,7 @@ const [alertConfig, setAlertConfig] = useState({
     }
   };
 
-  useEffect(() => {
-    fetchAllData();
-  }, [reloadTrigger]);
+
 
   const handleInput = (e) => {
     const { name, value } = e.target;

@@ -102,6 +102,18 @@ const Receipt = () => {
       }));
     }
   }, [receiptNo]);
+  
+    useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await api.get("/user/get-user");
+        setFilteredUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }
+    };
+    fetchGroups();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -140,17 +152,7 @@ const Receipt = () => {
   //     }
   // };
 
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const response = await api.get("/user/get-user");
-        setFilteredUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      }
-    };
-    fetchGroups();
-  }, []);
+
 
   const handleGroup = async (event) => {
     const groupId = event.target.value;

@@ -50,6 +50,78 @@ const AdministrativePrivileges = () => {
     admin_access_right_id: "",
   });
 
+    useEffect(() => {
+    const fetchAllAdminRights = async () => {
+      try {
+        const response = await api.get("/admin-access-rights/get-all");
+        setAllAccessRights(response.data);
+      } catch (err) {
+        console.error("Failed to fetch Access Rights");
+        setAllAccessRights([]);
+      }
+    };
+    fetchAllAdminRights();
+  }, [reloadTrigger]);
+  useEffect(() => {
+    const fetchSubAdmins = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get("/admin/get-sub-admins");
+        setAdmins(response.data);
+        const formattedData = response.data.map((admin, index) => ({
+          _id: admin?._id,
+          id: index + 1,
+          name: admin?.name,
+          phoneNumber: admin?.phoneNumber,
+          password: admin?.password,
+          admin_access_right: admin?.admin_access_right_id?.title,
+          action: (
+            <div className="flex justify-center gap-2">
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(admin?._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(admin?._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                 
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
+            </div>
+          ),
+        }));
+        setTableGroups(formattedData);
+      } catch (error) {
+        console.error("Error fetching Admin data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSubAdmins();
+  }, [reloadTrigger]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -133,77 +205,7 @@ const AdministrativePrivileges = () => {
 }
     
   };
-  useEffect(() => {
-    const fetchAllAdminRights = async () => {
-      try {
-        const response = await api.get("/admin-access-rights/get-all");
-        setAllAccessRights(response.data);
-      } catch (err) {
-        console.error("Failed to fetch Access Rights");
-        setAllAccessRights([]);
-      }
-    };
-    fetchAllAdminRights();
-  }, [reloadTrigger]);
-  useEffect(() => {
-    const fetchSubAdmins = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get("/admin/get-sub-admins");
-        setAdmins(response.data);
-        const formattedData = response.data.map((admin, index) => ({
-          _id: admin?._id,
-          id: index + 1,
-          name: admin?.name,
-          phoneNumber: admin?.phoneNumber,
-          password: admin?.password,
-          admin_access_right: admin?.admin_access_right_id?.title,
-          action: (
-            <div className="flex justify-center gap-2">
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: "1",
-                      label: (
-                        <div
-                          className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(admin?._id)}
-                        >
-                          Edit
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "2",
-                      label: (
-                        <div
-                          className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(admin?._id)}
-                        >
-                          Delete
-                        </div>
-                      ),
-                    },
-                 
-                  ],
-                }}
-                placement="bottomLeft"
-              >
-                <IoMdMore className="text-bold" />
-              </Dropdown>
-            </div>
-          ),
-        }));
-        setTableGroups(formattedData);
-      } catch (error) {
-        console.error("Error fetching Admin data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchSubAdmins();
-  }, [reloadTrigger]);
+
 
   const handleDeleteModalOpen = async (adminId) => {
     try {

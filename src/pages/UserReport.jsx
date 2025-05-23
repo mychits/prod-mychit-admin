@@ -63,6 +63,57 @@ const UserReport = () => {
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
+
+
+
+
+  useEffect(() => {
+    setScreenLoading(true);
+
+    const fetchGroups = async () => {
+      setDetailLoading(true);
+      try {
+        const response = await api.get("/user/get-user");
+        setGroups(response.data);
+        setScreenLoading(false);
+        setDetailLoading(false);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      } finally {
+        setDetailLoading(false);
+      }
+    };
+    fetchGroups();
+  }, []);
+
+  useEffect(() => {
+    const fetchReceipt = async () => {
+      try {
+        const response = await api.get("/payment/get-latest-receipt");
+        setReceiptNo(response.data);
+      } catch (error) {
+        console.error("Error fetching receipt data:", error);
+      }
+    };
+    fetchReceipt();
+  }, []);
+
+  
+
+
+
+    useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await api.get("/user/get-user");
+        setFilteredUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }
+    };
+    fetchGroups();
+  }, []);
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
@@ -170,24 +221,8 @@ const UserReport = () => {
     fetchGroupById();
   }, [EnrollGroupId]);
 
-  useEffect(() => {
-    setScreenLoading(true);
 
-    const fetchGroups = async () => {
-      setDetailLoading(true);
-      try {
-        const response = await api.get("/user/get-user");
-        setGroups(response.data);
-        setScreenLoading(false);
-        setDetailLoading(false);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      } finally {
-        setDetailLoading(false);
-      }
-    };
-    fetchGroups();
-  }, []);
+
   useEffect(() => {
     const fetchBorrower = async () => {
       try {
@@ -205,6 +240,7 @@ const UserReport = () => {
     setBorrowerId("No");
     fetchBorrower();
   }, [selectedGroup]);
+
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -217,17 +253,7 @@ const UserReport = () => {
     fetchGroups();
   }, [selectedGroup]);
 
-  useEffect(() => {
-    const fetchReceipt = async () => {
-      try {
-        const response = await api.get("/payment/get-latest-receipt");
-        setReceiptNo(response.data);
-      } catch (error) {
-        console.error("Error fetching receipt data:", error);
-      }
-    };
-    fetchReceipt();
-  }, []);
+
 
   useEffect(() => {
     if (receiptNo) {
@@ -238,17 +264,7 @@ const UserReport = () => {
     }
   }, [receiptNo]);
 
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const response = await api.get("/user/get-user");
-        setFilteredUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      }
-    };
-    fetchGroups();
-  }, []);
+
 
   const handleGroupPayment = async (groupId) => {
     setSelectedAuctionGroupId(groupId);

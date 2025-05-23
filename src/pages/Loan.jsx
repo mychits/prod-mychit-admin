@@ -57,6 +57,84 @@ const [isLoading,setIsLoading] = useState(false);
     note: "",
   });
 
+    useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await api.get("/user/get-user");
+        if (response.status >= 400)
+          throw new Error("Failed to fetch borrowers");
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching Loans Borrower Data:", error);
+      }
+    };
+    fetchCustomers();
+  }, []);
+  useEffect(() => {
+    const fetchBorrowers = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get("/loans/get-all-borrowers");
+        setBorrowers(response.data);
+        const formattedData = response.data.map((borrower, index) => ({
+          _id: borrower._id,
+          id: index + 1,
+          loan_id: borrower?.loan_id,
+          borrower_name: borrower?.borrower?.full_name,
+          date: borrower?.createdAt,
+          loan_amount: borrower?.loan_amount,
+          tenure: borrower?.tenure,
+          service_charges: borrower?.service_charges,
+          daily_payment_amount: borrower?.daily_payment_amount,
+          start_date: borrower?.start_date?.split("T")[0],
+          end_date: borrower?.end_date?.split("T")[0],
+          note: borrower?.note,
+          action: (
+            <div className="flex justify-center gap-2" key={borrower._id}>
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(borrower._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(borrower._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
+            </div>
+          ),
+        }));
+        setTableBorrowers(formattedData);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }finally{
+        setIsLoading(false);
+      }
+    };
+    fetchBorrowers();
+  }, [reloadTrigger]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -134,83 +212,7 @@ const [isLoading,setIsLoading] = useState(false);
     }
   };
 
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const response = await api.get("/user/get-user");
-        if (response.status >= 400)
-          throw new Error("Failed to fetch borrowers");
-        setUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching Loans Borrower Data:", error);
-      }
-    };
-    fetchCustomers();
-  }, []);
-  useEffect(() => {
-    const fetchBorrowers = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get("/loans/get-all-borrowers");
-        setBorrowers(response.data);
-        const formattedData = response.data.map((borrower, index) => ({
-          _id: borrower._id,
-          id: index + 1,
-          loan_id: borrower?.loan_id,
-          borrower_name: borrower?.borrower?.full_name,
-          date: borrower?.createdAt,
-          loan_amount: borrower?.loan_amount,
-          tenure: borrower?.tenure,
-          service_charges: borrower?.service_charges,
-          daily_payment_amount: borrower?.daily_payment_amount,
-          start_date: borrower?.start_date?.split("T")[0],
-          end_date: borrower?.end_date?.split("T")[0],
-          note: borrower?.note,
-          action: (
-            <div className="flex justify-center gap-2" key={borrower._id}>
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: "1",
-                      label: (
-                        <div
-                          className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(borrower._id)}
-                        >
-                          Edit
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "2",
-                      label: (
-                        <div
-                          className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(borrower._id)}
-                        >
-                          Delete
-                        </div>
-                      ),
-                    },
-                  ],
-                }}
-                placement="bottomLeft"
-              >
-                <IoMdMore className="text-bold" />
-              </Dropdown>
-            </div>
-          ),
-        }));
-        setTableBorrowers(formattedData);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      }finally{
-        setIsLoading(false);
-      }
-    };
-    fetchBorrowers();
-  }, [reloadTrigger]);
+
 
   const handleDeleteModalOpen = async (borrowerId) => {
     try {

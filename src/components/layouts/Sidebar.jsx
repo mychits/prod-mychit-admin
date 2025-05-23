@@ -221,7 +221,7 @@ const MenuSidebar = [
   },
   {
     id: "$16",
-    title: "Setting",
+    title: "Settings",
     icon: <IoIosSettings />,
     link: "/lead-setting",
   },
