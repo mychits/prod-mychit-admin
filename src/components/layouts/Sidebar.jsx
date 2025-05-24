@@ -17,11 +17,11 @@ import { GoGraph } from "react-icons/go";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { PiCalculatorBold } from "react-icons/pi";
 import { PiMapPinAreaBold } from "react-icons/pi";
-
+import { HiOutlineUserGroup } from "react-icons/hi";
 import ids from "../../data/ids";
 import { FaClipboardList } from "react-icons/fa";
 import { TbArrowsLeftDown } from "react-icons/tb";
-
+import { RiTeamFill } from "react-icons/ri";
 import { RiUserLocationFill } from "react-icons/ri";
 import { FaMapLocationDot } from "react-icons/fa6";
 import { GiReceiveMoney } from "react-icons/gi";
@@ -30,6 +30,10 @@ import { TbSettings } from "react-icons/tb";
 import { MdOutlineGroups } from "react-icons/md";
 import { FaFilter } from "react-icons/fa";
 import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
+import { FaUserTie } from "react-icons/fa6";
+import { FaPersonMilitaryPointing } from "react-icons/fa6"
+import { GiRoundTable } from "react-icons/gi";
+import { GrUserSettings } from "react-icons/gr";
 
 const MenuSidebar = [
   {
@@ -38,7 +42,12 @@ const MenuSidebar = [
     icon: <RiDashboardFill />,
     link: "/dashboard",
   },
-  // {id: "$PP", title: "Analytics", icon: <SiGoogleanalytics />, link: "/analytics" },
+  {
+    id: "$PP",
+    title: "Analytics",
+    icon: <SiGoogleanalytics />,
+    link: "/analytics",
+  },
   {
     id: "$2",
     title: "Groups ",
@@ -67,9 +76,29 @@ const MenuSidebar = [
   },
   {
     id: ids.seven,
-    title: "Employees",
-    icon: <FaUserLock />,
-    link: "/agent",
+    title: "Staff",
+    icon: <GiRoundTable />,
+    submenu: true,
+    submenuItems: [
+      {
+        id: "$101",
+        title: "All",
+        icon: <HiOutlineUserGroup size={20} />,
+        link: "/staff",
+      },
+      {
+        id: "$102",
+        title: "Agent",
+        icon: <FaPersonMilitaryPointing size={20} />,
+        link: "/agent",
+      },
+      {
+        id: "$103",
+        title: "Employee",
+        icon: <FaUserTie size={18} />,
+        link: "/employee",
+      },
+    ],
   },
 
   {
@@ -133,13 +162,13 @@ const MenuSidebar = [
           {
             id: ids.fifteen,
             title: "Collection Mapping",
-            icon: <RiUserLocationFill size="20"/>,
+            icon: <RiUserLocationFill size="20" />,
             link: "/collection-area-mapping",
           },
         ],
       },
       {
-        id: "*2",
+        id: "#2",
         title: "Groups",
         icon: <MdOutlineGroups size="25" />,
         hider: true,
@@ -151,6 +180,22 @@ const MenuSidebar = [
             title: "Filter Groups",
             icon: <FaFilter size="10" />,
             link: "/filter-groups",
+          },
+        ],
+      },
+      {
+        id: "#3",
+        title:"Employee",
+        hider: true,
+        icon: <FaUserTie size={18} />,
+        newTab: true,
+        submenu: true,
+        submenuItems: [
+          {
+            id: "#206",
+            title: "Employee Profile",
+            icon: <GrUserSettings size={18}/>,
+            link: "/employee-profile",
           },
         ],
       },
@@ -186,7 +231,7 @@ const MenuSidebar = [
   },
   {
     id: "$16",
-    title: "Setting",
+    title: "Settings",
     icon: <IoIosSettings />,
     link: "/lead-setting",
   },
@@ -204,15 +249,6 @@ const Sidebar = () => {
   const [submenuOpenIndex, setSubmenuOpenIndex] = useState(null);
   const [hider, setHider] = useState(true);
 
-  // const toggleSubMenu = (index) => {
-
-  //   if (submenuOpenIndex === index) {
-  //     setSubmenuOpenIndex(null);
-  //   } else {
-  //     setSubmenuOpenIndex(index);
-  //   }
-
-  // };
 
   const [nestedSubmenuOpenIndex, setNestedSubmenuOpenIndex] = useState({});
 
@@ -263,7 +299,7 @@ const Sidebar = () => {
             const isOpen = submenuOpenIndex === index;
 
             return (
-              <Fragment key={menu.id} >
+              <Fragment key={menu.id}>
                 <a href={menu.link} onClick={() => toggleSubMenu(index)}>
                   <li
                     className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md ${
@@ -298,7 +334,6 @@ const Sidebar = () => {
                   </li>
                 </a>
 
-            
                 {menu.submenu && isOpen && open && (
                   <ul className="ml-4">
                     {menu.submenuItems.map((submenuItem, subIndex) => (

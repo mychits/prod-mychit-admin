@@ -8,13 +8,15 @@ import { Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
-const Agent = () => {
+
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+const Employee = () => {
   const [users, setUsers] = useState([]);
-  const [TableAgents, setTableAgents] = useState([]);
+  const [TableEmployees, setTableEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState(false);
@@ -50,7 +52,7 @@ const Agent = () => {
     adhaar_no: "",
     designation_id:"",
     pan_no: "",
-    agent_type: "agent"
+    agent_type: "employee"
   });
 
   const [updateFormData, setUpdateFormData] = useState({
@@ -65,14 +67,14 @@ const Agent = () => {
     pan_no: "",
   });
 
-
-   useEffect(() => {
-    const fetchAgents = async () => {
+    useEffect(() => {
+    const fetchEmployee = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get("/agent/get");
-        setUsers(response?.data?.agent);
-        const formattedData = response.data?.agent?.map((group, index) => ({
+        const response = await api.get("/agent/get-employee");
+       
+        setUsers(response?.data?.employee);
+        const formattedData = response?.data?.employee?.map((group, index) => ({
           _id: group?._id,
           id: index + 1,
           name: group?.name,
@@ -82,12 +84,6 @@ const Agent = () => {
           designation: group?.designation_id?.title,
           action: (
             <div className="flex justify-center  gap-2">
-              {/* <button
-                onClick={() => handleUpdateModalOpen(group._id)}
-                className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-              >
-                <CiEdit color="green" />
-              </button> */}
               <Dropdown
                 menu={{
                   items: [
@@ -122,14 +118,14 @@ const Agent = () => {
             </div>
           ),
         }));
-        setTableAgents(formattedData);
+        setTableEmployees(formattedData);
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchAgents();
+    fetchEmployee();
   }, [reloadTrigger]);
 
    useEffect(() => {
@@ -234,7 +230,7 @@ const Agent = () => {
           reporting_manager_id: selectedReportingManagerId
         };
         
-        const response = await api.post("/agent/add", dataToSend, {
+        const response = await api.post("/agent/add-employee", dataToSend, {
           headers: {
             "Content-Type": "application/json",
           },
@@ -291,15 +287,15 @@ const Agent = () => {
     }
   };
 
- 
+
 
   const columns = [
     { key: "id", header: "SL. NO" },
-    { key: "name", header: "Agent Name" },
+    { key: "name", header: "Employee Name" },
     { key: "employeeCode", header: "Employee ID" },
-    { key: "phone_number", header: "Agent Phone Number" },
+    { key: "phone_number", header: "Employee Phone Number" },
     { key: "designation", header: "Designation" },
-    { key: "password", header: "Agent Password" },
+    { key: "password", header: "Employee Password" },
     { key: "action", header: "Action" },
   ];
 
@@ -309,8 +305,8 @@ const Agent = () => {
 
   const handleDeleteModalOpen = async (userId) => {
     try {
-      const response = await api.get(`/agent/get-by-id/${userId}`);
-      setCurrentUser(response.data?.agent);
+      const response = await api.get(`/agent/get-employee-by-id/${userId}`);
+      setCurrentUser(response.data?.employee);
       setShowModalDelete(true);
       setErrors({});
     } catch (error) {
@@ -320,21 +316,21 @@ const Agent = () => {
 
   const handleUpdateModalOpen = async (userId) => {
     try {
-      const response = await api.get(`/agent/get-by-id/${userId}`);
-      setCurrentUpdateUser(response.data?.agent);
+      const response = await api.get(`/agent/get-employee-by-id/${userId}`);
+      setCurrentUpdateUser(response.data?.employee);
       setUpdateFormData({
-        name: response?.data?.agent?.name,
-        email: response?.data?.agent?.email,
-        phone_number: response?.data?.agent?.phone_number,
-        password: response?.data?.agent?.password,
-        pincode: response?.data?.agent?.pincode,
-        adhaar_no: response?.data?.agent?.adhaar_no,
-        pan_no: response?.data?.agent?.pan_no,
-        address: response?.data?.agent?.address,
+        name: response?.data?.employee?.name,
+        email: response?.data?.employee?.email,
+        phone_number: response?.data?.employee?.phone_number,
+        password: response?.data?.employee?.password,
+        pincode: response?.data?.employee?.pincode,
+        adhaar_no: response?.data?.employee?.adhaar_no,
+        pan_no: response?.data?.employee?.pan_no,
+        address: response?.data?.employee?.address,
       });
-      setSelectedManagerId(response.data?.agent?.designation_id?._id || "");
-      setSelectedReportingManagerId(response.data?.agent?.reporting_manager_id || "");
-      setSelectedManagerTitle(response.data?.agent?.designation_id?.title)
+      setSelectedManagerId(response.data?.employee?.designation_id?._id || "");
+      setSelectedReportingManagerId(response.data?.employee?.employee?.reporting_manager_id || "");
+      setSelectedManagerTitle(response.data?.employee?.designation_id?.employee?.title);
       setShowModalUpdate(true);
       setErrors({});
     } catch (error) {
@@ -353,7 +349,7 @@ const Agent = () => {
   const handleDeleteUser = async () => {
     if (currentUser) {
       try {
-        await api.delete(`/agent/delete/${currentUser._id}`);
+        await api.delete(`/agent/delete-employee/${currentUser._id}`);
         setShowModalDelete(false);
         setCurrentUser(null);
         setReloadTrigger((prev) => prev + 1);
@@ -379,7 +375,7 @@ const Agent = () => {
           reporting_manager_id: selectedReportingManagerId
         };
         const response = await api.put(
-          `/agent/update/${currentUpdateUser._id}`,
+          `/agent/update-employee/${currentUpdateUser._id}`,
           dataToSend
         );
         setShowModalUpdate(false);
@@ -437,7 +433,7 @@ const Agent = () => {
             visibility={true}
           />
           <Sidebar />
-             <CustomAlertDialog
+          <CustomAlertDialog
           type={alertConfig.type}
           isVisible={alertConfig.visibility}
           message={alertConfig.message}
@@ -449,7 +445,7 @@ const Agent = () => {
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
-                <h1 className="text-2xl font-semibold">Agents</h1>
+                <h1 className="text-2xl font-semibold">Employees</h1>
                 <button
                   onClick={() => {
                     setShowModal(true);
@@ -457,24 +453,24 @@ const Agent = () => {
                   }}
                   className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
-                  + Add Agent
+                  + Add Employee
                 </button>
               </div>
             </div>
-            {(TableAgents?.length > 0 && !isLoading) ? (
+            {(TableEmployees?.length > 0 && !isLoading) ? (
               <DataTable
                 updateHandler={handleUpdateModalOpen}
-                data={filterOption(TableAgents, searchText)}
+                data={filterOption(TableEmployees, searchText)}
                 columns={columns}
-                exportedFileName={`Employees-${TableAgents.length > 0
-                  ? TableAgents[0].name +
+                exportedFileName={`Employees-${TableEmployees.length > 0
+                  ? TableEmployees[0].name +
                   " to " +
-                  TableAgents[TableAgents.length - 1].name
+                  TableEmployees[TableEmployees.length - 1].name
                   : "empty"
                   }.csv`}
               />
             ) : (
-              <CircularLoader isLoading={isLoading} failure={TableAgents?.length <= 0} data="Employee Data" />
+              <CircularLoader isLoading={isLoading} failure={TableEmployees?.length <= 0} data="Employee Data" />
             )}
           </div>
         </div>
@@ -482,7 +478,7 @@ const Agent = () => {
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Add Agent
+              Add Employee
             </h3>
             <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               <div>
@@ -697,7 +693,7 @@ const Agent = () => {
                   className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
                 >
-                  Save Agent
+                  Save Employee
                 </button>
               </div>
             </form>
@@ -710,7 +706,7 @@ const Agent = () => {
         >
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Update Agent
+              Update Employee
             </h3>
             <form className="space-y-6" onSubmit={handleUpdate} noValidate>
               <div>
@@ -956,7 +952,7 @@ const Agent = () => {
                   className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 >
-                  Update Agent
+                  Update Employee
                 </button>
               </div>
             </form>
@@ -972,7 +968,7 @@ const Agent = () => {
         >
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Delete Agent
+              Delete Employee
             </h3>
             {currentUser && (
               <form
@@ -1017,4 +1013,4 @@ const Agent = () => {
   );
 };
 
-export default Agent;
+export default Employee;

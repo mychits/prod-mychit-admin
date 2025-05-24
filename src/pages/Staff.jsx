@@ -6,13 +6,14 @@ import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
 import { Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
+import axios from "axios";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
-const Agent = () => {
+const Staff = () => {
   const [users, setUsers] = useState([]);
   const [TableAgents, setTableAgents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,7 +51,7 @@ const Agent = () => {
     adhaar_no: "",
     designation_id:"",
     pan_no: "",
-    agent_type: "agent"
+    agent_type: "",
   });
 
   const [updateFormData, setUpdateFormData] = useState({
@@ -63,16 +64,16 @@ const Agent = () => {
     adhaar_no: "",
     designation_id:"",
     pan_no: "",
+    agent_type: "",
   });
 
-
-   useEffect(() => {
-    const fetchAgents = async () => {
+    useEffect(() => {
+    const fetchUsers = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get("/agent/get");
-        setUsers(response?.data?.agent);
-        const formattedData = response.data?.agent?.map((group, index) => ({
+        const response = await api.get("/agent/get-agent");
+        setUsers(response.data);
+        const formattedData = response.data.map((group, index) => ({
           _id: group?._id,
           id: index + 1,
           name: group?.name,
@@ -80,6 +81,7 @@ const Agent = () => {
           phone_number: group?.phone_number,
           password: group?.password,
           designation: group?.designation_id?.title,
+          agent_type: group?.agent_type,
           action: (
             <div className="flex justify-center  gap-2">
               {/* <button
@@ -129,10 +131,12 @@ const Agent = () => {
         setIsLoading(false);
       }
     };
-    fetchAgents();
+    fetchUsers();
   }, [reloadTrigger]);
 
-   useEffect(() => {
+
+
+    useEffect(() => {
     const fetchManagers = async () => {
       try {
         const response = await api.get("/designation/get-designation");
@@ -218,6 +222,10 @@ const Agent = () => {
       newErrors.address = "Address should be at least 10 characters";
     }
 
+    if (!data.agent_type.trim()){
+      newErrors.agent_type = "Please select Staff Type";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -234,7 +242,7 @@ const Agent = () => {
           reporting_manager_id: selectedReportingManagerId
         };
         
-        const response = await api.post("/agent/add", dataToSend, {
+        const response = await api.post("/agent/add-agent", dataToSend, {
           headers: {
             "Content-Type": "application/json",
           },
@@ -250,10 +258,11 @@ const Agent = () => {
           pincode: "",
           adhaar_no: "",
           pan_no: "",
+          agent_type: "",
         });
         setSelectedManagerId("");
         setSelectedReportingManagerId("")
-        setReloadTrigger((prev) => prev + 1);
+       setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Agent Added Successfully",
@@ -291,15 +300,15 @@ const Agent = () => {
     }
   };
 
- 
 
   const columns = [
     { key: "id", header: "SL. NO" },
-    { key: "name", header: "Agent Name" },
+    { key: "name", header: "Staff Name" },
     { key: "employeeCode", header: "Employee ID" },
-    { key: "phone_number", header: "Agent Phone Number" },
+    { key: "phone_number", header: "Staff Phone Number" },
     { key: "designation", header: "Designation" },
-    { key: "password", header: "Agent Password" },
+    { key: "agent_type", header: "Staff Type"},
+    { key: "password", header: "Staff Password" },
     { key: "action", header: "Action" },
   ];
 
@@ -309,8 +318,8 @@ const Agent = () => {
 
   const handleDeleteModalOpen = async (userId) => {
     try {
-      const response = await api.get(`/agent/get-by-id/${userId}`);
-      setCurrentUser(response.data?.agent);
+      const response = await api.get(`/agent/get-agent-by-id/${userId}`);
+      setCurrentUser(response.data);
       setShowModalDelete(true);
       setErrors({});
     } catch (error) {
@@ -320,21 +329,22 @@ const Agent = () => {
 
   const handleUpdateModalOpen = async (userId) => {
     try {
-      const response = await api.get(`/agent/get-by-id/${userId}`);
-      setCurrentUpdateUser(response.data?.agent);
+      const response = await api.get(`/agent/get-agent-by-id/${userId}`);
+      setCurrentUpdateUser(response.data);
       setUpdateFormData({
-        name: response?.data?.agent?.name,
-        email: response?.data?.agent?.email,
-        phone_number: response?.data?.agent?.phone_number,
-        password: response?.data?.agent?.password,
-        pincode: response?.data?.agent?.pincode,
-        adhaar_no: response?.data?.agent?.adhaar_no,
-        pan_no: response?.data?.agent?.pan_no,
-        address: response?.data?.agent?.address,
+        name: response?.data?.name,
+        email: response?.data?.email,
+        phone_number: response?.data?.phone_number,
+        password: response?.data?.password,
+        pincode: response?.data?.pincode,
+        adhaar_no: response?.data?.adhaar_no,
+        pan_no: response?.data?.pan_no,
+        address: response?.data?.address,
+        agent_type: response?.data?.agent_type,
       });
-      setSelectedManagerId(response.data?.agent?.designation_id?._id || "");
-      setSelectedReportingManagerId(response.data?.agent?.reporting_manager_id || "");
-      setSelectedManagerTitle(response.data?.agent?.designation_id?.title)
+      setSelectedManagerId(response.data.designation_id?._id || "");
+      setSelectedReportingManagerId(response.data.reporting_manager_id || "");
+      setSelectedManagerTitle(response.data?.designation_id?.title)
       setShowModalUpdate(true);
       setErrors({});
     } catch (error) {
@@ -353,7 +363,7 @@ const Agent = () => {
   const handleDeleteUser = async () => {
     if (currentUser) {
       try {
-        await api.delete(`/agent/delete/${currentUser._id}`);
+        await api.delete(`/agent/delete-agent/${currentUser._id}`);
         setShowModalDelete(false);
         setCurrentUser(null);
         setReloadTrigger((prev) => prev + 1);
@@ -379,12 +389,12 @@ const Agent = () => {
           reporting_manager_id: selectedReportingManagerId
         };
         const response = await api.put(
-          `/agent/update/${currentUpdateUser._id}`,
+          `/agent/update-agent/${currentUpdateUser._id}`,
           dataToSend
         );
         setShowModalUpdate(false);
         setSelectedManagerId("");
-        setSelectedReportingManagerId("")
+        setSelectedReportingManagerId("");
         setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
@@ -414,7 +424,7 @@ const Agent = () => {
     }
   };
 
- 
+
 
   const handleManager = async (event) => {
     const groupId = event.target.value;
@@ -437,7 +447,7 @@ const Agent = () => {
             visibility={true}
           />
           <Sidebar />
-             <CustomAlertDialog
+          <CustomAlertDialog
           type={alertConfig.type}
           isVisible={alertConfig.visibility}
           message={alertConfig.message}
@@ -449,7 +459,7 @@ const Agent = () => {
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
-                <h1 className="text-2xl font-semibold">Agents</h1>
+                <h1 className="text-2xl font-semibold">Staff</h1>
                 <button
                   onClick={() => {
                     setShowModal(true);
@@ -457,7 +467,7 @@ const Agent = () => {
                   }}
                   className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
-                  + Add Agent
+                  + Add Staff
                 </button>
               </div>
             </div>
@@ -482,7 +492,7 @@ const Agent = () => {
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Add Agent
+              Add Staff
             </h3>
             <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               <div>
@@ -690,6 +700,28 @@ const Agent = () => {
                 </select>
               
               </div>
+              <div>
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor=""
+                >
+                  Select Staff Type <span className="text-red-500">*</span>
+                </label>
+                 <select
+                          name="agent_type"
+                          value={formData?.agent_type}
+                          onChange={handleChange}
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                        >
+                          <option value="">Select Staff Type</option>
+                          <option value="agent">Agent</option>
+                          <option value="employee">Employee</option>
+                        </select>
+                        {errors.agent_type && (
+                  <p className="mt-2 text-sm text-red-600">{errors.agent_type}</p>
+                )}
+                
+              </div>
               
               <div className="w-full flex justify-end">
                 <button
@@ -697,7 +729,7 @@ const Agent = () => {
                   className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
                 >
-                  Save Agent
+                  Save Staff
                 </button>
               </div>
             </form>
@@ -710,7 +742,7 @@ const Agent = () => {
         >
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Update Agent
+              Update Staff
             </h3>
             <form className="space-y-6" onSubmit={handleUpdate} noValidate>
               <div>
@@ -950,13 +982,37 @@ const Agent = () => {
                     )}
                   </div>
                 )}
+
+                <div>
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor=""
+                >
+                  Select Staff Type <span className="text-red-500">*</span>
+                </label>
+                 <select
+                          name="agent_type"
+                          value={updateFormData?.agent_type}
+                          onChange={handleInputChange}
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                        >
+                          <option value="">Select Staff Type</option>
+                          <option value="agent">Agent</option>
+                          <option value="employee">Employee</option>
+                        </select>
+                         {errors.agent_type && (
+                  <p className="mt-2 text-sm text-red-600">{errors.agent_type}</p>
+                )}
+                
+              </div>
+              
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
                   className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 >
-                  Update Agent
+                  Update Staff
                 </button>
               </div>
             </form>
@@ -972,7 +1028,7 @@ const Agent = () => {
         >
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Delete Agent
+              Delete Staff
             </h3>
             {currentUser && (
               <form
@@ -1017,4 +1073,4 @@ const Agent = () => {
   );
 };
 
-export default Agent;
+export default Staff;
