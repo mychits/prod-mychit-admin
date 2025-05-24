@@ -103,6 +103,130 @@ const User = () => {
     setSearchText(value);
   };
 
+    useEffect(() => {
+    const fetchCollectionArea = async () => {
+      try {
+        const response = await api.get(
+          "/collection-area-request/get-collection-area-data"
+        );
+
+        setAreas(response.data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchCollectionArea();
+  }, [reloadTrigger]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get("/user/get-user");
+        setUsers(response.data);
+        const formattedData = response.data.map((group, index) => ({
+          _id: group?._id,
+          id: index + 1,
+          name: group?.full_name,
+          phone_number: group?.phone_number,
+          address: group?.address,
+          pincode: group?.pincode,
+          customer_id: group?.customer_id,
+          collection_area: group?.collection_area?.route_name,
+          customer_status: group?.customer_status,
+          action: (
+            <div className="flex justify-center gap-2">
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(group?._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(group?._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "3",
+                      label: (
+                        <div
+                          onClick={() =>
+                            handleEnrollmentRequestPrint(group?._id)
+                          }
+                          className=" text-blue-600 "
+                        >
+                          Print
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "4",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleCustomerStatus(group?._id)}
+                        >
+                          Convert
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
+            </div>
+          ),
+        }));
+        let fData = formattedData.map((ele) => {
+          if (
+            ele?.address &&
+            typeof ele.address === "string" &&
+            ele?.address?.includes(",")
+          )
+            ele.address = ele.address.replaceAll(",", " ");
+          return ele;
+        });
+        if (!fData) setTableUsers(formattedData);
+        if (!fData) setTableUsers(formattedData);
+        setTableUsers(fData);
+      } catch (error) {
+        console.error("Error fetching user data:", error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUsers();
+  }, [reloadTrigger]);
+
+  useEffect(() => {
+    const fetchGroupData = async () => {
+      try {
+        const res = await api.get("group/get-group-admin");
+        setGroups(res.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchGroupData();
+  }, [reloadTrigger]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -244,129 +368,7 @@ const User = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchCollectionArea = async () => {
-      try {
-        const response = await api.get(
-          "/collection-area-request/get-collection-area-data"
-        );
 
-        setAreas(response.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-    fetchCollectionArea();
-  }, [reloadTrigger]);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get("/user/get-user");
-        setUsers(response.data);
-        const formattedData = response.data.map((group, index) => ({
-          _id: group?._id,
-          id: index + 1,
-          name: group?.full_name,
-          phone_number: group?.phone_number,
-          address: group?.address,
-          pincode: group?.pincode,
-          customer_id: group?.customer_id,
-          collection_area: group?.collection_area?.route_name,
-          customer_status: group?.customer_status,
-          action: (
-            <div className="flex justify-center gap-2">
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: "1",
-                      label: (
-                        <div
-                          className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(group?._id)}
-                        >
-                          Edit
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "2",
-                      label: (
-                        <div
-                          className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(group?._id)}
-                        >
-                          Delete
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "3",
-                      label: (
-                        <div
-                          onClick={() =>
-                            handleEnrollmentRequestPrint(group?._id)
-                          }
-                          className=" text-blue-600 "
-                        >
-                          Print
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "4",
-                      label: (
-                        <div
-                          className="text-red-600"
-                          onClick={() => handleCustomerStatus(group?._id)}
-                        >
-                          Convert
-                        </div>
-                      ),
-                    },
-                  ],
-                }}
-                placement="bottomLeft"
-              >
-                <IoMdMore className="text-bold" />
-              </Dropdown>
-            </div>
-          ),
-        }));
-        let fData = formattedData.map((ele) => {
-          if (
-            ele?.address &&
-            typeof ele.address === "string" &&
-            ele?.address?.includes(",")
-          )
-            ele.address = ele.address.replaceAll(",", " ");
-          return ele;
-        });
-        if (!fData) setTableUsers(formattedData);
-        if (!fData) setTableUsers(formattedData);
-        setTableUsers(fData);
-      } catch (error) {
-        console.error("Error fetching user data:", error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchUsers();
-  }, [reloadTrigger]);
-
-  useEffect(() => {
-    const fetchGroupData = async () => {
-      try {
-        const res = await api.get("group/get-group-admin");
-        setGroups(res.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchGroupData();
-  }, [reloadTrigger]);
 
   const columns = [
     { key: "id", header: "SL. NO" },

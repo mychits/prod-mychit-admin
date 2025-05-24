@@ -68,13 +68,7 @@ const GroupReport = () => {
     transaction_id: "",
   });
 
-  const handleFromDateChange = (e) => {
-    setFromDate(e.target.value);
-  };
 
-  const handleToDateChange = (e) => {
-    setToDate(e.target.value);
-  };
 
   useEffect(() => {
     setScreenLoading(true);
@@ -198,6 +192,14 @@ const GroupReport = () => {
     selectedPaymentMode,
     selectedCustomers,
   ]);
+
+    const handleFromDateChange = (e) => {
+    setFromDate(e.target.value);
+  };
+
+  const handleToDateChange = (e) => {
+    setToDate(e.target.value);
+  };
 
   const columns = [
     { key: "id", header: "SL. NO" },

@@ -60,51 +60,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     note: "",
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const validateForm = (type) => {
-    const newErrors = {};
-
-    const data = type === "addBorrower" ? formData : updateFormData;
-
-    if (!data.borrower) {
-      newErrors.borrower = "Borrower Name is required";
-    }
-
-    if (!data.loan_amount || isNaN(data.loan_amount) || data.loan_amount <= 0) {
-      newErrors.loan_amount = "Loan Amount must be a positive number";
-    }
-    if (!data.tenure || isNaN(data.tenure) || data.tenure <= 0) {
-      newErrors.tenure = "Tenure must be a positive number";
-    }
-    if (!data.service_charges) {
-      newErrors.service_charges = "service charges is required";
-    }
-    if (!data.daily_payment_amount) {
-      newErrors.daily_payment_amount = "Daily payment amount is required";
-    }
-
-    if (!data.start_date) {
-      newErrors.start_date = "Start Date is required";
-    }
-    if (!data.end_date) {
-      newErrors.end_date = "End Date is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  
-
-
-  useEffect(() => {
+    useEffect(() => {
     const fetchBorrowers = async () => {
       setLoader(true);
       try {
@@ -171,6 +127,52 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     };
     fetchBorrowers();
   }, [reloadTrigger]);
+  
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const validateForm = (type) => {
+    const newErrors = {};
+
+    const data = type === "addBorrower" ? formData : updateFormData;
+
+    if (!data.borrower) {
+      newErrors.borrower = "Borrower Name is required";
+    }
+
+    if (!data.loan_amount || isNaN(data.loan_amount) || data.loan_amount <= 0) {
+      newErrors.loan_amount = "Loan Amount must be a positive number";
+    }
+    if (!data.tenure || isNaN(data.tenure) || data.tenure <= 0) {
+      newErrors.tenure = "Tenure must be a positive number";
+    }
+    if (!data.service_charges) {
+      newErrors.service_charges = "service charges is required";
+    }
+    if (!data.daily_payment_amount) {
+      newErrors.daily_payment_amount = "Daily payment amount is required";
+    }
+
+    if (!data.start_date) {
+      newErrors.start_date = "Start Date is required";
+    }
+    if (!data.end_date) {
+      newErrors.end_date = "End Date is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  
+
+
+
 
   const handleDeleteModalOpen = async (borrowerId) => {
     try {

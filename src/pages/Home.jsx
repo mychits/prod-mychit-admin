@@ -18,7 +18,7 @@ const Home = () => {
   const [paymentsPerMonthValue, setPaymentsPerMonthValue] = useState("0");
   const [searchValue,setSearchValue] = useState("")
   const [totalAmount, setTotalAmount] = useState(0);
-
+  const [reloadTrigger, setReloadTrigger] = useState(0);
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -29,7 +29,7 @@ const Home = () => {
       }
     };
     fetchGroups();
-  }, []);
+  }, [reloadTrigger]);
 
   useEffect(() => {
     const fetchAgents = async () => {
@@ -41,7 +41,7 @@ const Home = () => {
       }
     };
     fetchAgents();
-  }, []);
+  }, [reloadTrigger]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -53,7 +53,7 @@ const Home = () => {
       }
     };
     fetchUsers();
-  }, []);
+  }, [reloadTrigger]);
 
   useEffect(() => {
     const fetchTotalAmount = async () => {
@@ -67,7 +67,7 @@ const Home = () => {
     };
 
     fetchTotalAmount();
-  }, []);
+  }, [reloadTrigger]);
 
     useEffect(() => {
     const fetchMonthlyPayments = async () => {
@@ -94,7 +94,7 @@ const Home = () => {
       }
     };
     fetchMonthlyPayments();
-  }, []);
+  }, [reloadTrigger]);
 
   const cardData = [
     {

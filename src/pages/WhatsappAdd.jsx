@@ -27,6 +27,29 @@ const WhatsappAdd = () => {
   });
    const [reloadTrigger, setReloadTrigger] = useState(0);
   const [errors, setErrors] = useState({});
+
+
+    useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get("/user/get-user");
+        setUsers(response.data);
+        const initialSelected = {};
+        response.data.forEach((user) => {
+          initialSelected[user._id] = false;
+        });
+        setSelectUser(initialSelected);
+      } catch (error) {
+        console.error("Error fetching user data:", error.message);
+      }finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUsers();
+  }, [reloadTrigger]);
+
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -114,25 +137,7 @@ const WhatsappAdd = () => {
     });
     setSelectUser(tempSelectUser);
   };
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get("/user/get-user");
-        setUsers(response.data);
-        const initialSelected = {};
-        response.data.forEach((user) => {
-          initialSelected[user._id] = false;
-        });
-        setSelectUser(initialSelected);
-      } catch (error) {
-        console.error("Error fetching user data:", error.message);
-      }finally {
-        setIsLoading(false);
-      }
-    };
-    fetchUsers();
-  }, [reloadTrigger]);
+
   useEffect(() => {
     const updateUI = () => {
       const formattedData = users.map((group, index) => ({

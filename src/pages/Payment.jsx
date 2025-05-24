@@ -112,91 +112,7 @@ const Payment = () => {
       setModifyPayment(isModify);
     }
   }, []);
-  useEffect(() => {
-    setBorrowers([]);
-    const fetchCustomerLoanDetails = async () => {
-      try {
-        const response = await api.get(
-          `/loans/get-borrower-by-user-id/${selectedGroupId}`
-        );
-        if (response.status >= 400)
-          throw new Error("fetching loan borrowers Failed");
-        setBorrowers(response.data);
-      } catch (err) {
-        console.log("Error Occurred");
-      }
-    };
-
-    fetchCustomerLoanDetails();
-  }, [selectedGroupId]);
-
-  useEffect(() => {
-    setPigmeCustomers([]);
-    const fetchCustomerLoanDetails = async () => {
-      try {
-        const response = await api.get(
-          `/pigme/get-pigme-customer-by-user-id/${selectedGroupId}`
-        );
-        if (response.status >= 400)
-          throw new Error("fetching pigme customers Failed");
-        setPigmeCustomers(response.data);
-      } catch (err) {
-        console.log(
-          "Error Occurred while fetching pigme customers,",
-          err.message
-        );
-      }
-    };
-
-    fetchCustomerLoanDetails();
-  }, [selectedGroupId]);
-
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const response = await api.get("/user/get-user");
-        setGroups(response.data);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      }
-    };
-    fetchGroups();
-  }, [alertConfig]);
-
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const response = await api.get("/group/get-group-admin");
-        setActualGroups(response.data);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      }
-    };
-    fetchGroups();
-  }, [alertConfig]);
-
-  useEffect(() => {
-    const fetchReceipt = async () => {
-      try {
-        const response = await api.get("/payment/get-latest-receipt");
-        setReceiptNo(response.data);
-      } catch (error) {
-        console.error("Error fetching receipt data:", error);
-      }
-    };
-    fetchReceipt();
-  }, [alertConfig]);
-
-  useEffect(() => {
-    if (receiptNo) {
-      setFormData((prevData) => ({
-        ...prevData,
-        receipt_no: receiptNo.receipt_no,
-      }));
-    }
-  }, [receiptNo]);
-
-  useEffect(() => {
+    useEffect(() => {
     const usr = localStorage.getItem("user");
     let admin_type = null;
 
@@ -283,6 +199,92 @@ const Payment = () => {
 
     fetchAllPayments();
   }, []);
+  
+  useEffect(() => {
+    setBorrowers([]);
+    const fetchCustomerLoanDetails = async () => {
+      try {
+        const response = await api.get(
+          `/loans/get-borrower-by-user-id/${selectedGroupId}`
+        );
+        if (response.status >= 400)
+          throw new Error("fetching loan borrowers Failed");
+        setBorrowers(response.data);
+      } catch (err) {
+        console.log("Error Occurred");
+      }
+    };
+
+    fetchCustomerLoanDetails();
+  }, [selectedGroupId]);
+
+  useEffect(() => {
+    setPigmeCustomers([]);
+    const fetchCustomerLoanDetails = async () => {
+      try {
+        const response = await api.get(
+          `/pigme/get-pigme-customer-by-user-id/${selectedGroupId}`
+        );
+        if (response.status >= 400)
+          throw new Error("fetching pigme customers Failed");
+        setPigmeCustomers(response.data);
+      } catch (err) {
+        console.log(
+          "Error Occurred while fetching pigme customers,",
+          err.message
+        );
+      }
+    };
+
+    fetchCustomerLoanDetails();
+  }, [selectedGroupId]);
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await api.get("/user/get-user");
+        setGroups(response.data);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }
+    };
+    fetchGroups();
+  }, [alertConfig]);
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await api.get("/group/get-group-admin");
+        setActualGroups(response.data);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }
+    };
+    fetchGroups();
+  }, [alertConfig]);
+
+  useEffect(() => {
+    const fetchReceipt = async () => {
+      try {
+        const response = await api.get("/payment/get-latest-receipt");
+        setReceiptNo(response.data);
+      } catch (error) {
+        console.error("Error fetching receipt data:", error);
+      }
+    };
+    fetchReceipt();
+  }, [alertConfig]);
+
+  useEffect(() => {
+    if (receiptNo) {
+      setFormData((prevData) => ({
+        ...prevData,
+        receipt_no: receiptNo.receipt_no,
+      }));
+    }
+  }, [receiptNo]);
+
+
   const validateForm = () => {
     const newErrors = {};
 

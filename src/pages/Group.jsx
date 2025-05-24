@@ -70,6 +70,82 @@ const Group = () => {
     incentives: "",
     reg_fee: "",
   });
+    useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get("/group/get-group-admin");
+        setGroups(response.data);
+        const formattedData = response.data.map((group, index) => ({
+          _id: group?._id,
+          id: index + 1,
+          name: group?.group_name,
+          type:
+            group?.group_type.charAt(0).toUpperCase() +
+            group?.group_type.slice(1) +
+            " Group",
+          value: group?.group_value,
+          installment: group.group_install,
+          members: group?.group_members,
+          date: group?.createdAt,
+          action: (
+            <div className="flex justify-center gap-2">
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(group._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(group._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "3",
+                      label: (
+                        <div
+                          onClick={() => handleShareClick(group?._id)}
+                          className=" text-blue-600 "
+                        >
+                          Copy
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
+            </div>
+          ),
+        }));
+        setTableGroups(formattedData);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchGroups();
+
+    // TODO: reloadTrigger Added as dependency array
+  }, [reloadTrigger]);
   const handleShareClick = (groupId) => {
     if (!groupId) {
       console.error("Missing or invalid groupId");
@@ -240,82 +316,7 @@ const Group = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get("/group/get-group-admin");
-        setGroups(response.data);
-        const formattedData = response.data.map((group, index) => ({
-          _id: group?._id,
-          id: index + 1,
-          name: group?.group_name,
-          type:
-            group?.group_type.charAt(0).toUpperCase() +
-            group?.group_type.slice(1) +
-            " Group",
-          value: group?.group_value,
-          installment: group.group_install,
-          members: group?.group_members,
-          date: group?.createdAt,
-          action: (
-            <div className="flex justify-center gap-2">
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: "1",
-                      label: (
-                        <div
-                          className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(group._id)}
-                        >
-                          Edit
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "2",
-                      label: (
-                        <div
-                          className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(group._id)}
-                        >
-                          Delete
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "3",
-                      label: (
-                        <div
-                          onClick={() => handleShareClick(group?._id)}
-                          className=" text-blue-600 "
-                        >
-                          Copy
-                        </div>
-                      ),
-                    },
-                  ],
-                }}
-                placement="bottomLeft"
-              >
-                <IoMdMore className="text-bold" />
-              </Dropdown>
-            </div>
-          ),
-        }));
-        setTableGroups(formattedData);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchGroups();
 
-    // TODO: reloadTrigger Added as dependency array
-  }, [reloadTrigger]);
 
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())

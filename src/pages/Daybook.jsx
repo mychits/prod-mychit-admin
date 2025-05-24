@@ -62,7 +62,18 @@ const Daybook = () => {
   });
 
   const handleModalClose = () => setShowUploadModal(false);
-
+ useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const response = await api.get("/user/get-user");
+        setFilteredUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      }
+    };
+    fetchGroups();
+  }, []);
+  
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -131,17 +142,7 @@ const Daybook = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const response = await api.get("/user/get-user");
-        setFilteredUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      }
-    };
-    fetchGroups();
-  }, []);
+ 
 
   const handleGroup = async (event) => {
     const groupId = event.target.value;

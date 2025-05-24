@@ -45,6 +45,76 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     const { value } = e.target;
     setSearchText(value);
   };
+
+    useEffect(() => {
+    const fetchAreaCollection = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get(
+          "/collection-area-request/get-collection-area-data"
+        );
+
+        setCollectionArea(response.data);
+        const collectionAreaData = response?.data.map(
+          (collectionArea, index) => {
+            return {
+              _id: collectionArea?._id,
+              id: index + 1,
+              name: collectionArea?.route_name,
+              pincode: collectionArea?.route_pincode,
+              action: (
+                <div className="flex justify-center gap-2">
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          key: "1",
+                          label: (
+                            <div
+                              className="text-green-600"
+                              onClick={() =>
+                                handleUpdateModalOpen(collectionArea?._id)
+                              }
+                            >
+                              Edit
+                            </div>
+                          ),
+                        },
+                        {
+                          key: "2",
+                          label: (
+                            <div
+                              className="text-red-600"
+                              onClick={() =>
+                                handleDeleteModalOpen(collectionArea?._id)
+                              }
+                            >
+                              Delete
+                            </div>
+                          ),
+                        },
+                      ],
+                    }}
+                    placement="bottomLeft"
+                  >
+                    <IoMdMore className="text-bold" />
+                  </Dropdown>
+                </div>
+              ),
+            };
+          }
+        );
+   
+        setTableCollectionArea(collectionAreaData);
+      } catch (error) {
+        console.error("Error fetching collection area data:", error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAreaCollection();
+  }, [reloadTrigger]);
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCollectionAreaData((prevData) => ({
@@ -114,74 +184,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
   };
 
 
-  useEffect(() => {
-    const fetchAreaCollection = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get(
-          "/collection-area-request/get-collection-area-data"
-        );
 
-        setCollectionArea(response.data);
-        const collectionAreaData = response?.data.map(
-          (collectionArea, index) => {
-            return {
-              _id: collectionArea?._id,
-              id: index + 1,
-              name: collectionArea?.route_name,
-              pincode: collectionArea?.route_pincode,
-              action: (
-                <div className="flex justify-center gap-2">
-                  <Dropdown
-                    menu={{
-                      items: [
-                        {
-                          key: "1",
-                          label: (
-                            <div
-                              className="text-green-600"
-                              onClick={() =>
-                                handleUpdateModalOpen(collectionArea?._id)
-                              }
-                            >
-                              Edit
-                            </div>
-                          ),
-                        },
-                        {
-                          key: "2",
-                          label: (
-                            <div
-                              className="text-red-600"
-                              onClick={() =>
-                                handleDeleteModalOpen(collectionArea?._id)
-                              }
-                            >
-                              Delete
-                            </div>
-                          ),
-                        },
-                      ],
-                    }}
-                    placement="bottomLeft"
-                  >
-                    <IoMdMore className="text-bold" />
-                  </Dropdown>
-                </div>
-              ),
-            };
-          }
-        );
-   
-        setTableCollectionArea(collectionAreaData);
-      } catch (error) {
-        console.error("Error fetching collection area data:", error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchAreaCollection();
-  }, [reloadTrigger]);
 
   const columns = [
     { key: "id", header: "SL. NO" },

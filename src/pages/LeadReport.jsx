@@ -1,12 +1,9 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
-import Sidebar from "../components/layouts/Sidebar";
-import { MdDelete } from "react-icons/md";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
-import TabModal from "../components/modals/TabModal";
 import { IoMdMore } from "react-icons/io";
 import CircularLoader from "../components/loaders/CircularLoader";
 import Navbar from "../components/layouts/Navbar";
@@ -22,13 +19,11 @@ const LeadReport = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [loader, setLoader] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState("");
-
   const [leads, setLeads] = useState([]);
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [errors, setErrors] = useState({});
   const [showFilterField,setShowFilterField] = useState(false);
-  const now = new Date();
   const [searchText, setSearchText] = useState("");
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
@@ -42,7 +37,6 @@ const LeadReport = () => {
     const groupId = event.target.value;
     setSelectedGroup(groupId);
   };
-
   const [formData, setFormData] = useState({
     lead_name: "",
     lead_phone: "",
@@ -65,8 +59,13 @@ const LeadReport = () => {
     lead_needs: "",
     note: "",
   });
-  const [selectedFromDate, setSelectedFromDate] = useState("");
-  const [selectedToDate, setSelectedToDate] = useState("");
+const now = new Date();
+const formatToday = (date) => now.toLocaleDateString('en-CA');
+const formatString = formatToday(now);
+  
+  const [selectedFromDate, setSelectedFromDate] = useState(formatString);
+  const [selectedToDate, setSelectedToDate] = useState(formatString);
+ 
   const [selectedLeadSourceName, setSelectedLeadSourceName] = useState("");
   const [selectedNote, setSelectedNote] = useState("");
 
@@ -101,9 +100,7 @@ const LeadReport = () => {
     if (!data.lead_needs.trim()) {
       newErrors.lead_needs = "Lead Needs and Goals is required";
     }
-    // if(!data.note.trim()){
-    //   newErrors.note ="Note Field is Mandatory"
-    // }
+   
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -125,83 +122,6 @@ const LeadReport = () => {
     setShowContextMenu((prev) => ({ ...prev, [id]: true }));
     console.log(showContextMenu);
   };
-  useEffect(() => {
-    const fetchLeads = async () => {
-      setLoader(true);
-      try {
-        const response = await api.get("/lead/get-lead");
-        setLoader(false);
-        const tempData = {};
-        if (response.data) {
-          //   response.data.forEach((element) => {
-          //     tempData[element.group_id._id] = false;
-          //   });
-          setShowContextMenu(tempData);
-          setLeads(response.data);
-          console.log("this is leads", leads);
-          const formattedData = response.data.map((group, index) => ({
-            _id: group._id,
-            id: index + 1,
-            name: group.lead_name,
-            phone: group.lead_phone,
-            profession: group.lead_profession,
-            lead_needs: group?.lead_needs,
-            group_id: group?.group_id?.group_name,
-            date: group?.createdAt.split("T")[0],
-            lead_type:
-              group.lead_type === "agent" ? "employee" : group.lead_type,
-            note: group?.note,
-            lead_type_name:
-              group.lead_type === "customer"
-                ? group?.lead_customer?.full_name
-                : group.lead_type === "agent"
-                ? group?.lead_agent?.name
-                : "",
-            action: (
-              <div className="flex justify-center gap-2 ">
-                <Dropdown
-                  menu={{
-                    items: [
-                      {
-                        key: "1",
-                        label: (
-                          <div
-                            className="text-green-600"
-                            onClick={() => handleUpdateModalOpen(group._id)}
-                          >
-                            Edit
-                          </div>
-                        ),
-                      },
-                      {
-                        key: "2",
-                        label: (
-                          <div
-                            className="text-red-600"
-                            onClick={() => handleDeleteModalOpen(group._id)}
-                          >
-                            Delete
-                          </div>
-                        ),
-                      },
-                    ],
-                  }}
-                  placement="bottomLeft"
-                >
-                  <IoMdMore className="text-bold" />
-                </Dropdown>
-              </div>
-            ),
-          }));
-          setTableGroups(formattedData);
-        }
-      } catch (error) {
-        setLoader(true);
-        console.error("Error fetching group data:", error);
-      }
-    };
-    fetchLeads();
-  }, []);
 
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -330,6 +250,7 @@ const LeadReport = () => {
     const fetchFilteredLead = async () => {
       setLoader(true);
       try {
+        console.info("fromdate",selectedFromDate,selectedToDate)
         const response = await api.get("/lead-report/get-lead-report", {
           params: {
             from_date: selectedFromDate,
@@ -413,6 +334,7 @@ const LeadReport = () => {
     selectedNote,
   ]);
   const handleSelectFilter = (e) => {
+    console.log("sath karod")
     const { value } = e.target;
 setShowFilterField(false);
 
@@ -592,55 +514,7 @@ if (value === "Today") {
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {/* {filteredGroups.length === 0 ? (
-                <div className="flex justify-center items-center h-64">
-                  <p className="text-gray-500 text-lg">No groups added yet</p>
-                </div>
-              ) : (
-                filteredGroups.map((group) => (
-                  <div
-                    key={group.id}
-                    className="bg-white border border-gray-300 rounded-xl p-6 shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-xl"
-                  >
-                    <div className="flex flex-col items-center">
-                      <h2 className="text-xl font-bold mb-3 text-gray-700 text-center">
-                        {group.group_name}
-                      </h2>
-                      <p className="">{group.group_type.charAt(0).toUpperCase() + group.group_type.slice(1)} Group</p>
-                      <div className="flex gap-16 py-3">
-                        <p className="text-gray-500 mb-2 text-center">
-                          <span className="font-medium text-gray-700 text-lg">
-                            {group.group_members}
-                          </span>
-                          <br />
-                          <span className="font-bold text-sm">Members</span>
-                        </p>
-                        <p className="text-gray-500 mb-4 text-center">
-                          <span className="font-medium text-gray-700 text-lg">
-                            ₹{group.group_install}
-                          </span>
-                          <br />
-                          <span className="font-bold text-sm">Installment</span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => handleUpdateModalOpen(group._id)}
-                        className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-                      >
-                        <CiEdit color="green" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteModalOpen(group._id)}
-                        className="border border-red-400 text-white px-4 py-2 rounded-md shadow hover:border-red-700 transition duration-200"
-                      >
-                        <MdDelete color="red" />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )} */}
+              
             </div>
           </div>
         </div>

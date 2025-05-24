@@ -155,7 +155,7 @@ const EnrollmentReport = () => {
 setShowFilterField(false);
 
 const today = new Date();
-const formatDate = (date) => date.toLocaleDateString('en-CA'); // returns 'YYYY-MM-DD' in local time
+const formatDate = (date) => date.toLocaleDateString('en-CA'); 
 
 if (value === "Today") {
   const formatted = formatDate(today);

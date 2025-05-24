@@ -4,7 +4,6 @@ import Sidebar from "../components/layouts/Sidebar";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
 import { Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
@@ -82,6 +81,89 @@ const FilterGroups = () => {
     // navigator.clipboard.writeText(fullUrl);
     window.open(fullUrl, "_blank");
   };
+
+    useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get("/group/get-group-admin");
+        setGroups(response.data);
+        const formattedData = response.data.map((group, index) => ({
+          _id: group?._id,
+          id: index + 1,
+          name: group?.group_name,
+          type:
+            group?.group_type.charAt(0).toUpperCase() +
+            group?.group_type.slice(1) +
+            " Group",
+          value: group?.group_value,
+          installment: group?.group_install,
+          members: group?.group_members,
+          filter_group: group?.filter_group,
+          date: group?.createdAt,
+          action: (
+            <div className="flex justify-center gap-2">
+              {/* <button
+                onClick={() => handleUpdateModalOpen(group._id)}
+                className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
+              >
+                <CiEdit color="green" />
+              </button> */}
+
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(group?._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(group?._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "3",
+                      label: (
+                        <div
+                          onClick={() => handleShareClick(group?._id)}
+                          className=" text-blue-600 "
+                        >
+                          Copy
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
+            </div>
+          ),
+        }));
+        setTableGroups(formattedData);
+      } catch (error) {
+        console.error("Error fetching group data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchGroups();
+  }, [reloadTrigger]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -239,88 +321,7 @@ const FilterGroups = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get("/group/get-group-admin");
-        setGroups(response.data);
-        const formattedData = response.data.map((group, index) => ({
-          _id: group?._id,
-          id: index + 1,
-          name: group?.group_name,
-          type:
-            group?.group_type.charAt(0).toUpperCase() +
-            group?.group_type.slice(1) +
-            " Group",
-          value: group?.group_value,
-          installment: group?.group_install,
-          members: group?.group_members,
-          filter_group: group?.filter_group,
-          date: group?.createdAt,
-          action: (
-            <div className="flex justify-center gap-2">
-              {/* <button
-                onClick={() => handleUpdateModalOpen(group._id)}
-                className="border border-green-400 text-white px-4 py-2 rounded-md shadow hover:border-green-700 transition duration-200"
-              >
-                <CiEdit color="green" />
-              </button> */}
 
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: "1",
-                      label: (
-                        <div
-                          className="text-green-600"
-                          onClick={() => handleUpdateModalOpen(group?._id)}
-                        >
-                          Edit
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "2",
-                      label: (
-                        <div
-                          className="text-red-600"
-                          onClick={() => handleDeleteModalOpen(group?._id)}
-                        >
-                          Delete
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "3",
-                      label: (
-                        <div
-                          onClick={() => handleShareClick(group?._id)}
-                          className=" text-blue-600 "
-                        >
-                          Copy
-                        </div>
-                      ),
-                    },
-                  ],
-                }}
-                placement="bottomLeft"
-              >
-                <IoMdMore className="text-bold" />
-              </Dropdown>
-            </div>
-          ),
-        }));
-        setTableGroups(formattedData);
-      } catch (error) {
-        console.error("Error fetching group data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchGroups();
-  }, [reloadTrigger]);
 
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())

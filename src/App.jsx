@@ -38,7 +38,6 @@ import Pigme from "./pages/Pigme";
 import PigmeReport from "./pages/PigmeReport";
 import LoanReport from "./pages/LoanReport";
 import EnrollmentRequestForm from "./pages/EnrollmentRequestForm";
-import EnrollmentRequest from "./pages/EnrollmentRequest";
 import Designation from "./pages/Designation";
 import AdministrativePrivileges from "./pages/AdministrativePrivileges";
 import AdminAccessRights from "./pages/AdminAccessRights";

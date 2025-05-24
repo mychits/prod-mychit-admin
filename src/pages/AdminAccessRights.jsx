@@ -148,6 +148,75 @@ const AdminAccessRights = () => {
       view_agent_report: "",
     },
   });
+ useEffect(() => {
+    const fetchAdminRights = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get("/admin-access-rights/get-all");
+        setUsers(response.data);
+        const formattedData = response.data.map((adminAccess, index) => ({
+          _id: adminAccess?._id,
+          id: index + 1,
+          title: adminAccess?.title,
+          action: (
+            <div className="flex justify-center  gap-2">
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <div
+                          className="text-green-600"
+                          onClick={() => handleUpdateModalOpen(adminAccess?._id)}
+                        >
+                          Edit
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <div
+                          className="text-red-600"
+                          onClick={() => handleDeleteModalOpen(adminAccess?._id)}
+                        >
+                          Delete
+                        </div>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
+            </div>
+          ),
+        }));
+        setTableAgents(formattedData);
+      } catch (error) {
+        console.error("Error fetching Admin Access data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAdminRights();
+  }, [reloadTrigger]);
+
+    useEffect(() => {
+    const fetchAdminAccessRights = async () => {
+      try {
+        const response = await api.get(
+          "/admin-access-rights/admin-access-rights"
+        );
+        setManagers(response.data);
+      } catch (error) {
+        console.error("Error fetching admin access rights:", error);
+      }
+    };
+    fetchAdminAccessRights();
+  }, [reloadTrigger]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
