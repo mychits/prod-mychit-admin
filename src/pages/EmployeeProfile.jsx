@@ -1,8 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
-import { MdDelete } from "react-icons/md";
-import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
 import { Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
@@ -58,6 +56,9 @@ const EmployeeProfile = () => {
     gender: "",
     alternate_number: "",
     salary: "",
+    leaving_date: "",
+    emergency_contact_person: "",
+    emergency_contact_number: [""],
   });
 
   const [updateFormData, setUpdateFormData] = useState({
@@ -76,25 +77,30 @@ const EmployeeProfile = () => {
     gender: "",
     alternate_number: "",
     salary: "",
+    leaving_date: "",
+    emergency_contact_person: "",
+    emergency_contact_number: [""],
   });
 
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get("/agent/get-additional-info-employee");
+        const response = await api.get("/agent/get-additional-employee-info");
+        const employeeData = response.data?.employee || [];
+       
+        setUsers(employeeData);
 
-        setUsers(response?.data?.employee);
-        const formattedData = response?.data?.employee?.map((group, index) => ({
+        const formattedData = employeeData.map((group, index) => ({
           _id: group?._id,
           id: index + 1,
-          name: group?.name,
+          name: group?.name || "N/A",
           employeeCode: group?.employeeCode || "N/A",
-          phone_number: group?.phone_number,
-          password: group?.password,
-          designation: group?.designation_id?.title,
+          phone_number: group?.phone_number || "N/A",
+          password: group?.password || "N/A",
+          designation: group?.designation_id?.title || "N/A",
           action: (
-            <div className="flex justify-center  gap-2">
+            <div className="flex justify-center gap-2">
               <Dropdown
                 menu={{
                   items: [
@@ -129,6 +135,7 @@ const EmployeeProfile = () => {
             </div>
           ),
         }));
+
         setTableEmployees(formattedData);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -138,7 +145,6 @@ const EmployeeProfile = () => {
     };
     fetchEmployee();
   }, [reloadTrigger]);
-
   useEffect(() => {
     const fetchManagers = async () => {
       try {
@@ -177,7 +183,7 @@ const EmployeeProfile = () => {
       alternate_number: /^[6-9]\d{9}$/,
     };
 
-    if (!data.name.trim()) {
+    if (!data.name || !data.name.trim()) {
       newErrors.name = "Full Name is required";
     }
 
@@ -205,21 +211,21 @@ const EmployeeProfile = () => {
         "Password must contain at least 5 characters, one uppercase, one lowercase, one number, and one special character";
     }
 
-    if(!data.status){
+    if (!data.status) {
       newErrors.status = "Status is required";
     }
 
-    if(!data.dob){
+    if (!data.dob) {
       newErrors.dob = "Date of Birth is required";
     }
 
-    if(!data.joining_date){
+    if (!data.joining_date) {
       newErrors.joining_date = "Joining Date is required";
     }
-    if(!data.gender){
+    if (!data.gender) {
       newErrors.gender = "Please Select Gender";
     }
-    if(!data.salary){
+    if (!data.salary) {
       newErrors.salary = "Salary is required";
     }
 
@@ -243,15 +249,75 @@ const EmployeeProfile = () => {
       newErrors.pan_no = "Invalid PAN format (e.g., ABCDE1234F)";
     }
 
-    if (!data.address.trim()) {
+    if (!data.address || !data.address.trim()) {
       newErrors.address = "Address is required";
     } else if (data.address.trim().length < 10) {
       newErrors.address = "Address should be at least 10 characters";
     }
-
+    if(!data.emergency_contact_person){
+      newErrors.emergency_contact_person = "Contact Person Name is Required"
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+
+const addPhoneField = (formState, setFormState) => {
+  const phones = [...(formState.emergency_contact_number || [])];
+
+  const lastPhone = phones[phones.length - 1];
+
+  if (phones.length > 0 && (!lastPhone || lastPhone.trim() === "")) {
+    alert("Please fill in the last emergency contact number before adding a new one.");
+    return;
+  }
+
+  setFormState({
+    ...formState,
+    emergency_contact_number: [...phones, ""],
+  });
+};
+
+
+const handlePhoneChange = (formState, setFormState, index, e) => {
+  const value = e.target.value;
+
+
+  let phones = (formState.emergency_contact_number && formState.emergency_contact_number.length > 0)
+    ? [...formState.emergency_contact_number]
+    : [""];
+
+  while (phones.length <= index) {
+    phones.push("");
+  }
+
+
+  phones[index] = value;
+
+
+  const lastIndex = phones.reduceRight((lastNonEmpty, phone, i) => {
+    return lastNonEmpty !== -1 ? lastNonEmpty : (phone.trim() !== "" ? i : -1);
+  }, -1);
+
+
+  phones = lastIndex === -1 ? [""] : phones.slice(0, lastIndex + 1);
+
+  setFormState({
+    ...formState,
+    emergency_contact_number: phones,
+  });
+};
+
+  const removePhoneField = (formState, setFormState, index) => {
+    const phones = Array.isArray(formState.emergency_contact_number)
+      ? [...formState.emergency_contact_number]
+      : [];
+    const updatedPhones = phones.filter((_, i) => i !== index);
+    setFormState({
+      ...formState,
+      emergency_contact_number: updatedPhones,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -267,7 +333,7 @@ const EmployeeProfile = () => {
         };
 
         const response = await api.post(
-          "/agent/add-addtional-info-employee",
+          "/agent/add-addtional-employee-info",
           dataToSend,
           {
             headers: {
@@ -292,18 +358,21 @@ const EmployeeProfile = () => {
           gender: "",
           alternate_number: "",
           salary: "",
+          leaving_date: "",
+          emergency_contact_person: "",
+          emergency_contact_number: [''],
         });
         setSelectedManagerId("");
         setSelectedReportingManagerId("");
         setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
-          message: "Agent Added Successfully",
+          message: "Employee Added Successfully",
           type: "success",
         });
       }
     } catch (error) {
-      console.error("Error adding agent:", error);
+      console.error("Error adding Employee:", error);
       if (
         error.response &&
         error.response.data &&
@@ -350,7 +419,7 @@ const EmployeeProfile = () => {
   const handleDeleteModalOpen = async (userId) => {
     try {
       const response = await api.get(
-        `/agent/get-additional-info-employee-by-id/${userId}`
+        `/agent/get-additional-employee-info-by-id/${userId}`
       );
       setCurrentUser(response.data?.employee);
       setShowModalDelete(true);
@@ -363,7 +432,7 @@ const EmployeeProfile = () => {
   const handleUpdateModalOpen = async (userId) => {
     try {
       const response = await api.get(
-        `/agent/get-additional-info-employee-by-id/${userId}`
+        `/agent/get-additional-employee-info-by-id/${userId}`
       );
       setCurrentUpdateUser(response.data?.employee);
       setUpdateFormData({
@@ -381,6 +450,10 @@ const EmployeeProfile = () => {
         gender: response?.data?.employee?.gender,
         alternate_number: response?.data?.employee?.alternate_number,
         salary: response?.data?.employee?.salary,
+        leaving_date: response?.data?.employee?.leaving_date?.split("T")[0],
+        emergency_contact_number: response?.data?.employee
+          ?.emergency_contact_number || [""],
+          emergency_contact_person: response?.data?.employee?.emergency_contact_person,
       });
       setSelectedManagerId(response.data?.employee?.designation_id?._id || "");
       setSelectedReportingManagerId(
@@ -406,7 +479,7 @@ const EmployeeProfile = () => {
     if (currentUser) {
       try {
         await api.delete(
-          `/agent/delete-additional-info-employee-by-id/${currentUser._id}`
+          `/agent/delete-additional-employee-info-by-id/${currentUser._id}`
         );
         setShowModalDelete(false);
         setCurrentUser(null);
@@ -433,7 +506,7 @@ const EmployeeProfile = () => {
           reporting_manager_id: selectedReportingManagerId,
         };
         const response = await api.put(
-          `/agent/update-additional-info-employee/${currentUpdateUser._id}`,
+          `/agent/update-additional-employee-info/${currentUpdateUser._id}`,
           dataToSend
         );
         setShowModalUpdate(false);
@@ -442,7 +515,7 @@ const EmployeeProfile = () => {
         setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
-          message: "Agent Updated Successfully",
+          message: "Employee Updated Successfully",
           type: "success",
         });
       }
@@ -509,7 +582,7 @@ const EmployeeProfile = () => {
                   }}
                   className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
-                  + Add Employee
+                  + Add Employee Profile
                 </button>
               </div>
             </div>
@@ -535,11 +608,11 @@ const EmployeeProfile = () => {
             )}
           </div>
         </div>
-
+      
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Add Employee
+              Add Employee Profile
             </h3>
             <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               <div>
@@ -725,7 +798,8 @@ const EmployeeProfile = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
                 )}
               </div>
-              <div className="w-full">
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
@@ -746,11 +820,8 @@ const EmployeeProfile = () => {
                     </option>
                   ))}
                 </select>
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
+                </div>
+                <div className="w-1/2"><label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="status"
                   >
@@ -768,11 +839,11 @@ const EmployeeProfile = () => {
                     <option value="terminated">Terminated</option>
                   </select>
                   {errors.status && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.status}
-                    </p>
-                  )}
-                </div>
+                    <p className="mt-2 text-sm text-red-600">{errors.status}</p>
+                  )}</div>
+              </div>
+
+              <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -795,6 +866,30 @@ const EmployeeProfile = () => {
                     </p>
                   )}
                 </div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="ld"
+                  >
+                    Leaving Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="leaving_date"
+                    value={formData.leaving_date}
+                    onChange={handleChange}
+                    id="ld"
+                    placeholder="Enter Leaving Date"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                  {errors.leaving_date && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.leaving_date}
+                    </p>
+                  )}
+                </div>
+
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -814,9 +909,7 @@ const EmployeeProfile = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
                   {errors.dob && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.dob}
-                    </p>
+                    <p className="mt-2 text-sm text-red-600">{errors.dob}</p>
                   )}
                 </div>
                 <div className="w-1/2">
@@ -837,9 +930,7 @@ const EmployeeProfile = () => {
                     <option value="female">Female</option>
                   </select>
                   {errors.gender && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.gender}
-                    </p>
+                    <p className="mt-2 text-sm text-red-600">{errors.gender}</p>
                   )}
                 </div>
               </div>
@@ -863,9 +954,7 @@ const EmployeeProfile = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
                   {errors.salary && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.salary}
-                    </p>
+                    <p className="mt-2 text-sm text-red-600">{errors.salary}</p>
                   )}
                 </div>
                 <div className="w-1/2">
@@ -873,7 +962,8 @@ const EmployeeProfile = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="alternate"
                   >
-                    Alternate Phone Number <span className="text-red-500">*</span>
+                    Alternate Phone Number{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -893,13 +983,108 @@ const EmployeeProfile = () => {
                 </div>
               </div>
 
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="cp"
+                  >
+                    Contact Person Name<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="emergency_contact_person"
+                    value={formData.emergency_contact_person}
+                    onChange={handleChange}
+                    id="cp"
+                    placeholder="Enter Contact Person"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                  {errors.emergency_contact_person && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.emergency_contact_person}
+                    </p>
+                  )}
+                </div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="emergency"
+                  >
+                    Emergency Phone Number{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+
+                  <div className="flex items-center mb-2 gap-2">
+                    <input
+                      type="tel"
+                      name="emergency_contact_number"
+                      value={formData.emergency_contact_number?.[0] || ""}
+                      onChange={(e) =>
+                        handlePhoneChange(formData, setFormData, 0, e)
+                      } 
+                      id="emergency_0"
+                      placeholder="Enter Default Emergency Phone Number"
+                      required
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    />
+                  </div>
+
+                  {formData.emergency_contact_number
+                    ?.slice(1)
+                    .map((phone, index) => (
+                      <div
+                        key={index }
+                        className="flex items-center mb-2 gap-2"
+                      >
+                        <input
+                          type="tel"
+                          name={`emergency_phone_${index +1}`}
+                          value={phone}
+                          onChange={
+                            (e) =>
+                              handlePhoneChange(
+                                formData,
+                                setFormData,
+                                index + 1,
+                                e
+                              )
+                          }
+                          id={`emergency_${index + 1}`}
+                          placeholder="Enter Additional Emergency Phone Number"
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                        />
+                      {index >0 &&  <button
+                          type="button"
+                          onClick={
+                            () =>
+                              removePhoneField(formData, setFormData, index + 1) 
+                          }
+                          className="text-red-600 text-sm"
+                        >
+                          Remove
+                        </button>}
+                      </div>
+                    ))}
+
+                  <button
+                    type="button"
+                    onClick={() => addPhoneField(formData, setFormData)} 
+                    className="mt-2 text-blue-600 text-sm"
+                  >
+                    + Add Another
+                  </button>
+                </div>
+              </div>
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
                   className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
                 >
-                  Save Employee
+                  Save Employee Profile
                 </button>
               </div>
             </form>
@@ -912,7 +1097,7 @@ const EmployeeProfile = () => {
         >
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Update Employee
+              Update Employee Profile
             </h3>
             <form className="space-y-6" onSubmit={handleUpdate} noValidate>
               <div>
@@ -1097,7 +1282,8 @@ const EmployeeProfile = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
                 )}
               </div>
-              <div className="w-full">
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
@@ -1155,9 +1341,7 @@ const EmployeeProfile = () => {
                   )}
                 </div>
               )}
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
+              <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="status"
@@ -1176,11 +1360,15 @@ const EmployeeProfile = () => {
                     <option value="terminated">Terminated</option>
                   </select>
                   {errors.status && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.status}
-                    </p>
+                    <p className="mt-2 text-sm text-red-600">{errors.status}</p>
                   )}
                 </div>
+              </div>
+              
+                
+
+              <div className="flex flex-row justify-between space-x-4">
+                
                 <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -1200,6 +1388,35 @@ const EmployeeProfile = () => {
                   {errors.joining_date && (
                     <p className="mt-2 text-sm text-red-600">
                       {errors.joining_date}
+                    </p>
+                  )}
+                </div>
+                 <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="ld"
+                  >
+                    Leaving Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="leaving_date"
+                    value={
+                      updateFormData?.leaving_date
+                        ? new Date(updateFormData?.leaving_date || "")
+                            .toISOString()
+                            .split("T")[0]
+                        : ""
+                    }
+                    onChange={handleInputChange}
+                    id="ld"
+                    placeholder="Enter Leaving Date"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                  {errors.leaving_date && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.leaving_date}
                     </p>
                   )}
                 </div>
@@ -1228,9 +1445,7 @@ const EmployeeProfile = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
                   {errors.dob && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.dob}
-                    </p>
+                    <p className="mt-2 text-sm text-red-600">{errors.dob}</p>
                   )}
                 </div>
                 <div className="w-1/2">
@@ -1251,9 +1466,7 @@ const EmployeeProfile = () => {
                     <option value="female">Female</option>
                   </select>
                   {errors.gender && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.gender}
-                    </p>
+                    <p className="mt-2 text-sm text-red-600">{errors.gender}</p>
                   )}
                 </div>
               </div>
@@ -1272,14 +1485,12 @@ const EmployeeProfile = () => {
                     value={updateFormData.salary}
                     onChange={handleInputChange}
                     id="sal"
-                    placeholder="Enter Your Salary"
+                    placeholder="Enter Salary"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
                   {errors.salary && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.salary}
-                    </p>
+                    <p className="mt-2 text-sm text-red-600">{errors.salary}</p>
                   )}
                 </div>
                 <div className="w-1/2">
@@ -1287,7 +1498,8 @@ const EmployeeProfile = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="alternate"
                   >
-                    Alternate Phone Number <span className="text-red-500">*</span>
+                    Alternate Phone Number{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -1306,6 +1518,113 @@ const EmployeeProfile = () => {
                   )}
                 </div>
               </div>
+              
+
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="cp"
+                  >
+                    Contact Person Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="emergency_contact_person"
+                    value={updateFormData?.emergency_contact_person}
+                    onChange={handleInputChange}
+                    id="ld"
+                    placeholder="Enter Contact Person"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  />
+                  {errors.emergency_contact_person && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.emergency_contact_person}
+                    </p>
+                  )}
+                </div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="emergency"
+                  >
+                    Emergency Phone Number{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+
+                  <div className="flex items-center mb-2 gap-2">
+                    <input
+                      type="tel"
+                      name="emergency_contact_number"
+                      value={updateFormData.emergency_contact_number?.[0] || ""}
+                      onChange={(e) =>
+                        handlePhoneChange(
+                          updateFormData,
+                          setUpdateFormData,
+                          0,
+                          e
+                        )
+                      } // ✅ Updated handler
+                      id="emergency_0"
+                      placeholder="Enter Default Emergency Phone Number"
+                      required
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    />
+                  </div>
+
+                  {updateFormData.emergency_contact_number
+                    ?.slice(1)
+                    .map((phone, index) => (
+                      <div
+                        key={index + 1}
+                        className="flex items-center mb-2 gap-2"
+                      >
+                        <input
+                          type="tel"
+                          name={`emergency_phone_${index + 1}`}
+                          value={phone}
+                          onChange={
+                            (e) =>
+                              handlePhoneChange(
+                                updateFormData,
+                                setUpdateFormData,
+                                index + 1,
+                                e
+                              ) // ✅ Updated handler
+                          }
+                          id={`emergency_${index + 1}`}
+                          placeholder="Enter Additional Emergency Phone Number"
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                        />
+                        <button
+                          type="button"
+                          onClick={
+                            () =>
+                              removePhoneField(
+                                updateFormData,
+                                setUpdateFormData,
+                                index + 1
+                              ) // ✅ Updated handler
+                          }
+                          className="text-red-600 text-sm"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      addPhoneField(updateFormData, setUpdateFormData)
+                    } // ✅ Updated handler
+                    className="mt-2 text-blue-600 text-sm"
+                  >
+                    + Add Another
+                  </button>
+                </div>
+              </div>
 
               <div className="w-full flex justify-end">
                 <button
@@ -1313,7 +1632,7 @@ const EmployeeProfile = () => {
                   className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 >
-                  Update Employee
+                  Update Employee Profile
                 </button>
               </div>
             </form>

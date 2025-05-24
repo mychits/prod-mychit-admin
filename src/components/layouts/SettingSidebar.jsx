@@ -22,6 +22,7 @@ import { Link, useLocation } from "react-router-dom";
 import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 import { MdAppSettingsAlt } from "react-icons/md";
 
+
 const MenuSidebar = [
   { title: "Dashboard", icon: <RiDashboardFill />, link: "/dashboard" },
   {
@@ -43,7 +44,7 @@ const MenuSidebar = [
         submenu: true,
         submenuItems: [
           {
-            title: "Mobile App Settings",
+            title: "Mobile Access",
             icon: <MdAppSettingsAlt size={20} />,
             link: "/lead-setting/app-settings/groups", 
           },

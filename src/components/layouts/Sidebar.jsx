@@ -33,6 +33,7 @@ import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 import { FaUserTie } from "react-icons/fa6";
 import { FaPersonMilitaryPointing } from "react-icons/fa6"
 import { GiRoundTable } from "react-icons/gi";
+import { GrUserSettings } from "react-icons/gr";
 
 const MenuSidebar = [
   {
@@ -184,10 +185,19 @@ const MenuSidebar = [
       },
       {
         id: "#3",
-        title:"Employee Profile",
+        title:"Employee",
         hider: true,
         icon: <FaUserTie size={18} />,
-        link: "/employee-profile",
+        newTab: true,
+        submenu: true,
+        submenuItems: [
+          {
+            id: "#206",
+            title: "Employee Profile",
+            icon: <GrUserSettings size={18}/>,
+            link: "/employee-profile",
+          },
+        ],
       },
     ],
   },

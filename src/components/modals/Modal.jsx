@@ -1,28 +1,34 @@
 /* eslint-disable react/prop-types */
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 
-const Modal = ({ isVisible, onClose, children }) => {
 
-  useLayoutEffect(() => {
+
+const Modal = ({ isVisible, onClose, children }) => {
+  const [isDragging, setIsDragging] = useState(false);
+useLayoutEffect(() => {
     if (isVisible) {
-     
       document.body.style.overflow = "hidden";
     }
     return () => {
-    
       document.body.style.overflow = "";
     };
   }, [isVisible]);
 
-
   if (!isVisible) return null;
 
   const handleWrapperClick = (e) => {
- 
-    if (e.target === e.currentTarget) {
+    if (e.target === e.currentTarget && !isDragging) {
       onClose();
     }
+  };
+
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleDragEnd = () => {
+    setTimeout(() => setIsDragging(false), 100); // delay to avoid premature reset
   };
 
   return (
@@ -32,6 +38,10 @@ const Modal = ({ isVisible, onClose, children }) => {
                  bg-black bg-opacity-25 backdrop-blur-sm"
     >
       <div
+        onMouseDown={handleDragStart}
+        onMouseUp={handleDragEnd}
+        onTouchStart={handleDragStart}
+        onTouchEnd={handleDragEnd}
         className="relative w-1/2 max-h-[calc(100vh-5rem)] flex flex-col
                    bg-white rounded overflow-y-auto"
       >
