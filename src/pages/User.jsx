@@ -103,7 +103,7 @@ const User = () => {
     setSearchText(value);
   };
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchCollectionArea = async () => {
       try {
         const response = await api.get(
@@ -178,10 +178,21 @@ const User = () => {
                       key: "4",
                       label: (
                         <div
-                          className="text-red-600"
-                          onClick={() => handleCustomerStatus(group?._id)}
+                          className={`cursor-pointer ${
+                            group?.customer_status === "active"
+                              ? "text-red-600"
+                              : "text-green-600"
+                          }`}
+                          onClick={() =>
+                            handleCustomerStatus(
+                              group?._id,
+                              group?.customer_status
+                            )
+                          }
                         >
-                          Convert
+                          {group?.customer_status === "active"
+                            ? "Deactivate"
+                            : "Activate"}
                         </div>
                       ),
                     },
@@ -310,7 +321,7 @@ const User = () => {
             "Content-Type": "application/json",
           },
         });
-       // window.location.reload();
+
         setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           type: "success",
@@ -368,8 +379,6 @@ const User = () => {
     }
   };
 
-
-
   const columns = [
     { key: "id", header: "SL. NO" },
     { key: "customer_id", header: "Customer Id" },
@@ -421,9 +430,7 @@ const User = () => {
         taluk: response?.data?.taluk,
         district: response?.data?.district,
         state: response?.data?.state,
-
         collection_area: response?.data?.collection_area?._id || "",
-
         alternate_number: response?.data?.alternate_number,
         referral_name: response?.data?.referral_name,
         nominee_name: response?.data?.nominee_name,
@@ -463,7 +470,7 @@ const User = () => {
     if (currentUser) {
       try {
         await api.delete(`/user/delete-user/${currentUser._id}`);
-        
+
         setAlertConfig({
           visibility: true,
           message: "User deleted successfully",
@@ -482,7 +489,6 @@ const User = () => {
     const file = files[0];
 
     if (file) {
-      // Update the form data state with the selected file
       setUpdateFormData((prevState) => ({
         ...prevState,
         [name]: file,
@@ -490,28 +496,36 @@ const User = () => {
     }
   };
 
-  const handleCustomerStatus = async (id) => {
+
+  const handleCustomerStatus = async (id, currentStatus) => {
     try {
       if (!id) {
         console.warn("No user ID provided");
         return;
       }
+
+      const newStatus = currentStatus === "active" ? "inactive" : "active";
+
       const response = await api.put(`/user/update-user/${id}`, {
-        customer_status: "active",
+        customer_status: newStatus,
       });
-      setReloadTrigger((prev) => prev + 1);
+
+      if (response.status === 200) {
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
-          message: "User status has been successfully updated to active",
+          message: `User status has been successfully updated to ${newStatus}`,
           type: "success",
         });
-      if (response.status === 200) {
-        console.info("Customer status updated successfully for user ID:", id);
+        console.info(
+          `Customer status updated to ${newStatus} for user ID:`,
+          id
+        );
       } else {
         console.warn("Failed to update customer status:", response?.data);
       }
     } catch (err) {
-      console.error(err, err.message);
+      console.error("Error updating customer status:", err.message);
     }
   };
 
@@ -561,14 +575,14 @@ const User = () => {
             onGlobalSearchChangeHandler={GlobalSearchChangeHandler}
             visibility={true}
           />
-           <CustomAlertDialog
-          type={alertConfig.type}
-          isVisible={alertConfig.visibility}
-          message={alertConfig.message}
-          onClose={() =>
-            setAlertConfig((prev) => ({ ...prev, visibility: false }))
-          }
-        />
+          <CustomAlertDialog
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+            onClose={() =>
+              setAlertConfig((prev) => ({ ...prev, visibility: false }))
+            }
+          />
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
@@ -586,7 +600,7 @@ const User = () => {
                 </button>
               </div>
             </div>
-            {(TableUsers?.length > 0   && !isLoading) ? (
+            {TableUsers?.length > 0 && !isLoading ? (
               <DataTable
                 catcher="_id"
                 updateHandler={handleUpdateModalOpen}
@@ -810,10 +824,7 @@ const User = () => {
                   type="text"
                   name="collection_area"
                   value={formData?.collection_area || ""}
-                  // onChange={handleChange}
-                  // options={areaOption}
                   onChange={(e) => {
-                  
                     handleChange(e);
                   }}
                   id="area"
@@ -1587,7 +1598,6 @@ const User = () => {
                     type="text"
                     name="collection_area"
                     value={updateFormData?.collection_area || ""}
-                  
                     onChange={(e) => {
                       handleInputChange(e);
                     }}
@@ -1598,14 +1608,11 @@ const User = () => {
                   >
                     <option value="">Select Area</option>
                     {areas.map((area) => (
-                      <option
-                        key={area?._id}
-                        value={area?._id}
-                      >
+                      <option key={area?._id} value={area?._id}>
                         {area?.route_name}
                       </option>
                     ))}
-                    </select>
+                  </select>
                 </div>
               </div>
 

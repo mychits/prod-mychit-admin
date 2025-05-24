@@ -1310,7 +1310,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
               {(selectedManagerTitle === "Sales Excecutive" ||
                 selectedManagerTitle === "Business Agent" ||
                 selectedManagerTitle === "Office Executive") && (
-                <div className="w-full">
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"

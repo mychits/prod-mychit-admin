@@ -257,7 +257,7 @@ function App() {
                 }
               >
                 <Route
-                  path="groups"
+                  path="groups/mobile-access"
                   element={
                     <ProtectedRoute>
                       <GroupSettings />
