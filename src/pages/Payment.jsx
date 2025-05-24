@@ -106,9 +106,16 @@ const Payment = () => {
   useEffect(() => {
     const user = localStorage.getItem("user");
     const userObj = JSON.parse(user);
-    
-    if (userObj &&  userObj.admin_access_right_id?.access_permissions?.edit_payment) {
-      const isModify =userObj.admin_access_right_id?.access_permissions?.edit_payment === "true" ? true : false;
+
+    if (
+      userObj &&
+      userObj.admin_access_right_id?.access_permissions?.edit_payment
+    ) {
+      const isModify =
+        userObj.admin_access_right_id?.access_permissions?.edit_payment ===
+        "true"
+          ? true
+          : false;
       setModifyPayment(isModify);
     }
   }, []);
@@ -661,11 +668,20 @@ const Payment = () => {
           payload.pay_for = "Pigme";
           payload.admin_type = admin_type?._id;
         }
-        const response = await api.post("/payment/add-payment", payload);
+        // const response = await api.post("/payment/add-payment", payload);
+        const response = await api.post(
+          "/payment/add-payment-with-receipt",
+          payload
+        );
+                                             
         if (response.status === 201) {
           setSelectedGroupId("");
           if (paymentFor === dataPaymentsFor.typeChit) {
-            createReceipt(formData);
+            const updatedForm = {
+              ...formData,
+              receipt_no: response?.data?.payment?.receipt_no ||  formData.receipt_no,
+            };
+            createReceipt(updatedForm);
           }
           setDisabled(false);
           setFormData({
@@ -1069,7 +1085,7 @@ const Payment = () => {
                       Payment Date
                     </label>
                     <input
-                      disabled={!modifyPayment }
+                      disabled={!modifyPayment}
                       type="date"
                       name="pay_date"
                       value={formData.pay_date}

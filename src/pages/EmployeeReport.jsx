@@ -7,27 +7,30 @@ import Navbar from "../components/layouts/Navbar";
 
 const EmployeeReport = () => {
   const [employees, setEmployees] = useState([]);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState("all");
   const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
   const [employeeCustomerData, setEmployeeCustomerData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const fetchEmployees = async () => {
+    setInitialLoading(true);
     try {
       const res = await api.get("/agent/get-agent");
-      setEmployees(res.data);
+      const allOption = { _id: "all", name: "All Employees", phone_number: "" };
+      setEmployees([allOption, ...res.data]);
     } catch (err) {
       console.error("Error fetching employees:", err);
+    } finally {
+      setInitialLoading(false);
     }
   };
 
-  const fetchEmployeeReport = async (employeeId) => {
-    if (!employeeId) return;
+  const fetchEmployeeReport = async (employeeId = "all") => {
     setLoading(true);
     try {
-      const res = await api.get(
-        `/agent/getemployeereport?agentId=${employeeId}`
-      );
+      const url = `/agent/getemployeereport?agentId=${employeeId}`;
+      const res = await api.get(url);
       setEmployeeCustomerData(res.data);
     } catch (err) {
       console.error("Error fetching employee report:", err);
@@ -39,14 +42,25 @@ const EmployeeReport = () => {
 
   const handleEmployeeChange = (value) => {
     setSelectedEmployeeId(value);
-    const selectedEmp = employees.find((emp) => emp._id === value);
-    setSelectedEmployeeDetails(selectedEmp || null);
-    fetchEmployeeReport(value);
+    if (value === "all") {
+      setSelectedEmployeeDetails(null);
+      fetchEmployeeReport("all");
+    } else {
+      const selectedEmp = employees.find((emp) => emp._id === value);
+      setSelectedEmployeeDetails(selectedEmp || null);
+      fetchEmployeeReport(value);
+    }
   };
 
   useEffect(() => {
     fetchEmployees();
   }, []);
+
+  useEffect(() => {
+    if (employees.length > 0) {
+      fetchEmployeeReport("all");
+    }
+  }, [employees]);
 
   const totalCommission = employeeCustomerData.reduce(
     (acc, curr) =>
@@ -63,38 +77,49 @@ const EmployeeReport = () => {
 
   const processedTableData = employeeCustomerData.map((item, index) => ({
     ...item,
-    enrollmentStartDate:item?.enrollmentStartDate?.split("T")[0],
+    enrollmentStartDate: item?.enrollmentStartDate?.split("T")[0],
     sl_no: index + 1,
   }));
 
   const columns = [
-    { key: "sl_no", header: "SL. NO" },
-    { key: "customerName", header: "Customer Name" },
-    { key: "customerId", header: "Customer ID" },
-    { key: "userPhone", header: "Phone Number" },
-    { key: "groupName", header: "Group" },
-    { key: "groupValue", header: "Group Value" },
-    {
-      key: "enrollmentStartDate",
-      header: "Enrollment Start Date",
-    },
-    { key: "ticket", header: "Ticket" },
-    { key: "amountPaid", header: "Amount Paid" },
-    { key: "toBePaidAmount", header: "To Be Paid" },
-    { key: "balance", header: "Balance" },
-    { key: "commissionPercent", header: "Commission (%)" },
-    { key: "commissionValue", header: "Commission (₹)" },
-    { key: "incentives", header: "Incentives" },
-  ];
+  { key: "sl_no", header: "SL. NO" },
+  ...(selectedEmployeeId === "all"
+    ? [
+        { key: "employeeName", header: "Agent Name" },
+        { key: "employeePhone", header: "Agent Phone" },
+        
+      ]
+    : []),
+  { key: "customerName", header: "Customer Name" },
+  { key: "customerId", header: "Customer ID" },
+  { key: "userPhone", header: "Phone Number" },
+  { key: "groupName", header: "Group" },
+  { key: "groupValue", header: "Group Value" },
+  { key: "enrollmentStartDate", header: "Enrollment Start Date" },
+  { key: "ticket", header: "Ticket" },
+  { key: "amountPaid", header: "Amount Paid" },
+  { key: "toBePaidAmount", header: "To Be Paid" },
+  { key: "balance", header: "Balance" },
+  { key: "commissionPercent", header: "Commission (%)" },
+  { key: "commissionValue", header: "Commission (₹)" },
+  { key: "incentives", header: "Incentives" },
+];
+
+  if (initialLoading) {
+    return (
+      <div className="w-screen h-screen relative">
+        <div className="absolute top-20 left-1/2 transform -translate-x-1/2">
+          <CircularLoader isLoading={true} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-screen min-h-screen">
       <div className="flex mt-30">
-        <Navbar
-         
-          visibility={true}
-        />
-        
+        <Navbar visibility={true} />
+
         <div className="flex-grow p-7">
           <h1 className="text-2xl font-semibold text-center mb-6">
             Reports - Employee
@@ -107,7 +132,7 @@ const EmployeeReport = () => {
                   Select Employee
                 </label>
                 <Select
-                  value={selectedEmployeeId || undefined}
+                  value={selectedEmployeeId || "all"}
                   onChange={handleEmployeeChange}
                   showSearch
                   popupMatchSelectWidth={false}
@@ -122,7 +147,7 @@ const EmployeeReport = () => {
                 >
                   {employees.map((emp) => (
                     <Select.Option key={emp._id} value={emp._id}>
-                      {emp.name} - {emp.phone_number}
+                      {emp.name} {emp.phone_number && `- ${emp.phone_number}`}
                     </Select.Option>
                   ))}
                 </Select>
@@ -136,7 +161,6 @@ const EmployeeReport = () => {
             </div>
           </div>
 
-          {/* Employee Info */}
           {selectedEmployeeDetails && (
             <div className="mb-8 bg-gray-50 rounded-md shadow-md p-6 space-y-4">
               <div className="flex gap-4">
@@ -206,9 +230,10 @@ const EmployeeReport = () => {
             </div>
           )}
 
-          {/* Table Section */}
           {loading ? (
-            <CircularLoader isLoading={true} />
+            <div className="flex justify-center pt-10">
+              <CircularLoader isLoading={true} />
+            </div>
           ) : employeeCustomerData.length > 0 ? (
             <>
               <DataTable
@@ -216,7 +241,6 @@ const EmployeeReport = () => {
                 columns={columns}
                 exportedFileName={`EmployeeReport-${selectedEmployeeId}.csv`}
               />
-
               <div className="mt-6 pr-10 text-right flex justify-end gap-12">
                 <div className="text-lg font-semibold text-green-700">
                   Total Commission: ₹
@@ -231,7 +255,9 @@ const EmployeeReport = () => {
             </>
           ) : (
             selectedEmployeeId && (
-              <p>No data found for the selected employee.</p>
+              <p className="text-center mt-10">
+                No data found for the selected employee.
+              </p>
             )
           )}
         </div>
