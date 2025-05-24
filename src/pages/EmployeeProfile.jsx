@@ -516,7 +516,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
         setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
-          message: "Employee Updated Successfully",
+          message: "Employee Profile Updated Successfully",
           type: "success",
         });
       }
@@ -986,7 +986,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="cp"
                   >
-                    Contact Person Name<span className="text-red-500">*</span>
+                    Emergency Contact Person<span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -994,7 +994,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     value={formData.emergency_contact_person}
                     onChange={handleChange}
                     id="cp"
-                    placeholder="Enter Contact Person"
+                    placeholder="Enter Emergency Contact Person Name"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
@@ -1519,7 +1519,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="cp"
                   >
-                    Contact Person Name <span className="text-red-500">*</span>
+                   Emergency Contact Person <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -1527,7 +1527,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     value={updateFormData?.emergency_contact_person}
                     onChange={handleInputChange}
                     id="ld"
-                    placeholder="Enter Contact Person"
+                    placeholder="Enter Emergency Contact Person Name"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
@@ -1558,7 +1558,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                           0,
                           e
                         )
-                      } // ✅ Updated handler
+                      } 
                       id="emergency_0"
                       placeholder="Enter Default Emergency Phone Number"
                       required
@@ -1584,7 +1584,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                                 setUpdateFormData,
                                 index + 1,
                                 e
-                              ) // ✅ Updated handler
+                              ) 
                           }
                           id={`emergency_${index + 1}`}
                           placeholder="Enter Additional Emergency Phone Number"
@@ -1598,7 +1598,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                                 updateFormData,
                                 setUpdateFormData,
                                 index + 1
-                              ) // ✅ Updated handler
+                              )
                           }
                           className="text-red-600 text-sm"
                         >
@@ -1611,7 +1611,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     type="button"
                     onClick={() =>
                       addPhoneField(updateFormData, setUpdateFormData)
-                    } // ✅ Updated handler
+                    } 
                     className="mt-2 text-blue-600 text-sm"
                   >
                     + Add Another

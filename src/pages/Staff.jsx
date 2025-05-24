@@ -698,7 +698,9 @@ const Staff = () => {
                     </option>
                   ))}
                 </select>
-              
+                 {errors.designation_id && (
+                  <p className="mt-2 text-sm text-red-600">{errors.designation_id}</p>
+                )}
               </div>
               <div>
                 <label
