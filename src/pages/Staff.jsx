@@ -265,12 +265,12 @@ const Staff = () => {
        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
-          message: "Agent Added Successfully",
+          message: "Staff Added Successfully",
           type: "success",
         });
       }
     } catch (error) {
-      console.error("Error adding agent:", error);
+      console.error("Error adding Staff:", error);
       if (
         error.response &&
         error.response.data &&
@@ -715,6 +715,7 @@ const Staff = () => {
                           <option value="">Select Staff Type</option>
                           <option value="agent">Agent</option>
                           <option value="employee">Employee</option>
+                          <option value="both">Both</option>
                         </select>
                         {errors.agent_type && (
                   <p className="mt-2 text-sm text-red-600">{errors.agent_type}</p>
@@ -998,6 +999,7 @@ const Staff = () => {
                           <option value="">Select Staff Type</option>
                           <option value="agent">Agent</option>
                           <option value="employee">Employee</option>
+                          <option value="both">Both</option>
                         </select>
                          {errors.agent_type && (
                   <p className="mt-2 text-sm text-red-600">{errors.agent_type}</p>
