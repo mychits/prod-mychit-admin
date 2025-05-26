@@ -985,7 +985,7 @@ const Payment = () => {
                   >
                     {groups.map((group) => (
                       <Select.Option key={group._id} value={group._id}>
-                        {group.full_name}
+                        { `${group.full_name} | ${group.phone_number}`}
                       </Select.Option>
                     ))}
                   </Select>

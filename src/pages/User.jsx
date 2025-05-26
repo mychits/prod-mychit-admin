@@ -4,7 +4,7 @@ import Sidebar from "../components/layouts/Sidebar";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import { Dropdown } from "antd";
+import { Select, Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
@@ -820,25 +820,28 @@ const User = () => {
                 >
                   Collection Area
                 </label>
-                <select
-                  type="text"
-                  name="collection_area"
-                  value={formData?.collection_area || ""}
-                  onChange={(e) => {
+                <Select
+                    className="bg-gray-50 border border-gray-300 text-red-900 text-sm rounded-lg w-full"
+                    placeholder="Select Or Search Collection Area"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    filterOption={(input, option) =>
+                      option.children
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={formData?.collection_area || ""}
+                    onChange={(e) => {
                     handleChange(e);
                   }}
-                  id="area"
-                  placeholder="Select Collection Area"
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                >
-                  <option value="">Select Collection Area</option>
-                  {areas.map((area) => (
-                    <option key={area?._id} value={area?._id}>
-                      {area?.route_name}
-                    </option>
-                  ))}
-                </select>
+                  >
+                    {areas.map((area) => (
+                      <Select.Option key={area._id} value={area._id}>
+                        {area.route_name}
+                      </Select.Option>
+                    ))}
+                  </Select>
               </div>
 
               <div className="w-full flex justify-end">
