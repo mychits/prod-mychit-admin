@@ -12,6 +12,7 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import handleEnrollmentRequestPrint from "../components/printFormats/enrollmentRequestPrint";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import { Link } from "react-router-dom";
+import { fieldSize } from "../data/fieldSize";
 const User = () => {
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
@@ -48,13 +49,12 @@ const User = () => {
     collection_area: "",
   });
 
-  const handleGroup = async (e) => {
+  const handleAntDSelectGroup = async (groupId) => {
     try {
-      const { value } = e.target;
-      const response = await api.get(`/group/get-by-id-group/${value}`);
-      setSelectedGroup(response.data);
+      const response = await api.get(`/group/get-by-id-group/${groupId}`);
+      setSelectedGroup(response.data); 
     } catch (err) {
-      console.error("failed to fetch group");
+      console.error("Failed to fetch group:", err);
     }
   };
 
@@ -237,7 +237,25 @@ const User = () => {
     };
     fetchGroupData();
   }, [reloadTrigger]);
+  const handleAntDSelect = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
 
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [field]: "",
+    }));
+  };
+    const handleAntInputDSelect = (field, value) => {
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors({ ...errors, [field]: "" });
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -496,7 +514,6 @@ const User = () => {
     }
   };
 
-
   const handleCustomerStatus = async (id, currentStatus) => {
     try {
       if (!id) {
@@ -644,7 +661,7 @@ const User = () => {
                   id="name"
                   placeholder="Enter the Full Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.full_name && (
                   <p className="mt-2 text-sm text-red-600">
@@ -668,7 +685,7 @@ const User = () => {
                     id="text"
                     placeholder="Enter Email"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.email && (
                     <p className="mt-2 text-sm text-red-600">{errors.email}</p>
@@ -689,7 +706,7 @@ const User = () => {
                     id="text"
                     placeholder="Enter Phone Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.phone_number && (
                     <p className="mt-2 text-sm text-red-600">
@@ -714,7 +731,7 @@ const User = () => {
                     id="text"
                     placeholder="Enter Password"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.password && (
                     <p className="mt-2 text-sm text-red-600">
@@ -737,7 +754,7 @@ const User = () => {
                     id="text"
                     placeholder="Enter Pincode"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pincode && (
                     <p className="mt-2 text-sm text-red-600">
@@ -762,7 +779,7 @@ const User = () => {
                     id="text"
                     placeholder="Enter Adhaar Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.adhaar_no && (
                     <p className="mt-2 text-sm text-red-600">
@@ -785,7 +802,7 @@ const User = () => {
                     id="text"
                     placeholder="Enter Pan Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pan_no && (
                     <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
@@ -807,13 +824,13 @@ const User = () => {
                   id="name"
                   placeholder="Enter the Address"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border ${fieldSize.height} border-gray-300 text-gray-900 text-sm rounded-lg w-full`}
                 />
                 {errors.address && (
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
                 )}
               </div>
-              <div>
+              <div className="w-full">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="area"
@@ -821,27 +838,25 @@ const User = () => {
                   Collection Area
                 </label>
                 <Select
-                    className="bg-gray-50 border border-gray-300 text-red-900 text-sm rounded-lg w-full"
-                    placeholder="Select Or Search Collection Area"
-                    popupMatchSelectWidth={false}
-                    showSearch
-                    filterOption={(input, option) =>
-                      option.children
-                        .toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    value={formData?.collection_area || ""}
-                    onChange={(e) => {
-                    handleChange(e);
-                  }}
-                  >
-                    {areas.map((area) => (
-                      <Select.Option key={area._id} value={area._id}>
-                        {area.route_name}
-                      </Select.Option>
-                    ))}
-                  </Select>
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Or Search Collection Area"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  filterOption={(input, option) =>
+                    option.children
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  value={formData?.collection_area || undefined}
+                  onChange={(id) => handleAntDSelect(id)}
+                >
+                  {areas.map((area) => (
+                    <Select.Option key={area._id} value={area._id}>
+                      {area.route_name}
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
 
               <div className="w-full flex justify-end">
@@ -872,21 +887,26 @@ const User = () => {
                 >
                   Change Group name
                 </label>
-                <select
-                  name="selectedPlan"
-                  value={selectedGroup?._id}
-                  onChange={handleGroup}
+
+                <Select
                   id="group-plan"
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  name="selectedPlan"
+                  value={selectedGroup?._id || undefined}
+                  onChange={handleAntDSelectGroup}
+                  placeholder="Select Group"
+                  className={`bg-gray-50 border ${fieldSize.height} border-gray-300 text-gray-900 text-sm rounded-lg w-full`}
+                  showSearch
+                  popupMatchSelectWidth={false}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
                 >
-                  <option value="">Select Plan</option>
                   {groups.map((group) => (
-                    <option key={group._id} value={group._id}>
-                      {group?.group_name}
-                    </option>
+                    <Select.Option key={group._id} value={group._id}>
+                      {group.group_name}
+                    </Select.Option>
                   ))}
-                </select>
+                </Select>
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -898,11 +918,11 @@ const User = () => {
                   </label>
                   <input
                     type="text"
-                    value={selectedGroup?.group_type}
+                    value={selectedGroup?.group_type || ""}
                     id="name"
                     placeholder="Group Type"
                     readOnly
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
 
@@ -921,7 +941,7 @@ const User = () => {
                     placeholder="Group Value"
                     required
                     readOnly
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>
@@ -942,7 +962,7 @@ const User = () => {
                     placeholder="Group Installment"
                     required
                     readOnly
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
 
@@ -962,7 +982,7 @@ const User = () => {
                     placeholder="Chit Period"
                     required
                     readOnly
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>
@@ -974,20 +994,25 @@ const User = () => {
                 >
                   Title
                 </label>
-                <select
+
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Title"
+                  popupMatchSelectWidth={false}
+                  showSearch
                   name="title"
-                  value={updateFormData?.title || ""}
-                  onChange={handleInputChange}
-                  id="title"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.title || undefined}
+                  onChange={(value) => handleAntInputDSelect("title", value)}
                 >
-                  <option value="">Select Title</option>
-                  <option value="Mr">Mr</option>
-                  <option value="Ms">Ms</option>
-                  <option value="Mrs">Mrs</option>
-                  <option value="M/S">Mrs</option>
-                  <option value="Dr">Dr</option>
-                </select>
+                  {["Mr", "Ms", "Mrs", "M/S", "Dr"].map((cTitle) => (
+                    <Select.Option key={cTitle} value={cTitle}>
+                      {cTitle}
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
 
               <div>
@@ -1005,7 +1030,7 @@ const User = () => {
                   id="name"
                   placeholder="Enter the Full Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.full_name && (
                   <p className="mt-2 text-sm text-red-600">
@@ -1030,7 +1055,7 @@ const User = () => {
                     id="text"
                     placeholder="Enter Email"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.email && (
                     <p className="mt-2 text-sm text-red-600">{errors.email}</p>
@@ -1051,7 +1076,7 @@ const User = () => {
                     id="text"
                     placeholder="Enter Phone Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.phone_number && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1067,7 +1092,7 @@ const User = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="email"
                   >
-                    Full Name
+                    Father Name
                   </label>
                   <input
                     type="text"
@@ -1076,7 +1101,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="father-name"
                     placeholder="Enter the Father name"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <div className="w-1/2">
@@ -1094,7 +1119,7 @@ const User = () => {
                     id="text"
                     placeholder="Enter Pincode"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pincode && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1119,7 +1144,7 @@ const User = () => {
                     id="text"
                     placeholder="Enter Adhaar Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.adhaar_no && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1142,7 +1167,7 @@ const User = () => {
                     id="text"
                     placeholder="Enter Pan Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pan_no && (
                     <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
@@ -1164,7 +1189,7 @@ const User = () => {
                   id="address"
                   placeholder="Enter the Address"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.address && (
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
@@ -1192,7 +1217,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="date"
                     placeholder="Enter the Date of Birth"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
 
@@ -1203,17 +1228,36 @@ const User = () => {
                   >
                     Gender
                   </label>
-                  <select
+                  {/* <select
                     name="gender"
                     value={updateFormData?.gender || ""}
                     onChange={handleInputChange}
                     id="gender"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   >
                     <option value="">Select Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
-                  </select>
+                  </select> */}
+
+                   <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Gender"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="gender"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.gender || undefined}
+                  onChange={(value) => handleAntInputDSelect("gender", value)}
+                >
+                  {["Male", "Female"].map((gType) => (
+                    <Select.Option key={gType} value={gType}>
+                      {gType}
+                    </Select.Option>
+                  ))}
+                </Select>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1224,17 +1268,35 @@ const User = () => {
                   >
                     Marital Status
                   </label>
-                  <select
+                  {/* <select
                     name="marital_status"
                     value={updateFormData?.marital_status || ""}
                     onChange={handleInputChange}
                     id="marital-status"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   >
                     <option value="">Select Marital Status</option>
                     <option value="Married">Married</option>
                     <option value="Unmarried">Unmarried</option>
-                  </select>
+                  </select> */}
+                  <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Marital Status"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="marital_status"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.marital_status || undefined}
+                  onChange={(value) => handleAntInputDSelect("marital_status", value)}
+                >
+                  {["Married", "Unmarried"].map((mStatus) => (
+                    <Select.Option key={mStatus} value={mStatus}>
+                      {mStatus}
+                    </Select.Option>
+                  ))}
+                </Select>
                 </div>
 
                 <div className="w-1/2">
@@ -1251,7 +1313,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="referral-name"
                     placeholder="Enter the Referral Name"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>
@@ -1263,17 +1325,25 @@ const User = () => {
                   >
                     Nationality
                   </label>
-                  <select
-                    name="nationality"
-                    value={updateFormData?.nationality || ""}
-                    onChange={handleInputChange}
-                    id="nationality"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  >
-                    <option value="">Select Nationality</option>
-                    <option value="Indian">Indian</option>
-                    <option value="Other">Other</option>
-                  </select>
+                  
+                   <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Nationality"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="nationality"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.nationality || undefined}
+                  onChange={(value) => handleAntInputDSelect("nationality", value)}
+                >
+                  {["Indian", "Other"].map((nation) => (
+                    <Select.Option key={nation} value={nation}>
+                      {nation}
+                    </Select.Option>
+                  ))}
+                </Select>
                 </div>
 
                 <div className="w-1/2">
@@ -1290,7 +1360,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="alternate-number"
                     placeholder="Enter the Alternate Phone number"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>
@@ -1310,7 +1380,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="village"
                     placeholder="Enter the Village"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
 
@@ -1328,7 +1398,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="taluk"
                     placeholder="Enter the taluk"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>
@@ -1341,18 +1411,25 @@ const User = () => {
                   >
                     District
                   </label>
-                  <select
-                    name="district"
-                    value={updateFormData?.district}
-                    onChange={handleChange}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  >
-                    <option value="">Select District</option>
-                    <option value="Bengaluru North">Bengaluru North</option>
-                    <option value="Bengaluru South">Bengaluru South</option>
-                    <option value="Bengaluru Urban">Bengaluru Urban</option>
-                    <option value="Bengaluru Rural">Bengaluru Rural</option>
-                  </select>
+               
+                   <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Nationality"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="district"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.district || undefined}
+                  onChange={(value) => handleAntInputDSelect("district", value)}
+                >
+                  {["Bengaluru North", "Bengaluru South","Bengaluru Urban","Bengaluru Rural"].map((district) => (
+                    <Select.Option key={district} value={district}>
+                      {district}
+                    </Select.Option>
+                  ))}
+                </Select>
                 </div>
 
                 <div className="w-1/2">
@@ -1362,17 +1439,25 @@ const User = () => {
                   >
                     State
                   </label>
-                  <select
-                    name="state"
-                    value={updateFormData?.state}
-                    onChange={handleChange}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  >
-                    <option value="">Select State</option>
-                    <option value="Karnataka">Karnataka</option>
-                    <option value="Maharashtra">Maharashtra</option>
-                    <option value="Tamil Nadu">Tamil Nadu</option>
-                  </select>
+              
+                  <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select State"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="state"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.state || undefined}
+                  onChange={(value) => handleAntInputDSelect("state", value)}
+                >
+                  {["Karnataka", "Maharashtra","Tamil Nadu"].map((state) => (
+                    <Select.Option key={state} value={state}>
+                      {state}
+                    </Select.Option>
+                  ))}
+                </Select>
                 </div>
               </div>
 
@@ -1391,7 +1476,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="nominee"
                     placeholder="Enter the Nominee Name"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
 
@@ -1415,7 +1500,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="nominee-date"
                     placeholder="Enter the Nominee Date of Birth"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>
@@ -1427,21 +1512,25 @@ const User = () => {
                   >
                     Nominee Relationship
                   </label>
-                  <select
-                    name="nominee_relationship"
-                    value={updateFormData?.nominee_relationship || ""}
-                    onChange={handleInputChange}
-                    id="nominee-relationship"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  >
-                    <option value="">Select Relationship</option>
-                    <option value="Father">Father</option>
-                    <option value="Mother">Mother</option>
-                    <option value="Brother/Sister">Brother/Sister</option>
-                    <option value="Spouse">Spouse</option>
-                    <option value="Son/Daughter">Son/Daughter</option>
-                    <option value="Other">Other</option>
-                  </select>
+               
+                   <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Nominee Relationship"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="nominee_relationship"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.nominee_relationship || undefined}
+                  onChange={(value) => handleAntInputDSelect("nominee_relationship", value)}
+                >
+                  {["Father", "Mother","Brother/Sister","Spouse","Son/Daughter","Other"].map((nominee) => (
+                    <Select.Option key={nominee} value={nominee}>
+                      {nominee}
+                    </Select.Option>
+                  ))}
+                </Select>
                 </div>
 
                 <div className="w-1/2">
@@ -1458,7 +1547,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="nominee-phone-number"
                     placeholder="Enter the Nominee Phone number"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>
@@ -1477,7 +1566,7 @@ const User = () => {
                     id="aadhar-photo"
                     accept="image/*"
                     placeholder=" Upload Aadhaar Front Photo"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   <Link to={updateFormData?.aadhar_frontphoto} download>
                     <img
@@ -1502,7 +1591,7 @@ const User = () => {
                     id="aadhar-backphoto"
                     accept="image/*"
                     placeholder=" Upload Aadhaar Back Photo"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   <Link to={updateFormData?.aadhar_backphoto} download>
                     <img
@@ -1528,7 +1617,7 @@ const User = () => {
                     id="pan-photo"
                     accept="image/*"
                     placeholder=" Upload Pan Front Photo"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   <Link to={updateFormData?.pan_frontphoto} download>
                     <img
@@ -1553,7 +1642,7 @@ const User = () => {
                     id="pan-backphoto"
                     accept="image/*"
                     placeholder=" Upload Pan Back Photo"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   <Link to={updateFormData?.pan_backphoto} download>
                     <img
@@ -1580,7 +1669,7 @@ const User = () => {
                     id="profile-photo"
                     accept="image/*"
                     placeholder=" Upload Profile Photo"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   <Link to={updateFormData?.profilephoto} download>
                     <img
@@ -1597,25 +1686,28 @@ const User = () => {
                   >
                     Collection Area
                   </label>
-                  <select
-                    type="text"
+
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Or Search Collection Area"
+                    popupMatchSelectWidth={false}
+                    showSearch
                     name="collection_area"
-                    value={updateFormData?.collection_area || ""}
-                    onChange={(e) => {
-                      handleInputChange(e);
-                    }}
-                    id="area"
-                    placeholder="Select Collection Area"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.collection_area || undefined}
+                    onChange={(value) => handleAntInputDSelect("collection_area", value)}
                   >
-                    <option value="">Select Area</option>
                     {areas.map((area) => (
-                      <option key={area?._id} value={area?._id}>
-                        {area?.route_name}
-                      </option>
+                      <Select.Option key={area._id} value={area._id}>
+                        {area.route_name}
+                      </Select.Option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               </div>
 
@@ -1640,7 +1732,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="bank-name"
                     placeholder="Enter the Customer Bank Name"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
 
@@ -1658,7 +1750,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="bank-branch-name"
                     placeholder="Enter the Bank Branch Name"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>
@@ -1677,7 +1769,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="account-number"
                     placeholder="Enter the Customer Bank Account Number"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
 
@@ -1695,7 +1787,7 @@ const User = () => {
                     onChange={handleInputChange}
                     id="ifsc"
                     placeholder="Enter the Bank IFSC Code"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>

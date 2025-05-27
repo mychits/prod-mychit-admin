@@ -2,15 +2,14 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import api from "../instance/TokenInstance";
-
+import {fieldSize} from "../data/fieldSize"
 import Modal from "../components/modals/Modal";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
 import { FaWhatsappSquare } from "react-icons/fa";
-import { Dropdown } from "antd";
+import { Select, Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
-import { Select } from "antd";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 const Enroll = () => {
@@ -32,7 +31,7 @@ const Enroll = () => {
   const [allEnrollUrl, setAllEnrollUrl] = useState(true);
   const [leads, setLeads] = useState([]);
   const [agents, setAgents] = useState([]);
-  const  date=new Date().toISOString().split("T")[0]
+  const date = new Date().toISOString().split("T")[0];
   const whatsappEnable = true;
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
@@ -83,7 +82,7 @@ const Enroll = () => {
   useEffect(() => {
     async function fetchAllEnrollmentData() {
       setAllEnrollUrl(true);
-    
+
       let url = `/enroll-report/get-enroll-report?from_date=${date}&to_date=${date}`;
       try {
         setTableEnrolls([]);
@@ -100,7 +99,9 @@ const Enroll = () => {
               phone_number: group?.user_id?.phone_number,
               group_name: group?.group_id?.group_name,
               payment_type: group?.payment_type,
-              enrollment_date:group?.createdAt ? group?.createdAt?.split("T")[0] :"",
+              enrollment_date: group?.createdAt
+                ? group?.createdAt?.split("T")[0]
+                : "",
               chit_asking_month: group?.chit_asking_month,
               referred_type: group?.referred_type,
               referred_agent: group?.agent?.name,
@@ -194,6 +195,17 @@ const Enroll = () => {
     fetchLeads();
   }, []);
 
+  const handleAntDSelect = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [field]: "",
+    }));
+  };
   const handleGroupChange = async (groupId) => {
     setSelectedGroup(groupId);
 
@@ -526,7 +538,7 @@ const Enroll = () => {
               <div className="mb-2">
                 <label>Search or Select Group</label>
               </div>
-              <div className="flex justify-between items-center w-full">
+              <div className="flex  justify-between items-center w-full">
                 <Select
                   showSearch
                   popupMatchSelectWidth={false}
@@ -539,10 +551,10 @@ const Enroll = () => {
                   }
                   placeholder="Search or Select Group"
                   onChange={handleGroupChange}
-                  className="border   w-full max-w-md"
+                  className="border  h-14 w-full max-w-md"
                 >
                   <Select.Option key={"$1"} value={"today"}>
-                   Today's Enrollment
+                    Today's Enrollment
                   </Select.Option>
                   {groups.map((group) => (
                     <Select.Option key={group._id} value={group._id}>
@@ -599,21 +611,27 @@ const Enroll = () => {
                 >
                   Group <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                <Select
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                  placeholder="Select Or Search Group"
+                  popupMatchSelectWidth={false}
+                  showSearch
                   name="group_id"
-                  id="group_id"
-                  value={formData.group_id}
-                  onChange={handleChange}
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  filterOption={(input, option) =>
+                    option.children
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  value={formData?.group_id || undefined}
+                  onChange={(value) => handleAntDSelect("group_name", value)}
                 >
-                  <option value="">Select Group</option>
                   {groups.map((group) => (
-                    <option key={group._id} value={group._id}>
+                    <Select.Option key={group._id} value={group._id}>
                       {group.group_name}
-                    </option>
+                    </Select.Option>
                   ))}
-                </select>
+                </Select>
                 {errors.group_id && (
                   <p className="mt-1 text-sm text-red-600">{errors.group_id}</p>
                 )}
@@ -625,21 +643,28 @@ const Enroll = () => {
                 >
                   Customer <span className="text-red-500 ">*</span>
                 </label>
-                <select
+
+                <Select
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                  placeholder="Select Or Search Customer"
+                  popupMatchSelectWidth={false}
+                  showSearch
                   name="user_id"
-                  id="user_id"
-                  value={formData.user_id}
-                  onChange={handleChange}
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  filterOption={(input, option) =>
+                    option.children
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  value={formData?.user_id || undefined}
+                  onChange={(value) => handleAntDSelect("full_name", value)}
                 >
-                  <option value="">Select Customer</option>
                   {users.map((user) => (
-                    <option key={user._id} value={user._id}>
+                    <Select.Option key={user._id} value={user._id}>
                       {user.full_name}
-                    </option>
+                    </Select.Option>
                   ))}
-                </select>
+                </Select>
 
                 {errors.user_id && (
                   <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>
@@ -652,24 +677,29 @@ const Enroll = () => {
                 >
                   Select Payment Type <span className="text-red-500 ">*</span>
                 </label>
-
-                <select
-                  value={formData.payment_type}
-                  onChange={handleChange}
+                <Select
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                  placeholder="Select Payment Type"
+                  popupMatchSelectWidth={false}
+                  showSearch
                   name="payment_type"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={formData?.payment_type || undefined}
+                  onChange={(value) => handleAntDSelect("payment_type", value)}
                 >
-                  <option value={""}>Select Payment Type</option>
-
                   {["Daily", "Weekely", "Monthly"].map((pType) => (
-                    <option value={pType}>{pType}</option>
+                    <Select.Option key={pType} value={pType}>
+                      {pType}
+                    </Select.Option>
                   ))}
-                </select>
+                </Select>
               </div>
 
               <div className="w-full">
                 <label className="block mb-2 text-sm font-medium text-gray-900">
-                  Chit Asking Month 
+                  Chit Asking Month
                 </label>
                 <input
                   type="number"
@@ -677,7 +707,7 @@ const Enroll = () => {
                   value={formData.chit_asking_month}
                   onChange={handleChange}
                   placeholder="Enter month number (e.g., 1 for Jan)"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
               </div>
 
@@ -688,23 +718,28 @@ const Enroll = () => {
                 >
                   Select Referred Type <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                <Select
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                  placeholder="Select Referred Type"
+                  popupMatchSelectWidth={false}
+                  showSearch
                   name="referred_type"
-                  value={formData.referred_type}
-                  onChange={handleChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={formData?.referred_type || undefined}
+                  onChange={(value) => handleAntDSelect("referred_type", value)}
                 >
-                  <option value={""}>Select Referred Type</option>
-                  {[
-                    "Self Joining",
+                  {["Self Joining",
                     "Customer",
                     "Employee",
                     "Leads",
-                    "Others",
-                  ].map((refType) => (
-                    <option value={refType}>{refType}</option>
+                    "Others"].map((refType) => (
+                    <Select.Option key={refType} value={refType}>
+                      {refType}
+                    </Select.Option>
                   ))}
-                </select>
+                </Select>
               </div>
 
               {formData.referred_type === "Customer" && (
@@ -716,17 +751,28 @@ const Enroll = () => {
                     Select Referred Customer{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <select
-                    onChange={handleChange}
+                 
+                  <Select
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    placeholder="Select Or Search Referred Customer"
+                    popupMatchSelectWidth={false}
+                    showSearch
                     name="referred_customer"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={formData?.referred_customer || undefined}
+                    onChange={(value) => handleAntDSelect("full_name", value)}
                   >
-                    <option value={""}>Select Referred Customer</option>
-
                     {users.map((user) => (
-                      <option value={user._id}>{user?.full_name}</option>
+                      <Select.Option key={user._id} value={user._id}>
+                        {user.full_name}
+                      </Select.Option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               )}
               {formData.referred_type === "Leads" && (
@@ -738,17 +784,28 @@ const Enroll = () => {
                     Select Referred Leads{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <select
-                    onChange={handleChange}
-                    name="referred_lead"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  >
-                    <option value={""}>Select Referred Lead </option>
 
+                  <Select
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    placeholder="Select Or Search Referred Leads"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="referred_lead"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={formData?.referred_lead || undefined}
+                    onChange={(value) => handleAntDSelect("lead_name", value)}
+                  >
                     {leads.map((lead) => (
-                      <option value={lead._id}>{lead?.lead_name}</option>
+                      <Select.Option key={lead._id} value={lead._id}>
+                        {lead.lead_name}
+                      </Select.Option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               )}
               {formData.referred_type === "Employee" && (
@@ -760,17 +817,28 @@ const Enroll = () => {
                     Select Referred Employee{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <select
-                    onChange={handleChange}
-                    name="agent"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  >
-                    <option value={""}>Select Referred Employee</option>
 
+                  <Select
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    placeholder="Select Or Search Referred Employee"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="agent"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={formData?.agent || undefined}
+                    onChange={(value) => handleAntDSelect("agent", value)}
+                  >
                     {agents.map((agent) => (
-                      <option value={agent._id}>{agent?.name}</option>
+                      <Select.Option key={agent._id} value={agent._id}>
+                        {agent.name}
+                      </Select.Option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               )}
               {formData.group_id && availableTicketsAdd.length === 0 ? (
@@ -877,7 +945,7 @@ const Enroll = () => {
                   onChange={handleInputChange}
                   required
                   disabled
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                 >
                   <option value="">Select Group</option>
                   {groups.map((group) => (
@@ -902,7 +970,7 @@ const Enroll = () => {
                   onChange={handleInputChange}
                   required
                   disabled
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                 >
                   <option value="">Select Customer</option>
                   {users.map((user) => (
@@ -922,23 +990,28 @@ const Enroll = () => {
                 >
                   Select Payment Type <span className="text-red-500 ">*</span>
                 </label>
-
-                <select
-                  value={updateFormData.payment_type}
-                  onChange={handleInputChange}
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Payment Type"
+                  popupMatchSelectWidth={false}
+                  showSearch
                   name="payment_type"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.payment_type || undefined}
+                  onChange={(value) => handleAntDSelect("payment_type", value)}
                 >
-                  <option value={""}>Select Payment Type</option>
-
                   {["Daily", "Weekely", "Monthly"].map((pType) => (
-                    <option value={pType}>{pType}</option>
+                    <Select.Option key={pType} value={pType}>
+                      {pType}
+                    </Select.Option>
                   ))}
-                </select>
+                </Select>
               </div>
               <div className="w-full">
                 <label className="block mb-2 text-sm font-medium text-gray-900">
-                  Chit Asking Month 
+                  Chit Asking Month
                 </label>
                 <input
                   type="number"
@@ -946,8 +1019,7 @@ const Enroll = () => {
                   value={updateFormData.chit_asking_month}
                   onChange={handleInputChange}
                   placeholder="Enter month"
-                  
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                 />
               </div>
 
@@ -958,23 +1030,28 @@ const Enroll = () => {
                 >
                   Select Referred Type <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                 <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Referred Type"
+                  popupMatchSelectWidth={false}
+                  showSearch
                   name="referred_type"
-                  value={updateFormData.referred_type}
-                  onChange={handleInputChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.referred_type || undefined}
+                  onChange={(value) => handleAntDSelect("referred_type", value)}
                 >
-                  <option value={""}>Select Referred Type</option>
-                  {[
-                    "Self Joining",
+                  {["Self Joining",
                     "Customer",
                     "Employee",
                     "Leads",
-                    "Others",
-                  ].map((refType) => (
-                    <option value={refType}>{refType}</option>
+                    "Others"].map((refType) => (
+                    <Select.Option key={refType} value={refType}>
+                      {refType}
+                    </Select.Option>
                   ))}
-                </select>
+                </Select>
               </div>
 
               {updateFormData.referred_type === "Customer" && (
@@ -986,18 +1063,28 @@ const Enroll = () => {
                     Select Referred Customer{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <select
-                    onChange={handleInputChange}
-                    value={updateFormData.referred_customer}
+                 
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Or Search Referred Customer"
+                    popupMatchSelectWidth={false}
+                    showSearch
                     name="referred_customer"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.referred_customer || undefined}
+                    onChange={(value) => handleAntDSelect("full_name", value)}
                   >
-                    <option value={""}>Select Referred Customer</option>
-
                     {users.map((user) => (
-                      <option value={user._id}>{user?.full_name}</option>
+                      <Select.Option key={user._id} value={user._id}>
+                        {user.full_name}
+                      </Select.Option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               )}
               {updateFormData.referred_type === "Leads" && (
@@ -1009,18 +1096,28 @@ const Enroll = () => {
                     Select Referred Leads{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <select
-                    onChange={handleInputChange}
-                    value={updateFormData.referred_lead}
+              
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Or Search Referred Lead"
+                    popupMatchSelectWidth={false}
+                    showSearch
                     name="referred_lead"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.referred_lead || undefined}
+                    onChange={(value) => handleAntDSelect("lead_name", value)}
                   >
-                    <option value={""}>Select Referred Lead</option>
-
                     {leads.map((lead) => (
-                      <option value={lead._id}>{lead?.lead_name}</option>
+                      <Select.Option key={lead._id} value={lead._id}>
+                        {lead.lead_name}
+                      </Select.Option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               )}
               {updateFormData.referred_type === "Employee" && (
@@ -1032,18 +1129,28 @@ const Enroll = () => {
                     Select Referred Employee{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <select
-                    onChange={handleInputChange}
-                    value={updateFormData.agent}
+                
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Or Search Referred Employee"
+                    popupMatchSelectWidth={false}
+                    showSearch
                     name="agent"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.agent || undefined}
+                    onChange={(value) => handleAntDSelect("agent", value)}
                   >
-                    <option value={""}>Select Referred Employee</option>
-
                     {agents.map((agent) => (
-                      <option value={agent._id}>{agent?.name}</option>
+                      <Select.Option key={agent._id} value={agent._id}>
+                        {agent.name}
+                      </Select.Option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               )}
               <div>
@@ -1059,7 +1166,7 @@ const Enroll = () => {
                   onChange={handleInputChange}
                   id="no_of_tickets"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                 >
                   <option value="">Select Ticket</option>
                   {availableTickets

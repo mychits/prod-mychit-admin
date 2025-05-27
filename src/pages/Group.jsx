@@ -4,13 +4,13 @@ import Sidebar from "../components/layouts/Sidebar";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import { Dropdown } from "antd";
+import { Select, Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
+import { fieldSize } from "../data/fieldSize";
 
-//TODO: remove alerDialog and add CustomAlertDialog
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 
 const Group = () => {
@@ -25,7 +25,6 @@ const Group = () => {
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  //TODO: changes done for non reload component
   const [reloadTrigger, setReloadTrigger] = useState(0);
 
   const onGlobalSearchChangeHandler = (e) => {
@@ -70,7 +69,7 @@ const Group = () => {
     incentives: "",
     reg_fee: "",
   });
-    useEffect(() => {
+  useEffect(() => {
     const fetchGroups = async () => {
       try {
         setIsLoading(true);
@@ -143,8 +142,6 @@ const Group = () => {
       }
     };
     fetchGroups();
-
-    // TODO: reloadTrigger Added as dependency array
   }, [reloadTrigger]);
   const handleShareClick = (groupId) => {
     if (!groupId) {
@@ -286,7 +283,7 @@ const Group = () => {
             "Content-Type": "application/json",
           },
         });
-        // TODO: reloadTrigger resetted
+
         setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
@@ -315,8 +312,6 @@ const Group = () => {
       console.error("Error adding group:", error);
     }
   };
-
-
 
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -359,6 +354,27 @@ const Group = () => {
     } catch (error) {
       console.error("Error fetching group:", error);
     }
+  };
+
+  const handleAntDSelect = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [field]: "",
+    }));
+  };
+ 
+    const handleAntInputDSelect = (field, value) => {
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors({ ...errors, [field]: "" });
   };
 
   const handleInputChange = (e) => {
@@ -429,7 +445,7 @@ const Group = () => {
           visibility={true}
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
         />
-        //TODO: remove alerDialog and add CustomAlertDialog
+
         <CustomAlertDialog
           type={alertConfig.type}
           isVisible={alertConfig.visibility}
@@ -457,8 +473,7 @@ const Group = () => {
               </div>
             </div>
 
-            {(TableGroups.length > 0 && !isLoading) ? (
-               //ToDO: isLoading added along with length
+            {TableGroups.length > 0 && !isLoading ? (
               <DataTable
                 catcher="_id"
                 updateHandler={handleUpdateModalOpen}
@@ -502,7 +517,7 @@ const Group = () => {
                   id="name"
                   placeholder="Enter the Group Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.group_name && (
                   <p className="text-red-500 text-sm mt-1">
@@ -517,18 +532,24 @@ const Group = () => {
                 >
                   Group Type <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select or Search Group Type"
+                  popupMatchSelectWidth={false}
+                  showSearch
                   name="group_type"
-                  id="category"
-                  value={formData.group_type}
-                  onChange={handleChange}
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={formData?.group_type || undefined}
+                  onChange={(value) => handleAntDSelect("group_type", value)}
                 >
-                  <option value="">Select Group Type</option>
-                  <option value="divident">Divident Group</option>
-                  <option value="double">Double Group</option>
-                </select>
+                  {["Divident", "Double"].map((gType) => (
+                    <Select.Option key={gType} value={gType.toLowerCase()}>
+                      {gType}
+                    </Select.Option>
+                  ))}
+                </Select>
                 {errors.group_type && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.group_type}
@@ -551,7 +572,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Group Value"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_value && (
                     <p className="text-red-500 text-sm mt-1">
@@ -575,7 +596,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Group Installment Amount"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_install && (
                     <p className="text-red-500 text-sm mt-1">
@@ -600,7 +621,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Group Members"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_members && (
                     <p className="text-red-500 text-sm mt-1">
@@ -623,7 +644,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Group Duration"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_duration && (
                     <p className="text-red-500 text-sm mt-1">
@@ -648,7 +669,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Registration Fee"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.reg_fee && (
                     <p className="text-red-500 text-sm mt-1">
@@ -673,7 +694,7 @@ const Group = () => {
                     id="date"
                     placeholder="Enter the Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.start_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -696,7 +717,7 @@ const Group = () => {
                     id="date"
                     placeholder="Enter the Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.end_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -721,7 +742,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Minimum Bid"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.minimum_bid && (
                     <p className="text-red-500 text-sm mt-1">
@@ -744,7 +765,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Maximum Bid"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.maximum_bid && (
                     <p className="text-red-500 text-sm mt-1">
@@ -764,7 +785,7 @@ const Group = () => {
                     value={formData.commission}
                     onChange={handleChange}
                     placeholder="Enter Commission"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <div className="w-1/2">
@@ -777,7 +798,7 @@ const Group = () => {
                     value={formData.incentives}
                     onChange={handleChange}
                     placeholder="Enter Incentives"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>
@@ -818,7 +839,7 @@ const Group = () => {
                   id="name"
                   placeholder="Enter the Group Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.group_name && (
                   <p className="text-red-500 text-sm mt-1">
@@ -833,18 +854,25 @@ const Group = () => {
                 >
                   Group Type <span className="text-red-500 ">*</span>
                 </label>
-                <select
+
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select or Search Group Type"
+                  popupMatchSelectWidth={false}
+                  showSearch
                   name="group_type"
-                  value={updateFormData.group_type || ""}
-                  onChange={handleInputChange}
-                  id="category"
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.group_type || undefined}
+                  onChange={(value) => handleAntInputDSelect("group_type", value)}
                 >
-                  <option value="">Select Group Type</option>
-                  <option value="divident">Dividend Group</option>
-                  <option value="double">Double Group</option>
-                </select>
+                  {["Divident", "Double"].map((gType) => (
+                    <Select.Option key={gType} value={gType.toLowerCase()}>
+                      {gType}
+                    </Select.Option>
+                  ))}
+                </Select>
                 {errors.group_type && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.group_type}
@@ -868,7 +896,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Group Value"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_value && (
                     <p className="text-red-500 text-sm mt-1">
@@ -892,7 +920,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Group Installment Amount"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_install && (
                     <p className="text-red-500 text-sm mt-1">
@@ -917,7 +945,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Group Members"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_members && (
                     <p className="text-red-500 text-sm mt-1">
@@ -940,7 +968,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Group Duration"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_duration && (
                     <p className="text-red-500 text-sm mt-1">
@@ -964,7 +992,7 @@ const Group = () => {
                   id="name"
                   placeholder="Enter the Registration Fee"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.reg_fee && (
                   <p className="text-red-500 text-sm mt-1">{errors.reg_fee}</p>
@@ -986,7 +1014,7 @@ const Group = () => {
                     id="date"
                     placeholder="Enter the Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.start_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -1009,7 +1037,7 @@ const Group = () => {
                     id="date"
                     placeholder="Enter the Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.end_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -1034,7 +1062,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Minimum Bid"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.minimum_bid && (
                     <p className="text-red-500 text-sm mt-1">
@@ -1057,7 +1085,7 @@ const Group = () => {
                     id="text"
                     placeholder="Enter Maximum Bid"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.maximum_bid && (
                     <p className="text-red-500 text-sm mt-1">
@@ -1078,7 +1106,7 @@ const Group = () => {
                     value={updateFormData.commission}
                     onChange={handleInputChange}
                     placeholder="Enter Commission"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <div className="w-1/2">
@@ -1091,7 +1119,7 @@ const Group = () => {
                     value={updateFormData.incentives}
                     onChange={handleInputChange}
                     placeholder="Enter Incentives"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>

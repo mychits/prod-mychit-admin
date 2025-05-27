@@ -4,15 +4,17 @@ import Sidebar from "../components/layouts/Sidebar";
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
-import { Dropdown } from "antd";
+import { Select, Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
 import axios from "axios";
+import {fieldSize} from "../data/fieldSize"
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
+
 const Staff = () => {
   const [users, setUsers] = useState([]);
   const [TableAgents, setTableAgents] = useState([]);
@@ -25,7 +27,8 @@ const Staff = () => {
   const [errors, setErrors] = useState({});
   const [searchText, setSearchText] = useState("");
   const [selectedManagerId, setSelectedManagerId] = useState("");
-  const [selectedReportingManagerId, setSelectedReportingManagerId] = useState("");
+  const [selectedReportingManagerId, setSelectedReportingManagerId] =
+    useState("");
   const [managers, setManagers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [reloadTrigger, setReloadTrigger] = useState(0);
@@ -49,7 +52,7 @@ const Staff = () => {
     address: "",
     pincode: "",
     adhaar_no: "",
-    designation_id:"",
+    designation_id: "",
     pan_no: "",
     agent_type: "",
   });
@@ -62,12 +65,12 @@ const Staff = () => {
     address: "",
     pincode: "",
     adhaar_no: "",
-    designation_id:"",
+    designation_id: "",
     pan_no: "",
     agent_type: "",
   });
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchUsers = async () => {
       try {
         setIsLoading(true);
@@ -134,9 +137,7 @@ const Staff = () => {
     fetchUsers();
   }, [reloadTrigger]);
 
-
-
-    useEffect(() => {
+  useEffect(() => {
     const fetchManagers = async () => {
       try {
         const response = await api.get("/designation/get-designation");
@@ -148,6 +149,17 @@ const Staff = () => {
     fetchManagers();
   }, [reloadTrigger]);
 
+  const handleAntDSelect = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [field]: "",
+    }));
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -222,7 +234,7 @@ const Staff = () => {
       newErrors.address = "Address should be at least 10 characters";
     }
 
-    if (!data.agent_type.trim()){
+    if (!data.agent_type.trim()) {
       newErrors.agent_type = "Please select Staff Type";
     }
 
@@ -239,9 +251,9 @@ const Staff = () => {
         const dataToSend = {
           ...formData,
           designation_id: selectedManagerId,
-          reporting_manager_id: selectedReportingManagerId
+          reporting_manager_id: selectedReportingManagerId,
         };
-        
+
         const response = await api.post("/agent/add-agent", dataToSend, {
           headers: {
             "Content-Type": "application/json",
@@ -261,8 +273,8 @@ const Staff = () => {
           agent_type: "",
         });
         setSelectedManagerId("");
-        setSelectedReportingManagerId("")
-       setReloadTrigger((prev) => prev + 1);
+        setSelectedReportingManagerId("");
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Staff Added Successfully",
@@ -276,30 +288,29 @@ const Staff = () => {
         error.response.data &&
         error.response.data.message
       ) {
-       const errMsg = error.response.data.message.toLowerCase();
+        const errMsg = error.response.data.message.toLowerCase();
 
-      if (errMsg.includes("phone number")) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          phone_number: "Phone number already exists",
-        }));
+        if (errMsg.includes("phone number")) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            phone_number: "Phone number already exists",
+          }));
+        } else {
+          setAlertConfig({
+            visibility: true,
+            message: error.response.data.message,
+            type: "error",
+          });
+        }
       } else {
         setAlertConfig({
           visibility: true,
-          message: error.response.data.message,
+          message: "An unexpected error occurred. Please try again.",
           type: "error",
         });
       }
-    } else {
-      setAlertConfig({
-        visibility: true,
-        message: "An unexpected error occurred. Please try again.",
-        type: "error",
-      });
-    }
     }
   };
-
 
   const columns = [
     { key: "id", header: "SL. NO" },
@@ -307,7 +318,7 @@ const Staff = () => {
     { key: "employeeCode", header: "Employee ID" },
     { key: "phone_number", header: "Staff Phone Number" },
     { key: "designation", header: "Designation" },
-    { key: "agent_type", header: "Staff Type"},
+    { key: "agent_type", header: "Staff Type" },
     { key: "password", header: "Staff Password" },
     { key: "action", header: "Action" },
   ];
@@ -344,7 +355,7 @@ const Staff = () => {
       });
       setSelectedManagerId(response.data.designation_id?._id || "");
       setSelectedReportingManagerId(response.data.reporting_manager_id || "");
-      setSelectedManagerTitle(response.data?.designation_id?.title)
+      setSelectedManagerTitle(response.data?.designation_id?.title);
       setShowModalUpdate(true);
       setErrors({});
     } catch (error) {
@@ -386,7 +397,7 @@ const Staff = () => {
         const dataToSend = {
           ...updateFormData,
           designation_id: selectedManagerId,
-          reporting_manager_id: selectedReportingManagerId
+          reporting_manager_id: selectedReportingManagerId,
         };
         const response = await api.put(
           `/agent/update-agent/${currentUpdateUser._id}`,
@@ -424,18 +435,53 @@ const Staff = () => {
     }
   };
 
+  // const handleManager = async (event) => {
+  //   const groupId = event.target.value;
+  //   setSelectedManagerId(groupId);
+  //   const selected = managers.find((mgr) => mgr._id === groupId);
+  //   setSelectedManagerTitle(selected?.title || "");
+  // };
 
+  const handleAntDSelectManager = (managerId) => {
+    setSelectedManagerId(managerId);
 
-  const handleManager = async (event) => {
-    const groupId = event.target.value;
-    setSelectedManagerId(groupId);
-    const selected = managers.find((mgr) => mgr._id === groupId);
-    setSelectedManagerTitle(selected?.title || "");
+    const selected = managers.find((mgr) => mgr._id === managerId);
+    const title = selected?.title || "";
+
+    setSelectedManagerTitle(title);
+
+    // Optionally update formData
+    setFormData((prev) => ({
+      ...prev,
+      managerId,
+      managerTitle: title,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      managerId: "",
+      managerTitle: "",
+    }));
   };
 
-  const handleReportingManager = async (event) => {
-    const reportingId = event.target.value;
+  // const handleReportingManager = async (event) => {
+  //   const reportingId = event.target.value;
+  //   setSelectedReportingManagerId(reportingId);
+  // };
+
+  const handleAntDSelectReportingManager = (reportingId) => {
     setSelectedReportingManagerId(reportingId);
+
+    setFormData((prev) => ({
+      ...prev,
+      reportingManagerId: reportingId,
+    }));
+
+
+    setErrors((prev) => ({
+      ...prev,
+      reportingManagerId: "",
+    }));
   };
 
   return (
@@ -448,13 +494,13 @@ const Staff = () => {
           />
           <Sidebar />
           <CustomAlertDialog
-          type={alertConfig.type}
-          isVisible={alertConfig.visibility}
-          message={alertConfig.message}
-          onClose={() =>
-            setAlertConfig((prev) => ({ ...prev, visibility: false }))
-          }
-        />
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+            onClose={() =>
+              setAlertConfig((prev) => ({ ...prev, visibility: false }))
+            }
+          />
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
@@ -471,29 +517,32 @@ const Staff = () => {
                 </button>
               </div>
             </div>
-            {(TableAgents?.length > 0 && !isLoading) ? (
+            {TableAgents?.length > 0 && !isLoading ? (
               <DataTable
                 updateHandler={handleUpdateModalOpen}
                 data={filterOption(TableAgents, searchText)}
                 columns={columns}
-                exportedFileName={`Employees-${TableAgents.length > 0
-                  ? TableAgents[0].name +
-                  " to " +
-                  TableAgents[TableAgents.length - 1].name
-                  : "empty"
-                  }.csv`}
+                exportedFileName={`Employees-${
+                  TableAgents.length > 0
+                    ? TableAgents[0].name +
+                      " to " +
+                      TableAgents[TableAgents.length - 1].name
+                    : "empty"
+                }.csv`}
               />
             ) : (
-              <CircularLoader isLoading={isLoading} failure={TableAgents?.length <= 0} data="Employee Data" />
+              <CircularLoader
+                isLoading={isLoading}
+                failure={TableAgents?.length <= 0}
+                data="Employee Data"
+              />
             )}
           </div>
         </div>
 
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
-            <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Add Staff
-            </h3>
+            <h3 className="mb-4 text-xl font-bold text-gray-900">Add Staff</h3>
             <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               <div>
                 <label
@@ -510,7 +559,7 @@ const Staff = () => {
                   id="name"
                   placeholder="Enter the Full Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.name && (
                   <p className="mt-2 text-sm text-red-600">{errors.name}</p>
@@ -522,7 +571,7 @@ const Staff = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Email  <span className="text-red-500">*</span>
+                    Email <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -532,7 +581,7 @@ const Staff = () => {
                     id="text"
                     placeholder="Enter Email"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.email && (
                     <p className="mt-2 text-sm text-red-600">{errors.email}</p>
@@ -553,7 +602,7 @@ const Staff = () => {
                     id="text"
                     placeholder="Enter Phone Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.phone_number && (
                     <p className="mt-2 text-sm text-red-600">
@@ -578,7 +627,7 @@ const Staff = () => {
                     id="text"
                     placeholder="Enter Password"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.password && (
                     <p className="mt-2 text-sm text-red-600">
@@ -601,7 +650,7 @@ const Staff = () => {
                     id="text"
                     placeholder="Enter Pincode"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pincode && (
                     <p className="mt-2 text-sm text-red-600">
@@ -626,7 +675,7 @@ const Staff = () => {
                     id="text"
                     placeholder="Enter Adhaar Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.adhaar_no && (
                     <p className="mt-2 text-sm text-red-600">
@@ -649,7 +698,7 @@ const Staff = () => {
                     id="text"
                     placeholder="Enter Pan Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pan_no && (
                     <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
@@ -671,7 +720,7 @@ const Staff = () => {
                   id="name"
                   placeholder="Enter the Address"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.address && (
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
@@ -684,7 +733,7 @@ const Staff = () => {
                 >
                   Designation <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   value={selectedManagerId}
                   onChange={handleManager}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
@@ -697,7 +746,26 @@ const Staff = () => {
                       {group.title}
                     </option>
                   ))}
-                </select>
+                </select> */}
+                <Select
+                  id="manager-select"
+                  name="managerId"
+                  value={selectedManagerId || undefined}
+                  onChange={handleAntDSelectManager}
+                  placeholder="Select Manager"
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  showSearch
+                  popupMatchSelectWidth={false}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {managers.map((mgr) => (
+                    <Select.Option key={mgr._id} value={mgr._id}>
+                      {mgr.title}
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
               <div>
                 <label
@@ -706,23 +774,31 @@ const Staff = () => {
                 >
                   Select Staff Type <span className="text-red-500">*</span>
                 </label>
-                 <select
-                          name="agent_type"
-                          value={formData?.agent_type}
-                          onChange={handleChange}
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                        >
-                          <option value="">Select Staff Type</option>
-                          <option value="agent">Agent</option>
-                          <option value="employee">Employee</option>
-                          <option value="both">Both</option>
-                        </select>
-                        {errors.agent_type && (
-                  <p className="mt-2 text-sm text-red-600">{errors.agent_type}</p>
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Staff Type"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="agent_type"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={formData?.agent_type || undefined}
+                  onChange={(value) => handleAntDSelect("agent_type", value)}
+                >
+                  {["Agent", "Employee", "Both"].map((aType) => (
+                    <Select.Option key={aType} value={aType.toLowerCase()}>
+                      {aType}
+                    </Select.Option>
+                  ))}
+                </Select>
+                {errors.agent_type && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.agent_type}
+                  </p>
                 )}
-                
               </div>
-              
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
@@ -760,7 +836,7 @@ const Staff = () => {
                   id="name"
                   placeholder="Enter the Full Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.name && (
                   <p className="mt-2 text-sm text-red-600">{errors.name}</p>
@@ -782,7 +858,7 @@ const Staff = () => {
                     id="text"
                     placeholder="Enter Email"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.email && (
                     <p className="mt-2 text-sm text-red-600">{errors.email}</p>
@@ -803,7 +879,7 @@ const Staff = () => {
                     id="text"
                     placeholder="Enter Phone Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.phone_number && (
                     <p className="mt-2 text-sm text-red-600">
@@ -813,7 +889,7 @@ const Staff = () => {
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
-              <div className="w-full">
+                <div className="w-full">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
@@ -828,7 +904,7 @@ const Staff = () => {
                     id="update-password"
                     placeholder="Enter Password"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.password && (
                     <p className="mt-2 text-sm text-red-600">
@@ -851,7 +927,7 @@ const Staff = () => {
                     id="text"
                     placeholder="Enter Pincode"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pincode && (
                     <p className="mt-2 text-sm text-red-600">
@@ -876,7 +952,7 @@ const Staff = () => {
                     id="text"
                     placeholder="Enter Adhaar Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.adhaar_no && (
                     <p className="mt-2 text-sm text-red-600">
@@ -899,7 +975,7 @@ const Staff = () => {
                     id="text"
                     placeholder="Enter Pan Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pan_no && (
                     <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
@@ -921,7 +997,7 @@ const Staff = () => {
                   id="name"
                   placeholder="Enter the Address"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.address && (
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
@@ -934,7 +1010,7 @@ const Staff = () => {
                 >
                   Designation <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   value={selectedManagerId}
                   onChange={handleManager}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
@@ -947,66 +1023,116 @@ const Staff = () => {
                       {group.title}
                     </option>
                   ))}
-                </select>
+                </select> */}
+
+                <Select
+                  id="selectedManagerId"
+                  name="selectedManagerId"
+                  value={selectedManagerId || undefined}
+                  onChange={handleAntDSelectManager}
+                  placeholder="Select Designation"
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  showSearch
+                  popupMatchSelectWidth={false}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {managers.map((manager) => (
+                    <Select.Option key={manager._id} value={manager._id}>
+                      {manager.title}
+                    </Select.Option>
+                  ))}
+                </Select>
                 {errors.designation_id && (
-                  <p className="mt-2 text-sm text-red-600">{errors.designation_id}</p>
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.designation_id}
+                  </p>
                 )}
               </div>
               {(selectedManagerTitle === "Sales Excecutive" ||
                 selectedManagerTitle === "Business Agent" ||
-                selectedManagerTitle === "Office Executive")
-                && (
-                  <div className="w-full">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="category"
-                    >
-                      Reporting Manager
-                    </label>
-                    <select
-                      value={selectedReportingManagerId}
-                      onChange={handleReportingManager}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    >
-                      <option value="" hidden>
-                        Select Reporting Manager
+                selectedManagerTitle === "Office Executive") && (
+                <div className="w-full">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="category"
+                  >
+                    Reporting Manager
+                  </label>
+                  {/* <select
+                    value={selectedReportingManagerId}
+                    onChange={handleReportingManager}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                  >
+                    <option value="" hidden>
+                      Select Reporting Manager
+                    </option>
+                    {users.map((group) => (
+                      <option key={group._id} value={group._id}>
+                        {group.name} - {group?.designation_id?.title}
                       </option>
-                      {users.map((group) => (
-                        <option key={group._id} value={group._id}>
-                          {group.name} - {group?.designation_id?.title}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.reporting_manager && (
-                      <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
-                    )}
-                  </div>
-                )}
+                    ))}
+                  </select> */}
+                   <Select
+                  id="selectedReportingManagerId"
+                  name="selectedReportingManagerId"
+                  value={selectedReportingManagerId || undefined}
+                  onChange={handleAntDSelectReportingManager}
+                  placeholder="Select Reporting Manager"
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  showSearch
+                  popupMatchSelectWidth={false}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {users.map((rManager) => (
+                    <Select.Option key={rManager._id} value={rManager._id}>
+                      {rManager.name}  - {rManager?.designation_id?.title}
+                    </Select.Option>
+                  ))}
+                </Select>
+                  {errors.reporting_manager && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.reporting_manager}
+                    </p>
+                  )}
+                </div>
+              )}
 
-                <div>
+              <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor=""
                 >
                   Select Staff Type <span className="text-red-500">*</span>
                 </label>
-                 <select
-                          name="agent_type"
-                          value={updateFormData?.agent_type}
-                          onChange={handleInputChange}
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                        >
-                          <option value="">Select Staff Type</option>
-                          <option value="agent">Agent</option>
-                          <option value="employee">Employee</option>
-                          <option value="both">Both</option>
-                        </select>
-                         {errors.agent_type && (
-                  <p className="mt-2 text-sm text-red-600">{errors.agent_type}</p>
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Staff Type"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="agent_type"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.agent_type || undefined}
+                  onChange={(value) => handleAntDSelect("agent_type", value)}
+                >
+                  {["Agent", "Employee", "Both"].map((aType) => (
+                    <Select.Option key={aType} value={aType.toLowerCase()}>
+                      {aType}
+                    </Select.Option>
+                  ))}
+                </Select>
+                {errors.agent_type && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.agent_type}
+                  </p>
                 )}
-                
               </div>
-              
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
@@ -1048,7 +1174,8 @@ const Staff = () => {
                     <span className="text-primary font-bold">
                       {currentUser.name}
                     </span>{" "}
-                    to confirm deletion. <span className="text-red-500 ">*</span>
+                    to confirm deletion.{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"

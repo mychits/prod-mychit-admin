@@ -4,11 +4,11 @@ import Sidebar from "../components/layouts/Sidebar";
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
-import { Dropdown } from "antd";
+import { Select, Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-
+import { fieldSize } from "../data/fieldSize";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
@@ -139,6 +139,46 @@ const Employee = () => {
     };
     fetchManagers();
   }, [reloadTrigger]);
+
+
+  const handleAntDSelectManager = (managerId) => {
+    setSelectedManagerId(managerId);
+
+    const selected = managers.find((mgr) => mgr._id === managerId);
+    const title = selected?.title || "";
+
+    setSelectedManagerTitle(title);
+
+  
+    setFormData((prev) => ({
+      ...prev,
+      managerId,
+      managerTitle: title,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      managerId: "",
+      managerTitle: "",
+    }));
+  };
+
+
+  const handleAntDSelectReportingManager = (reportingId) => {
+    setSelectedReportingManagerId(reportingId);
+
+    
+    setFormData((prev) => ({
+      ...prev,
+      reportingManagerId: reportingId,
+    }));
+
+
+    setErrors((prev) => ({
+      ...prev,
+      reportingManagerId: "",
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -496,7 +536,7 @@ const Employee = () => {
                   id="name"
                   placeholder="Enter the Full Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.name && (
                   <p className="mt-2 text-sm text-red-600">{errors.name}</p>
@@ -518,7 +558,7 @@ const Employee = () => {
                     id="text"
                     placeholder="Enter Email"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.email && (
                     <p className="mt-2 text-sm text-red-600">{errors.email}</p>
@@ -539,7 +579,7 @@ const Employee = () => {
                     id="text"
                     placeholder="Enter Phone Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.phone_number && (
                     <p className="mt-2 text-sm text-red-600">
@@ -564,7 +604,7 @@ const Employee = () => {
                     id="text"
                     placeholder="Enter Password"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.password && (
                     <p className="mt-2 text-sm text-red-600">
@@ -587,7 +627,7 @@ const Employee = () => {
                     id="text"
                     placeholder="Enter Pincode"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pincode && (
                     <p className="mt-2 text-sm text-red-600">
@@ -612,7 +652,7 @@ const Employee = () => {
                     id="text"
                     placeholder="Enter Adhaar Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.adhaar_no && (
                     <p className="mt-2 text-sm text-red-600">
@@ -635,7 +675,7 @@ const Employee = () => {
                     id="text"
                     placeholder="Enter Pan Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pan_no && (
                     <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
@@ -657,7 +697,7 @@ const Employee = () => {
                   id="name"
                   placeholder="Enter the Address"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.address && (
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
@@ -670,7 +710,7 @@ const Employee = () => {
                 >
                   Designation <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   value={selectedManagerId}
                   onChange={handleManager}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
@@ -683,7 +723,26 @@ const Employee = () => {
                       {group.title}
                     </option>
                   ))}
-                </select>
+                </select> */}
+                <Select
+                  id="manager-select"
+                  name="managerId"
+                  value={selectedManagerId || undefined}
+                  onChange={handleAntDSelectManager}
+                  placeholder="Select Manager"
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  showSearch
+                  popupMatchSelectWidth={false}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {managers.map((mgr) => (
+                    <Select.Option key={mgr._id} value={mgr._id}>
+                      {mgr.title}
+                    </Select.Option>
+                  ))}
+                </Select>
               
               </div>
               
@@ -724,7 +783,7 @@ const Employee = () => {
                   id="name"
                   placeholder="Enter the Full Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.name && (
                   <p className="mt-2 text-sm text-red-600">{errors.name}</p>
@@ -746,7 +805,7 @@ const Employee = () => {
                     id="text"
                     placeholder="Enter Email"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.email && (
                     <p className="mt-2 text-sm text-red-600">{errors.email}</p>
@@ -767,7 +826,7 @@ const Employee = () => {
                     id="text"
                     placeholder="Enter Phone Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.phone_number && (
                     <p className="mt-2 text-sm text-red-600">
@@ -792,7 +851,7 @@ const Employee = () => {
                     id="update-password"
                     placeholder="Enter Password"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.password && (
                     <p className="mt-2 text-sm text-red-600">
@@ -815,7 +874,7 @@ const Employee = () => {
                     id="text"
                     placeholder="Enter Pincode"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pincode && (
                     <p className="mt-2 text-sm text-red-600">
@@ -840,7 +899,7 @@ const Employee = () => {
                     id="text"
                     placeholder="Enter Adhaar Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.adhaar_no && (
                     <p className="mt-2 text-sm text-red-600">
@@ -863,7 +922,7 @@ const Employee = () => {
                     id="text"
                     placeholder="Enter Pan Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pan_no && (
                     <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
@@ -885,7 +944,7 @@ const Employee = () => {
                   id="name"
                   placeholder="Enter the Address"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.address && (
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
@@ -898,7 +957,7 @@ const Employee = () => {
                 >
                   Designation <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   value={selectedManagerId}
                   onChange={handleManager}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
@@ -911,7 +970,26 @@ const Employee = () => {
                       {group.title}
                     </option>
                   ))}
-                </select>
+                </select> */}
+                <Select
+                  id="selectedManagerId"
+                  name="selectedManagerId"
+                  value={selectedManagerId || undefined}
+                  onChange={handleAntDSelectManager}
+                  placeholder="Select Designation"
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  showSearch
+                  popupMatchSelectWidth={false}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {managers.map((manager) => (
+                    <Select.Option key={manager._id} value={manager._id}>
+                      {manager.title}
+                    </Select.Option>
+                  ))}
+                </Select>
                 {errors.designation_id && (
                   <p className="mt-2 text-sm text-red-600">{errors.designation_id}</p>
                 )}
@@ -927,7 +1005,7 @@ const Employee = () => {
                     >
                       Reporting Manager
                     </label>
-                    <select
+                    {/* <select
                       value={selectedReportingManagerId}
                       onChange={handleReportingManager}
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
@@ -940,7 +1018,26 @@ const Employee = () => {
                           {group.name} - {group?.designation_id?.title}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
+                     <Select
+                  id="selectedReportingManagerId"
+                  name="selectedReportingManagerId"
+                  value={selectedReportingManagerId || undefined}
+                  onChange={handleAntDSelectReportingManager}
+                  placeholder="Select Reporting Manager"
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  showSearch
+                  popupMatchSelectWidth={false}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {users.map((rManager) => (
+                    <Select.Option key={rManager._id} value={rManager._id}>
+                      {rManager.name}  - {rManager?.designation_id?.title}
+                    </Select.Option>
+                  ))}
+                </Select>
                     {errors.reporting_manager && (
                       <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
                     )}
@@ -994,7 +1091,7 @@ const Employee = () => {
                     id="groupName"
                     placeholder="Enter the employee Full Name"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <button
