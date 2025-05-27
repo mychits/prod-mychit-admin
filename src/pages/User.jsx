@@ -841,6 +841,7 @@ const User = () => {
                   className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                   placeholder="Select Or Search Collection Area"
                   popupMatchSelectWidth={false}
+                  name="collection_area"
                   showSearch
                   filterOption={(input, option) =>
                     option.children
@@ -849,7 +850,7 @@ const User = () => {
                       .includes(input.toLowerCase())
                   }
                   value={formData?.collection_area || undefined}
-                  onChange={(id) => handleAntDSelect(id)}
+                  onChange={(value) => handleAntDSelect("collection_area",value)}
                 >
                   {areas.map((area) => (
                     <Select.Option key={area._id} value={area._id}>
