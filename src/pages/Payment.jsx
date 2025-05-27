@@ -106,13 +106,20 @@ const Payment = () => {
   useEffect(() => {
     const user = localStorage.getItem("user");
     const userObj = JSON.parse(user);
-    
-    if (userObj &&  userObj.admin_access_right_id?.access_permissions?.edit_payment) {
-      const isModify =userObj.admin_access_right_id?.access_permissions?.edit_payment === "true" ? true : false;
+
+    if (
+      userObj &&
+      userObj.admin_access_right_id?.access_permissions?.edit_payment
+    ) {
+      const isModify =
+        userObj.admin_access_right_id?.access_permissions?.edit_payment ===
+        "true"
+          ? true
+          : false;
       setModifyPayment(isModify);
     }
   }, []);
-    useEffect(() => {
+  useEffect(() => {
     const usr = localStorage.getItem("user");
     let admin_type = null;
 
@@ -124,11 +131,16 @@ const Payment = () => {
       console.error("Failed to parse user from localStorage:", e);
     }
 
-    const fetchAllPayments = async () => {
+    const fetchTodaysPayments = async () => {
       try {
         setTablePayments([]);
         setIsLoading(true);
-        const response = await api.get("/payment/get-payment");
+        const response = await api.get("/payment/get-payments-by-dates", {
+          params: {
+            from_date: today,
+            to_date: today,
+          },
+        });
         if (response.data && response.data.length > 0) {
           const formattedData = response.data.map((group, index) => {
             if (!group?.group_id?.group_name) return {};
@@ -197,9 +209,9 @@ const Payment = () => {
       }
     };
 
-    fetchAllPayments();
+    fetchTodaysPayments();
   }, []);
-  
+
   useEffect(() => {
     setBorrowers([]);
     const fetchCustomerLoanDetails = async () => {
@@ -283,7 +295,6 @@ const Payment = () => {
       }));
     }
   }, [receiptNo]);
-
 
   const validateForm = () => {
     const newErrors = {};
@@ -459,7 +470,7 @@ const Payment = () => {
     if (groupId) {
       let url;
       if (groupId === "all") {
-        url = "/payment/get-payment";
+        url = "/payment/get-payments-by-dates";
         setEnableGroupColumn(true);
       } else {
         url = `/payment/get-group-payment/${groupId}`;
@@ -985,7 +996,7 @@ const Payment = () => {
                   >
                     {groups.map((group) => (
                       <Select.Option key={group._id} value={group._id}>
-                        { `${group.full_name} | ${group.phone_number}`}
+                        {`${group.full_name} | ${group.phone_number}`}
                       </Select.Option>
                     ))}
                   </Select>
@@ -1071,7 +1082,7 @@ const Payment = () => {
                       Payment Date
                     </label>
                     <input
-                      disabled={!modifyPayment }
+                      disabled={!modifyPayment}
                       type="date"
                       name="pay_date"
                       value={formData.pay_date}

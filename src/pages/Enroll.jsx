@@ -33,6 +33,7 @@ const Enroll = () => {
   const [agents, setAgents] = useState([]);
   const date = new Date().toISOString().split("T")[0];
   const whatsappEnable = true;
+
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -62,11 +63,14 @@ const Enroll = () => {
     referred_lead: "",
     chit_asking_month: "",
   });
+
   const [searchText, setSearchText] = useState("");
+
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
   };
+
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -79,10 +83,10 @@ const Enroll = () => {
     };
     fetchGroups();
   }, []);
+
   useEffect(() => {
     async function fetchAllEnrollmentData() {
       setAllEnrollUrl(true);
-
       let url = `/enroll-report/get-enroll-report?from_date=${date}&to_date=${date}`;
       try {
         setTableEnrolls([]);
@@ -124,17 +128,7 @@ const Enroll = () => {
                             </div>
                           ),
                         },
-                        // {
-                        //   key: "2",
-                        //   label: (
-                        //     <div
-                        //       className="text-red-600"
-                        //       onClick={() => handleDeleteModalOpen(group._id)}
-                        //     >
-                        //       Delete
-                        //     </div>
-                        //   ),
-                        // },
+                    
                       ],
                     }}
                     placement="bottomLeft"
@@ -176,7 +170,6 @@ const Enroll = () => {
       try {
         const response = await api.get("/agent/get-agent");
         setAgents(response.data);
-        // console.info(response.data,"agents")
       } catch (err) {
         console.error("Failed to fetch Leads", err);
       }
@@ -195,7 +188,7 @@ const Enroll = () => {
     fetchLeads();
   }, []);
 
-  const handleAntDSelect = (field, value) => {
+  const handleAntDSelect = async(field, value) => {
     setFormData((prevData) => ({
       ...prevData,
       [field]: value,
@@ -205,6 +198,23 @@ const Enroll = () => {
       ...prevErrors,
       [field]: "",
     }));
+     if (field === "group_id") {
+      try {
+        const response = await api.post(`/enroll/get-next-tickets/${value}`);
+        setAvailableTicketsAdd(response.data.availableTickets || []);
+        console.log("Next tickets:", response.data.availableTickets);
+      } catch (error) {
+        console.error("Error fetching next tickets:", error);
+      }
+    }
+  };
+  const handleAntInputDSelect = (field, value) => {
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors({ ...errors, [field]: "" });
   };
   const handleGroupChange = async (groupId) => {
     setSelectedGroup(groupId);
@@ -255,17 +265,7 @@ const Enroll = () => {
                             </div>
                           ),
                         },
-                        // {
-                        //   key: "2",
-                        //   label: (
-                        //     <div
-                        //       className="text-red-600"
-                        //       onClick={() => handleDeleteModalOpen(group._id)}
-                        //     >
-                        //       Delete
-                        //     </div>
-                        //   ),
-                        // },
+                     
                       ],
                     }}
                     placement="bottomLeft"
@@ -624,7 +624,7 @@ const Enroll = () => {
                       .includes(input.toLowerCase())
                   }
                   value={formData?.group_id || undefined}
-                  onChange={(value) => handleAntDSelect("group_name", value)}
+                  onChange={(value) => handleAntDSelect("group_id", value )}
                 >
                   {groups.map((group) => (
                     <Select.Option key={group._id} value={group._id}>
@@ -657,7 +657,7 @@ const Enroll = () => {
                       .includes(input.toLowerCase())
                   }
                   value={formData?.user_id || undefined}
-                  onChange={(value) => handleAntDSelect("full_name", value)}
+                  onChange={(value) => handleAntDSelect("user_id", value)}
                 >
                   {users.map((user) => (
                     <Select.Option key={user._id} value={user._id}>
@@ -765,7 +765,7 @@ const Enroll = () => {
                         .includes(input.toLowerCase())
                     }
                     value={formData?.referred_customer || undefined}
-                    onChange={(value) => handleAntDSelect("full_name", value)}
+                    onChange={(value) => handleAntDSelect("referred_customer", value)}
                   >
                     {users.map((user) => (
                       <Select.Option key={user._id} value={user._id}>
@@ -798,7 +798,7 @@ const Enroll = () => {
                         .includes(input.toLowerCase())
                     }
                     value={formData?.referred_lead || undefined}
-                    onChange={(value) => handleAntDSelect("lead_name", value)}
+                    onChange={(value) => handleAntDSelect("referred_lead", value)}
                   >
                     {leads.map((lead) => (
                       <Select.Option key={lead._id} value={lead._id}>
@@ -856,7 +856,7 @@ const Enroll = () => {
                   <input
                     type="number"
                     name="no_of_tickets"
-                    value={formData.no_of_tickets}
+                    value={formData?.no_of_tickets}
                     id="name"
                     onChange={(e) => {
                       handleChange(e);
@@ -864,7 +864,7 @@ const Enroll = () => {
                     placeholder="Enter the Number of Tickets"
                     required
                     max={availableTicketsAdd.length}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
 
                   {errors.no_of_tickets && (
@@ -1000,10 +1000,10 @@ const Enroll = () => {
                     option.children.toLowerCase().includes(input.toLowerCase())
                   }
                   value={updateFormData?.payment_type || undefined}
-                  onChange={(value) => handleAntDSelect("payment_type", value)}
+                  onChange={(value) => handleAntInputDSelect("payment_type", value)}
                 >
                   {["Daily", "Weekely", "Monthly"].map((pType) => (
-                    <Select.Option key={pType} value={pType}>
+                    <Select.Option key={pType.toLowerCase()} value={pType}>
                       {pType}
                     </Select.Option>
                   ))}
@@ -1040,7 +1040,7 @@ const Enroll = () => {
                     option.children.toLowerCase().includes(input.toLowerCase())
                   }
                   value={updateFormData?.referred_type || undefined}
-                  onChange={(value) => handleAntDSelect("referred_type", value)}
+                  onChange={(value) => handleAntInputDSelect("referred_type", value)}
                 >
                   {["Self Joining",
                     "Customer",
@@ -1077,7 +1077,7 @@ const Enroll = () => {
                         .includes(input.toLowerCase())
                     }
                     value={updateFormData?.referred_customer || undefined}
-                    onChange={(value) => handleAntDSelect("full_name", value)}
+                    onChange={(value) => handleAntDSelect("referred_customer", value)}
                   >
                     {users.map((user) => (
                       <Select.Option key={user._id} value={user._id}>
@@ -1110,7 +1110,7 @@ const Enroll = () => {
                         .includes(input.toLowerCase())
                     }
                     value={updateFormData?.referred_lead || undefined}
-                    onChange={(value) => handleAntDSelect("lead_name", value)}
+                    onChange={(value) => handleAntInputDSelect("referred_lead", value)}
                   >
                     {leads.map((lead) => (
                       <Select.Option key={lead._id} value={lead._id}>
@@ -1143,7 +1143,7 @@ const Enroll = () => {
                         .includes(input.toLowerCase())
                     }
                     value={updateFormData?.agent || undefined}
-                    onChange={(value) => handleAntDSelect("agent", value)}
+                    onChange={(value) => handleAntInputDSelect("agent", value)}
                   >
                     {agents.map((agent) => (
                       <Select.Option key={agent._id} value={agent._id}>
@@ -1165,6 +1165,7 @@ const Enroll = () => {
                   value={updateFormData.tickets}
                   onChange={handleInputChange}
                   id="no_of_tickets"
+                  disabled
                   required
                   className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                 >
