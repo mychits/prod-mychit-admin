@@ -8,7 +8,8 @@ import { IoMdMore } from "react-icons/io";
 import CircularLoader from "../components/loaders/CircularLoader";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
-import { Dropdown } from "antd";
+import { Select, Dropdown } from "antd";
+import { fieldSize } from "../data/fieldSize";
 const LeadReport = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
@@ -23,8 +24,10 @@ const LeadReport = () => {
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [errors, setErrors] = useState({});
-  const [showFilterField,setShowFilterField] = useState(false);
+  const [showFilterField, setShowFilterField] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [filteredLeads, setFilteredLeads] = useState([]);
+  const [leadSourceOptions, setLeadSourceOptions] = useState([]);
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
@@ -33,8 +36,8 @@ const LeadReport = () => {
     message: "Something went wrong!",
     type: "info",
   });
-  const handleGroupChange = async (event) => {
-    const groupId = event.target.value;
+  const handleGroupChange = async (groupId) => {
+    //const groupId = event.target.value;
     setSelectedGroup(groupId);
   };
   const [formData, setFormData] = useState({
@@ -59,13 +62,22 @@ const LeadReport = () => {
     lead_needs: "",
     note: "",
   });
-const now = new Date();
-const formatToday = (date) => now.toLocaleDateString('en-CA');
-const formatString = formatToday(now);
-  
+
+  const groupTime = [
+    { value: "Today", label: "Today" },
+    { value: "Yesterday", label: "Yesterday" },
+    { value: "ThisMonth", label: "This Month" },
+    { value: "LastMonth", label: "Last Month" },
+    { value: "ThisYear", label: "This Year" },
+    { value: "Custom", label: "Custom" },
+  ];
+  const now = new Date();
+  const formatToday = (date) => now.toLocaleDateString("en-CA");
+  const formatString = formatToday(now);
+
   const [selectedFromDate, setSelectedFromDate] = useState(formatString);
   const [selectedToDate, setSelectedToDate] = useState(formatString);
- 
+
   const [selectedLeadSourceName, setSelectedLeadSourceName] = useState("");
   const [selectedNote, setSelectedNote] = useState("");
 
@@ -100,10 +112,34 @@ const formatString = formatToday(now);
     if (!data.lead_needs.trim()) {
       newErrors.lead_needs = "Lead Needs and Goals is required";
     }
-   
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const uniqueLeadSources = () => {
+    const sourceMap = new Map();
+
+    leads.forEach((lead) => {
+      // Agent
+      if (lead.lead_agent?._id && lead.lead_agent?.name) {
+        sourceMap.set(`agent-${lead.lead_agent._id}`, {
+          id: lead?.lead_agent?._id,
+          name: lead?.lead_agent?.name,
+          type: "Agent",
+        });
+      }
+
+      // if (lead.lead_customer?._id && lead.lead_customer?.full_name) {
+      //   sourceMap.set(`customer-${lead?.lead_customer?._id}`, {
+      //     id: lead?.lead_customer?._id,
+      //     name: lead?.lead_customer?.full_name,
+      //     type: "Customer",
+      //   });
+      // }
+    });
+
+    return Array.from(sourceMap.values());
   };
 
   useEffect(() => {
@@ -246,11 +282,98 @@ const formatString = formatToday(now);
     };
     fetchAgents();
   }, []);
+  // useEffect(() => {
+  //   const fetchFilteredLead = async () => {
+  //     setLoader(true);
+  //     try {
+  //       console.info("fromdate", selectedFromDate, selectedToDate);
+  //       const response = await api.get("/lead-report/get-lead-report", {
+  //         params: {
+  //           from_date: selectedFromDate,
+  //           to_date: selectedToDate,
+  //           lead_source_name: selectedLeadSourceName,
+  //           group_id: selectedGroup,
+  //           note: selectedNote,
+  //         },
+  //       });
+  //       setLoader(false);
+
+  //       const formattedData = response.data.map((group, index) => ({
+  //         _id: group._id,
+  //         id: index + 1,
+  //         name: group.lead_name,
+  //         phone: group.lead_phone,
+  //         profession: group.lead_profession,
+  //         lead_needs: group?.lead_needs,
+  //         group_id: group?.group_id?.group_name,
+  //         date: group?.createdAt.split("T")[0],
+  //         lead_type: group.lead_type === "agent" ? "employee" : group.lead_type,
+  //         note: group?.note,
+  //         lead_type_name:
+  //           group.lead_type === "customer"
+  //             ? group?.lead_customer?.full_name
+  //             : group.lead_type === "agent"
+  //             ? group?.lead_agent?.name
+  //             : "",
+  //         action: (
+  //           <div className="flex justify-center gap-2 relative">
+  //             <Dropdown
+  //               menu={{
+  //                 items: [
+  //                   {
+  //                     key: "1",
+  //                     label: (
+  //                       <div
+  //                         className="text-green-600"
+  //                         onClick={() => handleUpdateModalOpen(group._id)}
+  //                       >
+  //                         Edit
+  //                       </div>
+  //                     ),
+  //                   },
+  //                   {
+  //                     key: "2",
+  //                     label: (
+  //                       <div
+  //                         className="text-red-600"
+  //                         onClick={() => handleDeleteModalOpen(group._id)}
+  //                       >
+  //                         Delete
+  //                       </div>
+  //                     ),
+  //                   },
+  //                 ],
+  //               }}
+  //               placement="bottomLeft"
+  //             >
+  //               <IoMdMore className="text-bold" />
+  //             </Dropdown>
+  //           </div>
+  //         ),
+  //       }));
+  //       setTableGroups(formattedData);
+  //     } catch (err) {
+  //       setTableGroups([]);
+  //       console.error("Failed to fetch Data", err.message);
+  //     } finally {
+  //       setLoader(false);
+  //     }
+  //   };
+
+  //   fetchFilteredLead();
+  // }, [
+  //   selectedFromDate,
+  //   selectedToDate,
+  //   selectedLeadSourceName,
+  //   selectedGroup,
+  //   selectedNote,
+  // ]);
   useEffect(() => {
     const fetchFilteredLead = async () => {
       setLoader(true);
       try {
-        console.info("fromdate",selectedFromDate,selectedToDate)
+        console.info("fromdate", selectedFromDate, selectedToDate);
+
         const response = await api.get("/lead-report/get-lead-report", {
           params: {
             from_date: selectedFromDate,
@@ -260,9 +383,34 @@ const formatString = formatToday(now);
             note: selectedNote,
           },
         });
-        setLoader(false);
 
-        const formattedData = response.data.map((group, index) => ({
+        const rawData = response.data;
+
+        const uniqueSources = [
+          ...new Map(
+            rawData
+              .map((lead) => {
+                const source =
+                  lead.lead_type === "customer"
+                    ? lead.lead_customer
+                    : lead.lead_type === "agent"
+                    ? lead.lead_agent
+                    : null;
+                if (!source || !source._id) return null;
+
+                return {
+                  id: source._id,
+                  name: source.full_name || source.name || "Unnamed",
+                };
+              })
+              .filter(Boolean)
+              .map((item) => [item.id, item])
+          ).values(),
+        ];
+
+        setLeadSourceOptions(uniqueSources);
+
+        const formattedData = rawData.map((group, index) => ({
           _id: group._id,
           id: index + 1,
           name: group.lead_name,
@@ -270,7 +418,7 @@ const formatString = formatToday(now);
           profession: group.lead_profession,
           lead_needs: group?.lead_needs,
           group_id: group?.group_id?.group_name,
-          date: group?.createdAt.split("T")[0],
+          date: group?.createdAt?.split("T")[0],
           lead_type: group.lead_type === "agent" ? "employee" : group.lead_type,
           note: group?.note,
           lead_type_name:
@@ -315,12 +463,12 @@ const formatString = formatToday(now);
             </div>
           ),
         }));
+
         setTableGroups(formattedData);
       } catch (err) {
-        setTableGroups([])
+        setTableGroups([]);
         console.error("Failed to fetch Data", err.message);
-        
-      }finally{
+      } finally {
         setLoader(false);
       }
     };
@@ -333,47 +481,42 @@ const formatString = formatToday(now);
     selectedGroup,
     selectedNote,
   ]);
-  const handleSelectFilter = (e) => {
-    console.log("sath karod")
-    const { value } = e.target;
-setShowFilterField(false);
 
-const today = new Date();
-const formatDate = (date) => date.toLocaleDateString('en-CA');
+  const handleSelectFilter = (value) => {
+    //const { value } = e.target;
+    setShowFilterField(false);
 
-if (value === "Today") {
-  const formatted = formatDate(today);
-  setSelectedFromDate(formatted);
-  setSelectedToDate(formatted);
+    const today = new Date();
+    const formatDate = (date) => date.toLocaleDateString("en-CA");
 
-} else if (value === "Yesterday") {
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const formatted = formatDate(yesterday);
-  setSelectedFromDate(formatted);
-  setSelectedToDate(formatted);
-
-} else if (value === "ThisMonth") {
-  const start = new Date(today.getFullYear(), today.getMonth(), 1);
-  const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  setSelectedFromDate(formatDate(start));
-  setSelectedToDate(formatDate(end));
-
-} else if (value === "LastMonth") {
-  const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-  const end = new Date(today.getFullYear(), today.getMonth(), 0);
-  setSelectedFromDate(formatDate(start));
-  setSelectedToDate(formatDate(end));
-
-} else if (value === "ThisYear") {
-  const start = new Date(today.getFullYear(), 0, 1);
-  const end = new Date(today.getFullYear(), 11, 31);
-  setSelectedFromDate(formatDate(start));
-  setSelectedToDate(formatDate(end));
-}else if(value === "Custom"){
-  setShowFilterField(true)
-}
-
+    if (value === "Today") {
+      const formatted = formatDate(today);
+      setSelectedFromDate(formatted);
+      setSelectedToDate(formatted);
+    } else if (value === "Yesterday") {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const formatted = formatDate(yesterday);
+      setSelectedFromDate(formatted);
+      setSelectedToDate(formatted);
+    } else if (value === "ThisMonth") {
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
+    } else if (value === "LastMonth") {
+      const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const end = new Date(today.getFullYear(), today.getMonth(), 0);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
+    } else if (value === "ThisYear") {
+      const start = new Date(today.getFullYear(), 0, 1);
+      const end = new Date(today.getFullYear(), 11, 31);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
+    } else if (value === "Custom") {
+      setShowFilterField(true);
+    }
   };
   return (
     <div className="w-full">
@@ -393,44 +536,53 @@ if (value === "Today") {
             <div className="mt-6 mb-8">
               <div className="mb-2">
                 <div className="flex justify-start items-center w-full gap-4">
-                   <div className="mb-2">
+                  <div className="mb-2">
                     <label>Filter Option</label>
-                    <select
+                    <Select
+                      showSearch
+                      popupMatchSelectWidth={false}
                       onChange={handleSelectFilter}
-                      
-                      className="border border-gray-300 rounded px-6 shadow-sm outline-none w-full max-w-md"
+                      placeholder="Search Or Select Filter"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      className="w-full max-w-xs h-11"
                     >
-                      <option value="Today">Today</option>
-                      <option value="Yesterday">Yesterday</option>
-                      <option value="ThisMonth">This Month</option>
-                      <option value="LastMonth">Last Month</option>
-                      <option value="ThisYear">This Year</option>
-                      <option value="Custom">Custom</option>
-                    </select>
+                      {groupTime.map((time) => (
+                        <Select.Option key={time.value} value={time.value}>
+                          {time.label}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </div>
-                 {showFilterField && <div className="flex gap-4">
-                  <div className="mb-2">
-                    <label>From Date</label>
-                    <input
-                      type="date"
-                      value={selectedFromDate}
-                      onChange={(e) => setSelectedFromDate(e.target.value)}
-                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
-                    />
-                  </div>
-                  <div className="mb-2">
-                    <label>To Date</label>
-                    <input
-                      type="date"
-                      value={selectedToDate}
-                      onChange={(e) => setSelectedToDate(e.target.value)}
-                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
-                    />
-                  </div>
-                  </div>}
+                  {showFilterField && (
+                    <div className="flex gap-4">
+                      <div className="mb-2">
+                        <label>From Date</label>
+                        <input
+                          type="date"
+                          value={selectedFromDate}
+                          onChange={(e) => setSelectedFromDate(e.target.value)}
+                          className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
+                        />
+                      </div>
+                      <div className="mb-2">
+                        <label>To Date</label>
+                        <input
+                          type="date"
+                          value={selectedToDate}
+                          onChange={(e) => setSelectedToDate(e.target.value)}
+                          className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
+                        />
+                      </div>
+                    </div>
+                  )}
                   <div className="mb-2">
                     <label>Group</label>
-                    <select
+                    {/* <select
                       value={selectedGroup}
                       onChange={handleGroupChange}
                       className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
@@ -441,11 +593,33 @@ if (value === "Today") {
                           {group.group_name}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
+                    <Select
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      value={selectedGroup}
+                      onChange={handleGroupChange}
+                      placeholder="Search Or Select Group"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      className="w-full max-w-xs h-11"
+                    >
+                      <Select.Option value="">All</Select.Option>
+                      {groups.map((group) => (
+                        <Select.Option key={group._id} value={group._id}>
+                          {group.group_name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </div>
                   <div className="mb-2">
                     <label>Lead Source Name</label>
-                    <select
+
+                    {/* <select
                       value={selectedLeadSourceName}
                       onChange={(e) =>
                         setSelectedLeadSourceName(e.target.value)
@@ -453,30 +627,38 @@ if (value === "Today") {
                       className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                     >
                       <option value="">All</option>
-                      {leads
-                        .filter(
-                          (lead) => lead?.lead_agent || lead?.lead_customer
-                        )
-                        .map((lead) => {
-                          
-                          return (
-                            <option
-                              key={lead?._id}
-                              value={
-                                lead?.lead_agent?._id ||
-                                lead?.lead_customer?._id
-                              }
-                            >
-                              {lead?.lead_agent?.name ||
-                                lead?.lead_customer?.full_name}
-                            </option>
-                          );
-                        })}
-                    </select>
+                      {leadSourceOptions.map((source) => (
+                        <option key={source.id} value={source.id}>
+                          {source.name}
+                        </option>
+                      ))}
+                    </select> */}
+                    <Select
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      value={selectedLeadSourceName}
+                      onChange={(value) => setSelectedLeadSourceName(value)}
+                      placeholder="Search Or Select Lead Source Name"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      className="w-full max-w-xs h-11"
+                    >
+                      <Select.Option value="">All</Select.Option>
+                      {leadSourceOptions.map((source) => (
+                        <Select.Option key={source.id} value={source.id}>
+                          {source.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </div>
+
                   <div className="mb-2">
                     <label>Note</label>
-                    <select
+                    {/* <select
                       value={selectedNote}
                       onChange={(e) => setSelectedNote(e.target.value)}
                       className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
@@ -489,7 +671,30 @@ if (value === "Today") {
                             {lead.note}
                           </option>
                         ))}
-                    </select>
+                    </select> */}
+                    <Select
+                      showSearch
+                      value={selectedNote}
+                      popupMatchSelectWidth={false}
+                      onChange={(value) => setSelectedNote(value)}
+                      placeholder="Search Or Select Note"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      className="w-full max-w-xs h-11"
+                    >
+                      <Select.Option value="">All</Select.Option>
+                      {leads
+                        .filter((lead) => lead?.note)
+                        .map((lead) => (
+                          <Select.Option key={lead?._id} value={lead?.note}>
+                            {lead.note}
+                          </Select.Option>
+                        ))}
+                    </Select>
                   </div>
                 </div>
               </div>
@@ -513,9 +718,7 @@ if (value === "Today") {
               />
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"></div>
           </div>
         </div>
 
@@ -547,7 +750,7 @@ if (value === "Today") {
                   id="name"
                   placeholder="Enter the Group Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.lead_name && (
                   <p className="mt-1 text-sm text-red-500">
@@ -571,7 +774,7 @@ if (value === "Today") {
                     id="text"
                     placeholder="Enter Lead Phone Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.lead_phone && (
                     <p className="mt-1 text-sm text-red-500">
@@ -586,18 +789,40 @@ if (value === "Today") {
                   >
                     Lead Work/Profession
                   </label>
-                  <select
+                  {/* <select
                     name="lead_profession"
                     id="category"
                     value={updateFormData.lead_profession}
                     onChange={handleInputChange}
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   >
                     <option value="">Select Work/Profession</option>
                     <option value="employed">Employed</option>
                     <option value="self_employed">Self Employed</option>
-                  </select>
+                  </select> */}
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Lead Work/Profession "
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="lead_profession"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.lead_profession || undefined}
+                    onChange={(value) =>
+                      handleAntInputDSelect("lead_profession", value)
+                    }
+                  >
+                    {["Employed", "Self_Employed"].map((lProf) => (
+                      <Select.Option key={lProf} value={lProf.toLowerCase()}>
+                        {lProf}
+                      </Select.Option>
+                    ))}
+                  </Select>
                   {errors.lead_profession && (
                     <p className="mt-1 text-sm text-red-500">
                       {errors.lead_profession}
@@ -612,13 +837,13 @@ if (value === "Today") {
                 >
                   Group
                 </label>
-                <select
+                {/* <select
                   name="group_id"
                   id="category"
                   value={updateFormData.group_id}
                   onChange={handleInputChange}
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 >
                   <option value="">Select Group</option>
                   {groups.map((group) => (
@@ -626,7 +851,25 @@ if (value === "Today") {
                       {group.group_name}
                     </option>
                   ))}
-                </select>
+                </select> */}
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Group "
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="group_id"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.group_id || undefined}
+                  onChange={(value) => handleAntInputDSelect("group_id", value)}
+                >
+                  {groups.map((group) => (
+                    <Select.Option key={group._id} value={group._id}>
+                      {group.group_name}
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
               <div className="w-full">
                 <label
@@ -635,20 +878,46 @@ if (value === "Today") {
                 >
                   Lead Source Type
                 </label>
-                <select
+                {/* <select
                   name="lead_type"
                   id="category"
                   value={updateFormData.lead_type}
                   onChange={handleInputChange}
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 >
                   <option value="">Select Lead Source Type</option>
                   <option value="social">Social Media</option>
                   <option value="customer">Customer</option>
                   <option value="agent">Employee</option>
                   <option value="walkin">Walkin</option>
-                </select>
+                </select> */}
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select or Search Lead Source Type "
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="lead_type"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.lead_type || undefined}
+                  onChange={(value) =>
+                    handleAntInputDSelect("lead_type", value)
+                  }
+                >
+                  {[
+                    "Social Media",
+                    "Customer",
+                    "Agent",
+                    "Employee",
+                    "Walkin",
+                  ].map((type) => (
+                    <Select.Option key={type} value={type.toLowerCase()}>
+                      {type}
+                    </Select.Option>
+                  ))}
+                </Select>
                 {errors.lead_type && (
                   <p className="mt-1 text-sm text-red-500">
                     {errors.lead_type}
@@ -664,13 +933,13 @@ if (value === "Today") {
                     >
                       Customers
                     </label>
-                    <select
+                    {/* <select
                       name="lead_customer"
                       id="category"
                       value={updateFormData.lead_customer}
                       onChange={handleInputChange}
                       required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     >
                       <option value="">Select Customer</option>
                       {users.map((user) => (
@@ -678,7 +947,30 @@ if (value === "Today") {
                           {user.full_name}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
+                    <Select
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      placeholder="Select Or Search Customers"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="lead_customer"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.lead_customer || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("lead_customer", value)
+                      }
+                    >
+                      {users.map((user) => (
+                        <Select.Option key={user._id} value={user._id}>
+                          {user.full_name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                     {errors.lead_customer && (
                       <p className="mt-1 text-sm text-red-500">
                         {errors.lead_customer}
@@ -701,7 +993,7 @@ if (value === "Today") {
                 id="text"
                 placeholder="Specify note if any!"
                 required
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
               />
               <div className="w-full">
                 <label
@@ -710,18 +1002,38 @@ if (value === "Today") {
                 >
                   Lead Needs and Goals
                 </label>
-                <select
+                {/* <select
                   name="lead_needs"
                   id="category"
                   value={updateFormData.lead_needs}
                   onChange={handleInputChange}
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 >
                   <option value="">Select Lead Needs and Goals</option>
                   <option value="savings">Savings</option>
                   <option value="borrowings">Borrowings</option>
-                </select>
+                </select> */}
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select or Search Lead Needs and Goals "
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="lead_needs"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.lead_needs || undefined}
+                  onChange={(value) =>
+                    handleAntInputDSelect("lead_needs", value)
+                  }
+                >
+                  {["Savings", "Borrowings"].map((type) => (
+                    <Select.Option key={type} value={type.toLowerCase()}>
+                      {type}
+                    </Select.Option>
+                  ))}
+                </Select>
                 {errors.lead_needs && (
                   <p className="mt-1 text-sm text-red-500">
                     {errors.lead_needs}
@@ -743,7 +1055,7 @@ if (value === "Today") {
                       value={updateFormData.lead_agent}
                       onChange={handleInputChange}
                       required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     >
                       <option value="">Select Agent</option>
                       {agents.map((agent) => (
@@ -760,14 +1072,14 @@ if (value === "Today") {
                   </div>
                 </>
               )}
-               <div className="w-full flex justify-end">
-              <button
-                type="submit"
-                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+              <div className="w-full flex justify-end">
+                <button
+                  type="submit"
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-              >
-                Update
-              </button>
+                >
+                  Update
+                </button>
               </div>
             </form>
           </div>
@@ -807,7 +1119,7 @@ if (value === "Today") {
                     id="groupName"
                     placeholder="Enter the Lead Name"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <button

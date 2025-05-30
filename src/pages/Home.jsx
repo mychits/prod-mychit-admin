@@ -10,11 +10,16 @@ import { useEffect, useState } from "react";
 import api from "../instance/TokenInstance";
 import Navbar from "../components/layouts/Navbar";
 import { Link } from "react-router-dom";
+import { FaPeopleGroup } from "react-icons/fa6";
+import { ImUserTie } from "react-icons/im";
+import { FaPersonMilitaryPointing } from "react-icons/fa6"
 
 const Home = () => {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
+  const [staff, setStaffs] = useState([]);
+  const [employee, setEmployees] = useState([]);
   const [paymentsPerMonthValue, setPaymentsPerMonthValue] = useState("0");
   const [searchValue,setSearchValue] = useState("")
   const [totalAmount, setTotalAmount] = useState(0);
@@ -34,13 +39,35 @@ const Home = () => {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await api.get("/agent/get-agent");
-        setAgents(response.data);
+        const response = await api.get("/agent/get");
+        setAgents(response.data?.agent);
       } catch (error) {
         console.error("Error fetching agent data:", error);
       }
     };
     fetchAgents();
+  }, [reloadTrigger]);
+  useEffect(() => {
+    const fetchStaffs = async () => {
+      try {
+        const response = await api.get("/agent/get-agent");
+        setStaffs(response.data);
+      } catch (error) {
+        console.error("Error fetching agent data:", error);
+      }
+    };
+    fetchStaffs();
+  }, [reloadTrigger]);
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await api.get("/agent/get-employee");
+        setEmployees(response.data?.employee);
+      } catch (error) {
+        console.error("Error fetching agent data:", error);
+      }
+    };
+    fetchEmployees();
   }, [reloadTrigger]);
 
   useEffect(() => {
@@ -113,14 +140,31 @@ const Home = () => {
       iconColor: "bg-orange-900",
       redirect: "/user",
     },
+     {
+      icon: <FaPeopleGroup size={16} />,
+      text: "Staff",
+      count: staff.length,
+      bgColor: "bg-sky-200",
+      iconColor: "bg-sky-900",
+      redirect: "/staff",
+    },
     {
-      icon: <FaUserLock size={16} />,
+      icon: <FaPersonMilitaryPointing size={16} />,
       text: "Agents",
       count: agents.length,
-      bgColor: "bg-green-200",
-      iconColor: "bg-green-900",
+      bgColor: "bg-teal-200",
+      iconColor: "bg-teal-900",
       redirect: "/agent",
     },
+    {
+      icon: <ImUserTie size={16} />,
+      text: "Employees",
+      count: employee.length,
+      bgColor: "bg-lime-200",
+      iconColor: "bg-lime-900",
+      redirect: "/employee",
+    },
+   
     {
       icon: <MdOutlinePayments size={16} />,
       text: "Payments",
