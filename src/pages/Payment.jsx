@@ -66,7 +66,7 @@ const [openBackdropLoader ,setOpenBackdropLoader] = useState(false);
   const [formData, setFormData] = useState({
     user_id: "",
     receipt_no: "",
-    pay_date: "",
+    pay_date: today,
     amount: "",
     pay_type: "cash",
     transaction_id: "",
