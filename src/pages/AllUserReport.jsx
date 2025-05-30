@@ -58,6 +58,9 @@ const AllUserReport = () => {
                   reffered_lead: data?.enrollment?.reffered_lead,
                   payment_type: data?.enrollment?.payment_type,
                   referred_type: data?.enrollment?.referred_type,
+                    enrollmentDate: data?.enrollment?.createdAt
+                    ? data.enrollment.createdAt.split("T")[0]
+                    : "",
                   totalToBePaid:
                     groupType === "double"
                       ? groupInstall * auctionCount + groupInstall
@@ -115,6 +118,7 @@ const AllUserReport = () => {
     { key: "customerId", header: "Customer Id" },
     { key: "groupName", header: "Group Name" },
     { key: "groupValue", header: "Group Value" },
+       { key: "enrollmentDate", header: "Enrollment Date" },
     { key: "referred_type", header: "Referred Type" },
     { key: "agent", header: "Referred Agent" },
     { key: "reffered_customer", header: "Referred Customer" },
