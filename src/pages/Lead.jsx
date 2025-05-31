@@ -10,7 +10,7 @@ import DataTable from "../components/layouts/Datatable";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import Navbar from "../components/layouts/Navbar";
 import { IoMdMore } from "react-icons/io";
-import { Select, Dropdown } from "antd";
+import { Input,Select, Dropdown } from "antd";
 import { fieldSize } from "../data/fieldSize";
 import CircularLoader from "../components/loaders/CircularLoader";
 const Lead = () => {
@@ -22,11 +22,12 @@ const Lead = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
-const [reloadTrigger, setReloadTrigger] = useState(0);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
   const [selectedGroup, setSelectedGroup] = useState("");
   const [leads, setLeads] = useState([]);
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -66,7 +67,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     lead_needs: "",
     note: "",
   });
-    useEffect(() => {
+  useEffect(() => {
     const fetchGroups = async () => {
       try {
         const response = await api.get("/group/get-group-admin");
@@ -94,7 +95,8 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
           lead_needs: group?.lead_needs,
           group_id: group?.group_id?.group_name,
           date: group?.createdAt.split("T")[0],
-          lead_type: group.lead_type === "agent" ? "employee" : group?.lead_type,
+          lead_type:
+            group.lead_type === "agent" ? "employee" : group?.lead_type,
           note: group?.note,
           lead_type_name:
             group.lead_type === "customer"
@@ -105,6 +107,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
+              trigger={['click']}
                 menu={{
                   items: [
                     {
@@ -141,14 +144,14 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
         setTableGroups(formattedData);
       } catch (error) {
         console.error("Error fetching group data:", error);
-      }finally {
+      } finally {
         setIsLoading(false);
       }
     };
     fetchLeads();
   }, [reloadTrigger]);
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await api.get("/user/get-user");
@@ -171,9 +174,30 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     };
     fetchAgents();
   }, [reloadTrigger]);
-
-
-   const handleAntDSelect = (field, value) => {
+  //  useEffect(() => {
+  //   const fetchAgent = async () => {
+  //     try {
+  //       const response = await api.get("/agent/get");
+  //       setAgents(response?.data?.agent);
+  //     } catch (error) {
+  //       console.error("Error fetching agent data:", error);
+  //     }
+  //   };
+  //   fetchAgent();
+  // }, [reloadTrigger]);
+   useEffect(() => {
+    const fetchEmployee = async () => {
+      try {
+        const response = await api.get("/agent/get-employee");
+        setEmployees(response?.data?.employee);
+      } catch (error) {
+        console.error("Error fetching Employee data:", error);
+      }
+    };
+    fetchEmployee();
+  }, [reloadTrigger]);
+  
+  const handleAntDSelect = (field, value) => {
     setFormData((prevData) => ({
       ...prevData,
       [field]: value,
@@ -183,6 +207,15 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
       ...prevErrors,
       [field]: "",
     }));
+  };
+
+  const handleAntInputDSelect = (field, value) => {
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: "" }));
   };
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -250,7 +283,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
           message: "Lead added successfully",
           type: "success",
         });
-        
+
         setFormData({
           lead_name: "",
           lead_phone: "",
@@ -273,8 +306,6 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     }
   };
 
-
-
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -292,7 +323,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
   const handleUpdateModalOpen = async (groupId) => {
     try {
       const response = await api.get(`/lead/get-lead-by-id/${groupId}`);
-     
+
       const groupData = response.data;
       setCurrentUpdateGroup(response.data);
       setUpdateFormData({
@@ -328,7 +359,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
         await api.delete(`/lead/delete-lead/${currentGroup._id}`);
         setShowModalDelete(false);
         setCurrentGroup(null);
-       setReloadTrigger((prev) => prev + 1);
+        setReloadTrigger((prev) => prev + 1);
         setAlertConfig({
           visibility: true,
           message: "Lead deleted successfully",
@@ -377,8 +408,6 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     { key: "action", header: "Action" },
   ];
 
- 
-
   return (
     <>
       <div>
@@ -388,15 +417,14 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
             visibility={true}
           />
           <CustomAlertDialog
-          type={alertConfig.type}
-          isVisible={alertConfig.visibility}
-          message={alertConfig.message}
-          onClose={() =>
-            setAlertConfig((prev) => ({ ...prev, visibility: false }))
-          }
-        />
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+            onClose={() =>
+              setAlertConfig((prev) => ({ ...prev, visibility: false }))
+            }
+          />
           <Sidebar />
-         
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8 ">
@@ -414,7 +442,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
               </div>
             </div>
 
-            {(TableGroups.length > 0 && !isLoading) ? (
+            {TableGroups.length > 0 && !isLoading ? (
               <DataTable
                 updateHandler={handleUpdateModalOpen}
                 data={TableGroups.filter((item) =>
@@ -505,9 +533,9 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="email"
                 >
-                  Lead Name  <span className="text-red-500 ">*</span>
+                  Lead Name <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="lead_name"
                   value={formData.lead_name}
@@ -529,9 +557,9 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Lead Phone Number  <span className="text-red-500 ">*</span>
+                    Lead Phone Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="lead_phone"
                     value={formData.lead_phone}
@@ -552,7 +580,8 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Lead Work/Profession  <span className="text-red-500 ">*</span>
+                    Lead Work/Profession{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   {/* <select
                     name="lead_profession"
@@ -567,23 +596,27 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                     <option value="self_employed">Self Employed</option>
                   </select> */}
                   <Select
-                                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                                    placeholder="Select Lead Work/Profession "
-                                    popupMatchSelectWidth={false}
-                                    showSearch
-                                    name="lead_profession"
-                                    filterOption={(input, option) =>
-                                      option.children.toLowerCase().includes(input.toLowerCase())
-                                    }
-                                    value={formData?.lead_profession || undefined}
-                                    onChange={(value) => handleAntDSelect("lead_profession", value)}
-                                  >
-                                    {["Employed", "Self_Employed"].map((lProf) => (
-                                      <Select.Option key={lProf} value={lProf.toLowerCase()}>
-                                        {lProf}
-                                      </Select.Option>
-                                    ))}
-                                  </Select>
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Lead Work/Profession "
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="lead_profession"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={formData?.lead_profession || undefined}
+                    onChange={(value) =>
+                      handleAntDSelect("lead_profession", value)
+                    }
+                  >
+                    {["Employed", "Self Employed"].map((lProf) => (
+                      <Select.Option key={lProf} value={lProf.toLowerCase()}>
+                        {lProf}
+                      </Select.Option>
+                    ))}
+                  </Select>
                   {errors.lead_profession && (
                     <p className="mt-1 text-sm text-red-500">
                       {errors.lead_profession}
@@ -613,31 +646,31 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                     </option>
                   ))}
                 </select> */}
-                 <Select
-                                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                                    placeholder="Select Group "
-                                    popupMatchSelectWidth={false}
-                                    showSearch
-                                    name="group_id"
-                                    filterOption={(input, option) =>
-                                      option.children.toLowerCase().includes(input.toLowerCase())
-                                    }
-                                    value={formData?.group_id || undefined}
-                                    onChange={(value) => handleAntDSelect("group_id", value)}
-                                  >
-                                    {groups.map((group) => (
-                                      <Select.Option key={group._id} value={group._id}>
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select or Search Group "
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="group_id"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={formData?.group_id || undefined}
+                  onChange={(value) => handleAntDSelect("group_id", value)}
+                >
+                  {groups.map((group) => (
+                    <Select.Option key={group._id} value={group._id}>
                       {group.group_name}
-                                      </Select.Option>
-                                    ))}
-                                  </Select>
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
               <div className="w-full">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Lead Source Type  <span className="text-red-500 ">*</span>
+                  Lead Source Type <span className="text-red-500 ">*</span>
                 </label>
                 {/* <select
                   name="lead_type"
@@ -654,23 +687,29 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                   <option value="walkin">Walkin</option>
                 </select> */}
                 <Select
-                                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                                    placeholder="Select Lead Work/Profession "
-                                    popupMatchSelectWidth={false}
-                                    showSearch
-                                    name="lead_type"
-                                    filterOption={(input, option) =>
-                                      option.children.toLowerCase().includes(input.toLowerCase())
-                                    }
-                                    value={formData?.lead_type || undefined}
-                                    onChange={(value) => handleAntDSelect("lead_type", value)}
-                                  >
-                                    {["Social Media", "Customer","Employee","Walkin"].map((lType) => (
-                                      <Select.Option key={lType} value={lType.toLowerCase()}>
-                                        {lType}
-                                      </Select.Option>
-                                    ))}
-                                  </Select>
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Lead Source Type "
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="lead_type"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={formData?.lead_type || undefined}
+                  onChange={(value) => handleAntDSelect("lead_type", value)}
+                >
+                  {[
+                    "Social Media",
+                    "Customer",
+                    "Agent",
+                    "Employee",
+                    "Walkin",
+                  ].map((lType) => (
+                    <Select.Option key={lType} value={lType.toLowerCase()}>
+                      {lType}
+                    </Select.Option>
+                  ))}
+                </Select>
                 {errors.lead_type && (
                   <p className="mt-1 text-sm text-red-500">
                     {errors.lead_type}
@@ -701,7 +740,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Lead Needs and Goals  <span className="text-red-500 ">*</span>
+                  Lead Needs and Goals <span className="text-red-500 ">*</span>
                 </label>
                 {/* <select
                   name="lead_needs"
@@ -715,24 +754,24 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                   <option value="savings">Savings</option>
                   <option value="borrowings">Borrowings</option>
                 </select> */}
-                 <Select
-                                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                                    placeholder="Select Lead Work/Profession "
-                                    popupMatchSelectWidth={false}
-                                    showSearch
-                                    name="lead_needs"
-                                    filterOption={(input, option) =>
-                                      option.children.toLowerCase().includes(input.toLowerCase())
-                                    }
-                                    value={formData?.lead_needs || undefined}
-                                    onChange={(value) => handleAntDSelect("lead_needs", value)}
-                                  >
-                                    {["Savings", "Borrowings"].map((lNeeds) => (
-                                      <Select.Option key={lNeeds} value={lNeeds.toLowerCase()}>
-                                        {lNeeds}
-                                      </Select.Option>
-                                    ))}
-                                  </Select>
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Lead Needs and Goals "
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="lead_needs"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={formData?.lead_needs || undefined}
+                  onChange={(value) => handleAntDSelect("lead_needs", value)}
+                >
+                  {["Savings", "Borrowings"].map((lNeeds) => (
+                    <Select.Option key={lNeeds} value={lNeeds.toLowerCase()}>
+                      {lNeeds}
+                    </Select.Option>
+                  ))}
+                </Select>
                 {errors.lead_needs && (
                   <p className="mt-1 text-sm text-red-500">
                     {errors.lead_needs}
@@ -749,13 +788,13 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                     >
                       Customers
                     </label>
-                    <select
+                    {/* <select
                       name="lead_customer"
                       id="category"
                       value={formData.lead_customer}
                       onChange={handleChange}
                       required
-                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     >
                       <option value="">Select Customer</option>
                       {users.map((user) => (
@@ -763,7 +802,30 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                           {user?.full_name}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
+                    <Select
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      placeholder="Select Or Search Customer"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="lead_customer"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={formData?.lead_customer || undefined}
+                      onChange={(value) =>
+                        handleAntDSelect("lead_customer", value)
+                      }
+                    >
+                      {users.map((user) => (
+                        <Select.Option key={user._id} value={user._id}>
+                          {user.full_name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                     {errors.lead_customer && (
                       <p className="mt-1 text-sm text-red-500">
                         {errors.lead_customer}
@@ -780,15 +842,15 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                       className="block mb-2 text-sm font-medium text-gray-900"
                       htmlFor="category"
                     >
-                      Agents
+                      Agent
                     </label>
-                    <select
+                    {/* <select
                       name="lead_agent"
                       id="category"
                       value={formData.lead_agent}
                       onChange={handleChange}
                       required
-                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     >
                       <option value="">Select Agent</option>
                       {agents.map((agent) => (
@@ -796,7 +858,85 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                           {agent.name}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
+                    <Select
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      placeholder="Select Or Search Agent"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="lead_agent"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={formData?.lead_agent || undefined}
+                      onChange={(value) =>
+                        handleAntDSelect("lead_agent", value)
+                      }
+                    >
+                      {agents.map((agent) => (
+                        <Select.Option key={agent._id} value={agent._id}>
+                          {agent.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                    {errors.lead_agent && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.lead_agent}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+               {formData.lead_type === "employee" && (
+                <>
+                  <div className="w-full">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="category"
+                    >
+                      Employee
+                    </label>
+                    {/* <select
+                      name="lead_agent"
+                      id="category"
+                      value={formData.lead_agent}
+                      onChange={handleChange}
+                      required
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    >
+                      <option value="">Select Agent</option>
+                      {agents.map((agent) => (
+                        <option key={agent._id} value={agent._id}>
+                          {agent.name}
+                        </option>
+                      ))}
+                    </select> */}
+                    <Select
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      placeholder="Select Or Search Employee"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="lead_agent"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={formData?.lead_agent || undefined}
+                      onChange={(value) =>
+                        handleAntDSelect("lead_agent", value)
+                      }
+                    >
+                      {employees.map((emp) => (
+                        <Select.Option key={emp._id} value={emp._id}>
+                          {emp.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                     {errors.lead_agent && (
                       <p className="mt-1 text-sm text-red-500">
                         {errors.lead_agent}
@@ -882,7 +1022,8 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    Lead Work/Profession <span className="text-red-500 ">*</span>
+                    Lead Work/Profession{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   {/* <select
                     name="lead_profession"
@@ -890,30 +1031,34 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                     value={updateFormData.lead_profession}
                     onChange={handleInputChange}
                     required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   >
                     <option value="">Select Work/Profession</option>
                     <option value="employed">Employed</option>
                     <option value="self_employed">Self Employed</option>
                   </select> */}
-                    <Select
-                                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                                    placeholder="Select Lead Work/Profession "
-                                    popupMatchSelectWidth={false}
-                                    showSearch
-                                    name="lead_profession"
-                                    filterOption={(input, option) =>
-                                      option.children.toLowerCase().includes(input.toLowerCase())
-                                    }
-                                    value={updateFormData?.lead_profession || undefined}
-                                    onChange={(value) => handleAntDSelect("lead_profession", value)}
-                                  >
-                                    {["Employed", "Self_Employed"].map((lProf) => (
-                                      <Select.Option key={lProf} value={lProf.toLowerCase()}>
-                                        {lProf}
-                                      </Select.Option>
-                                    ))}
-                                  </Select>
+                   <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Lead Work/Profession "
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="lead_profession"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.lead_profession || undefined}
+                    onChange={(value) =>
+                      handleAntInputDSelect("lead_profession", value)
+                    }
+                  >
+                    {["Employed", "Self_Employed"].map((lProf) => (
+                      <Select.Option key={lProf} value={lProf.toLowerCase()}>
+                        {lProf}
+                      </Select.Option>
+                    ))}
+                  </Select>
                   {errors.lead_profession && (
                     <p className="mt-1 text-sm text-red-500">
                       {errors.lead_profession}
@@ -934,7 +1079,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                   value={updateFormData.group_id}
                   onChange={handleInputChange}
                   required
-                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
                   <option value="">Select Group</option>
                   {groups.map((group) => (
@@ -944,23 +1089,23 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                   ))}
                 </select> */}
                 <Select
-                                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                                    placeholder="Select Group "
-                                    popupMatchSelectWidth={false}
-                                    showSearch
-                                    name="group_id"
-                                    filterOption={(input, option) =>
-                                      option.children.toLowerCase().includes(input.toLowerCase())
-                                    }
-                                    value={updateFormData?.group_id || undefined}
-                                    onChange={(value) => handleAntDSelect("group_id", value)}
-                                  >
-                                    {groups.map((group) => (
-                                      <Select.Option key={group._id} value={group._id}>
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Group "
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="group_id"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.group_id || undefined}
+                  onChange={(value) => handleAntInputDSelect("group_id", value)}
+                >
+                  {groups.map((group) => (
+                    <Select.Option key={group._id} value={group._id}>
                       {group.group_name}
-                                      </Select.Option>
-                                    ))}
-                                  </Select>
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
               <div className="w-full">
                 <label
@@ -975,7 +1120,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                   value={updateFormData.lead_type}
                   onChange={handleInputChange}
                   required
-                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
                   <option value="">Select Lead Source Type</option>
                   <option value="social">Social Media</option>
@@ -984,23 +1129,31 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                   <option value="walkin">Walkin</option>
                 </select> */}
                  <Select
-                                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                                    placeholder="Select Lead Work/Profession "
-                                    popupMatchSelectWidth={false}
-                                    showSearch
-                                    name="lead_type"
-                                    filterOption={(input, option) =>
-                                      option.children.toLowerCase().includes(input.toLowerCase())
-                                    }
-                                    value={updateFormData?.lead_type || undefined}
-                                    onChange={(value) => handleAntDSelect("lead_type", value)}
-                                  >
-                                    {["Social Media", "Customer","Employee","Walkin"].map((lType) => (
-                                      <Select.Option key={lType} value={lType.toLowerCase()}>
-                                        {lType}
-                                      </Select.Option>
-                                    ))}
-                                  </Select>
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select or Search Lead Source Type "
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="lead_type"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.lead_type || undefined}
+                  onChange={(value) =>
+                    handleAntInputDSelect("lead_type", value)
+                  }
+                >
+                  {["Social Media",
+                    "Customer",
+                    "Agent",
+                    "Employee",
+                    "Walkin",].map(
+                    (type) => (
+                      <Select.Option key={type} value={type.toLowerCase()}>
+                        {type}
+                      </Select.Option>
+                    )
+                  )}
+                </Select>
                 {errors.lead_type && (
                   <p className="mt-1 text-sm text-red-500">
                     {errors.lead_type}
@@ -1016,13 +1169,13 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                     >
                       Customers
                     </label>
-                    <select
+                    {/* <select
                       name="lead_customer"
                       id="category"
                       value={updateFormData.lead_customer}
                       onChange={handleInputChange}
                       required
-                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     >
                       <option value="">Select Customer</option>
                       {users.map((user) => (
@@ -1030,7 +1183,30 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                           {user.full_name}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
+                     <Select
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      placeholder="Select Or Search Customers"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="lead_customer"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.lead_customer || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("lead_customer", value)
+                      }
+                    >
+                      {users.map((user) => (
+                        <Select.Option key={user._id} value={user._id}>
+                          {user.full_name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                     {errors.lead_customer && (
                       <p className="mt-1 text-sm text-red-500">
                         {errors.lead_customer}
@@ -1062,18 +1238,40 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                 >
                   Lead Needs and Goals <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   name="lead_needs"
                   id="category"
                   value={updateFormData.lead_needs}
                   onChange={handleInputChange}
                   required
-                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
                   <option value="">Select Lead Needs and Goals</option>
                   <option value="savings">Savings</option>
                   <option value="borrowings">Borrowings</option>
-                </select>
+                </select> */}
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select or Search Lead Needs and Goals "
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="lead_needs"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.lead_needs || undefined}
+                  onChange={(value) =>
+                    handleAntInputDSelect("lead_needs", value)
+                  }
+                >
+                  {["Savings", "Borrowings"].map(
+                    (type) => (
+                      <Select.Option key={type} value={type.toLowerCase()}>
+                        {type}
+                      </Select.Option>
+                    )
+                  )}
+                </Select>
                 {errors.lead_needs && (
                   <p className="mt-1 text-sm text-red-500">
                     {errors.lead_needs}
@@ -1095,7 +1293,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                       value={updateFormData.lead_agent}
                       onChange={handleInputChange}
                       required
-                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     >
                       <option value="">Select Agent</option>
                       {agents.map((agent) => (
@@ -1104,24 +1302,28 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                         </option>
                       ))}
                     </select> */}
-                    <Select
-                                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                                    placeholder="Select Lead Work/Profession "
-                                    popupMatchSelectWidth={false}
-                                    showSearch
-                                    name="lead_needs"
-                                    filterOption={(input, option) =>
-                                      option.children.toLowerCase().includes(input.toLowerCase())
-                                    }
-                                    value={updateFormData?.lead_needs || undefined}
-                                    onChange={(value) => handleAntDSelect("lead_needs", value)}
-                                  >
-                                    {["Savings", "Borrowings"].map((lNeeds) => (
-                                      <Select.Option key={lNeeds} value={lNeeds.toLowerCase()}>
-                                        {lNeeds}
-                                      </Select.Option>
-                                    ))}
-                                  </Select>
+                     <Select
+                      className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                      placeholder="Select or Search Agent "
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="lead_agent"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.lead_agent || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("lead_agent", value)
+                      }
+                    >
+                      {agents.map((agent) => (
+                        <Select.Option key={agent._id} value={agent._id}>
+                          {agent.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                     {errors.lead_agent && (
                       <p className="mt-1 text-sm text-red-500">
                         {errors.lead_agent}
@@ -1170,7 +1372,8 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                     <span className="text-primary font-bold">
                       {currentGroup.lead_name}
                     </span>{" "}
-                    to confirm deletion. <span className="text-red-500 ">*</span>
+                    to confirm deletion.{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="text"
