@@ -4,7 +4,7 @@ import Sidebar from "../components/layouts/Sidebar";
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
-import { Select, Dropdown } from "antd";
+import { Input, Select, Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
@@ -85,6 +85,7 @@ const Employee = () => {
           action: (
             <div className="flex justify-center  gap-2">
               <Dropdown
+               trigger={['click']}
                 menu={{
                   items: [
                     {
@@ -528,7 +529,7 @@ const Employee = () => {
                 >
                   Full Name <span className="text-red-500">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="name"
                   value={formData.name}
@@ -550,7 +551,7 @@ const Employee = () => {
                   >
                     Email  <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="email"
                     name="email"
                     value={formData.email}
@@ -571,7 +572,7 @@ const Employee = () => {
                   >
                     Phone Number <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="phone_number"
                     value={formData.phone_number}
@@ -596,7 +597,7 @@ const Employee = () => {
                   >
                     Password <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="password"
                     value={formData.password}
@@ -619,7 +620,7 @@ const Employee = () => {
                   >
                     Pincode <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="pincode"
                     value={formData.pincode}
@@ -644,7 +645,7 @@ const Employee = () => {
                   >
                     Adhaar Number <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="adhaar_no"
                     value={formData.adhaar_no}
@@ -667,7 +668,7 @@ const Employee = () => {
                   >
                     Pan Number <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="pan_no"
                     value={formData.pan_no}
@@ -689,7 +690,7 @@ const Employee = () => {
                 >
                   Address <span className="text-red-500">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="address"
                   value={formData.address}
@@ -708,7 +709,7 @@ const Employee = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Designation <span className="text-red-500 ">*</span>
+                 Designation <span className="text-red-500 ">*</span>
                 </label>
                 {/* <select
                   value={selectedManagerId}
@@ -729,7 +730,7 @@ const Employee = () => {
                   name="managerId"
                   value={selectedManagerId || undefined}
                   onChange={handleAntDSelectManager}
-                  placeholder="Select Manager"
+                  placeholder="Select Designation"
                   className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                   showSearch
                   popupMatchSelectWidth={false}
@@ -775,7 +776,7 @@ const Employee = () => {
                 >
                   Full Name <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="name"
                   value={updateFormData.name}
@@ -797,7 +798,7 @@ const Employee = () => {
                   >
                     Email <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="email"
                     name="email"
                     value={updateFormData.email}
@@ -818,7 +819,7 @@ const Employee = () => {
                   >
                     Phone Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="phone_number"
                     value={updateFormData.phone_number}
@@ -843,7 +844,7 @@ const Employee = () => {
                   >
                     Password <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="password"
                     value={updateFormData.password}
@@ -866,7 +867,7 @@ const Employee = () => {
                   >
                     Pincode <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="pincode"
                     value={updateFormData.pincode}
@@ -891,7 +892,7 @@ const Employee = () => {
                   >
                     Adhaar Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="adhaar_no"
                     value={updateFormData.adhaar_no}
@@ -914,7 +915,7 @@ const Employee = () => {
                   >
                     Pan Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="pan_no"
                     value={updateFormData.pan_no}
@@ -936,7 +937,7 @@ const Employee = () => {
                 >
                   Address <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="address"
                   value={updateFormData.address}
@@ -955,7 +956,7 @@ const Employee = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Designation <span className="text-red-500 ">*</span>
+                   Designation <span className="text-red-500 ">*</span>
                 </label>
                 {/* <select
                   value={selectedManagerId}
@@ -994,55 +995,6 @@ const Employee = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.designation_id}</p>
                 )}
               </div>
-              {(selectedManagerTitle === "Sales Excecutive" ||
-                selectedManagerTitle === "Business Agent" ||
-                selectedManagerTitle === "Office Executive")
-                && (
-                  <div className="w-full">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="category"
-                    >
-                      Reporting Manager
-                    </label>
-                    {/* <select
-                      value={selectedReportingManagerId}
-                      onChange={handleReportingManager}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    >
-                      <option value="" hidden>
-                        Select Reporting Manager
-                      </option>
-                      {users.map((group) => (
-                        <option key={group._id} value={group._id}>
-                          {group.name} - {group?.designation_id?.title}
-                        </option>
-                      ))}
-                    </select> */}
-                     <Select
-                  id="selectedReportingManagerId"
-                  name="selectedReportingManagerId"
-                  value={selectedReportingManagerId || undefined}
-                  onChange={handleAntDSelectReportingManager}
-                  placeholder="Select Reporting Manager"
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  showSearch
-                  popupMatchSelectWidth={false}
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                >
-                  {users.map((rManager) => (
-                    <Select.Option key={rManager._id} value={rManager._id}>
-                      {rManager.name}  - {rManager?.designation_id?.title}
-                    </Select.Option>
-                  ))}
-                </Select>
-                    {errors.reporting_manager && (
-                      <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
-                    )}
-                  </div>
-                )}
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
@@ -1086,7 +1038,7 @@ const Employee = () => {
                     </span>{" "}
                     to confirm deletion. <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     id="groupName"
                     placeholder="Enter the employee Full Name"

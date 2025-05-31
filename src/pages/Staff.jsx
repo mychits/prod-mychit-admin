@@ -4,7 +4,7 @@ import Sidebar from "../components/layouts/Sidebar";
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
-import { Select, Dropdown } from "antd";
+import { Input, Select, Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
 import axios from "axios";
 import {fieldSize} from "../data/fieldSize"
@@ -94,6 +94,7 @@ const Staff = () => {
                 <CiEdit color="green" />
               </button> */}
               <Dropdown
+               trigger={['click']}
                 menu={{
                   items: [
                     {
@@ -159,6 +160,14 @@ const Staff = () => {
       ...prevErrors,
       [field]: "",
     }));
+  };
+   const handleAntInputDSelect = (field, value) => {
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors({ ...errors, [field]: "" });
   };
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -234,7 +243,7 @@ const Staff = () => {
       newErrors.address = "Address should be at least 10 characters";
     }
 
-    if (!data.agent_type.trim()) {
+    if (!data.agent_type) {
       newErrors.agent_type = "Please select Staff Type";
     }
 
@@ -450,8 +459,29 @@ const Staff = () => {
 
     setSelectedManagerTitle(title);
 
-    // Optionally update formData
+  
     setFormData((prev) => ({
+      ...prev,
+      managerId,
+      managerTitle: title,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      managerId: "",
+      managerTitle: "",
+    }));
+  };
+    const handleAntInputDSelectManager = (managerId) => {
+    setSelectedManagerId(managerId);
+
+    const selected = managers.find((mgr) => mgr._id === managerId);
+    const title = selected?.title || "";
+
+    setSelectedManagerTitle(title);
+
+    // Optionally update formData
+    setUpdateFormData((prev) => ({
       ...prev,
       managerId,
       managerTitle: title,
@@ -469,10 +499,24 @@ const Staff = () => {
   //   setSelectedReportingManagerId(reportingId);
   // };
 
-  const handleAntDSelectReportingManager = (reportingId) => {
+  // const handleAntDSelectReportingManager = (reportingId) => {
+  //   setSelectedReportingManagerId(reportingId);
+
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     reportingManagerId: reportingId,
+  //   }));
+
+
+  //   setErrors((prev) => ({
+  //     ...prev,
+  //     reportingManagerId: "",
+  //   }));
+  // };
+    const handleAntInputDSelectReportingManager = (reportingId) => {
     setSelectedReportingManagerId(reportingId);
 
-    setFormData((prev) => ({
+    setUpdateFormData((prev) => ({
       ...prev,
       reportingManagerId: reportingId,
     }));
@@ -551,7 +595,7 @@ const Staff = () => {
                 >
                   Full Name <span className="text-red-500">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="name"
                   value={formData.name}
@@ -573,7 +617,7 @@ const Staff = () => {
                   >
                     Email <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="email"
                     name="email"
                     value={formData.email}
@@ -594,7 +638,7 @@ const Staff = () => {
                   >
                     Phone Number <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="phone_number"
                     value={formData.phone_number}
@@ -619,7 +663,7 @@ const Staff = () => {
                   >
                     Password <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="password"
                     value={formData.password}
@@ -642,7 +686,7 @@ const Staff = () => {
                   >
                     Pincode <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="pincode"
                     value={formData.pincode}
@@ -667,7 +711,7 @@ const Staff = () => {
                   >
                     Adhaar Number <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="adhaar_no"
                     value={formData.adhaar_no}
@@ -690,7 +734,7 @@ const Staff = () => {
                   >
                     Pan Number <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="pan_no"
                     value={formData.pan_no}
@@ -712,7 +756,7 @@ const Staff = () => {
                 >
                   Address <span className="text-red-500">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="address"
                   value={formData.address}
@@ -731,7 +775,7 @@ const Staff = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Designation <span className="text-red-500 ">*</span>
+                   Designation <span className="text-red-500 ">*</span>
                 </label>
                 {/* <select
                   value={selectedManagerId}
@@ -752,7 +796,7 @@ const Staff = () => {
                   name="managerId"
                   value={selectedManagerId || undefined}
                   onChange={handleAntDSelectManager}
-                  placeholder="Select Manager"
+                  placeholder="Select Designation"
                   className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                   showSearch
                   popupMatchSelectWidth={false}
@@ -772,7 +816,7 @@ const Staff = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor=""
                 >
-                  Select Staff Type <span className="text-red-500">*</span>
+                   Staff Type <span className="text-red-500">*</span>
                 </label>
                 <Select
                   className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
@@ -828,7 +872,7 @@ const Staff = () => {
                 >
                   Full Name <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="name"
                   value={updateFormData.name}
@@ -850,7 +894,7 @@ const Staff = () => {
                   >
                     Email <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="email"
                     name="email"
                     value={updateFormData.email}
@@ -871,7 +915,7 @@ const Staff = () => {
                   >
                     Phone Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="phone_number"
                     value={updateFormData.phone_number}
@@ -896,7 +940,7 @@ const Staff = () => {
                   >
                     Password <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="password"
                     value={updateFormData.password}
@@ -919,7 +963,7 @@ const Staff = () => {
                   >
                     Pincode <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="pincode"
                     value={updateFormData.pincode}
@@ -944,7 +988,7 @@ const Staff = () => {
                   >
                     Adhaar Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="adhaar_no"
                     value={updateFormData.adhaar_no}
@@ -967,7 +1011,7 @@ const Staff = () => {
                   >
                     Pan Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="pan_no"
                     value={updateFormData.pan_no}
@@ -989,7 +1033,7 @@ const Staff = () => {
                 >
                   Address <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="address"
                   value={updateFormData.address}
@@ -1008,7 +1052,7 @@ const Staff = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                  Designation <span className="text-red-500 ">*</span>
+                   Designation <span className="text-red-500 ">*</span>
                 </label>
                 {/* <select
                   value={selectedManagerId}
@@ -1029,7 +1073,7 @@ const Staff = () => {
                   id="selectedManagerId"
                   name="selectedManagerId"
                   value={selectedManagerId || undefined}
-                  onChange={handleAntDSelectManager}
+                  onChange={handleAntInputDSelectManager}
                   placeholder="Select Designation"
                   className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                   showSearch
@@ -1050,63 +1094,12 @@ const Staff = () => {
                   </p>
                 )}
               </div>
-              {(selectedManagerTitle === "Sales Excecutive" ||
-                selectedManagerTitle === "Business Agent" ||
-                selectedManagerTitle === "Office Executive") && (
-                <div className="w-full">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="category"
-                  >
-                    Reporting Manager
-                  </label>
-                  {/* <select
-                    value={selectedReportingManagerId}
-                    onChange={handleReportingManager}
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  >
-                    <option value="" hidden>
-                      Select Reporting Manager
-                    </option>
-                    {users.map((group) => (
-                      <option key={group._id} value={group._id}>
-                        {group.name} - {group?.designation_id?.title}
-                      </option>
-                    ))}
-                  </select> */}
-                   <Select
-                  id="selectedReportingManagerId"
-                  name="selectedReportingManagerId"
-                  value={selectedReportingManagerId || undefined}
-                  onChange={handleAntDSelectReportingManager}
-                  placeholder="Select Reporting Manager"
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  showSearch
-                  popupMatchSelectWidth={false}
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                >
-                  {users.map((rManager) => (
-                    <Select.Option key={rManager._id} value={rManager._id}>
-                      {rManager.name}  - {rManager?.designation_id?.title}
-                    </Select.Option>
-                  ))}
-                </Select>
-                  {errors.reporting_manager && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.reporting_manager}
-                    </p>
-                  )}
-                </div>
-              )}
-
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor=""
                 >
-                  Select Staff Type <span className="text-red-500">*</span>
+                   Staff Type <span className="text-red-500">*</span>
                 </label>
                 <Select
                   className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
@@ -1118,7 +1111,7 @@ const Staff = () => {
                     option.children.toLowerCase().includes(input.toLowerCase())
                   }
                   value={updateFormData?.agent_type || undefined}
-                  onChange={(value) => handleAntDSelect("agent_type", value)}
+                  onChange={(value) => handleAntInputDSelect("agent_type", value)}
                 >
                   {["Agent", "Employee", "Both"].map((aType) => (
                     <Select.Option key={aType} value={aType.toLowerCase()}>
@@ -1177,12 +1170,12 @@ const Staff = () => {
                     to confirm deletion.{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     id="groupName"
                     placeholder="Enter the employee Full Name"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <button

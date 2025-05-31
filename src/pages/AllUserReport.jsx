@@ -33,7 +33,9 @@ const AllUserReport = () => {
           if (usrData?.data) {
             usrData.data.forEach((data) => {
               if (data?.enrollment?.group) {
-                const groupInstall = parseInt(data.enrollment.group.group_install);
+                const groupInstall = parseInt(
+                  data.enrollment.group.group_install
+                );
                 const groupType = data.enrollment.group.group_type;
                 const totalPaidAmount = data.payments.totalPaidAmount;
                 const auctionCount = parseInt(data?.auction?.auctionCount);
@@ -53,14 +55,15 @@ const AllUserReport = () => {
                   groupValue: data?.enrollment?.group?.group_value,
                   groupName: data.enrollment.group.group_name,
                   profit: totalProfit,
-                  agent: data?.enrollment?.agent,
-                  reffered_customer: data?.enrollment?.reffered_customer,
-                  reffered_lead: data?.enrollment?.reffered_lead,
+                  reffered_by: data?.enrollment?.agent
+                    ? data.enrollment.agent
+                    : data?.enrollment?.reffered_customer
+                    ? data.enrollment.reffered_customer
+                    : data?.enrollment?.reffered_lead
+                    ? data.enrollment.reffered_lead
+                    : "N/A",
                   payment_type: data?.enrollment?.payment_type,
                   referred_type: data?.enrollment?.referred_type,
-                    enrollmentDate: data?.enrollment?.createdAt
-                    ? data.enrollment.createdAt.split("T")[0]
-                    : "",
                   totalToBePaid:
                     groupType === "double"
                       ? groupInstall * auctionCount + groupInstall
@@ -71,8 +74,13 @@ const AllUserReport = () => {
                       : totalPayable + groupInstall + firstDividentHead,
                   balance:
                     groupType === "double"
-                      ? groupInstall * auctionCount + groupInstall - totalPaidAmount
-                      : totalPayable + groupInstall + firstDividentHead - totalPaidAmount,
+                      ? groupInstall * auctionCount +
+                        groupInstall -
+                        totalPaidAmount
+                      : totalPayable +
+                        groupInstall +
+                        firstDividentHead -
+                        totalPaidAmount,
                 };
 
                 usersList.push(tempUsr);
@@ -93,13 +101,22 @@ const AllUserReport = () => {
 
   useEffect(() => {
     const totalCustomers = usersData.length;
-    const groupSet = new Set(usersData.map(user => user.groupName));
+    const groupSet = new Set(usersData.map((user) => user.groupName));
     const totalGroups = groupSet.size;
 
-    const totalToBePaid = usersData.reduce((sum, u) => sum + (u.totalToBePaid || 0), 0);
+    const totalToBePaid = usersData.reduce(
+      (sum, u) => sum + (u.totalToBePaid || 0),
+      0
+    );
     const totalProfit = usersData.reduce((sum, u) => sum + (u.profit || 0), 0);
-    const totalPaid = usersData.reduce((sum, u) => sum + (u.amountPaid || 0), 0);
-    const totalBalance = usersData.reduce((sum, u) => sum + (u.balance || 0), 0);
+    const totalPaid = usersData.reduce(
+      (sum, u) => sum + (u.amountPaid || 0),
+      0
+    );
+    const totalBalance = usersData.reduce(
+      (sum, u) => sum + (u.balance || 0),
+      0
+    );
 
     setTotals({
       totalCustomers,
@@ -107,7 +124,7 @@ const AllUserReport = () => {
       totalToBePaid,
       totalProfit,
       totalPaid,
-      totalBalance
+      totalBalance,
     });
   }, [usersData]);
 
@@ -118,11 +135,11 @@ const AllUserReport = () => {
     { key: "customerId", header: "Customer Id" },
     { key: "groupName", header: "Group Name" },
     { key: "groupValue", header: "Group Value" },
-       { key: "enrollmentDate", header: "Enrollment Date" },
     { key: "referred_type", header: "Referred Type" },
-    { key: "agent", header: "Referred Agent" },
-    { key: "reffered_customer", header: "Referred Customer" },
-    { key: "reffered_lead", header: "Referred Lead" },
+    // { key: "agent", header: "Referred Agent" },
+    // { key: "reffered_customer", header: "Referred Customer" },
+    // { key: "reffered_lead", header: "Referred Lead" },
+    { key: "reffered_by", header: "Referred By" },
     { key: "payment_type", header: "Payment Type" },
     { key: "paymentsTicket", header: "Ticket" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
@@ -162,31 +179,54 @@ const AllUserReport = () => {
                 {/* Summary Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
                   <div className="flex flex-col border p-4 rounded shadow">
-                    <span className="text-xl font-bold text-gray-700">Total Customers</span>
-                    <span className="text-lg font-bold  text-blue-600">{totals.totalCustomers}</span>
+                    <span className="text-xl font-bold text-gray-700">
+                      Total Customers
+                    </span>
+                    <span className="text-lg font-bold  text-blue-600">
+                      {totals.totalCustomers}
+                    </span>
                   </div>
                   <div className="flex flex-col border p-4 rounded shadow">
-                    <span className="text-xl font-bold text-gray-700">Total Groups</span>
-                    <span className="text-lg font-bold  text-green-600">{totals.totalGroups}</span>
+                    <span className="text-xl font-bold text-gray-700">
+                      Total Groups
+                    </span>
+                    <span className="text-lg font-bold  text-green-600">
+                      {totals.totalGroups}
+                    </span>
                   </div>
                   <div className="flex flex-col border p-4 rounded shadow">
-                    <span className="text-xl font-bold text-gray-700">Amount to be Paid</span>
-                    <span className="text-lg font-bold text-blue-600">₹{totals.totalToBePaid}</span>
+                    <span className="text-xl font-bold text-gray-700">
+                      Amount to be Paid
+                    </span>
+                    <span className="text-lg font-bold text-blue-600">
+                      ₹{totals.totalToBePaid}
+                    </span>
                   </div>
                   <div className="flex flex-col border p-4 rounded shadow">
-                    <span className="text-xl font-bold text-gray-700">Total Profit</span>
-                    <span className="text-lg font-bold text-green-600">₹{totals.totalProfit}</span>
+                    <span className="text-xl font-bold text-gray-700">
+                      Total Profit
+                    </span>
+                    <span className="text-lg font-bold text-green-600">
+                      ₹{totals.totalProfit}
+                    </span>
                   </div>
                   <div className="flex flex-col border p-4 rounded shadow">
-                    <span className="text-xl font-semibold text-gray-700">Total Amount Paid</span>
-                    <span className="text-lg font-bold text-indigo-600">₹{totals.totalPaid}</span>
+                    <span className="text-xl font-semibold text-gray-700">
+                      Total Amount Paid
+                    </span>
+                    <span className="text-lg font-bold text-indigo-600">
+                      ₹{totals.totalPaid}
+                    </span>
                   </div>
                   <div className="flex flex-col border p-4 rounded shadow">
-                    <span className="text-xl font-bold text-gray-700">Total Balance</span>
-                    <span className="text-lg font-bold text-red-600">₹{totals.totalBalance}</span>
+                    <span className="text-xl font-bold text-gray-700">
+                      Total Balance
+                    </span>
+                    <span className="text-lg font-bold text-red-600">
+                      ₹{totals.totalBalance}
+                    </span>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>

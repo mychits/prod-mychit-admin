@@ -49,8 +49,8 @@ const Payment = () => {
   const [pigmeCustomers, setPigmeCustomers] = useState([]);
   const [enableGroupColumn, setEnableGroupColumn] = useState(true);
   const [paymentGroupTickets, setPaymentGroupTickets] = useState([]);
-  const [render,setRerender] = useState(0)
-const [openBackdropLoader ,setOpenBackdropLoader] = useState(false);
+  const [render, setRerender] = useState(0);
+  const [openBackdropLoader, setOpenBackdropLoader] = useState(false);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -90,18 +90,7 @@ const [openBackdropLoader ,setOpenBackdropLoader] = useState(false);
     setShowUploadModal(false);
   };
 
-  const handlePrint = async (id) => {
-    const receiptElement = document.getElementById("receipt");
-    const canvas = await html2canvas(receiptElement);
-    const imgData = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF("portrait", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
-    pdf.save(`Receipt_${id}.pdf`);
-  };
   useEffect(() => {
     const user = localStorage.getItem("user");
     const userObj = JSON.parse(user);
@@ -140,7 +129,6 @@ const [openBackdropLoader ,setOpenBackdropLoader] = useState(false);
             to_date: today,
           },
         });
-        console.info(response.data, "response data");
         if (response.data && response.data.length > 0) {
           const formattedData = response.data.map((group, index) => {
             if (!group?.group_id?.group_name) return {};
@@ -687,9 +675,9 @@ const [openBackdropLoader ,setOpenBackdropLoader] = useState(false);
       });
       setDisabled(false);
       console.error("Error submitting payment data:", error);
-    }finally{
+    } finally {
       setOpenBackdropLoader(false);
-      setRerender(prev=>prev+1)
+      setRerender((prev) => prev + 1);
     }
   };
 
@@ -721,15 +709,15 @@ const [openBackdropLoader ,setOpenBackdropLoader] = useState(false);
     }
   };
 
-  const handleUpdateModalOpen = async (groupId) => {
-    try {
-      const response = await api.get(`/auction/get-auction-by-id/${groupId}`);
-      setCurrentUpdateGroup(response.data);
-      setShowModalUpdate(true);
-    } catch (error) {
-      console.error("Error fetching auction:", error);
-    }
-  };
+  // const handleUpdateModalOpen = async (groupId) => {
+  //   try {
+  //     const response = await api.get(`/auction/get-auction-by-id/${groupId}`);
+  //     setCurrentUpdateGroup(response.data);
+  //     setShowModalUpdate(true);
+  //   } catch (error) {
+  //     console.error("Error fetching auction:", error);
+  //   }
+  // };
 
   const handleFileSubmit = async (e) => {
     e.preventDefault();
@@ -800,65 +788,68 @@ const [openBackdropLoader ,setOpenBackdropLoader] = useState(false);
 
   return (
     <>
-     {openBackdropLoader?<BackdropBlurLoader title={"payment Data processing...."}/>:  <div>
-        <div className="flex mt-20">
-          <Navbar
-            onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
-            visibility={true}
-          />
-          <Sidebar />
-          <CustomAlert
-            type={alertConfig.type}
-            isVisible={alertConfig.visibility}
-            message={alertConfig.message}
-            noReload={alertConfig.noReload}
-          />
-          <div className="flex-grow p-7">
-            <h1 className="text-2xl font-semibold">Payments</h1>
-            <div className="mt-6 mb-8">
-              <div className="mb-10">
-                <label className="font-bold">Search or Select Group</label>
-                <div className="flex justify-between items-center w-full">
-                  <Select
-                    placeholder="Today's Payment"
-                    popupMatchSelectWidth={false}
-                    showSearch
-                    className="w-full max-w-md"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    value={selectedAuctionGroupId || undefined}
-                    onChange={handleGroupPayment}
-                  >
-                    <Select.Option key={"#1"} value={"today"}>
-                      Today's Payments
-                    </Select.Option>
-                    {actualGroups.map((group) => (
-                      <Select.Option key={group._id} value={group._id}>
-                        {group.group_name}
+      {openBackdropLoader ? (
+        <BackdropBlurLoader title={"payment Data processing...."} />
+      ) : (
+        <div>
+          <div className="flex mt-20">
+            <Navbar
+              onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+              visibility={true}
+            />
+            <Sidebar />
+            <CustomAlert
+              type={alertConfig.type}
+              isVisible={alertConfig.visibility}
+              message={alertConfig.message}
+              noReload={alertConfig.noReload}
+            />
+            <div className="flex-grow p-7">
+              <h1 className="text-2xl font-semibold">Payments</h1>
+              <div className="mt-6 mb-8">
+                <div className="mb-10">
+                  <label className="font-bold">Search or Select Group</label>
+                  <div className="flex justify-between items-center w-full">
+                    <Select
+                      placeholder="Today's Payment"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      className="w-full max-w-md"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={selectedAuctionGroupId || undefined}
+                      onChange={handleGroupPayment}
+                    >
+                      <Select.Option key={"#1"} value={"today"}>
+                        Today's Payments
                       </Select.Option>
-                    ))}
-                  </Select>
-                  <div>
-                    <button
-                      onClick={() => setShowModal(true)}
-                      className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
-                    >
-                      + Add Payment
-                    </button>
-                    <button
-                      onClick={() => setShowUploadModal(true)}
-                      className="ml-4 bg-yellow-300 text-black px-4 py-2 rounded shadow-md hover:bg-yellow-400 transition duration-200"
-                    >
-                      Upload Excel
-                    </button>
+                      {actualGroups.map((group) => (
+                        <Select.Option key={group._id} value={group._id}>
+                          {group.group_name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                    <div>
+                      <button
+                        onClick={() => setShowModal(true)}
+                        className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
+                      >
+                        + Add Payment
+                      </button>
+                      <button
+                        onClick={() => setShowUploadModal(true)}
+                        className="ml-4 bg-yellow-300 text-black px-4 py-2 rounded shadow-md hover:bg-yellow-400 transition duration-200"
+                      >
+                        Upload Excel
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-              {/* <UploadModal
+                {/* <UploadModal
                 show={showUploadModal}
                 onClose={handleUploadModalClose}
                 onSubmit={handleFileSubmit}
@@ -869,608 +860,607 @@ const [openBackdropLoader ,setOpenBackdropLoader] = useState(false);
                 formData={formData}
                 filteredAuction={filteredAuction}
               /> */}
-              {TablePayments && TablePayments.length > 0 ? (
-                <DataTable
-                  data={TablePayments.filter((item) =>
-                    Object.values(item).some((value) =>
-                      String(value)
-                        .toLowerCase()
-                        .includes(searchText.toLowerCase())
-                    )
-                  )}
-                  columns={columns}
-                  exportedFileName={`Payments ${
-                    TablePayments.length > 0
-                      ? TablePayments[0].date +
-                        " to " +
-                        TablePayments[TablePayments.length - 1].date
-                      : "empty"
-                  }.csv`}
-                />
-              ) : (
-                <div className="mt-10 text-center text-gray-500">
-                  <CircularLoader
-                    isLoading={isLoading}
-                    data="Payments Data"
-                    failure={
-                      TablePayments.length <= 0 && selectedAuctionGroupId
-                    }
+                {TablePayments && TablePayments.length > 0 ? (
+                  <DataTable
+                    data={TablePayments.filter((item) =>
+                      Object.values(item).some((value) =>
+                        String(value)
+                          .toLowerCase()
+                          .includes(searchText.toLowerCase())
+                      )
+                    )}
+                    columns={columns}
+                    exportedFileName={`Payments ${
+                      TablePayments.length > 0
+                        ? TablePayments[0].date +
+                          " to " +
+                          TablePayments[TablePayments.length - 1].date
+                        : "empty"
+                    }.csv`}
                   />
-                </div>
-              )}
+                ) : (
+                  <div className="mt-10 text-center text-gray-500">
+                    <CircularLoader
+                      isLoading={isLoading}
+                      data="Payments Data"
+                      failure={
+                        TablePayments.length <= 0 && selectedAuctionGroupId
+                      }
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
-          <Modal
-            isVisible={showModal}
-            onClose={() => {
-              setSelectedGroupId("");
-              setShowModal(false);
-              setErrors({});
-              setPaymentGroupTickets([]);
-            }}
-          >
-            <div className="py-6 px-5 lg:px-8 text-left">
-              <h3 className="mb-4 text-xl font-bold text-gray-900">
-                Add Payment
-              </h3>
-              <form className="space-y-6" onSubmit={handleSubmit} noValidate>
-                <div className="w-full">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="category"
-                  >
-                    Customer <span className="text-red-500 ">*</span>
-                  </label>
-
-                  <Select
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                    placeholder="Select Or Search Customer"
-                    popupMatchSelectWidth={false}
-                    showSearch
-                    filterOption={(input, option) =>
-                      option.children
-                        .toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    value={selectedGroupId || undefined}
-                    onChange={handleCustomer}
-                  >
-                    {groups.map((group) => (
-                      <Select.Option key={group._id} value={group._id}>
-                        {`${group.full_name} | ${group.phone_number}`}
-                      </Select.Option>
-                    ))}
-                  </Select>
-
-                  {errors.customer && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.customer}
-                    </p>
-                  )}
-                </div>
-
-                <div className="w-full">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="category"
-                  >
-                    Group & Ticket <span className="text-red-500 ">*</span>
-                  </label>
-                  <Select
-                    mode="multiple"
-                    name="group_id"
-                    placeholder="Select Group | Ticket"
-                    onChange={handlePaymentAntSelect}
-                    value={paymentGroupTickets}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  >
-                    {filteredAuction.map((group) => {
-                      if (!group.enrollment.group) return null;
-
-                      return (
-                        <Select.Option
-                          key={group.enrollment.group._id}
-                          value={`chit-${group.enrollment.group._id}|${group.enrollment.tickets}`}
-                        >
-                          {group.enrollment.group.group_name} |{" "}
-                          {group.enrollment.tickets}
-                        </Select.Option>
-                      );
-                    })}
-                    {pigmeCustomers?.map((pigme) => {
-                      return (
-                        <Select.Option value={`pigme-${pigme._id}`}>
-                          {`${pigme.pigme_id} | ₹ ${pigme.payable_amount}`}
-                        </Select.Option>
-                      );
-                    })}
-                    {borrowers?.map((borrower) => {
-                      return (
-                        <Select.Option value={`loan-${borrower._id}`}>
-                          {`loan-${borrower.loan_id} | ₹ ${borrower.loan_amount}`}
-                        </Select.Option>
-                      );
-                    })}
-                  </Select>
-                  {errors.payment_group_tickets && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.payment_group_tickets}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex flex-row justify-between space-x-4">
+            <Modal
+              isVisible={showModal}
+              onClose={() => {
+                setSelectedGroupId("");
+                setShowModal(false);
+                setErrors({});
+                setPaymentGroupTickets([]);
+              }}
+            >
+              <div className="py-6 px-5 lg:px-8 text-left">
+                <h3 className="mb-4 text-xl font-bold text-gray-900">
+                  Add Payment
+                </h3>
+                <form className="space-y-6" onSubmit={handleSubmit} noValidate>
                   <div className="w-full">
                     <label
                       className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="group_install"
+                      htmlFor="category"
                     >
-                      Payment Date
+                      Customer <span className="text-red-500 ">*</span>
                     </label>
-                    <input
-                      disabled={!modifyPayment}
-                      type="date"
-                      name="pay_date"
-                      value={formData.pay_date}
-                      id="pay_date"
-                      onChange={handleChange}
-                      placeholder=""
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
 
-                    {errors.pay_date && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.pay_date}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex flex-row justify-between space-x-4">
-                  <div className="w-1/2">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="group_value"
-                    >
-                      Amount <span className="text-red-500 ">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      name="amount"
-                      value={formData.amount}
-                      id="amount"
-                      onChange={handleChange}
-                      placeholder="Enter Amount"
-                      required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
-
-                    {errors.amount && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.amount}
-                      </p>
-                    )}
-                  </div>
-                  <div className="w-1/2">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="pay_mode"
-                    >
-                      Payment Mode
-                    </label>
-                    <select
-                      name="pay_mode"
-                      id="pay_mode"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      onChange={handlePaymentModeChange}
-                    >
-                      <option value="cash">Cash</option>
-                      <option value="online">Online</option>
-                    </select>
-                  </div>
-                </div>
-               {formData.amount && paymentGroupTickets.length > 1 && (  <div>
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="pay_mode"
-                  >
-                    Individual Ticket Amount
-                  </label>
-
-                 
-                    <input
-                      type="text"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg hover:cursor-not-allowed w-full p-2.5"
-                      placeholder="totalAmount"
-                      value={
-                        Number(formData.amount) / paymentGroupTickets.length
+                    <Select
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                      placeholder="Select Or Search Customer"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
                       }
-                      disabled
-                    />
-                
-                </div>  )}
-                {paymentMode === "online" && (
-                  <div className="w-full mt-4">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="transaction_id"
+                      value={selectedGroupId || undefined}
+                      onChange={handleCustomer}
                     >
-                      Transaction ID <span className="text-red-500 ">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="transaction_id"
-                      id="transaction_id"
-                      value={formData.transaction_id}
-                      onChange={handleChange}
-                      placeholder="Enter Transaction ID"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
-                    {errors.transaction_id && (
+                      {groups.map((group) => (
+                        <Select.Option key={group._id} value={group._id}>
+                          {`${group.full_name} | ${group.phone_number}`}
+                        </Select.Option>
+                      ))}
+                    </Select>
+
+                    {errors.customer && (
                       <p className="text-red-500 text-xs mt-1">
-                        {errors.transaction_id}
+                        {errors.customer}
                       </p>
                     )}
                   </div>
-                )}
 
-                <div className="flex flex-col items-center p-4 max-w-full bg-white rounded-lg shadow-sm space-y-4">
-                  <div className="flex items-center space-x-1">
-                    <FaWhatsappSquare color="green" className="w-8 h-8" />
-                    <h2 className="text-md font-semibold text-gray-800">
-                      WhatsApp
-                    </h2>
+                  <div className="w-full">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="category"
+                    >
+                      Group & Ticket <span className="text-red-500 ">*</span>
+                    </label>
+                    <Select
+                      mode="multiple"
+                      name="group_id"
+                      placeholder="Select Group | Ticket"
+                      onChange={handlePaymentAntSelect}
+                      value={paymentGroupTickets}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    >
+                       {filteredAuction.map((entry, index) => {
+                       const groupName = entry?.enrollment?.group?.group_name || "Unnamed Group";
+                       const groupId = entry?.enrollment?.group?._id || `missing-${index}`;
+                       const ticket = entry?.enrollment?.tickets || "Unknown";
+                     
+                       return (
+                         <Select.Option key={`chit-${groupId}|${ticket}`} value={`chit-${groupId}|${ticket}`}>
+                           {groupName} | {ticket}
+                         </Select.Option>
+                       );
+                     })}
+                      {pigmeCustomers?.map((pigme) => {
+                        return (
+                          <Select.Option value={`pigme-${pigme._id}`}>
+                            {`${pigme.pigme_id} | ₹ ${pigme.payable_amount}`}
+                          </Select.Option>
+                        );
+                      })}
+                      {borrowers?.map((borrower) => {
+                        return (
+                          <Select.Option value={`loan-${borrower._id}`}>
+                            {`loan-${borrower.loan_id} | ₹ ${borrower.loan_amount}`}
+                          </Select.Option>
+                        );
+                      })}
+                    </Select>
+                    {errors.payment_group_tickets && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.payment_group_tickets}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={whatsappEnable}
-                      className="text-green-500 checked:ring-2  checked:ring-green-700 rounded-full w-4 h-4"
-                    />
-                    <span className="text-gray-700 text-sm">
-                      Send Via Whatsapp
-                    </span>
+                  <div className="flex flex-row justify-between space-x-4">
+                    <div className="w-full">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="group_install"
+                      >
+                        Payment Date
+                      </label>
+                      <input
+                        disabled={!modifyPayment}
+                        type="date"
+                        name="pay_date"
+                        value={formData.pay_date}
+                        id="pay_date"
+                        onChange={handleChange}
+                        placeholder=""
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+
+                      {errors.pay_date && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.pay_date}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="w-full flex justify-end">
-                  <button
-                    type="submit"
-                    className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+                  <div className="flex flex-row justify-between space-x-4">
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="group_value"
+                      >
+                        Amount <span className="text-red-500 ">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        name="amount"
+                        value={formData.amount}
+                        id="amount"
+                        onChange={handleChange}
+                        placeholder="Enter Amount"
+                        required
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+
+                      {errors.amount && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.amount}
+                        </p>
+                      )}
+                    </div>
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="pay_mode"
+                      >
+                        Payment Mode
+                      </label>
+                      <select
+                        name="pay_mode"
+                        id="pay_mode"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                        onChange={handlePaymentModeChange}
+                      >
+                        <option value="cash">Cash</option>
+                        <option value="online">Online</option>
+                      </select>
+                    </div>
+                  </div>
+                  {formData.amount && paymentGroupTickets.length > 1 && (
+                    <div>
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="pay_mode"
+                      >
+                        Individual Ticket Amount
+                      </label>
+
+                      <input
+                        type="text"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg hover:cursor-not-allowed w-full p-2.5"
+                        placeholder="totalAmount"
+                        value={
+                          Number(formData.amount) / paymentGroupTickets.length
+                        }
+                        disabled
+                      />
+                    </div>
+                  )}
+                  {paymentMode === "online" && (
+                    <div className="w-full mt-4">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="transaction_id"
+                      >
+                        Transaction ID <span className="text-red-500 ">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="transaction_id"
+                        id="transaction_id"
+                        value={formData.transaction_id}
+                        onChange={handleChange}
+                        placeholder="Enter Transaction ID"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+                      {errors.transaction_id && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.transaction_id}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col items-center p-4 max-w-full bg-white rounded-lg shadow-sm space-y-4">
+                    <div className="flex items-center space-x-1">
+                      <FaWhatsappSquare color="green" className="w-8 h-8" />
+                      <h2 className="text-md font-semibold text-gray-800">
+                        WhatsApp
+                      </h2>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={whatsappEnable}
+                        className="text-green-500 checked:ring-2  checked:ring-green-700 rounded-full w-4 h-4"
+                      />
+                      <span className="text-gray-700 text-sm">
+                        Send Via Whatsapp
+                      </span>
+                    </div>
+                  </div>
+                  <div className="w-full flex justify-end">
+                    <button
+                      type="submit"
+                      className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
                               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                  >
-                    Save Payment
-                  </button>
-                </div>
-              </form>
-            </div>
-          </Modal>
-          {/* <PrintModal
+                    >
+                      Save Payment
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </Modal>
+            {/* <PrintModal
             isVisible={showPrintModal}
             onClose={printModalOnCloseHandler}
           >
             <PaymentPrint printDetails={printDetails} />
           </PrintModal> */}
 
-          <Modal
-            isVisible={showModalUpdate}
-            onClose={() => setShowModalUpdate(false)}
-          >
-            <div className="py-6 px-5 lg:px-8 text-left">
-              <h3 className="mb-4 text-xl font-bold text-gray-900">
-                View Auction
-              </h3>
-              <form className="space-y-6" onSubmit={() => {}} noValidate>
-                <div>
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="email"
-                  >
-                    Group
-                  </label>
-                  <input
-                    type="text"
-                    name="group_id"
-                    value={currentUpdateGroup?.group_id?.group_name}
-                    onChange={() => {}}
-                    id="name"
-                    placeholder="Enter the Group Name"
-                    readOnly
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-                <div className="flex flex-row justify-between space-x-4">
-                  <div className="w-1/2">
+            <Modal
+              isVisible={showModalUpdate}
+              onClose={() => setShowModalUpdate(false)}
+            >
+              <div className="py-6 px-5 lg:px-8 text-left">
+                <h3 className="mb-4 text-xl font-bold text-gray-900">
+                  View Auction
+                </h3>
+                <form className="space-y-6" onSubmit={() => {}} noValidate>
+                  <div>
                     <label
                       className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="group_value"
+                      htmlFor="email"
                     >
-                      Group Value
+                      Group
                     </label>
                     <input
                       type="text"
-                      name="group_value"
-                      value={currentUpdateGroup?.group_id?.group_value}
-                      id="group_value"
-                      placeholder="select group to check"
+                      name="group_id"
+                      value={currentUpdateGroup?.group_id?.group_name}
+                      onChange={() => {}}
+                      id="name"
+                      placeholder="Enter the Group Name"
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
                   </div>
-                  <div className="w-1/2">
+                  <div className="flex flex-row justify-between space-x-4">
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="group_value"
+                      >
+                        Group Value
+                      </label>
+                      <input
+                        type="text"
+                        name="group_value"
+                        value={currentUpdateGroup?.group_id?.group_value}
+                        id="group_value"
+                        placeholder="select group to check"
+                        readOnly
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+                    </div>
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="group_install"
+                      >
+                        Group Installment
+                      </label>
+                      <input
+                        type="text"
+                        name="group_install"
+                        value={currentUpdateGroup?.group_id?.group_install}
+                        id="group_install"
+                        placeholder="select group to check"
+                        readOnly
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+                    </div>
+                  </div>
+                  <div>
                     <label
                       className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="group_install"
+                      htmlFor="email"
                     >
-                      Group Installment
+                      User
                     </label>
                     <input
                       type="text"
-                      name="group_install"
-                      value={currentUpdateGroup?.group_id?.group_install}
-                      id="group_install"
-                      placeholder="select group to check"
+                      name="group_id"
+                      value={`${currentUpdateGroup?.user_id?.full_name} | ${currentUpdateGroup?.ticket}`}
+                      onChange={() => {}}
+                      id="name"
+                      placeholder="Enter the User Name"
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
                   </div>
-                </div>
-                <div>
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="email"
-                  >
-                    User
-                  </label>
-                  <input
-                    type="text"
-                    name="group_id"
-                    value={`${currentUpdateGroup?.user_id?.full_name} | ${currentUpdateGroup?.ticket}`}
-                    onChange={() => {}}
-                    id="name"
-                    placeholder="Enter the User Name"
-                    readOnly
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
 
-                <div>
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="email"
-                  >
-                    Bid Amount
-                  </label>
-                  <input
-                    type="number"
-                    name="bid_amount"
-                    value={
-                      currentUpdateGroup?.group_id?.group_value -
-                      currentUpdateGroup?.win_amount
-                    }
-                    onChange={() => {}}
-                    id="name"
-                    placeholder="Enter the Bid Amount"
-                    readOnly
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-                <div className="flex flex-row justify-between space-x-4">
-                  <div className="w-1/2">
+                  <div>
                     <label
                       className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="group_value"
+                      htmlFor="email"
                     >
-                      Commission
+                      Bid Amount
                     </label>
                     <input
-                      type="text"
-                      name="commission"
-                      value={currentUpdateGroup?.commission}
-                      id="commission"
-                      placeholder=""
-                      readOnly
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
-                  </div>
-                  <div className="w-1/2">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="group_install"
-                    >
-                      Winning Amount
-                    </label>
-                    <input
-                      type="text"
-                      name="win_amount"
-                      value={currentUpdateGroup?.win_amount}
-                      id="win_amount"
-                      placeholder=""
-                      readOnly
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-row justify-between space-x-4">
-                  <div className="w-1/2">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="group_value"
-                    >
-                      Divident
-                    </label>
-                    <input
-                      type="text"
-                      name="divident"
-                      value={currentUpdateGroup?.divident}
-                      id="divident"
-                      placeholder=""
-                      readOnly
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
-                  </div>
-                  <div className="w-1/2">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="group_install"
-                    >
-                      Divident per Head
-                    </label>
-                    <input
-                      type="text"
-                      name="divident_head"
-                      value={currentUpdateGroup?.divident_head}
-                      id="divident_head"
-                      placeholder=""
-                      readOnly
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
-                  </div>
-                  <div className="w-1/2">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="group_install"
-                    >
-                      Next Payable
-                    </label>
-                    <input
-                      type="text"
-                      name="payable"
-                      value={currentUpdateGroup?.payable}
-                      id="payable"
-                      placeholder=""
-                      readOnly
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-row justify-between space-x-4">
-                  <div className="w-1/2">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="date"
-                    >
-                      Auction Date
-                    </label>
-                    <input
-                      type="date"
-                      name="auction_date"
-                      value={currentUpdateGroup?.auction_date}
+                      type="number"
+                      name="bid_amount"
+                      value={
+                        currentUpdateGroup?.group_id?.group_value -
+                        currentUpdateGroup?.win_amount
+                      }
                       onChange={() => {}}
-                      id="date"
-                      placeholder="Enter the Date"
+                      id="name"
+                      placeholder="Enter the Bid Amount"
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
                   </div>
-                  <div className="w-1/2">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="date"
-                    >
-                      Next Date
-                    </label>
-                    <input
-                      type="date"
-                      name="next_date"
-                      value={currentUpdateGroup?.next_date}
-                      onChange={() => {}}
-                      id="date"
-                      placeholder="Enter the Date"
-                      readOnly
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
+                  <div className="flex flex-row justify-between space-x-4">
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="group_value"
+                      >
+                        Commission
+                      </label>
+                      <input
+                        type="text"
+                        name="commission"
+                        value={currentUpdateGroup?.commission}
+                        id="commission"
+                        placeholder=""
+                        readOnly
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+                    </div>
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="group_install"
+                      >
+                        Winning Amount
+                      </label>
+                      <input
+                        type="text"
+                        name="win_amount"
+                        value={currentUpdateGroup?.win_amount}
+                        id="win_amount"
+                        placeholder=""
+                        readOnly
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+                    </div>
                   </div>
-                </div>
-              </form>
-            </div>
-          </Modal>
-          <Modal
-            isVisible={showModalDelete}
-            onClose={() => {
-              setShowModalDelete(false);
-              setCurrentGroup(null);
-            }}
-          >
-            <div className="py-6 px-5 lg:px-8 text-left">
-              <h3 className="mb-4 text-xl font-bold text-gray-900">
-                Sure want to delete this Payment ?
-              </h3>
-              {currentGroup && (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleDeleteAuction();
-                  }}
-                  className="space-y-6"
-                >
-                  <button
-                    type="submit"
-                    className="w-full text-white bg-red-700 hover:bg-red-800
-                    focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex flex-row justify-between space-x-4">
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="group_value"
+                      >
+                        Divident
+                      </label>
+                      <input
+                        type="text"
+                        name="divident"
+                        value={currentUpdateGroup?.divident}
+                        id="divident"
+                        placeholder=""
+                        readOnly
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+                    </div>
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="group_install"
+                      >
+                        Divident per Head
+                      </label>
+                      <input
+                        type="text"
+                        name="divident_head"
+                        value={currentUpdateGroup?.divident_head}
+                        id="divident_head"
+                        placeholder=""
+                        readOnly
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+                    </div>
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="group_install"
+                      >
+                        Next Payable
+                      </label>
+                      <input
+                        type="text"
+                        name="payable"
+                        value={currentUpdateGroup?.payable}
+                        id="payable"
+                        placeholder=""
+                        readOnly
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-row justify-between space-x-4">
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="date"
+                      >
+                        Auction Date
+                      </label>
+                      <input
+                        type="date"
+                        name="auction_date"
+                        value={currentUpdateGroup?.auction_date}
+                        onChange={() => {}}
+                        id="date"
+                        placeholder="Enter the Date"
+                        readOnly
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+                    </div>
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="date"
+                      >
+                        Next Date
+                      </label>
+                      <input
+                        type="date"
+                        name="next_date"
+                        value={currentUpdateGroup?.next_date}
+                        onChange={() => {}}
+                        id="date"
+                        placeholder="Enter the Date"
+                        readOnly
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+                    </div>
+                  </div>
                 </form>
-              )}
-            </div>
-          </Modal>
+              </div>
+            </Modal>
+            <Modal
+              isVisible={showModalDelete}
+              onClose={() => {
+                setShowModalDelete(false);
+                setCurrentGroup(null);
+              }}
+            >
+              <div className="py-6 px-5 lg:px-8 text-left">
+                <h3 className="mb-4 text-xl font-bold text-gray-900">
+                  Sure want to delete this Payment ?
+                </h3>
+                {currentGroup && (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleDeleteAuction();
+                    }}
+                    className="space-y-6"
+                  >
+                    <button
+                      type="submit"
+                      className="w-full text-white bg-red-700 hover:bg-red-800
+                    focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                    >
+                      Delete
+                    </button>
+                  </form>
+                )}
+              </div>
+            </Modal>
+          </div>
         </div>
-      </div>}
+      )}
     </>
   );
 };
 
 export default Payment;
 
-function ReceiptButton() {
-  return (
-    <div>
-      {/* Receipt Content */}
-      <div
-        id="receipt"
-        style={{
-          width: "210mm",
-          height: "297mm",
-          padding: "20mm",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-        }}
-      >
-        {/* Top Half */}
-        <div style={{ borderBottom: "1px solid black", height: "50%" }}>
-          <h2>Receipt - Part 1</h2>
-          <p>Details for the first part...</p>
-          <p>
-            <strong>Amount:</strong> $123.45
-          </p>
-          <p>
-            <strong>Date:</strong> 01/22/2025
-          </p>
-        </div>
+// function ReceiptButton() {
+//   return (
+//     <div>
+//       {/* Receipt Content */}
+//       <div
+//         id="receipt"
+//         style={{
+//           width: "210mm",
+//           height: "297mm",
+//           padding: "20mm",
+//           display: "flex",
+//           flexDirection: "column",
+//           justifyContent: "space-between",
+//         }}
+//       >
+//         {/* Top Half */}
+//         <div style={{ borderBottom: "1px solid black", height: "50%" }}>
+//           <h2>Receipt - Part 1</h2>
+//           <p>Details for the first part...</p>
+//           <p>
+//             <strong>Amount:</strong> $123.45
+//           </p>
+//           <p>
+//             <strong>Date:</strong> 01/22/2025
+//           </p>
+//         </div>
 
-        {/* Bottom Half */}
-        <div style={{ height: "50%" }}>
-          <h2>Receipt - Part 2</h2>
-          <p>Details for the second part...</p>
-          <p>
-            <strong>Amount:</strong> $123.45
-          </p>
-          <p>
-            <strong>Date:</strong> 01/22/2025
-          </p>
-        </div>
-      </div>
+//         {/* Bottom Half */}
+//         <div style={{ height: "50%" }}>
+//           <h2>Receipt - Part 2</h2>
+//           <p>Details for the second part...</p>
+//           <p>
+//             <strong>Amount:</strong> $123.45
+//           </p>
+//           <p>
+//             <strong>Date:</strong> 01/22/2025
+//           </p>
+//         </div>
+//       </div>
 
-      {/* Button to Generate PDF */}
-      <button
-        onClick={() => handleUpdateModalOpen("example-id")}
-        className="border border-blue-400 text-white px-4 py-2 rounded-md shadow hover:border-blue-700 transition duration-200"
-      >
-        <BiPrinter color="blue" />
-      </button>
-    </div>
-  );
-}
+//       {/* Button to Generate PDF */}
+//       <button
+//         onClick={() => handleUpdateModalOpen("example-id")}
+//         className="border border-blue-400 text-white px-4 py-2 rounded-md shadow hover:border-blue-700 transition duration-200"
+//       >
+//         <BiPrinter color="blue" />
+//       </button>
+//     </div>
+//   );
+// }
