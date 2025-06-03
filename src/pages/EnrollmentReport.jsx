@@ -27,9 +27,12 @@ const EnrollmentReport = () => {
     message: "Something went wrong!",
     type: "info",
   });
-  const handleGroupChange = async (event) => {
-    const groupId = event.target.value;
-    setSelectedGroup(groupId);
+  // const handleGroupChange = async (event) => {
+  //   const groupId = event.target.value;
+  //   setSelectedGroup(groupId);
+  // };
+  const handleGroupChange = (value) => {
+    setSelectedGroup(value);
   };
   const now = new Date()
   const todayString = now.toISOString().split("T")[0]
@@ -97,9 +100,16 @@ const EnrollmentReport = () => {
               : "",
             chit_asking_month: group?.chit_asking_month,
             referred_type: group?.referred_type,
-            referred_agent: group?.agent?.name,
-            referred_customer: group?.referred_customer?.full_name,
-            referred_lead: group?.referred_lead?.lead_name,
+            // referred_agent: group?.agent?.name,
+            // referred_customer: group?.referred_customer?.full_name,
+            // referred_lead: group?.referred_lead?.lead_name,
+             referred_by: group?.agent?.name && group?.agent?.phone_number
+                ? `${group.agent.name} | ${group.agent.phone_number}`
+                : group?.referred_customer?.full_name && group?.referred_customer?.phone_number
+                ? `${group.referred_customer.full_name} | ${group?.referred_customer?.phone_number }`
+                : group?.referred_lead?.lead_name && group?.referred_lead?.agent_number
+                ? `${group.referred_lead.lead_name} | ${group.referred_lead.agent_number}`
+                : "N/A",
             ticket: group.tickets,
             action: (
               <div className="flex justify-center items-center gap-2">
@@ -150,8 +160,18 @@ const EnrollmentReport = () => {
     fetchEnrollmentData();
   }, [selectedFromDate, selectedToDate, selectedGroup]);
 
-  const handleSelectFilter = (e) => {
-    const { value } = e.target;
+
+    const groupOptions = [
+    { value: "Today", label: "Today" },
+    { value: "Yesterday", label: "Yesterday" },
+    { value: "ThisMonth", label: "This Month" },
+    { value: "LastMonth", label: "Last Month" },
+    { value: "ThisYear", label: "This Year" },
+    { value: "Custom", label: "Custom"},
+  ];
+
+  const handleSelectFilter = (value) => {
+   // const { value } = e.target;
 setShowFilterField(false);
 
 const today = new Date();
@@ -201,9 +221,11 @@ if (value === "Today") {
     { key: "enrollment_date", header: "Enrollment Date" },
     { key: "chit_asking_month", header: "Chit Asking Month" },
     { key: "referred_type", header: "Referred Type" },
-    { key: "referred_agent", header: "Referred Agent" },
-    { key: "referred_customer", header: "Referred Customer" },
-    { key: "referred_lead", header: "Referred Lead" },
+    // { key: "referred_agent", header: "Referred Agent" },
+    // { key: "referred_customer", header: "Referred Customer" },
+      //{ key: "referred_lead", header: "Referred Lead" },
+    { key: "referred_by", header: "Referred By" },
+
     { key: "ticket", header: "Ticket" },
   ];
 
@@ -227,7 +249,7 @@ if (value === "Today") {
                 <div className="flex justify-start items-center w-full gap-4">
                   <div className="mb-2">
                     <label>Filter Option</label>
-                    <select
+                    {/* <select
                       onChange={handleSelectFilter}
                       
                       className="border border-gray-300 rounded px-6 shadow-sm outline-none w-full max-w-md"
@@ -238,7 +260,26 @@ if (value === "Today") {
                       <option value="LastMonth">Last Month</option>
                       <option value="ThisYear">This Year</option>
                       <option value="Custom">Custom</option>
-                    </select>
+                    </select> */}
+                    <Select
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      onChange={handleSelectFilter}
+                      placeholder="Search Or Select Filter"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      className="w-full max-w-xs h-11"
+                    >
+                      {groupOptions.map((time) => (
+                        <Select.Option key={time.value} value={time.value}>
+                          {time.label}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </div>
 
                   {showFilterField && (
@@ -265,7 +306,7 @@ if (value === "Today") {
                   )}
                   <div className="mb-2">
                     <label>Group</label>
-                    <select
+                    {/* <select
                       value={selectedGroup}
                       onChange={handleGroupChange}
                       className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
@@ -276,7 +317,28 @@ if (value === "Today") {
                           {group.group_name}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
+                     <Select
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      placeholder="Search Or Select Group"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      className="w-full max-w-xs h-11"
+                      value={selectedGroup}
+                      onChange={handleGroupChange}
+                    >
+                      <Select.Option value="">All</Select.Option>
+                      {groups.map((group) => (
+                        <Select.Option key={group._id} value={group._id}>
+                          {group.group_name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </div>
                   {/* <div className="mb-2">
                     <label>Payment Type</label>

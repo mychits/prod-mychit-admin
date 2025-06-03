@@ -39,11 +39,12 @@ const Receipt = () => {
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showFilterField, setShowFilterField] = useState(false);
+  const [selectedLabel,setSelectedLabel] = useState("Today")
   const now = new Date();
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
-  const todayString =now.toISOString().split("T")[0]
+  const todayString = now.toISOString().split("T")[0];
   const [selectedFromDate, setSelectedFromDate] = useState(todayString);
   const [selectedDate, setSelectedDate] = useState(todayString);
   const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
@@ -91,7 +92,7 @@ const Receipt = () => {
     fetchReceipt();
   }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchGroups = async () => {
       try {
         const response = await api.get("/user/get-user");
@@ -130,8 +131,6 @@ const Receipt = () => {
     }));
   };
 
-
-
   const handleGroup = async (event) => {
     const groupId = event.target.value;
     setSelectedGroupId(groupId);
@@ -155,51 +154,56 @@ const Receipt = () => {
     }
   };
 
-  const handleGroupPayment = async (event) => {
-    const groupId = event.target.value;
+  const groupOptions = [
+    { value: "Today", label: "Today" },
+    { value: "Yesterday", label: "Yesterday" },
+    { value: "ThisMonth", label: "This Month" },
+    { value: "LastMonth", label: "Last Month" },
+    { value: "ThisYear", label: "This Year" },
+    { value: "Custom", label: "Custom"},
+  ];
+
+  const handleGroupPayment = async (groupId) => {
+    // const groupId = event.target.value;
     setSelectedAuctionGroupId(groupId);
   };
 
-  const handleSelectFilter = (e) => {
-    const { value } = e.target;
-setShowFilterField(false);
+  const handleSelectFilter = (value) => {
+    setSelectedLabel(value)
+    //const { value } = e.target;
+    setShowFilterField(false);
 
-const today = new Date();
-const formatDate = (date) => date.toLocaleDateString('en-CA');
+    const today = new Date();
+    const formatDate = (date) => date.toLocaleDateString("en-CA");
 
-if (value === "Today") {
-  const formatted = formatDate(today);
-  setSelectedFromDate(formatted);
-  setSelectedToDate(formatted);
-
-} else if (value === "Yesterday") {
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const formatted = formatDate(yesterday);
-  setSelectedFromDate(formatted);
-  setSelectedToDate(formatted);
-
-} else if (value === "ThisMonth") {
-  const start = new Date(today.getFullYear(), today.getMonth(), 1);
-  const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  setSelectedFromDate(formatDate(start));
-  setSelectedToDate(formatDate(end));
-
-} else if (value === "LastMonth") {
-  const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-  const end = new Date(today.getFullYear(), today.getMonth(), 0);
-  setSelectedFromDate(formatDate(start));
-  setSelectedToDate(formatDate(end));
-
-} else if (value === "ThisYear") {
-  const start = new Date(today.getFullYear(), 0, 1);
-  const end = new Date(today.getFullYear(), 11, 31);
-  setSelectedFromDate(formatDate(start));
-  setSelectedToDate(formatDate(end));
-}else if(value === "Custom"){
-  setShowFilterField(true)
-}
-
+    if (value === "Today") {
+      const formatted = formatDate(today);
+      setSelectedFromDate(formatted);
+      selectedDate(formatted);
+    } else if (value === "Yesterday") {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const formatted = formatDate(yesterday);
+      setSelectedFromDate(formatted);
+      selectedDate(formatted);
+    } else if (value === "ThisMonth") {
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      setSelectedFromDate(formatDate(start));
+      selectedDate(formatDate(end));
+    } else if (value === "LastMonth") {
+      const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const end = new Date(today.getFullYear(), today.getMonth(), 0);
+      setSelectedFromDate(formatDate(start));
+      selectedDate(formatDate(end));
+    } else if (value === "ThisYear") {
+      const start = new Date(today.getFullYear(), 0, 1);
+      const end = new Date(today.getFullYear(), 11, 31);
+      setSelectedFromDate(formatDate(start));
+      selectedDate(formatDate(end));
+    } else if (value === "Custom") {
+      setShowFilterField(true);
+    }
   };
   const formatPayDate = (dateString) => {
     const date = new Date(dateString);
@@ -254,6 +258,7 @@ if (value === "Today") {
             action: (
               <div className="flex justify-center gap-2">
                 <Dropdown
+                trigger={['click']}
                   menu={{
                     items: [
                       {
@@ -443,7 +448,7 @@ if (value === "Today") {
                 <div className="flex justify-start items-center w-full gap-4">
                   <div className="mb-2">
                     <label>Filter Option</label>
-                    <select
+                    {/* <select
                       onChange={handleSelectFilter}
                       className="border border-gray-300 rounded px-6 shadow-sm outline-none w-full max-w-md"
                     >
@@ -453,7 +458,27 @@ if (value === "Today") {
                       <option value="LastMonth">Last Month</option>
                       <option value="ThisYear">This Year</option>
                       <option value="Custom">Custom</option>
-                    </select>
+                    </select> */}
+                    <Select
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      onChange={handleSelectFilter}
+                      value ={selectedLabel || undefined}
+                      placeholder="Search Or Select Filter"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      className="w-full max-w-xs h-11"
+                    >
+                      {groupOptions.map((time) => (
+                        <Select.Option key={time.value} value={time.value}>
+                          {time.label}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </div>
                   {showFilterField && (
                     <div className="flex gap-4">
@@ -479,7 +504,7 @@ if (value === "Today") {
                   )}
                   <div className="mb-2">
                     <label>Group</label>
-                    <select
+                    {/* <select
                       value={selectedAuctionGroupId}
                       onChange={handleGroupPayment}
                       className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
@@ -490,11 +515,32 @@ if (value === "Today") {
                           {group.group_name}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
+                    <Select
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      value={selectedAuctionGroupId || undefined}
+                      onChange={handleGroupPayment}
+                      placeholder="Search Or Select Group"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      className="w-full max-w-xs h-11"
+                    >
+                      <Select.Option value={""}>All</Select.Option>
+                      {groups.map((group) => (
+                        <Select.Option key={group._id} value={group._id}>
+                          {group.group_name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </div>
                   <div className="mb-2">
                     <label>Customer</label>
-                    <select
+                    {/* <select
                       value={selectedCustomers}
                       onChange={(e) => setSelectedCustomers(e.target.value)}
                       className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
@@ -505,11 +551,33 @@ if (value === "Today") {
                           {group?.full_name} - {group.phone_number}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
+                    <Select
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      value={selectedCustomers || undefined}
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      placeholder="Search Or Select Customer"
+                      onChange={(groupId) => setSelectedCustomers(groupId)}
+                      className="w-full max-w-xs h-11"
+                      // className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                    >
+                      <Select.Option value="">All</Select.Option>
+                      {filteredUsers.map((group) => (
+                        <Select.Option key={group?._id} value={group?._id}>
+                          {group?.full_name} - {group.phone_number}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </div>
                   <div className="mb-2">
                     <label>Payment Mode</label>
-                    <select
+                    {/* <select
                       value={selectedPaymentMode}
                       onChange={(e) => setSelectedPaymentMode(e.target.value)}
                       className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
@@ -517,7 +585,26 @@ if (value === "Today") {
                       <option value="">All</option>
                       <option value="cash">Cash</option>
                       <option value="online">Online</option>
-                    </select>
+                    </select> */}
+                    <Select
+                      value={selectedPaymentMode || undefined}
+                      showSearch
+                      placeholder="Search Or Select Payment"
+                      popupMatchSelectWidth={false}
+                      onChange={(groupId) => setSelectedPaymentMode(groupId)}
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      className="w-full max-w-xs h-11"
+                      // className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                    >
+                      <Select.Option value="">All</Select.Option>
+                      <Select.Option value="cash">Cash</Select.Option>
+                      <Select.Option value="online">Online</Select.Option>
+                    </Select>
                   </div>
                   <div>
                     <h1 className="text-md mt-6">

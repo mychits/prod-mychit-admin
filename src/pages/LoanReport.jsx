@@ -1,4 +1,3 @@
-
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
@@ -6,13 +5,14 @@ import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
-import { Dropdown } from "antd";
+import { Dropdown, Select, Input } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import { FaCalculator } from "react-icons/fa";
 import CircularLoader from "../components/loaders/CircularLoader";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+import { fieldSize } from "../data/fieldSize";
 const LoanReport = () => {
   const [users, setUsers] = useState([]);
   const [borrowers, setBorrowers] = useState([]);
@@ -21,11 +21,11 @@ const LoanReport = () => {
   const [showModalDelete, setShowModalDelete] = useState(false);
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentBorrower, setCurrentBorrower] = useState(null);
-const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(false);
   const [currentUpdateBorrower, setCurrentUpdateBorrower] = useState(null);
   const [searchText, setSearchText] = useState("");
-const [isLoading,setIsLoading] = useState(false);
-const [reloadTrigger, setReloadTrigger] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -60,7 +60,21 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     note: "",
   });
 
-    useEffect(() => {
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await api.get("/user/get-user");
+
+        if (response.status >= 400)
+          throw new Error("Failed to fetch borrowers");
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching Loans Borrower Data:", error);
+      }
+    };
+    fetchCustomers();
+  }, [reloadTrigger]);
+  useEffect(() => {
     const fetchBorrowers = async () => {
       setLoader(true);
       try {
@@ -121,13 +135,13 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
       } catch (error) {
         setLoader(true);
         console.error("Error fetching group data:", error);
-      }finally{
+      } finally {
         setIsLoading(false);
       }
     };
     fetchBorrowers();
   }, [reloadTrigger]);
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -169,11 +183,6 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     return Object.keys(newErrors).length === 0;
   };
 
-  
-
-
-
-
   const handleDeleteModalOpen = async (borrowerId) => {
     try {
       const response = await api.get(`loans/get-borrower/${borrowerId}`);
@@ -206,6 +215,14 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
     } catch (error) {
       console.error("Error fetching group:", error);
     }
+  };
+    const handleAntInputDSelect = (field, value) => {
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: "" }));
   };
 
   const handleInputChange = (e) => {
@@ -274,530 +291,330 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
           visibility={true}
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
         />
-      <div className="flex mt-20">
-        <CustomAlertDialog
-          type={alertConfig.type}
-          isVisible={alertConfig.visibility}
-          message={alertConfig.message}
-          onClose={() =>
-            setAlertConfig((prev) => ({ ...prev, visibility: false }))
-          }
-        />
-        
-        
+        <div className="flex mt-20">
+          <CustomAlertDialog
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+            onClose={() =>
+              setAlertConfig((prev) => ({ ...prev, visibility: false }))
+            }
+          />
 
-        <div className="flex-grow p-7">
-          <h1 className="font-bold text-2xl">Loan Report</h1>
+          <div className="flex-grow p-7">
+            <h1 className="font-bold text-2xl">Loan Report</h1>
             {loader ? (
               <div className="flex w-full justify-center items-center">
                 <CircularLoader />;
               </div>
-            ) :(<DataTable
-              catcher="_id"
-              updateHandler={handleUpdateModalOpen}
-              data={filterOption(tableBorrowers, searchText)}
-              columns={columns}
-              exportedFileName={`Groups-${
-                tableBorrowers.length > 0
-                  ? tableBorrowers[0].date +
-                    " to " +
-                    tableBorrowers[tableBorrowers.length - 1].date
-                  : "empty"
-              }.csv`}
-            />) }
-        </div>
-        </div>
-        </div>
-
-        <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
-          <div className="py-6 px-5 lg:px-8 text-left">
-            <h3 className="mb-4 text-xl font-bold text-gray-900">Add Loan</h3>
-            <form className="space-y-6" noValidate>
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="borrower_name"
-                >
-                  Select Borrower Name  <span className="text-red-500 ">*</span>
-                </label>
-                <select
-                  name="borrower"
-                  id="borrower"
-                  value={formData.borrower}
-                  onChange={handleChange}
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                >
-                  <option value="" selected hidden>
-                    Select Borrower Name
-                  </option>
-                  {users.map((user) => (
-                    <option value={user?._id}>{user?.full_name}</option>
-                  ))}
-                </select>
-                {errors.borrower && (
-                  <p className="text-red-500 text-sm mt-1">{errors.borrower}</p>
-                )}
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="loan_amount"
-                  >
-                    Loan Amount  <span className="text-red-500 ">*</span> 
-                  </label>
-                  <input
-                    type="number"
-                    name="loan_amount"
-                    value={formData.loan_amount}
-                    onChange={handleChange}
-                    id="loan_amount"
-                    placeholder="Enter Loan Amount"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                  {errors.loan_amount && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.loan_amount}
-                    </p>
-                  )}
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="tenure"
-                  >
-                    Tenure in Days <span className="text-red-500 ">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="tenure"
-                    value={formData.tenure}
-                    onChange={handleChange}
-                    id="tenure"
-                    placeholder="Enter Tenure in Days"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                  {errors.tenure && (
-                    <p className="text-red-500 text-sm mt-1">{errors.tenure}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="service_charges"
-                  >
-                    Service Charges <span className="text-red-500 ">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="service_charges"
-                    value={formData.service_charges}
-                    onChange={handleChange}
-                    id="service_charges"
-                    placeholder="Enter Service Charges"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                  {errors.service_charges && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.service_charges}
-                    </p>
-                  )}
-                </div>
-
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="daily_payment_amount"
-                  >
-                    Daily Payment Amount  <span className="text-red-500 ">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="Daily Payment Amount"
-                    name="daily_payment_amount"
-                    value={formData.daily_payment_amount}
-                    onChange={handleChange}
-                    id="daily_payment_amount"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue rounded-lg  w-full p-2.5"
-                  />
-                  {errors.daily_payment_amount && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.daily_payment_amount}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="start_date"
-                  >
-                    Start Date  <span className="text-red-500 ">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    name="start_date"
-                    value={formData.start_date}
-                    onChange={handleChange}
-                    id="start_date"
-                    placeholder="Enter the Date"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                  {errors.start_date && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.start_date}
-                    </p>
-                  )}
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="end_date"
-                  >
-                    End Date <span className="text-red-500 ">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    name="end_date"
-                    value={formData.end_date}
-                    onChange={handleChange}
-                    id="end_date"
-                    placeholder="Enter End Date"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                  {errors.end_date && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.end_date}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="note"
-                >
-                  Note
-                </label>
-                <div className="flex w-full gap-2">
-                  <input
-                    type="text"
-                    name="note"
-                    value={formData.note}
-                    onChange={handleChange}
-                    id="note"
-                    placeholder="Specify Note if any!"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full  p-2.5"
-                  />
-                  <div
-                    className="bg-blue-700 hover:bg-blue-800 w-10 h-10 flex justify-center items-center rounded-md"
-                    onClick={() => {
-                      window.open("Calculator:///");
-                    }}
-                  >
-                    <FaCalculator color="white" />
-                  </div>
-                </div>
-              </div>
-              <div className="w-full flex justify-end">
-                <button
-                  type="submit"
-                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
-              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
-                >
-                  Save Loan
-                </button>
-              </div>
-            </form>
-          </div>
-       
-        </Modal>
-        <Modal
-          isVisible={showModalUpdate}
-          onClose={() => setShowModalUpdate(false)}
-        >
-          <div className="py-6 px-5 lg:px-8 text-left">
-            <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Update Loan
-            </h3>
-            <form className="space-y-6" onSubmit={handleUpdate} noValidate>
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="borrower_name"
-                >
-                  Select Borrower Name
-                </label>
-                <select
-                  name="borrower"
-                  id="borrower"
-                  value={updateFormData.borrower}
-                  onChange={handleChange}
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                >
-                  <option value="" selected hidden>
-                    Select Borrower Name
-                  </option>
-                  {users.map((user) => (
-                    <option value={user?._id}>{user?.full_name}</option>
-                  ))}
-                </select>
-                {errors.borrower && (
-                  <p className="text-red-500 text-sm mt-1">{errors.borrower}</p>
-                )}
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="loan_amount"
-                  >
-                    Loan Amount
-                  </label>
-                  <input
-                    type="number"
-                    name="loan_amount"
-                    value={updateFormData.loan_amount}
-                    onChange={handleInputChange}
-                    id="loan_amount"
-                    placeholder="Enter Loan Amount"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                  {errors.loan_amount && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.loan_amount}
-                    </p>
-                  )}
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="tenure"
-                  >
-                    Tenure in Days
-                  </label>
-                  <input
-                    type="number"
-                    name="tenure"
-                    value={updateFormData.tenure}
-                    onChange={handleInputChange}
-                    id="tenure"
-                    placeholder="Enter Tenure in Days"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                  {errors.tenure && (
-                    <p className="text-red-500 text-sm mt-1">{errors.tenure}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="service_charges"
-                  >
-                    Service Charges
-                  </label>
-                  <input
-                    type="number"
-                    name="service_charges"
-                    value={updateFormData.service_charges}
-                    onChange={handleInputChange}
-                    id="service_charges"
-                    placeholder="Enter Service Charges"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                  {errors.service_charges && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.service_charges}
-                    </p>
-                  )}
-                </div>
-
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="daily_payment_amount"
-                  >
-                    Daily Payment Amount
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="Daily Payment Amount"
-                    name="daily_payment_amount"
-                    value={updateFormData.daily_payment_amount}
-                    onChange={handleInputChange}
-                    id="daily_payment_amount"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue rounded-lg  w-full p-2.5"
-                  />
-                  {errors.daily_payment_amount && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.daily_payment_amount}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="start_date"
-                  >
-                    Start Date
-                  </label>
-                  <input
-                    type="date"
-                    name="start_date"
-                    value={updateFormData.start_date}
-                    onChange={handleInputChange}
-                    id="start_date"
-                    placeholder="Enter the Date"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                  {errors.start_date && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.start_date}
-                    </p>
-                  )}
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="end_date"
-                  >
-                    End Date
-                  </label>
-                  <input
-                    type="date"
-                    name="end_date"
-                    value={updateFormData.end_date}
-                    onChange={handleInputChange}
-                    id="end_date"
-                    placeholder="Enter End Date"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                  {errors.end_date && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.end_date}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="note"
-                >
-                  Note
-                </label>
-                <div className="flex w-full gap-2">
-                  <input
-                    type="text"
-                    name="note"
-                    value={updateFormData.note}
-                    onChange={handleInputChange}
-                    id="note"
-                    placeholder="Specify Note if any!"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full  p-2.5"
-                  />
-                  <div
-                    className="bg-blue-700 hover:bg-blue-800 w-10 h-10 flex justify-center items-center rounded-md"
-                    onClick={() => {
-                      window.open("Calculator:///");
-                    }}
-                  >
-                    <FaCalculator color="white" />
-                  </div>
-                </div>
-              </div>
-              <div className="w-full flex justify-end">
-                <button
-                  type="submit"
-                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
-              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
-                >
-                  Update Loan
-                </button>
-              </div>
-            </form>
-          </div>
-        </Modal>
-        <Modal
-          isVisible={showModalDelete}
-          onClose={() => {
-            setShowModalDelete(false);
-            setCurrentBorrower(null);
-          }}
-        >
-          <div className="py-6 px-5 lg:px-8 text-left">
-            <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Delete Borrower
-            </h3>
-            {currentBorrower && (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleDeleteBorrower();
-                }}
-                className="space-y-6"
-              >
-                <div>
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="groupName"
-                  >
-                    Please enter{" "}
-                    <span className="text-primary font-bold">
-                      {currentBorrower?.borrower?.full_name}
-                    </span>{" "}
-                    to confirm deletion.
-                  </label>
-                  <input
-                    type="text"
-                    id="borrowerName"
-                    placeholder="Enter the Borrower Name"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full text-white bg-red-700 hover:bg-red-800
-          focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                >
-                  Delete
-                </button>
-              </form>
+            ) : (
+              <DataTable
+                catcher="_id"
+                updateHandler={handleUpdateModalOpen}
+                data={filterOption(tableBorrowers, searchText)}
+                columns={columns}
+                exportedFileName={`Groups-${
+                  tableBorrowers.length > 0
+                    ? tableBorrowers[0].date +
+                      " to " +
+                      tableBorrowers[tableBorrowers.length - 1].date
+                    : "empty"
+                }.csv`}
+              />
             )}
           </div>
-        </Modal>
+        </div>
       </div>
+
     
+      <Modal
+        isVisible={showModalUpdate}
+        onClose={() => setShowModalUpdate(false)}
+      >
+        <div className="py-6 px-5 lg:px-8 text-left">
+          <h3 className="mb-4 text-xl font-bold text-gray-900">Update Loan</h3>
+          <form className="space-y-6" onSubmit={handleUpdate} noValidate>
+            <div>
+              <label
+                className="block mb-2 text-sm font-medium text-gray-900"
+                htmlFor="borrower_name"
+              >
+                Select Borrower Name
+              </label>
+              {/* <select
+                name="borrower"
+                id="borrower"
+                value={updateFormData.borrower}
+                onChange={handleChange}
+                required
+                className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+              >
+                <option value="" selected hidden>
+                  Select Borrower Name
+                </option>
+                {users.map((user) => (
+                  <option value={user?._id}>{user?.full_name}</option>
+                ))}
+              </select> */}
+              <Select
+                className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                placeholder="Select Or Search Borrower Name"
+                popupMatchSelectWidth={false}
+                showSearch
+                name="borrower"
+                filterOption={(input, option) =>
+                  option.children
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                value={updateFormData?.borrower || undefined}
+                onChange={(value) => handleAntInputDSelect("borrower", value)}
+              >
+                {users.map((user) => (
+                  <Select.Option key={user._id} value={user._id}>
+                    {user.full_name}
+                  </Select.Option>
+                ))}
+              </Select>
+              {errors.borrower && (
+                <p className="text-red-500 text-sm mt-1">{errors.borrower}</p>
+              )}
+            </div>
+
+            <div className="flex flex-row justify-between space-x-4">
+              <div className="w-1/2">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="loan_amount"
+                >
+                  Loan Amount
+                </label>
+                <Input
+                  type="number"
+                  name="loan_amount"
+                  value={updateFormData.loan_amount}
+                  onChange={handleInputChange}
+                  id="loan_amount"
+                  placeholder="Enter Loan Amount"
+                  required
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                />
+                {errors.loan_amount && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.loan_amount}
+                  </p>
+                )}
+              </div>
+              <div className="w-1/2">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="tenure"
+                >
+                  Tenure in Days
+                </label>
+                <Input
+                  type="number"
+                  name="tenure"
+                  value={updateFormData.tenure}
+                  onChange={handleInputChange}
+                  id="tenure"
+                  placeholder="Enter Tenure in Days"
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                />
+                {errors.tenure && (
+                  <p className="text-red-500 text-sm mt-1">{errors.tenure}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-row justify-between space-x-4">
+              <div className="w-1/2">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="service_charges"
+                >
+                  Service Charges
+                </label>
+                <Input
+                  type="number"
+                  name="service_charges"
+                  value={updateFormData.service_charges}
+                  onChange={handleInputChange}
+                  id="service_charges"
+                  placeholder="Enter Service Charges"
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                />
+                {errors.service_charges && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.service_charges}
+                  </p>
+                )}
+              </div>
+
+              <div className="w-1/2">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="daily_payment_amount"
+                >
+                  Daily Payment Amount
+                </label>
+                <Input
+                  type="number"
+                  placeholder="Daily Payment Amount"
+                  name="daily_payment_amount"
+                  value={updateFormData.daily_payment_amount}
+                  onChange={handleInputChange}
+                  id="daily_payment_amount"
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue rounded-lg  w-full p-2.5"
+                />
+                {errors.daily_payment_amount && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.daily_payment_amount}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-row justify-between space-x-4">
+              <div className="w-1/2">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="start_date"
+                >
+                  Start Date
+                </label>
+                <Input
+                  type="date"
+                  name="start_date"
+                  value={updateFormData.start_date}
+                  onChange={handleInputChange}
+                  id="start_date"
+                  placeholder="Enter the Date"
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                />
+                {errors.start_date && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.start_date}
+                  </p>
+                )}
+              </div>
+              <div className="w-1/2">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="end_date"
+                >
+                  End Date
+                </label>
+                <Input
+                  type="date"
+                  name="end_date"
+                  value={updateFormData.end_date}
+                  onChange={handleInputChange}
+                  id="end_date"
+                  placeholder="Enter End Date"
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                />
+                {errors.end_date && (
+                  <p className="text-red-500 text-sm mt-1">{errors.end_date}</p>
+                )}
+              </div>
+            </div>
+            <div>
+              <label
+                className="block mb-2 text-sm font-medium text-gray-900"
+                htmlFor="note"
+              >
+                Note
+              </label>
+              <div className="flex w-full gap-2">
+                <Input
+                  type="text"
+                  name="note"
+                  value={updateFormData.note}
+                  onChange={handleInputChange}
+                  id="note"
+                  placeholder="Specify Note if any!"
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full  p-2.5"
+                />
+                <div
+                  className="bg-blue-700 hover:bg-blue-800 w-10 h-10 flex justify-center items-center rounded-md"
+                  onClick={() => {
+                    window.open("Calculator:///");
+                  }}
+                >
+                  <FaCalculator color="white" />
+                </div>
+              </div>
+            </div>
+            <div className="w-full flex justify-end">
+              <button
+                type="submit"
+                className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
+              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
+              >
+                Update Loan
+              </button>
+            </div>
+          </form>
+        </div>
+      </Modal>
+      <Modal
+        isVisible={showModalDelete}
+        onClose={() => {
+          setShowModalDelete(false);
+          setCurrentBorrower(null);
+        }}
+      >
+        <div className="py-6 px-5 lg:px-8 text-left">
+          <h3 className="mb-4 text-xl font-bold text-gray-900">
+            Delete Borrower
+          </h3>
+          {currentBorrower && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleDeleteBorrower();
+              }}
+              className="space-y-6"
+            >
+              <div>
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="groupName"
+                >
+                  Please enter{" "}
+                  <span className="text-primary font-bold">
+                    {currentBorrower?.borrower?.full_name}
+                  </span>{" "}
+                  to confirm deletion.
+                </label>
+                <Input
+                  type="text"
+                  id="borrowerName"
+                  placeholder="Enter the Borrower Name"
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full text-white bg-red-700 hover:bg-red-800
+          focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+              >
+                Delete
+              </button>
+            </form>
+          )}
+        </div>
+      </Modal>
+    </div>
   );
 };
 

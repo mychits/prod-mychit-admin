@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import api from "../instance/TokenInstance";
 import Modal from "../components/modals/Modal";
+//import PaymentModal from "../components/modals/PaymentModal";
 import UploadModal from "../components/modals/UploadModal";
 import DataTable from "../components/layouts/Datatable";
 import { BiPrinter } from "react-icons/bi";
@@ -14,7 +15,7 @@ import { FaWhatsappSquare } from "react-icons/fa";
 import PrintModal from "../components/modals/PrintModal";
 import PaymentPrint from "../components/printFormats/PaymentPrint";
 import Navbar from "../components/layouts/Navbar";
-import { Select, Dropdown } from "antd";
+import { Select, Dropdown,Modal as AntModal } from "antd";
 import { IoMdMore } from "react-icons/io";
 import { Link } from "react-router-dom";
 import dataPaymentsFor from "../data/paymentsFor";
@@ -29,28 +30,35 @@ const Payment = () => {
   const [selectedAuctionGroupId, setSelectedAuctionGroupId] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [userName, setUserName] = useState("");
+
   const [filteredAuction, setFilteredAuction] = useState([]);
   const [groupInfo, setGroupInfo] = useState({});
   const [showModal, setShowModal] = useState(false);
+
   const [showModalDelete, setShowModalDelete] = useState(false);
+  const [currentUpdateAmount, setCurrentUpdateAmount] = useState(false);
+  //const [showModalView, setShowModelView] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
-  const [showModalUpdate, setShowModalUpdate] = useState(false);
-  const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
+  const [showModalView, setShowModalView] = useState(false);
+  const [currentViewGroup, setCurrentViewGroup] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [receiptNo, setReceiptNo] = useState("");
   const whatsappEnable = true;
   const [paymentMode, setPaymentMode] = useState("cash");
   const today = new Date().toISOString().split("T")[0];
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [paymentFor, setPaymentFor] = useState(dataPaymentsFor.typeChit);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [borrowers, setBorrowers] = useState([]);
   const [pigmeCustomers, setPigmeCustomers] = useState([]);
   const [enableGroupColumn, setEnableGroupColumn] = useState(true);
   const [paymentGroupTickets, setPaymentGroupTickets] = useState([]);
   const [render, setRerender] = useState(0);
   const [openBackdropLoader, setOpenBackdropLoader] = useState(false);
+  const [currentGroupId, setCurrentGroupId] = useState(null);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -72,6 +80,10 @@ const Payment = () => {
     transaction_id: "",
     payment_group_tickets: [],
   });
+  const [updateFormData, setUpdateFormData] = useState({
+    amount: "",
+    pay_date: "",
+  });
   // const [showPrintModal, setShowPrintModal] = useState(false);
   const [modifyPayment, setModifyPayment] = useState(false);
   // const [printDetails, setPrintDetails] = useState({
@@ -89,7 +101,6 @@ const Payment = () => {
   const handleUploadModalClose = () => {
     setShowUploadModal(false);
   };
-
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -152,8 +163,30 @@ const Payment = () => {
                   <Dropdown
                     menu={{
                       items: [
+                        // {
+                        //   key: "1",
+                        //   label: (
+                        //     <div
+                        //       className="text-orange-600 "
+                        //       onClick={() => handleEditAmountModalOpen(group._id)}
+                        //     >
+                        //       Edit
+                        //     </div>
+                        //   ),
+                        // },
                         {
-                          key: "1",
+                          key: "2",
+                          label: (
+                            <div
+                              className="text-green-600 "
+                              onClick={() => handleViewModalOpen(group._id)}
+                            >
+                              View
+                            </div>
+                          ),
+                        },
+                        {
+                          key: "3",
                           label: (
                             <Link
                               to={`/print/${group._id}`}
@@ -164,7 +197,7 @@ const Payment = () => {
                           ),
                         },
                         {
-                          key: "2",
+                          key: "4",
                           label: (
                             <div
                               className="text-red-600 "
@@ -389,6 +422,15 @@ const Payment = () => {
       setGroupInfo({});
     }
   };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
   const handleCustomer = async (groupId) => {
     setSelectedGroupId(groupId);
     setFormData((prevFormData) => ({
@@ -480,6 +522,28 @@ const Payment = () => {
                               onClick={() => handleDeleteModalOpen(group._id)}
                             >
                               Delete
+                            </div>
+                          ),
+                        },
+                        {
+                          key: "3",
+                          label: (
+                            <div
+                              className="text-green-600 "
+                              onClick={() => handleViewModalOpen(group._id)}
+                            >
+                              View
+                            </div>
+                          ),
+                        },
+                        {
+                          key: "4",
+                          label: (
+                            <div
+                              className="text-blue-600 "
+                              onClick={() => handleUpdateModalOpen(group._id)}
+                            >
+                              Update Amount
                             </div>
                           ),
                         },
@@ -691,6 +755,16 @@ const Payment = () => {
     }
   };
 
+  // const handleViewModalOpen = async (groupId) => {
+  //   try {
+  //     const response = await api.get(`/payment/get-payment-by-id/${groupId}`);
+  //     setCurrentGroup(response.data);
+  //     setShowModelView(true);
+
+  //   }catch (error) {
+  //     console.error("Error view Payment Details:", error);
+  // }
+
   const handleDeleteAuction = async () => {
     if (currentGroup) {
       try {
@@ -709,15 +783,99 @@ const Payment = () => {
     }
   };
 
-  // const handleUpdateModalOpen = async (groupId) => {
+  // const handleViewModalOpen = async (groupId) => {
   //   try {
-  //     const response = await api.get(`/auction/get-auction-by-id/${groupId}`);
-  //     setCurrentUpdateGroup(response.data);
-  //     setShowModalUpdate(true);
+  //     const response = await api.get(`/payment/get-payment-by-id/${groupId}`);
+  //     setCurrentViewGroup(response.data);
+  //     setShowModalView(true);
   //   } catch (error) {
   //     console.error("Error fetching auction:", error);
   //   }
   // };
+
+  //   const handleViewModalOpen = async (groupId) => {
+  //   try {
+  //     setLoading(true);
+  //     setShowModalView(false); // Ensure modal resets before reopening
+  //     setCurrentGroupId(groupId);
+
+  //     const response = await api.get(`/payment/get-payment-by-id/${groupId}`);
+  //     setCurrentViewGroup(response.data);
+
+  //     setTimeout(() => {
+  //       setShowModalView(true);
+  //     }, 100);
+  //   } catch (error) {
+  //     console.error("Error fetching auction:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const handleViewModalOpen = async (groupId) => {
+    try {
+      setLoading(true);
+      setShowModalView(true);
+      setCurrentGroupId(groupId);
+
+      const response = await api.get(`/payment/get-payment-by-id/${groupId}`);
+      setCurrentViewGroup(response.data);
+    } catch (error) {
+      console.error("Error viewing Payment:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateModalOpen = async (groupId) => {
+    try {
+      const response = await api.get(`/payment/get-payment-by-id/${groupId}`);
+      setCurrentUpdateAmount(response.data);
+      setUpdateFormData({
+        amount: response?.data?.amount,
+        pay_date: response?.data?.pay_date.split("T")[0],
+      });
+      setShowUpdateModal(true);
+    } catch (error) {
+      console.error("Error fetching Payment Amount data:", error);
+    }
+  };
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      await api.put(
+        `/payment/update-payment-amount/${currentUpdateAmount._id}`,
+        updateFormData
+      );
+      setShowUpdateModal(false);
+      
+
+      setAlertConfig({
+        visibility: true,
+        message: "Payment Amount Updated Successfully",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error updating Payment Amount:", error);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setAlertConfig({
+          visibility: true,
+          message: `${error?.response?.data?.message}`,
+          type: "error",
+        });
+      } else {
+        setAlertConfig({
+          visibility: true,
+          message: "An unexpected error occurred. Please try again.",
+          type: "error",
+        });
+      }
+    }
+  };
 
   const handleFileSubmit = async (e) => {
     e.preventDefault();
@@ -806,7 +964,7 @@ const Payment = () => {
             />
             <div className="flex-grow p-7">
               <h1 className="text-2xl font-semibold">Payments</h1>
-              <div className="mt-6 mb-8">
+              <div className="mt-6  mb-8">
                 <div className="mb-10">
                   <label className="font-bold">Search or Select Group</label>
                   <div className="flex justify-between items-center w-full">
@@ -814,7 +972,7 @@ const Payment = () => {
                       placeholder="Today's Payment"
                       popupMatchSelectWidth={false}
                       showSearch
-                      className="w-full max-w-md"
+                      className="w-full  h-14 max-w-md"
                       filterOption={(input, option) =>
                         option.children
                           .toString()
@@ -957,17 +1115,23 @@ const Payment = () => {
                       value={paymentGroupTickets}
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     >
-                       {filteredAuction.map((entry, index) => {
-                       const groupName = entry?.enrollment?.group?.group_name || "Unnamed Group";
-                       const groupId = entry?.enrollment?.group?._id || `missing-${index}`;
-                       const ticket = entry?.enrollment?.tickets || "Unknown";
-                     
-                       return (
-                         <Select.Option key={`chit-${groupId}|${ticket}`} value={`chit-${groupId}|${ticket}`}>
-                           {groupName} | {ticket}
-                         </Select.Option>
-                       );
-                     })}
+                      {filteredAuction.map((entry, index) => {
+                        const groupName =
+                          entry?.enrollment?.group?.group_name ||
+                          "Unnamed Group";
+                        const groupId =
+                          entry?.enrollment?.group?._id || `missing-${index}`;
+                        const ticket = entry?.enrollment?.tickets || "Unknown";
+
+                        return (
+                          <Select.Option
+                            key={`chit-${groupId}|${ticket}`}
+                            value={`chit-${groupId}|${ticket}`}
+                          >
+                            {groupName} | {ticket}
+                          </Select.Option>
+                        );
+                      })}
                       {pigmeCustomers?.map((pigme) => {
                         return (
                           <Select.Option value={`pigme-${pigme._id}`}>
@@ -1135,6 +1299,181 @@ const Payment = () => {
                 </form>
               </div>
             </Modal>
+            {/* <Modal
+              isVisible={showUpdatemodal}
+              onClose={() => {
+                setSelectedGroupId("");
+                setShowUpdateModal(false);
+                setErrors({});
+                setPaymentGroupTickets([]);
+              }}
+            >
+              <div className="py-6 px-5 lg:px-8 text-left">
+                <h3 className="mb-4 text-xl font-bold text-gray-900">
+                  Update payment
+                </h3>
+                <form className="space-y-6" onSubmit={handleUpdate} noValidate>
+                  <div className="flex flex-row justify-between space-x-4">
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="pay_date"
+                      >
+                        Payment Date
+                      </label>
+                      <input
+                        type="date"
+                        name="pay_date"
+                        id="pay_date"
+                        value={
+                          updateFormData?.pay_date
+                            ? new Date(updateFormData.pay_date)
+                                .toISOString()
+                                .split("T")[0]
+                            : ""
+                        }
+                        onChange={handleInputChange}
+                        placeholder="Update payDate"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+
+                      {errors.pay_date && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.pay_date}
+                        </p>
+                      )}
+                    </div>
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="group_value"
+                      >
+                        Amount <span className="text-red-500 ">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        name="amount"
+                        value={updateFormData?.amount}
+                        id="amount"
+                        onChange={handleInputChange}
+                        placeholder="Enter Amount"
+                        required
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+
+                      {errors.amount && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.amount}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="w-full flex justify-end">
+                    <button
+                      type="submit"
+                      className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+                              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                    >
+                      Update Payment
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </Modal> */}
+            <Modal
+              // isVisible={showUpdatemodal}
+              // onClose={() => {
+              //   setSelectedGroupId("");
+              //   setShowUpdateModal(false);
+              //   setErrors({});
+              //   setPaymentGroupTickets([]);
+              // }}
+               isVisible={showUpdateModal}
+              onClose={() => {
+                setSelectedGroupId("");
+                setShowUpdateModal(false);
+                setErrors({});
+                setPaymentGroupTickets([]);
+              }}
+            >
+              <div className="py-6 px-5 lg:px-8 text-left">
+                <h3 className="mb-4 text-xl font-bold text-gray-900">
+                  Update
+                </h3>
+
+                <form className="space-y-6" onSubmit={handleUpdate} noValidate>
+                  <div className="flex flex-row justify-between space-x-4">
+                    {/* Payment Date */}
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="pay_date"
+                      >
+                        Payment Date
+                      </label>
+                      <input
+                        type="date"
+                        name="pay_date"
+                        id="pay_date"
+                        value={
+                          updateFormData?.pay_date &&
+                          !isNaN(new Date(updateFormData.pay_date))
+                            ? new Date(updateFormData.pay_date)
+                                .toISOString()
+                                .split("T")[0]
+                            : ""
+                        }
+                        onChange={handleInputChange}
+                        placeholder="Update payDate"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+                      {errors.pay_date && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.pay_date}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Amount */}
+                    <div className="w-1/2">
+                      <label
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                        htmlFor="amount"
+                      >
+                        Amount <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        name="amount"
+                        id="amount"
+                        value={updateFormData?.amount || ""}
+                        onChange={handleInputChange}
+                        placeholder="Enter Amount"
+                        required
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      />
+                      {errors.amount && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.amount}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="w-full flex justify-end">
+                    <button
+                      type="submit"
+                      className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+            focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                    >
+                      Update
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </Modal>
+
             {/* <PrintModal
             isVisible={showPrintModal}
             onClose={printModalOnCloseHandler}
@@ -1142,14 +1481,13 @@ const Payment = () => {
             <PaymentPrint printDetails={printDetails} />
           </PrintModal> */}
 
-            <Modal
-              isVisible={showModalUpdate}
-              onClose={() => setShowModalUpdate(false)}
+            {/* <PaymentModal
+              isVisible={showModalView}
+              onClose={() => setShowModalView(false)}
+              onReload={() => handleViewModalOpen(currentGroupId)}
+              loading={loading}
             >
               <div className="py-6 px-5 lg:px-8 text-left">
-                <h3 className="mb-4 text-xl font-bold text-gray-900">
-                  View Auction
-                </h3>
                 <form className="space-y-6" onSubmit={() => {}} noValidate>
                   <div>
                     <label
@@ -1161,7 +1499,7 @@ const Payment = () => {
                     <input
                       type="text"
                       name="group_id"
-                      value={currentUpdateGroup?.group_id?.group_name}
+                      value={currentViewGroup?.group_id?.group_name}
                       onChange={() => {}}
                       id="name"
                       placeholder="Enter the Group Name"
@@ -1180,7 +1518,7 @@ const Payment = () => {
                       <input
                         type="text"
                         name="group_value"
-                        value={currentUpdateGroup?.group_id?.group_value}
+                        value={currentViewGroup?.group_id?.group_value}
                         id="group_value"
                         placeholder="select group to check"
                         readOnly
@@ -1197,7 +1535,7 @@ const Payment = () => {
                       <input
                         type="text"
                         name="group_install"
-                        value={currentUpdateGroup?.group_id?.group_install}
+                        value={currentViewGroup?.group_id?.group_install}
                         id="group_install"
                         placeholder="select group to check"
                         readOnly
@@ -1215,7 +1553,7 @@ const Payment = () => {
                     <input
                       type="text"
                       name="group_id"
-                      value={`${currentUpdateGroup?.user_id?.full_name} | ${currentUpdateGroup?.ticket}`}
+                      value={`${currentViewGroup?.user_id?.full_name} | ${currentViewGroup?.ticket}`}
                       onChange={() => {}}
                       id="name"
                       placeholder="Enter the User Name"
@@ -1235,8 +1573,8 @@ const Payment = () => {
                       type="number"
                       name="bid_amount"
                       value={
-                        currentUpdateGroup?.group_id?.group_value -
-                        currentUpdateGroup?.win_amount
+                        currentViewGroup?.group_id?.group_value -
+                        currentViewGroup?.win_amount
                       }
                       onChange={() => {}}
                       id="name"
@@ -1256,7 +1594,7 @@ const Payment = () => {
                       <input
                         type="text"
                         name="commission"
-                        value={currentUpdateGroup?.commission}
+                        value={currentViewGroup?.commission}
                         id="commission"
                         placeholder=""
                         readOnly
@@ -1273,7 +1611,7 @@ const Payment = () => {
                       <input
                         type="text"
                         name="win_amount"
-                        value={currentUpdateGroup?.win_amount}
+                        value={currentViewGroup?.win_amount}
                         id="win_amount"
                         placeholder=""
                         readOnly
@@ -1292,7 +1630,7 @@ const Payment = () => {
                       <input
                         type="text"
                         name="divident"
-                        value={currentUpdateGroup?.divident}
+                        value={currentViewGroup?.divident}
                         id="divident"
                         placeholder=""
                         readOnly
@@ -1309,7 +1647,7 @@ const Payment = () => {
                       <input
                         type="text"
                         name="divident_head"
-                        value={currentUpdateGroup?.divident_head}
+                        value={currentViewGroup?.divident_head}
                         id="divident_head"
                         placeholder=""
                         readOnly
@@ -1326,7 +1664,7 @@ const Payment = () => {
                       <input
                         type="text"
                         name="payable"
-                        value={currentUpdateGroup?.payable}
+                        value={currentViewGroup?.payable}
                         id="payable"
                         placeholder=""
                         readOnly
@@ -1345,7 +1683,7 @@ const Payment = () => {
                       <input
                         type="date"
                         name="auction_date"
-                        value={currentUpdateGroup?.auction_date}
+                        value={currentViewGroup?.auction_date}
                         onChange={() => {}}
                         id="date"
                         placeholder="Enter the Date"
@@ -1363,7 +1701,7 @@ const Payment = () => {
                       <input
                         type="date"
                         name="next_date"
-                        value={currentUpdateGroup?.next_date}
+                        value={currentViewGroup?.next_date}
                         onChange={() => {}}
                         id="date"
                         placeholder="Enter the Date"
@@ -1374,7 +1712,40 @@ const Payment = () => {
                   </div>
                 </form>
               </div>
-            </Modal>
+            </PaymentModal> */}
+            {/* <PaymentModal
+  isVisible={showModalView}
+  onClose={() => setShowModalView(false)}
+  onReload={() => handleViewModalOpen(currentGroupId)}
+  loading={loading}
+> */}
+<AntModal  open={showModalView}
+  onCancel={() => setShowModalView(false)}
+  onClose={() => setShowModalView(false)}
+  onOk={() => setShowModalView(false)}
+  onReload={() => handleViewModalOpen(currentGroupId)}
+  >
+    <h3 className="mb-4 text-xl font-bold text-gray-900">Payment Details</h3>
+<div className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5">
+  <div className="mb-3 flex gap-x-2"><strong>Group:   </strong> {currentViewGroup?.group_id?.group_name}</div>
+  <div className="mb-3 flex gap-x-2"><strong>Group Value:</strong> {currentViewGroup?.group_id?.group_value}</div>
+  <div className="mb-3 flex gap-x-2"><strong>Group Installment:</strong> {currentViewGroup?.group_id?.group_install}</div>
+  <div className="mb-3 flex gap-x-2"><strong>User:</strong> {currentViewGroup?.user_id?.full_name} | Ticket: {currentViewGroup?.ticket}</div>
+  <div className="mb-3 flex gap-x-2"><strong>Bid Amount:</strong> {currentViewGroup?.group_id?.group_value - currentViewGroup?.win_amount}</div>
+  <div className="mb-3 flex gap-x-2"><strong>Commission:</strong> {currentViewGroup?.commission}</div>
+  <div className="mb-3 flex gap-x-2"><strong>Winning Amount:</strong> {currentViewGroup?.win_amount}</div>
+  <div className="mb-3 flex gap-x-2"><strong>Divident:</strong> {currentViewGroup?.divident}</div>
+  <div className="mb-3 flex gap-x-2"><strong>Divident per Head:</strong> {currentViewGroup?.divident_head}</div>
+  <div className="mb-3 flex gap-x-2"><strong>Next Payable:</strong> {currentViewGroup?.payable}</div>
+  <div className="mb-3 flex gap-x-2"><strong>Auction Date:</strong> {currentViewGroup?.auction_date}</div>
+  <div className="mb-3 flex gap-x-2"><strong>Next Date:</strong> {currentViewGroup?.next_date}</div>
+  <div className="mb-3 flex gap-x-2"><strong>Created At:</strong> {currentViewGroup?.createdAt?.split("T")[0]}</div>
+  <div className="mb-3 flex gap-x-2"><strong>Updated At:</strong> {currentViewGroup?.updatedAt?.split("T")[0]}</div>
+</div>
+  
+  </AntModal>
+{/* </PaymentModal> */}
+
             <Modal
               isVisible={showModalDelete}
               onClose={() => {

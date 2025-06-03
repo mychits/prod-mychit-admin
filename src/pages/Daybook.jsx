@@ -11,9 +11,8 @@ import axios from "axios";
 import url from "../data/Url";
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
-import { Select,Dropdown } from "antd";
+import { Select, Dropdown } from "antd";
 import Navbar from "../components/layouts/Navbar";
-
 
 import { IoMdMore } from "react-icons/io";
 import { Link } from "react-router-dom";
@@ -37,10 +36,10 @@ const Daybook = () => {
   const [receiptNo, setReceiptNo] = useState("");
   const [paymentMode, setPaymentMode] = useState("cash");
   const today = new Date();
-  const todayString = today.toISOString().split("T")[0]
+  const todayString = today.toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(todayString);
-  const [showFilterField,setShowFilterField] = useState(false)
-  const [isLoading,setIsLoading] = useState(false);
+  const [showFilterField, setShowFilterField] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
   const [selectedCustomers, setSelectedCustomers] = useState("");
   const [payments, setPayments] = useState([]);
@@ -62,7 +61,7 @@ const Daybook = () => {
   });
 
   const handleModalClose = () => setShowUploadModal(false);
- useEffect(() => {
+  useEffect(() => {
     const fetchGroups = async () => {
       try {
         const response = await api.get("/user/get-user");
@@ -73,7 +72,7 @@ const Daybook = () => {
     };
     fetchGroups();
   }, []);
-  
+
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -115,6 +114,13 @@ const Daybook = () => {
     }));
   };
 
+  const dayGroup = [
+    { value: "Today", label: "Today" },
+    { value: "Yesterday", label: "Yesterday" },
+    { value: "Twodaysago", label: "Two days ago" },
+    { value: "Custom", label: "Custom" },
+  ];
+
   const handleChangeUser = (e) => {
     const { name, value } = e.target;
     const [user_id, ticket] = value.split("-");
@@ -125,24 +131,44 @@ const Daybook = () => {
     }));
   };
 
-  const handleSelectFilter = (e) => {
-    const { value } = e.target;
+  // const handleSelectFilter = (e) => {
+  //   const { value } = e.target;
+  //   setShowFilterField(false);
+  //   const formatDate = (date) => date.toISOString().slice(0, 10);
+  //   if (value === "Today") {
+  //     const formattedToday = formatDate(today);
+  //     setSelectedDate(formattedToday);
+  //   } else if (value === "Yesterday") {
+  //     const yesterday = new Date(today);
+  //     yesterday.setDate(yesterday.getDate() - 1);
+  //     const formatted = formatDate(yesterday);
+  //     setSelectedDate(formatted);
+  //   }else if (value === "Custom") {
+  //     setShowFilterField(true);
+  //   }
+  // };
+
+  const handleSelectFilter = (value) => {
     setShowFilterField(false);
+    const today = new Date();
     const formatDate = (date) => date.toISOString().slice(0, 10);
+
     if (value === "Today") {
-      const formattedToday = formatDate(today);
-      setSelectedDate(formattedToday);
+      setSelectedDate(formatDate(today));
     } else if (value === "Yesterday") {
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
-      const formatted = formatDate(yesterday);
-      setSelectedDate(formatted);
-    }else if (value === "Custom") {
+      setSelectedDate(formatDate(yesterday));
+    } else if (value === "Twodaysago") {
+      const twodaysago = new Date(today);
+      twodaysago.setDate(twodaysago.getDate() - 2);
+      setSelectedDate(formatDate(twodaysago));
+    } else if (value === "Custom") {
       setShowFilterField(true);
+    } else {
+      setSelectedDate("");
     }
   };
-
- 
 
   const handleGroup = async (event) => {
     const groupId = event.target.value;
@@ -171,8 +197,6 @@ const Daybook = () => {
     setSelectedAuctionGroupId(groupId);
   };
 
-
-
   useEffect(() => {
     const fetchPayments = async () => {
       try {
@@ -194,41 +218,44 @@ const Daybook = () => {
           );
           setPayments(totalAmount || 0);
           const formattedData = response.data.map((group, index) => ({
-            _id:group._id,
+            _id: group._id,
             id: index + 1,
             group: group?.group_id?.group_name || group?.pay_for,
             name: group?.user_id?.full_name,
-            category:group?.pay_for || "Chit",
+            category: group?.pay_for || "Chit",
             phone_number: group?.user_id.phone_number,
             ticket: group?.ticket,
             receipt: group?.receipt_no,
-            old_receipt_no:group?.old_receipt_no,
+            old_receipt_no: group?.old_receipt_no,
             amount: group?.amount,
             mode: group?.pay_type,
-            collected_by: group?.collected_by?.name ||
-            group?.admin_type?.admin_name ||
-            "Super Admin",
-            action:( <Dropdown
-                              menu={{
-                                items: [
-                                  {
-                                    key: "1",
-                                    label: (
-                                      <Link
-                                      target="_blank"
-                                        to={`/print/${group._id}`}
-                                        className="text-blue-600 "
-                                      >
-                                        Print
-                                      </Link>
-                                    ),
-                                  },
-                                ],
-                              }}
-                              placement="bottomLeft"
-                            >
-                              <IoMdMore className="text-bold" />
-                            </Dropdown>)
+            collected_by:
+              group?.collected_by?.name ||
+              group?.admin_type?.admin_name ||
+              "Super Admin",
+            action: (
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: (
+                        <Link
+                          target="_blank"
+                          to={`/print/${group._id}`}
+                          className="text-blue-600 "
+                        >
+                          Print
+                        </Link>
+                      ),
+                    },
+                  ],
+                }}
+                placement="bottomLeft"
+              >
+                <IoMdMore className="text-bold" />
+              </Dropdown>
+            ),
           }));
           setTableDaybook(formattedData);
         } else {
@@ -238,8 +265,8 @@ const Daybook = () => {
         console.error("Error fetching payment data:", error);
         setFilteredAuction([]);
         setPayments(0);
-      }finally{
-        setIsLoading(false)
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -378,15 +405,18 @@ const Daybook = () => {
     <>
       <div className="w-screen">
         <div className="flex mt-30">
-          <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
+          <Navbar
+            onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+            visibility={true}
+          />
           <div className="flex-grow p-7">
             <h1 className="text-2xl font-semibold">Reports - Daybook</h1>
             <div className="mt-6 mb-8">
               <div className="mb-2">
                 <div className="flex justify-start items-center w-full gap-4">
-                    <div className="mb-2">
+                  <div className="mb-2">
                     <label>Filter Option</label>
-                    <select
+                    {/* <select
                       onChange={handleSelectFilter}
                       className="border border-gray-300 rounded px-6 shadow-sm outline-none w-full max-w-md"
                     >
@@ -394,19 +424,39 @@ const Daybook = () => {
                       <option value="Yesterday">Yesterday</option>
                     
                       <option value="Custom">Custom</option>
-                    </select>
+                    </select> */}
+                    <Select
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      onChange={handleSelectFilter}
+                      placeholder="Search Or Select Filter"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      className="w-full max-w-xs h-11"
+                    >
+                      {dayGroup.map((time) => (
+                        <Select.Option key={time.value} value={time.value}>
+                          {time.label}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </div>
-                  
-                 { showFilterField &&<div className="mb-2">
-                    
-                    <label>Date</label>
-                    <input
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
-                    />
-                  </div>}
+
+                  {showFilterField && (
+                    <div className="mb-2">
+                      <label>Date</label>
+                      <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full max-w-xs"
+                      />
+                    </div>
+                  )}
                   <div className="mb-2 flex flex-col">
                     <label>Group</label>
                     <Select
@@ -486,10 +536,10 @@ const Daybook = () => {
                   </div>
                 </div>
               </div>
-              {filteredAuction && (filteredAuction.length > 0) && !isLoading ? (
+              {filteredAuction && filteredAuction.length > 0 && !isLoading ? (
                 <div className="mt-10">
                   <DataTable
-                    data={filterOption(TableDaybook,searchText)}
+                    data={filterOption(TableDaybook, searchText)}
                     columns={columns}
                     exportedFileName={`Daybook-${
                       TableDaybook.length > 0
@@ -499,18 +549,21 @@ const Daybook = () => {
                         : "empty"
                     }.csv`}
                   />
-                   <div className="flex justify-end mt-4 pr-4">
-    <span className="text-lg font-semibold">
-      Total Amount: ₹{payments}
-    </span>
-  </div>
+                  <div className="flex justify-end mt-4 pr-4">
+                    <span className="text-lg font-semibold">
+                      Total Amount: ₹{payments}
+                    </span>
+                  </div>
                 </div>
               ) : (
-                <CircularLoader isLoading={isLoading} failure={(filteredAuction.length <= 0)}/>
+                <CircularLoader
+                  isLoading={isLoading}
+                  failure={filteredAuction.length <= 0}
+                />
               )}
             </div>
           </div>
-          
+
           <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
             <div className="py-6 px-5 lg:px-8 text-left">
               <h3 className="mb-4 text-xl font-bold text-gray-900">
