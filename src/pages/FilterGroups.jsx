@@ -4,12 +4,13 @@ import Sidebar from "../components/layouts/Sidebar";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import { Dropdown } from "antd";
+import { Input,Select, Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+import { fieldSize } from "../data/fieldSize";
 const FilterGroups = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
@@ -65,6 +66,34 @@ const FilterGroups = () => {
     reg_fee: "",
     filter_group: "",
   });
+
+  const groupOptions = [
+    { value: "NewGroups", label: "New Groups" },
+    { value: "OngoingGroups", label: "Ongoing Groups" },
+  ];
+
+  const groupType = [{value: "divident", label: "Divident Group"},
+                     {value: "double", label: "Double Group"},
+  ]
+  const handleAntDSelect = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [field]: "",
+    }));
+  };
+      const handleAntInputDSelect = (field, value) => {
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors({ ...errors, [field]: "" });
+  };
   const handleShareClick = (groupId) => {
     if (!groupId) {
       console.error("Missing or invalid groupId");
@@ -82,7 +111,7 @@ const FilterGroups = () => {
     window.open(fullUrl, "_blank");
   };
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchGroups = async () => {
       try {
         setIsLoading(true);
@@ -111,6 +140,7 @@ const FilterGroups = () => {
               </button> */}
 
               <Dropdown
+              trigger={['click']}
                 menu={{
                   items: [
                     {
@@ -321,8 +351,6 @@ const FilterGroups = () => {
     }
   };
 
-
-
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -338,12 +366,11 @@ const FilterGroups = () => {
   };
 
   const handleUpdateModalOpen = async (groupId) => {
-    
     try {
       const response = await api.get(`/group/get-by-id-group/${groupId}`);
       const groupData = response.data;
-      const formattedStartDate = groupData.start_date.split("T")[0];
-      const formattedEndDate = groupData.end_date.split("T")[0];
+      const formattedStartDate = groupData?.start_date?.split("T")[0];
+      const formattedEndDate = groupData?.end_date?.split("T")[0];
       setCurrentUpdateGroup(response.data);
       setUpdateFormData({
         group_name: response?.data?.group_name,
@@ -390,7 +417,7 @@ const FilterGroups = () => {
           type: "success",
           visibility: true,
         });
-        
+
         setShowModalDelete(false);
         setCurrentGroup(null);
       } catch (error) {
@@ -470,7 +497,7 @@ const FilterGroups = () => {
               </div>
             </div>
 
-            {(TableGroups.length > 0   && !isLoading)? (
+            {TableGroups.length > 0 && !isLoading ? (
               <DataTable
                 catcher="_id"
                 updateHandler={handleUpdateModalOpen}
@@ -504,7 +531,7 @@ const FilterGroups = () => {
                 >
                   Filter Groups <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   name="filter_group"
                   id="filter"
                   value={formData.filter_group}
@@ -516,7 +543,28 @@ const FilterGroups = () => {
                   <option value="AllGroups">All Groups</option>
                   <option value="NewGroups">New Groups</option>
                   <option value="OngoingGroups">Ongoing Groups</option>
-                </select>
+                </select> */}
+
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Filter Groups"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="filter_group"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={formData?.filter_group || undefined}
+                  onChange={(value) =>
+                    handleAntDSelect("filter_group", value)
+                  }
+                >
+                  {groupOptions.map((option) => (
+                    <Select.Option key={option.value} value={option.value}>
+                      {option.label}
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
               <div>
                 <label
@@ -525,7 +573,7 @@ const FilterGroups = () => {
                 >
                   Group Name <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="group_name"
                   value={formData.group_name}
@@ -533,7 +581,7 @@ const FilterGroups = () => {
                   id="name"
                   placeholder="Enter the Group Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.group_name && (
                   <p className="text-red-500 text-sm mt-1">
@@ -549,7 +597,7 @@ const FilterGroups = () => {
                 >
                   Group Type <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   name="group_type"
                   id="category"
                   value={formData.group_type}
@@ -560,7 +608,27 @@ const FilterGroups = () => {
                   <option value="">Select Group Type</option>
                   <option value="divident">Divident Group</option>
                   <option value="double">Double Group</option>
-                </select>
+                </select> */}
+                 <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Group Type"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="group_type"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={formData?.group_type || undefined}
+                  onChange={(value) =>
+                    handleAntDSelect("group_type", value)
+                  }
+                >
+                  {groupType.map((option) => (
+                    <Select.Option key={option.value} value={option.value}>
+                      {option.label}
+                    </Select.Option>
+                  ))}
+                </Select>
                 {errors.group_type && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.group_type}
@@ -575,7 +643,7 @@ const FilterGroups = () => {
                   >
                     Group Value <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="group_value"
                     value={formData.group_value}
@@ -583,7 +651,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Group Value"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_value && (
                     <p className="text-red-500 text-sm mt-1">
@@ -599,7 +667,7 @@ const FilterGroups = () => {
                     Group Installment Amount{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="group_install"
                     value={formData.group_install}
@@ -607,7 +675,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Group Installment Amount"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_install && (
                     <p className="text-red-500 text-sm mt-1">
@@ -624,7 +692,7 @@ const FilterGroups = () => {
                   >
                     Group Members <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="group_members"
                     value={formData.group_members}
@@ -632,7 +700,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Group Members"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_members && (
                     <p className="text-red-500 text-sm mt-1">
@@ -647,7 +715,7 @@ const FilterGroups = () => {
                   >
                     Group Duration <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="group_duration"
                     value={formData.group_duration}
@@ -655,7 +723,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Group Duration"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_duration && (
                     <p className="text-red-500 text-sm mt-1">
@@ -672,7 +740,7 @@ const FilterGroups = () => {
                   >
                     Registration Fee <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="reg_fee"
                     value={formData.reg_fee}
@@ -680,7 +748,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Registration Fee"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.reg_fee && (
                     <p className="text-red-500 text-sm mt-1">
@@ -697,7 +765,7 @@ const FilterGroups = () => {
                   >
                     Start Date <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="start_date"
                     value={formData.start_date}
@@ -705,7 +773,7 @@ const FilterGroups = () => {
                     id="date"
                     placeholder="Enter the Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.start_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -720,7 +788,7 @@ const FilterGroups = () => {
                   >
                     End Date
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="end_date"
                     value={formData.end_date}
@@ -728,7 +796,7 @@ const FilterGroups = () => {
                     id="date"
                     placeholder="Enter the Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.end_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -745,7 +813,7 @@ const FilterGroups = () => {
                   >
                     Minimum Bid <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="minimum_bid"
                     value={formData.minimum_bid}
@@ -753,7 +821,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Minimum Bid"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.minimum_bid && (
                     <p className="text-red-500 text-sm mt-1">
@@ -768,7 +836,7 @@ const FilterGroups = () => {
                   >
                     Maximum Bid <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="maximum_bid"
                     value={formData.maximum_bid}
@@ -776,7 +844,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Maximum Bid"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.maximum_bid && (
                     <p className="text-red-500 text-sm mt-1">
@@ -790,26 +858,26 @@ const FilterGroups = () => {
                   <label className="block mb-2 text-sm font-medium text-gray-900">
                     Commission %
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="commission"
                     value={formData.commission}
                     onChange={handleChange}
                     placeholder="Enter Commission"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm font-medium text-gray-900">
                     Incentives
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="incentives"
                     value={formData.incentives}
                     onChange={handleChange}
                     placeholder="Enter Incentives"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>
@@ -835,14 +903,14 @@ const FilterGroups = () => {
               Update Group
             </h3>
             <form className="space-y-6" onSubmit={handleUpdate} noValidate>
-               <div className="w-full">
+              <div className="w-full">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="filter"
                 >
-                  Filter Groups  <span className="text-red-500 ">*</span>
+                  Filter Groups <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   name="filter_group"
                   id="filter"
                   value={updateFormData.filter_group}
@@ -854,8 +922,27 @@ const FilterGroups = () => {
                   <option value="AllGroups">All Groups</option>
                   <option value="NewGroups">New Groups</option>
                   <option value="OngoingGroups">Ongoing Groups</option>
-                </select>
-               
+                </select> */}
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Filter Groups"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="filter_group"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.filter_group || undefined}
+                  onChange={(value) =>
+                    handleAntInputDSelect("filter_group", value)
+                  }
+                >
+                  {groupOptions.map((option) => (
+                    <Select.Option key={option.value} value={option.value}>
+                      {option.label}
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
               <div>
                 <label
@@ -864,7 +951,7 @@ const FilterGroups = () => {
                 >
                   Group Name <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="group_name"
                   value={updateFormData.group_name}
@@ -872,7 +959,7 @@ const FilterGroups = () => {
                   id="name"
                   placeholder="Enter the Group Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.group_name && (
                   <p className="text-red-500 text-sm mt-1">
@@ -887,7 +974,7 @@ const FilterGroups = () => {
                 >
                   Group Type <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   name="group_type"
                   value={updateFormData.group_type || ""}
                   onChange={handleInputChange}
@@ -898,7 +985,27 @@ const FilterGroups = () => {
                   <option value="">Select Group Type</option>
                   <option value="divident">Dividend Group</option>
                   <option value="double">Double Group</option>
-                </select>
+                </select> */}
+                 <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Group Type"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="group_type"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.group_type || undefined}
+                  onChange={(value) =>
+                    handleAntInputDSelect("group_type", value)
+                  }
+                >
+                  {groupType.map((option) => (
+                    <Select.Option key={option.value} value={option.value}>
+                      {option.label}
+                    </Select.Option>
+                  ))}
+                </Select>
                 {errors.group_type && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.group_type}
@@ -914,7 +1021,7 @@ const FilterGroups = () => {
                   >
                     Group Value <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="group_value"
                     value={updateFormData.group_value}
@@ -922,7 +1029,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Group Value"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_value && (
                     <p className="text-red-500 text-sm mt-1">
@@ -938,7 +1045,7 @@ const FilterGroups = () => {
                     Group Installment Amount{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="group_install"
                     value={updateFormData.group_install}
@@ -946,7 +1053,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Group Installment Amount"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_install && (
                     <p className="text-red-500 text-sm mt-1">
@@ -963,7 +1070,7 @@ const FilterGroups = () => {
                   >
                     Group Members <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="group_members"
                     value={updateFormData.group_members}
@@ -971,7 +1078,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Group Members"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_members && (
                     <p className="text-red-500 text-sm mt-1">
@@ -986,7 +1093,7 @@ const FilterGroups = () => {
                   >
                     Group Duration <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="group_duration"
                     value={updateFormData.group_duration}
@@ -994,7 +1101,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Group Duration"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.group_duration && (
                     <p className="text-red-500 text-sm mt-1">
@@ -1010,7 +1117,7 @@ const FilterGroups = () => {
                 >
                   Registration Fee <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="number"
                   name="reg_fee"
                   value={updateFormData.reg_fee}
@@ -1018,7 +1125,7 @@ const FilterGroups = () => {
                   id="name"
                   placeholder="Enter the Registration Fee"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.reg_fee && (
                   <p className="text-red-500 text-sm mt-1">{errors.reg_fee}</p>
@@ -1032,7 +1139,7 @@ const FilterGroups = () => {
                   >
                     Start Date <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="start_date"
                     value={updateFormData.start_date}
@@ -1040,7 +1147,7 @@ const FilterGroups = () => {
                     id="date"
                     placeholder="Enter the Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.start_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -1055,7 +1162,7 @@ const FilterGroups = () => {
                   >
                     End Date
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="end_date"
                     value={updateFormData.end_date}
@@ -1063,7 +1170,7 @@ const FilterGroups = () => {
                     id="date"
                     placeholder="Enter the Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.end_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -1080,7 +1187,7 @@ const FilterGroups = () => {
                   >
                     Minimum Bid % <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="minimum_bid"
                     value={updateFormData.minimum_bid}
@@ -1088,7 +1195,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Minimum Bid"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.minimum_bid && (
                     <p className="text-red-500 text-sm mt-1">
@@ -1103,7 +1210,7 @@ const FilterGroups = () => {
                   >
                     Maximum Bid % <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="maximum_bid"
                     value={updateFormData.maximum_bid}
@@ -1111,7 +1218,7 @@ const FilterGroups = () => {
                     id="text"
                     placeholder="Enter Maximum Bid"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.maximum_bid && (
                     <p className="text-red-500 text-sm mt-1">
@@ -1126,26 +1233,26 @@ const FilterGroups = () => {
                   <label className="block mb-2 text-sm font-medium text-gray-900">
                     Commission %
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="commission"
                     value={updateFormData.commission}
                     onChange={handleInputChange}
                     placeholder="Enter Commission"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm font-medium text-gray-900">
                     Incentives
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="incentives"
                     value={updateFormData.incentives}
                     onChange={handleInputChange}
                     placeholder="Enter Incentives"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
               </div>
@@ -1193,7 +1300,7 @@ const FilterGroups = () => {
                     to confirm deletion.{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     id="groupName"
                     placeholder="Enter the Group Name"

@@ -4,13 +4,14 @@ import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
-import { Dropdown, Select } from "antd";
+import { Input, Dropdown, Select } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import SettingSidebar from "../components/layouts/SettingSidebar";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+import { fieldSize } from "../data/fieldSize";
 
 const AdministrativePrivileges = () => {
   const [admins, setAdmins] = useState([]);
@@ -79,6 +80,7 @@ const AdministrativePrivileges = () => {
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
+               trigger={['click']}
                 menu={{
                   items: [
                     {
@@ -136,7 +138,26 @@ const AdministrativePrivileges = () => {
       [name]: "",
     }));
   };
+  const handleAntDSelect = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
 
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [field]: "",
+    }));
+  };
+
+  const handleAntInputDSelect = (field, value) => {
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: "" }));
+  };
   const validateForm = (type) => {
     const newErrors = {};
 
@@ -371,7 +392,7 @@ const AdministrativePrivileges = () => {
                 >
                   Sub Admin Name <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="name"
                   value={formData.name}
@@ -379,7 +400,7 @@ const AdministrativePrivileges = () => {
                   id="name"
                   placeholder="Enter Sub Admin Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.name && (
                   <p className="text-red-500 text-sm mt-1">
@@ -394,7 +415,7 @@ const AdministrativePrivileges = () => {
                 >
                   Phone Number <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="phoneNumber"
                   value={formData.phoneNumber}
@@ -402,7 +423,7 @@ const AdministrativePrivileges = () => {
                   id="phoneNumber"
                   placeholder="Enter Sub Admin Phone Number"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.phoneNumber && (
                   <p className="text-red-500 text-sm mt-1">
@@ -417,7 +438,7 @@ const AdministrativePrivileges = () => {
                 >
                   Password <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="password"
                   value={formData.password}
@@ -425,7 +446,7 @@ const AdministrativePrivileges = () => {
                   id="password"
                   placeholder="Enter Password"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.password && (
                   <p className="text-red-500 text-sm mt-1">{errors.password}</p>
@@ -438,17 +459,37 @@ const AdministrativePrivileges = () => {
                 >
                   Admin Access Rights <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   value={formData?.admin_access_right_id}
                   onChange={handleChange}
                   name="admin_access_right_id"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 >
                   <option value="">Select Admin Role</option>
                   {allAccessRights.map((adminRole) => (
                     <option value={adminRole._id}>{adminRole.title}</option>
                   ))}
-                </select>
+                </select> */}
+                 <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Admin Access Role"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="admin_access_right_id"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={formData?.admin_access_right_id || undefined}
+                  onChange={(value) =>
+                    handleAntDSelect("admin_access_right_id", value)
+                  }
+                >
+                   {allAccessRights.map((accessRight) => (
+                    <Select.Option value={accessRight?._id}>
+                      {accessRight?.title}
+                    </Select.Option>
+                  ))}
+                </Select>
                 {errors.admin_access_right_id && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.admin_access_right_id}
@@ -484,7 +525,7 @@ const AdministrativePrivileges = () => {
                 >
                   Admin Name <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="name"
                   value={updateFormData.name}
@@ -492,7 +533,7 @@ const AdministrativePrivileges = () => {
                   id="name"
                   placeholder="Enter the Admin Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.name && (
                   <p className="text-red-500 text-sm mt-1">
@@ -507,7 +548,7 @@ const AdministrativePrivileges = () => {
                 >
                   Phone Number <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="phoneNumber"
                   value={updateFormData.phoneNumber}
@@ -515,7 +556,7 @@ const AdministrativePrivileges = () => {
                   id="phone_number"
                   placeholder="Enter Sub Admin Phone Number"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.phoneNumber && (
                   <p className="text-red-500 text-sm mt-1">
@@ -530,7 +571,7 @@ const AdministrativePrivileges = () => {
                 >
                   Password <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="password"
                   value={updateFormData.password}
@@ -538,7 +579,7 @@ const AdministrativePrivileges = () => {
                   id="password"
                   placeholder="Enter Password"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.password && (
                   <p className="text-red-500 text-sm mt-1">{errors.password}</p>
@@ -551,11 +592,11 @@ const AdministrativePrivileges = () => {
                 >
                   Admin Access Role <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   value={updateFormData?.admin_access_right_id || ""}
                   onChange={handleInputChange}
                   name="admin_access_right_id"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
 
                 >
                   <option value={""}>Select Admin Access Role</option>
@@ -564,7 +605,27 @@ const AdministrativePrivileges = () => {
                       {accessRight?.title}
                     </option>
                   ))}
-                </select>
+                </select> */}
+                 <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Admin Access Role"
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="admin_access_right_id"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={updateFormData?.admin_access_right_id || undefined}
+                  onChange={(value) =>
+                    handleAntInputDSelect("admin_access_right_id", value)
+                  }
+                >
+                   {allAccessRights.map((accessRight) => (
+                    <Select.Option value={accessRight?._id}>
+                      {accessRight?.title}
+                    </Select.Option>
+                  ))}
+                </Select>
                 {errors.admin_access_right_id && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.admin_access_right_id}
@@ -611,12 +672,12 @@ const AdministrativePrivileges = () => {
                     </span>{" "}
                     to confirm deletion. <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     id="adminname"
                     placeholder="Enter the Admin Name"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
 

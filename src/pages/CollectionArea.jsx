@@ -5,11 +5,12 @@ import CustomAlert from "../components/alerts/CustomAlert";
 import CircularLoader from "../components/loaders/CircularLoader";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
-import { Dropdown } from "antd";
+import { Input,Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import DataTable from "../components/layouts/Datatable";
 import filterOption from "../helpers/filterOption";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+import { fieldSize } from "../data/fieldSize";
 
 const CollectionArea = () => {
   const [currentCollectionArea, setCurrentCollectionArea] = useState(null);
@@ -65,6 +66,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
               action: (
                 <div className="flex justify-center gap-2">
                   <Dropdown
+                   trigger={['click']}
                     menu={{
                       items: [
                         {
@@ -344,15 +346,15 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                 >
                   Collection Area Name
                 </label>
-                <input
+                <Input
                   type="text"
                   name="route_name"
                   value={collectionAreaData?.route_name}
                   onChange={handleChange}
                   id="name"
-                  placeholder="Enter the Full Name"
+                  placeholder="Enter the Collection Area Name"
              
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
               </div>
                <div>
@@ -362,7 +364,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                 >
                   Collection Area Pincode
                 </label>
-                <input
+                <Input
                   type="text"
                   name="route_pincode"
                   value={collectionAreaData?.route_pincode}
@@ -370,7 +372,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                   id="apincode"
                   placeholder="Enter the Collection Area Pincode"
              
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
               </div>
               
@@ -407,7 +409,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                 >
                   Collection Area Name
                 </label>
-                <input
+                <Input
                   type="text"
                   name="route_name"
                   value={updateCollectionAreaData?.route_name}
@@ -415,7 +417,7 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                   id="rname"
                   placeholder="Enter the Collection Area Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
               </div>
               <div>
@@ -425,14 +427,14 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                 >
                   Collection Area Pincode
                 </label>
-                <input
+                <Input
                   type="text"
                   name="route_pincode"
                   value={updateCollectionAreaData?.route_pincode}
                   onChange={handleInputChange}
                   id="pincode"
                   placeholder="Enter the Collection Area Pincode"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
               </div>
               <div className="w-full flex justify-end">
@@ -477,12 +479,12 @@ const [reloadTrigger, setReloadTrigger] = useState(0);
                     </span>{" "}
                     to confirm deletion.
                   </label>
-                  <input
+                  <Input
                     type="text"
                     id="routeName"
                     placeholder="Enter the Collection Area Name"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <button

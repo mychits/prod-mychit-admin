@@ -5,12 +5,13 @@ import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
-import { Dropdown } from "antd";
+import { Input,Select,Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import { FaCalculator } from "react-icons/fa";
 import CircularLoader from "../components/loaders/CircularLoader";
+import { fieldSize } from "../data/fieldSize";
 const Loan = () => {
   const [users, setUsers] = useState([]);
   const [borrowers, setBorrowers] = useState([]);
@@ -62,6 +63,7 @@ const [isLoading,setIsLoading] = useState(false);
     const fetchCustomers = async () => {
       try {
         const response = await api.get("/user/get-user");
+        
         if (response.status >= 400)
           throw new Error("Failed to fetch borrowers");
         setUsers(response.data);
@@ -93,6 +95,7 @@ const [isLoading,setIsLoading] = useState(false);
           action: (
             <div className="flex justify-center gap-2" key={borrower._id}>
               <Dropdown
+              trigger={['click']}
                 menu={{
                   items: [
                     {
@@ -135,6 +138,27 @@ const [isLoading,setIsLoading] = useState(false);
     };
     fetchBorrowers();
   }, [reloadTrigger]);
+
+    const handleAntDSelect = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [field]: "",
+    }));
+  };
+
+  const handleAntInputDSelect = (field, value) => {
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: "" }));
+  };
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -366,9 +390,9 @@ const [isLoading,setIsLoading] = useState(false);
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="borrower_name"
                 >
-                  Select Borrower Name  <span className="text-red-500 ">*</span>
+                  Borrower Name  <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   name="borrower"
                   id="borrower"
                   value={formData.borrower}
@@ -382,7 +406,30 @@ const [isLoading,setIsLoading] = useState(false);
                   {users.map((user) => (
                     <option value={user._id}>{user.full_name}</option>
                   ))}
-                </select>
+                </select> */}
+                 <Select
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      placeholder="Select Or Search  Borrower Name "
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="borrower"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={formData?.borrower || undefined}
+                      onChange={(value) =>
+                        handleAntDSelect("borrower", value)
+                      }
+                    >
+                      {users.map((user) => (
+                        <Select.Option key={user._id} value={user._id}>
+                          {user.full_name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                 {errors.borrower && (
                   <p className="text-red-500 text-sm mt-1">{errors.borrower}</p>
                 )}
@@ -396,7 +443,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     Loan Amount  <span className="text-red-500 ">*</span> 
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="loan_amount"
                     value={formData.loan_amount}
@@ -404,7 +451,7 @@ const [isLoading,setIsLoading] = useState(false);
                     id="loan_amount"
                     placeholder="Enter Loan Amount"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.loan_amount && (
                     <p className="text-red-500 text-sm mt-1">
@@ -419,7 +466,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     Tenure in Days <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="tenure"
                     value={formData.tenure}
@@ -427,7 +474,7 @@ const [isLoading,setIsLoading] = useState(false);
                     id="tenure"
                     placeholder="Enter Tenure in Days"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.tenure && (
                     <p className="text-red-500 text-sm mt-1">{errors.tenure}</p>
@@ -443,7 +490,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     Service Charges <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="service_charges"
                     value={formData.service_charges}
@@ -451,7 +498,7 @@ const [isLoading,setIsLoading] = useState(false);
                     id="service_charges"
                     placeholder="Enter Service Charges"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.service_charges && (
                     <p className="text-red-500 text-sm mt-1">
@@ -467,7 +514,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     Daily Payment Amount  <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     placeholder="Daily Payment Amount"
                     name="daily_payment_amount"
@@ -475,7 +522,7 @@ const [isLoading,setIsLoading] = useState(false);
                     onChange={handleChange}
                     id="daily_payment_amount"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue rounded-lg  w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.daily_payment_amount && (
                     <p className="text-red-500 text-sm mt-1">
@@ -493,7 +540,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     Start Date  <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="start_date"
                     value={formData.start_date}
@@ -501,7 +548,7 @@ const [isLoading,setIsLoading] = useState(false);
                     id="start_date"
                     placeholder="Enter the Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.start_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -516,7 +563,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     End Date <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="end_date"
                     value={formData.end_date}
@@ -524,7 +571,7 @@ const [isLoading,setIsLoading] = useState(false);
                     id="end_date"
                     placeholder="Enter End Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.end_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -541,7 +588,7 @@ const [isLoading,setIsLoading] = useState(false);
                   Note
                 </label>
                 <div className="flex w-full gap-2">
-                  <input
+                  <Input
                     type="text"
                     name="note"
                     value={formData.note}
@@ -549,7 +596,7 @@ const [isLoading,setIsLoading] = useState(false);
                     id="note"
                     placeholder="Specify Note if any!"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full  p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   <div
                     className="bg-blue-700 hover:bg-blue-800 w-10 h-10 flex justify-center items-center rounded-md"
@@ -587,9 +634,9 @@ const [isLoading,setIsLoading] = useState(false);
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="borrower_name"
                 >
-                  Select Borrower Name <span className="text-red-500 ">*</span>
+                Borrower Name <span className="text-red-500 ">*</span>
                 </label>
-                <select
+                {/* <select
                   name="borrower"
                   id="borrower"
                   value={updateFormData.borrower}
@@ -603,7 +650,30 @@ const [isLoading,setIsLoading] = useState(false);
                   {users.map((user) => (
                     <option value={user._id}>{user.full_name}</option>
                   ))}
-                </select>
+                </select> */}
+                 <Select
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      placeholder="Select Or Search Borrower Name"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="borrower"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.borrower || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("borrower", value)
+                      }
+                    >
+                      {users.map((user) => (
+                        <Select.Option key={user._id} value={user._id}>
+                          {user.full_name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                 {errors.borrower && (
                   <p className="text-red-500 text-sm mt-1">{errors.borrower}</p>
                 )}
@@ -617,7 +687,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     Loan Amount <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="loan_amount"
                     value={updateFormData.loan_amount}
@@ -625,7 +695,7 @@ const [isLoading,setIsLoading] = useState(false);
                     id="loan_amount"
                     placeholder="Enter Loan Amount"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.loan_amount && (
                     <p className="text-red-500 text-sm mt-1">
@@ -640,7 +710,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     Tenure in Days <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="tenure"
                     value={updateFormData.tenure}
@@ -648,7 +718,7 @@ const [isLoading,setIsLoading] = useState(false);
                     id="tenure"
                     placeholder="Enter Tenure in Days"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.tenure && (
                     <p className="text-red-500 text-sm mt-1">{errors.tenure}</p>
@@ -664,7 +734,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     Service Charges <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="service_charges"
                     value={updateFormData.service_charges}
@@ -672,7 +742,7 @@ const [isLoading,setIsLoading] = useState(false);
                     id="service_charges"
                     placeholder="Enter Service Charges"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.service_charges && (
                     <p className="text-red-500 text-sm mt-1">
@@ -688,7 +758,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     Daily Payment Amount <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     placeholder="Daily Payment Amount"
                     name="daily_payment_amount"
@@ -696,7 +766,7 @@ const [isLoading,setIsLoading] = useState(false);
                     onChange={handleInputChange}
                     id="daily_payment_amount"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue rounded-lg  w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.daily_payment_amount && (
                     <p className="text-red-500 text-sm mt-1">
@@ -714,7 +784,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     Start Date <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="start_date"
                     value={updateFormData.start_date}
@@ -722,7 +792,7 @@ const [isLoading,setIsLoading] = useState(false);
                     id="start_date"
                     placeholder="Enter the Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.start_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -737,7 +807,7 @@ const [isLoading,setIsLoading] = useState(false);
                   >
                     End Date <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="end_date"
                     value={updateFormData.end_date}
@@ -745,7 +815,7 @@ const [isLoading,setIsLoading] = useState(false);
                     id="end_date"
                     placeholder="Enter End Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.end_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -762,7 +832,7 @@ const [isLoading,setIsLoading] = useState(false);
                   Note
                 </label>
                 <div className="flex w-full gap-2">
-                  <input
+                  <Input
                     type="text"
                     name="note"
                     value={updateFormData.note}
@@ -770,7 +840,7 @@ const [isLoading,setIsLoading] = useState(false);
                     id="note"
                     placeholder="Specify Note if any!"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full  p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   <div
                     className="bg-blue-700 hover:bg-blue-800 w-10 h-10 flex justify-center items-center rounded-md"
@@ -824,12 +894,12 @@ const [isLoading,setIsLoading] = useState(false);
                     </span>{" "}
                     to confirm deletion. <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     id="borrowerName"
                     placeholder="Enter the Borrower Name"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <button

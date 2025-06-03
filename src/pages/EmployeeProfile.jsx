@@ -2,12 +2,13 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import { IoMdMore } from "react-icons/io";
-import { Dropdown } from "antd";
+import { Input, Select, Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
+import { fieldSize } from "../data/fieldSize";
 import CircularLoader from "../components/loaders/CircularLoader";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 const EmployeeProfile = () => {
@@ -89,7 +90,7 @@ const EmployeeProfile = () => {
         const response = await api.get("/agent/get-additional-employee-info");
         const employeeData = response.data?.employee || [];
         console.info(response.data?.employee, "employee profile");
-       
+
         setUsers(employeeData);
 
         const formattedData = employeeData.map((group, index) => ({
@@ -103,7 +104,9 @@ const EmployeeProfile = () => {
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
+               trigger={['click']}
                 menu={{
+                  
                   items: [
                     {
                       key: "1",
@@ -158,7 +161,40 @@ const EmployeeProfile = () => {
     fetchManagers();
   }, [reloadTrigger]);
 
-  const handleChange = (e) => {
+
+
+  const handleAntDSelectManager = (managerId) => {
+    setSelectedManagerId(managerId);
+
+    const selected = managers.find((mgr) => mgr._id === managerId);
+    const title = selected?.title || "";
+
+    setSelectedManagerTitle(title);
+
+    setFormData((prev) => ({
+      ...prev,
+      managerId,
+      managerTitle: title,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      managerId: "",
+      managerTitle: "",
+    }));
+  };
+    const handleAntDSelect = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [field]: "",
+    }));
+  };
+    const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -170,6 +206,28 @@ const EmployeeProfile = () => {
     }));
   };
 
+  const handleAntInputDSelect = (field, value) => {
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: "" }));
+  };
+
+  const handleAntDSelectReportingManager = (reportingId) => {
+    setSelectedReportingManagerId(reportingId);
+
+    setFormData((prev) => ({
+      ...prev,
+      reportingManagerId: reportingId,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      reportingManagerId: "",
+    }));
+  };
   const validateForm = (type) => {
     const newErrors = {};
     const data = type === "addEmployee" ? formData : updateFormData;
@@ -255,60 +313,58 @@ const EmployeeProfile = () => {
     } else if (data.address.trim().length < 10) {
       newErrors.address = "Address should be at least 10 characters";
     }
-    if(!data.emergency_contact_person){
-      newErrors.emergency_contact_person = "Contact Person Name is Required"
+    if (!data.emergency_contact_person) {
+      newErrors.emergency_contact_person = "Contact Person Name is Required";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const addPhoneField = (formState, setFormState) => {
+    const phones = [...(formState.emergency_contact_number || [])];
 
-const addPhoneField = (formState, setFormState) => {
-  const phones = [...(formState.emergency_contact_number || [])];
+    const lastPhone = phones[phones.length - 1];
 
-  const lastPhone = phones[phones.length - 1];
+    if (phones.length > 0 && (!lastPhone || lastPhone.trim() === "")) {
+      alert(
+        "Please fill in the last emergency contact number before adding a new one."
+      );
+      return;
+    }
 
-  if (phones.length > 0 && (!lastPhone || lastPhone.trim() === "")) {
-    alert("Please fill in the last emergency contact number before adding a new one.");
-    return;
-  }
+    setFormState({
+      ...formState,
+      emergency_contact_number: [...phones, ""],
+    });
+  };
 
-  setFormState({
-    ...formState,
-    emergency_contact_number: [...phones, ""],
-  });
-};
+  const handlePhoneChange = (formState, setFormState, index, e) => {
+    const value = e.target.value;
 
+    let phones =
+      formState.emergency_contact_number &&
+      formState.emergency_contact_number.length > 0
+        ? [...formState.emergency_contact_number]
+        : [""];
 
-const handlePhoneChange = (formState, setFormState, index, e) => {
-  const value = e.target.value;
+    while (phones.length <= index) {
+      phones.push("");
+    }
 
+    phones[index] = value;
 
-  let phones = (formState.emergency_contact_number && formState.emergency_contact_number.length > 0)
-    ? [...formState.emergency_contact_number]
-    : [""];
+    const lastIndex = phones.reduceRight((lastNonEmpty, phone, i) => {
+      return lastNonEmpty !== -1 ? lastNonEmpty : phone.trim() !== "" ? i : -1;
+    }, -1);
 
-  while (phones.length <= index) {
-    phones.push("");
-  }
+    phones = lastIndex === -1 ? [""] : phones.slice(0, lastIndex + 1);
 
-
-  phones[index] = value;
-
-
-  const lastIndex = phones.reduceRight((lastNonEmpty, phone, i) => {
-    return lastNonEmpty !== -1 ? lastNonEmpty : (phone.trim() !== "" ? i : -1);
-  }, -1);
-
-
-  phones = lastIndex === -1 ? [""] : phones.slice(0, lastIndex + 1);
-
-  setFormState({
-    ...formState,
-    emergency_contact_number: phones,
-  });
-};
+    setFormState({
+      ...formState,
+      emergency_contact_number: phones,
+    });
+  };
 
   const removePhoneField = (formState, setFormState, index) => {
     const phones = Array.isArray(formState.emergency_contact_number)
@@ -361,7 +417,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
           salary: "",
           leaving_date: "",
           emergency_contact_person: "",
-          emergency_contact_number: [''],
+          emergency_contact_number: [""],
         });
         setSelectedManagerId("");
         setSelectedReportingManagerId("");
@@ -454,7 +510,8 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
         leaving_date: response?.data?.employee?.leaving_date?.split("T")[0],
         emergency_contact_number: response?.data?.employee
           ?.emergency_contact_number || [""],
-          emergency_contact_person: response?.data?.employee?.emergency_contact_person,
+        emergency_contact_person:
+          response?.data?.employee?.emergency_contact_person,
       });
       setSelectedManagerId(response.data?.employee?.designation_id?._id || "");
       setSelectedReportingManagerId(
@@ -609,7 +666,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
             )}
           </div>
         </div>
-      
+
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
@@ -623,7 +680,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                 >
                   Full Name <span className="text-red-500">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="name"
                   value={formData.name}
@@ -631,7 +688,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   id="name"
                   placeholder="Enter the Full Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.name && (
                   <p className="mt-2 text-sm text-red-600">{errors.name}</p>
@@ -645,7 +702,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Email <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="email"
                     name="email"
                     value={formData.email}
@@ -653,7 +710,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="text"
                     placeholder="Enter Email"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.email && (
                     <p className="mt-2 text-sm text-red-600">{errors.email}</p>
@@ -666,7 +723,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Phone Number <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="phone_number"
                     value={formData.phone_number}
@@ -674,7 +731,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="text"
                     placeholder="Enter Phone Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.phone_number && (
                     <p className="mt-2 text-sm text-red-600">
@@ -691,7 +748,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Password <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="pass"
                     name="password"
                     value={formData.password}
@@ -699,7 +756,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="text"
                     placeholder="Enter Password"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.password && (
                     <p className="mt-2 text-sm text-red-600">
@@ -714,7 +771,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Pincode <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="pincode"
                     value={formData.pincode}
@@ -722,7 +779,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="text"
                     placeholder="Enter Pincode"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pincode && (
                     <p className="mt-2 text-sm text-red-600">
@@ -739,7 +796,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Adhaar Number <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="adhaar_no"
                     value={formData.adhaar_no}
@@ -747,7 +804,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="text"
                     placeholder="Enter Adhaar Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.adhaar_no && (
                     <p className="mt-2 text-sm text-red-600">
@@ -762,7 +819,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Pan Number <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="pan_no"
                     value={formData.pan_no}
@@ -770,7 +827,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="text"
                     placeholder="Enter Pan Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pan_no && (
                     <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
@@ -785,7 +842,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                 >
                   Address <span className="text-red-500">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="address"
                   value={formData.address}
@@ -793,7 +850,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   id="name"
                   placeholder="Enter the Address"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.address && (
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
@@ -801,13 +858,13 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
-                >
-                  Designation <span className="text-red-500 ">*</span>
-                </label>
-                <select
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="category"
+                  >
+                    Designation <span className="text-red-500 ">*</span>
+                  </label>
+                  {/* <select
                   value={selectedManagerId}
                   onChange={handleManager}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
@@ -820,15 +877,37 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                       {group.title}
                     </option>
                   ))}
-                </select>
+                </select> */}
+                  <Select
+                    id="manager-select"
+                    name="managerId"
+                    value={selectedManagerId || undefined}
+                    onChange={handleAntDSelectManager}
+                    placeholder="Select Designation"
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    showSearch
+                    popupMatchSelectWidth={false}
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  >
+                    {managers.map((mgr) => (
+                      <Select.Option key={mgr._id} value={mgr._id}>
+                        {mgr.title}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </div>
-                <div className="w-1/2"><label
+                <div className="w-1/2">
+                  <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="status"
                   >
                     Status <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  {/* <select
                     name="status"
                     value={formData?.status}
                     onChange={handleChange}
@@ -838,10 +917,31 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                     <option value="terminated">Terminated</option>
-                  </select>
+                  </select> */}
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Status"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="status"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={formData?.status || undefined}
+                    onChange={(value) => handleAntDSelect("status", value)}
+                  >
+                    {["Active", "Inactive", "Terminated",].map((stype) => (
+                      <Select.Option key={stype} value={stype.toLowerCase()}>
+                        {stype}
+                      </Select.Option>
+                    ))}
+                  </Select>
                   {errors.status && (
                     <p className="mt-2 text-sm text-red-600">{errors.status}</p>
-                  )}</div>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-row justify-between space-x-4">
@@ -852,14 +952,14 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Joining Date <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="joining_date"
                     value={formData.joining_date}
                     onChange={handleChange}
                     id="joiningdate"
                     placeholder="Enter Employee Joining Date"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.joining_date && (
                     <p className="mt-2 text-sm text-red-600">
@@ -874,7 +974,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Leaving Date <span className="text-red-500"></span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="leaving_date"
                     value={formData.leaving_date}
@@ -882,11 +982,9 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="ld"
                     placeholder="Enter Leaving Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-             
                 </div>
-
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -896,14 +994,14 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Date of Birth <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="dob"
                     value={formData.dob}
                     onChange={handleChange}
                     id="dob"
                     placeholder="Enter Employee Date of Birth"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.dob && (
                     <p className="mt-2 text-sm text-red-600">{errors.dob}</p>
@@ -916,7 +1014,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Gender <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  {/* <select
                     name="gender"
                     value={formData?.gender}
                     onChange={handleChange}
@@ -925,7 +1023,27 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     <option value="">Select Gender</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
-                  </select>
+                  </select> */}
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Gender"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="gender"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={formData?.gender || undefined}
+                    onChange={(value) => handleAntDSelect("gender", value)}
+                  >
+                    {["Male", "Female"].map((gender) => (
+                      <Select.Option key={gender} value={gender.toLowerCase()}>
+                        {gender}
+                      </Select.Option>
+                    ))}
+                  </Select>
                   {errors.gender && (
                     <p className="mt-2 text-sm text-red-600">{errors.gender}</p>
                   )}
@@ -940,7 +1058,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Salary <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="salary"
                     value={formData.salary}
@@ -948,7 +1066,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="sal"
                     placeholder="Enter Your Salary"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.salary && (
                     <p className="mt-2 text-sm text-red-600">{errors.salary}</p>
@@ -962,7 +1080,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     Alternate Phone Number{" "}
                     <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="alternate_number"
                     value={formData.alternate_number}
@@ -970,7 +1088,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="alternate"
                     placeholder="Enter Alternate Phone Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.alternate_number && (
                     <p className="mt-2 text-sm text-red-600">
@@ -986,9 +1104,10 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="cp"
                   >
-                    Emergency Contact Person<span className="text-red-500">*</span>
+                    Emergency Contact Person
+                    <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="emergency_contact_person"
                     value={formData.emergency_contact_person}
@@ -996,7 +1115,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="cp"
                     placeholder="Enter Emergency Contact Person Name"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.emergency_contact_person && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1014,60 +1133,57 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   </label>
 
                   <div className="flex items-center mb-2 gap-2">
-                    <input
+                    <Input
                       type="tel"
                       name="emergency_contact_number"
                       value={formData.emergency_contact_number?.[0] || ""}
                       onChange={(e) =>
                         handlePhoneChange(formData, setFormData, 0, e)
-                      } 
+                      }
                       id="emergency_0"
                       placeholder="Enter Default Emergency Phone Number"
                       required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
                   </div>
 
                   {formData.emergency_contact_number
                     ?.slice(1)
                     .map((phone, index) => (
-                      <div
-                        key={index }
-                        className="flex items-center mb-2 gap-2"
-                      >
-                        <input
+                      <div key={index} className="flex items-center mb-2 gap-2">
+                        <Input
                           type="tel"
-                          name={`emergency_phone_${index +1}`}
+                          name={`emergency_phone_${index + 1}`}
                           value={phone}
-                          onChange={
-                            (e) =>
-                              handlePhoneChange(
-                                formData,
-                                setFormData,
-                                index + 1,
-                                e
-                              )
+                          onChange={(e) =>
+                            handlePhoneChange(
+                              formData,
+                              setFormData,
+                              index + 1,
+                              e
+                            )
                           }
                           id={`emergency_${index + 1}`}
                           placeholder="Enter Additional Emergency Phone Number"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                          className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                         />
-                      {index >0 &&  <button
-                          type="button"
-                          onClick={
-                            () =>
-                              removePhoneField(formData, setFormData, index + 1) 
-                          }
-                          className="text-red-600 text-sm"
-                        >
-                          Remove
-                        </button>}
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removePhoneField(formData, setFormData, index + 1)
+                            }
+                            className="text-red-600 text-sm"
+                          >
+                            Remove
+                          </button>
+                        )}
                       </div>
                     ))}
 
                   <button
                     type="button"
-                    onClick={() => addPhoneField(formData, setFormData)} 
+                    onClick={() => addPhoneField(formData, setFormData)}
                     className="mt-2 text-blue-600 text-sm"
                   >
                     + Add Another
@@ -1104,7 +1220,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                 >
                   Full Name <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="name"
                   value={updateFormData.name}
@@ -1112,7 +1228,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   id="name"
                   placeholder="Enter the Full Name"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.name && (
                   <p className="mt-2 text-sm text-red-600">{errors.name}</p>
@@ -1126,7 +1242,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Email <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="email"
                     name="email"
                     value={updateFormData.email}
@@ -1134,7 +1250,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="text"
                     placeholder="Enter Email"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.email && (
                     <p className="mt-2 text-sm text-red-600">{errors.email}</p>
@@ -1147,7 +1263,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Phone Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="phone_number"
                     value={updateFormData.phone_number}
@@ -1155,7 +1271,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="text"
                     placeholder="Enter Phone Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.phone_number && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1172,7 +1288,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Password <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="password"
                     value={updateFormData.password}
@@ -1180,7 +1296,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="update-password"
                     placeholder="Enter Password"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.password && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1195,7 +1311,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Pincode <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="pincode"
                     value={updateFormData.pincode}
@@ -1203,7 +1319,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="text"
                     placeholder="Enter Pincode"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pincode && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1220,7 +1336,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Adhaar Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="adhaar_no"
                     value={updateFormData.adhaar_no}
@@ -1228,7 +1344,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="text"
                     placeholder="Enter Adhaar Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.adhaar_no && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1243,7 +1359,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Pan Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="pan_no"
                     value={updateFormData.pan_no}
@@ -1251,7 +1367,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="text"
                     placeholder="Enter Pan Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pan_no && (
                     <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
@@ -1265,7 +1381,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                 >
                   Address <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="address"
                   value={updateFormData.address}
@@ -1273,7 +1389,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   id="name"
                   placeholder="Enter the Address"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.address && (
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
@@ -1281,13 +1397,13 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
               </div>
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
-                >
-                  Designation <span className="text-red-500 ">*</span>
-                </label>
-                <select
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="category"
+                  >
+                    Designation <span className="text-red-500 ">*</span>
+                  </label>
+                  {/* <select
                   value={selectedManagerId}
                   onChange={handleManager}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
@@ -1300,52 +1416,42 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                       {group.title}
                     </option>
                   ))}
-                </select>
-                {errors.designation_id && (
-                  <p className="mt-2 text-sm text-red-600">
-                    {errors.designation_id}
-                  </p>
-                )}
-              </div>
-              {(selectedManagerTitle === "Sales Excecutive" ||
-                selectedManagerTitle === "Business Agent" ||
-                selectedManagerTitle === "Office Executive") && (
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="category"
+                </select> */}
+                  <Select
+                    id="selectedManagerId"
+                    name="selectedManagerId"
+                    value={selectedManagerId || undefined}
+                    onChange={handleAntDSelectManager}
+                    placeholder="Select Designation"
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    showSearch
+                    popupMatchSelectWidth={false}
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
                   >
-                    Reporting Manager
-                  </label>
-                  <select
-                    value={selectedReportingManagerId}
-                    onChange={handleReportingManager}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  >
-                    <option value="" hidden>
-                      Select Reporting Manager
-                    </option>
-                    {users.map((group) => (
-                      <option key={group._id} value={group._id}>
-                        {group.name} - {group?.designation_id?.title}
-                      </option>
+                    {managers.map((manager) => (
+                      <Select.Option key={manager._id} value={manager._id}>
+                        {manager.title}
+                      </Select.Option>
                     ))}
-                  </select>
-                  {errors.reporting_manager && (
+                  </Select>
+                  {errors.designation_id && (
                     <p className="mt-2 text-sm text-red-600">
-                      {errors.reporting_manager}
+                      {errors.designation_id}
                     </p>
                   )}
                 </div>
-              )}
-              <div className="w-1/2">
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="status"
                   >
                     Status <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  {/* <select
                     name="status"
                     value={updateFormData?.status}
                     onChange={handleInputChange}
@@ -1355,17 +1461,34 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                     <option value="terminated">Terminated</option>
-                  </select>
+                  </select> */}
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Status"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="status"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.status || undefined}
+                    onChange={(value) => handleAntInputDSelect("status", value)}
+                  >
+                    {["Active", "Inactive", "Terminated"].map((status) => (
+                      <Select.Option key={status} value={status.toLowerCase()}>
+                        {status}
+                      </Select.Option>
+                    ))}
+                  </Select>
                   {errors.status && (
                     <p className="mt-2 text-sm text-red-600">{errors.status}</p>
                   )}
                 </div>
               </div>
-              
-                
 
               <div className="flex flex-row justify-between space-x-4">
-                
                 <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -1373,14 +1496,14 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Joining Date <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="joining_date"
                     value={updateFormData.joining_date}
                     onChange={handleInputChange}
                     id="joiningdate"
                     placeholder="Enter Employee Joining Date"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.joining_date && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1388,14 +1511,14 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     </p>
                   )}
                 </div>
-                 <div className="w-1/2">
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="ld"
                   >
                     Leaving Date <span className="text-red-500"></span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="leaving_date"
                     value={
@@ -1409,9 +1532,8 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="ld"
                     placeholder="Enter Leaving Date"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                 
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1422,7 +1544,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Date of Birth <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="dob"
                     value={
@@ -1435,7 +1557,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     onChange={handleInputChange}
                     id="doB"
                     placeholder="Enter Employee Date of Birth"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.dob && (
                     <p className="mt-2 text-sm text-red-600">{errors.dob}</p>
@@ -1448,7 +1570,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Gender <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  {/* <select
                     name="gender"
                     value={updateFormData?.gender}
                     onChange={handleInputChange}
@@ -1457,7 +1579,27 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     <option value="">Select Gender</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
-                  </select>
+                  </select> */}
+                   <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Gender"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="gender"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.gender || undefined}
+                    onChange={(value) => handleAntInputDSelect("gender", value)}
+                  >
+                    {["Male", "Female"].map((gender) => (
+                      <Select.Option key={gender} value={gender.toLowerCase()}>
+                        {gender}
+                      </Select.Option>
+                    ))}
+                  </Select>
                   {errors.gender && (
                     <p className="mt-2 text-sm text-red-600">{errors.gender}</p>
                   )}
@@ -1472,7 +1614,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   >
                     Salary <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="salary"
                     value={updateFormData.salary}
@@ -1480,7 +1622,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="sal"
                     placeholder="Enter Salary"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.salary && (
                     <p className="mt-2 text-sm text-red-600">{errors.salary}</p>
@@ -1494,7 +1636,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     Alternate Phone Number{" "}
                     <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="alternate_number"
                     value={updateFormData.alternate_number}
@@ -1502,7 +1644,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="alternate"
                     placeholder="Enter Alternate Phone Number"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.alternate_number && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1511,7 +1653,6 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   )}
                 </div>
               </div>
-              
 
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -1519,9 +1660,10 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="cp"
                   >
-                   Emergency Contact Person <span className="text-red-500">*</span>
+                    Emergency Contact Person{" "}
+                    <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="emergency_contact_person"
                     value={updateFormData?.emergency_contact_person}
@@ -1529,7 +1671,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     id="ld"
                     placeholder="Enter Emergency Contact Person Name"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.emergency_contact_person && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1547,7 +1689,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                   </label>
 
                   <div className="flex items-center mb-2 gap-2">
-                    <input
+                    <Input
                       type="tel"
                       name="emergency_contact_number"
                       value={updateFormData.emergency_contact_number?.[0] || ""}
@@ -1558,11 +1700,11 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                           0,
                           e
                         )
-                      } 
+                      }
                       id="emergency_0"
                       placeholder="Enter Default Emergency Phone Number"
                       required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
                   </div>
 
@@ -1573,32 +1715,30 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                         key={index + 1}
                         className="flex items-center mb-2 gap-2"
                       >
-                        <input
+                        <Input
                           type="tel"
                           name={`emergency_phone_${index + 1}`}
                           value={phone}
-                          onChange={
-                            (e) =>
-                              handlePhoneChange(
-                                updateFormData,
-                                setUpdateFormData,
-                                index + 1,
-                                e
-                              ) 
+                          onChange={(e) =>
+                            handlePhoneChange(
+                              updateFormData,
+                              setUpdateFormData,
+                              index + 1,
+                              e
+                            )
                           }
                           id={`emergency_${index + 1}`}
                           placeholder="Enter Additional Emergency Phone Number"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                          className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                         />
                         <button
                           type="button"
-                          onClick={
-                            () =>
-                              removePhoneField(
-                                updateFormData,
-                                setUpdateFormData,
-                                index + 1
-                              )
+                          onClick={() =>
+                            removePhoneField(
+                              updateFormData,
+                              setUpdateFormData,
+                              index + 1
+                            )
                           }
                           className="text-red-600 text-sm"
                         >
@@ -1611,7 +1751,7 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     type="button"
                     onClick={() =>
                       addPhoneField(updateFormData, setUpdateFormData)
-                    } 
+                    }
                     className="mt-2 text-blue-600 text-sm"
                   >
                     + Add Another
@@ -1663,12 +1803,12 @@ const handlePhoneChange = (formState, setFormState, index, e) => {
                     to confirm deletion.{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     id="groupName"
                     placeholder="Enter the employee Full Name"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <button

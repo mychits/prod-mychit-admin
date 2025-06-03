@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import SettingSidebar from "../components/layouts/SettingSidebar";
 import { IoMdMore } from "react-icons/io";
-import { Dropdown } from "antd";
+import { Input, Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
@@ -11,6 +11,7 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+import { fieldSize } from "../data/fieldSize";
 
 const Designation = () => {
   const [users, setUsers] = useState([]);
@@ -82,6 +83,7 @@ const Designation = () => {
                 <CiEdit color="green" />
               </button> */}
               <Dropdown
+               trigger={['click']}
                 menu={{
                   items: [
                     {
@@ -270,6 +272,7 @@ const Designation = () => {
     }
   };
 
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUpdateFormData((prevData) => ({
@@ -407,7 +410,7 @@ const Designation = () => {
                 >
                   Title <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="title"
                   value={formData.title}
@@ -415,7 +418,7 @@ const Designation = () => {
                   id="title"
                   placeholder="Enter the title"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.name && (
                   <p className="mt-2 text-sm text-red-600">{errors.title}</p>
@@ -429,7 +432,7 @@ const Designation = () => {
                   Collection
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.permission.collection}
                     onChange={(e) =>
@@ -461,7 +464,7 @@ const Designation = () => {
                   Daybook
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.permission.daybook}
                     onChange={(e) =>
@@ -493,7 +496,7 @@ const Designation = () => {
                   Targets
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.permission.targets}
                     onChange={(e) =>
@@ -523,7 +526,7 @@ const Designation = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-900">Leads</span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.permission.leads}
                     onChange={(e) =>
@@ -555,7 +558,7 @@ const Designation = () => {
                   Commission
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.permission.commission}
                     onChange={(e) =>
@@ -587,7 +590,7 @@ const Designation = () => {
                   Reports
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.permission.reports}
                     onChange={(e) =>
@@ -643,7 +646,7 @@ const Designation = () => {
                 >
                   Title <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="title"
                   value={updateFormData.title}
@@ -651,7 +654,7 @@ const Designation = () => {
                   id="title"
                   placeholder="Enter the Title"
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.title && (
                   <p className="mt-2 text-sm text-red-600">{errors.title}</p>
@@ -665,7 +668,7 @@ const Designation = () => {
                   Collection
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.permission.collection}
                     onChange={(e) =>
@@ -697,7 +700,7 @@ const Designation = () => {
                   Daybook
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.permission.daybook}
                     onChange={(e) =>
@@ -729,7 +732,7 @@ const Designation = () => {
                   Targets
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.permission.targets}
                     onChange={(e) =>
@@ -759,7 +762,7 @@ const Designation = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-900">Leads</span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.permission.leads}
                     onChange={(e) =>
@@ -791,7 +794,7 @@ const Designation = () => {
                   Commission
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.permission.commission}
                     onChange={(e) =>
@@ -823,7 +826,7 @@ const Designation = () => {
                   Reports
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.permission.reports}
                     onChange={(e) =>
@@ -894,12 +897,12 @@ const Designation = () => {
                     to confirm deletion.{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     id="groupName"
                     placeholder="Enter the designation"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <button

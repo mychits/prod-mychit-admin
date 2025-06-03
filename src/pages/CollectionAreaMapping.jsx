@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import Navbar from "../components/layouts/Navbar";
-import CustomAlert from "../components/alerts/CustomAlert";
 import CircularLoader from "../components/loaders/CircularLoader";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
-import { Dropdown } from "antd";
+import { Input,Select, Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import DataTable from "../components/layouts/Datatable";
 import filterOption from "../helpers/filterOption";
-import { Select } from "antd";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+import { fieldSize } from "../data/fieldSize";
 
 const CollectionAreaMapping = () => {
   const [showModal, setShowModal] = useState(false);
@@ -62,7 +61,7 @@ const CollectionAreaMapping = () => {
       }
     };
     fetchEmployee();
-  }, []);
+  }, [reloadTrigger]);
 
   useEffect(() => {
     const fetchCollectionArea = async () => {
@@ -85,7 +84,7 @@ const CollectionAreaMapping = () => {
       }
     };
     fetchCollectionArea();
-  }, []);
+  }, [reloadTrigger]);
 
      useEffect(() => {
     const fetchCollectionAreaMapping = async () => {
@@ -109,6 +108,7 @@ const CollectionAreaMapping = () => {
               action: (
                 <div className="flex justify-center gap-2">
                   <Dropdown
+                   trigger={['click']}
                     menu={{
                       items: [
                         {
@@ -388,7 +388,7 @@ const handleUpdate = async (e) => {
                       id="area_select"
                       placeholder="Please select"
                       options={agentOption}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
                   </div>
                   <div>
@@ -405,7 +405,7 @@ const handleUpdate = async (e) => {
                       id="name"
                       placeholder="Please select"
                       options={areaOption}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
                   </div>
                   <div className="w-full flex justify-end">
@@ -446,7 +446,7 @@ const handleUpdate = async (e) => {
                       placeholder="Please select"
                       options={areaOption}
                     
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
                   </div>
     
@@ -466,7 +466,7 @@ const handleUpdate = async (e) => {
                       placeholder="Please select"
                       options={agentOption}
                 
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
                   </div>
 
@@ -512,12 +512,12 @@ const handleUpdate = async (e) => {
                         </span>{" "}
                         to confirm deletion.
                       </label>
-                      <input
+                      <Input
                         type="text"
                         id="areaName"
                         placeholder="Enter the Collection Area Name"
                         required
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                        className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       />
                     </div>
                     <button
