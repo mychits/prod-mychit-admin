@@ -2,15 +2,16 @@
 import { useEffect, useState } from "react";
 import SettingSidebar from "../components/layouts/SettingSidebar";
 import { IoMdMore } from "react-icons/io";
-import { Dropdown } from "antd";
+import { Input,Dropdown } from "antd";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+import { fieldSize } from "../data/fieldSize";
+
 
 const AdminAccessRights = () => {
   const [users, setUsers] = useState([]);
@@ -739,7 +740,7 @@ const AdminAccessRights = () => {
                 >
                   Title <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="title"
                   value={formData.title}
@@ -762,7 +763,7 @@ const AdminAccessRights = () => {
                   View Dashboard
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_dashboard}
                     onChange={(e) =>
@@ -788,7 +789,7 @@ const AdminAccessRights = () => {
                   View Analytics
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_analytics}
                     onChange={(e) =>
@@ -814,7 +815,7 @@ const AdminAccessRights = () => {
                   Add Group
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.add_group}
                     onChange={(e) =>
@@ -840,7 +841,7 @@ const AdminAccessRights = () => {
                   View Group
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_group}
                     onChange={(e) =>
@@ -866,7 +867,7 @@ const AdminAccessRights = () => {
                   Edit Group
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.edit_group}
                     onChange={(e) =>
@@ -892,7 +893,7 @@ const AdminAccessRights = () => {
                   Delete Group
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.delete_group}
                     onChange={(e) =>
@@ -918,7 +919,7 @@ const AdminAccessRights = () => {
                   Add Customer
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.add_customer}
                     onChange={(e) =>
@@ -944,7 +945,7 @@ const AdminAccessRights = () => {
                   View Customer
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_customer}
                     onChange={(e) =>
@@ -970,7 +971,7 @@ const AdminAccessRights = () => {
                   Edit Customer
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.edit_customer}
                     onChange={(e) =>
@@ -996,7 +997,7 @@ const AdminAccessRights = () => {
                   Delete Customer
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.delete_customer}
                     onChange={(e) =>
@@ -1022,7 +1023,7 @@ const AdminAccessRights = () => {
                   Add Enrollment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.add_enrollment}
                     onChange={(e) =>
@@ -1047,7 +1048,7 @@ const AdminAccessRights = () => {
                   View Enrollment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_enrollment}
                     onChange={(e) =>
@@ -1073,7 +1074,7 @@ const AdminAccessRights = () => {
                   Edit Enrollment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.edit_enrollment}
                     onChange={(e) =>
@@ -1098,7 +1099,7 @@ const AdminAccessRights = () => {
                   Delete Enrollment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.delete_enrollment}
                     onChange={(e) =>
@@ -1126,7 +1127,7 @@ const AdminAccessRights = () => {
                   Add Employee
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.add_employee}
                     onChange={(e) =>
@@ -1152,7 +1153,7 @@ const AdminAccessRights = () => {
                   View Employee
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_employee}
                     onChange={(e) =>
@@ -1178,7 +1179,7 @@ const AdminAccessRights = () => {
                   Edit Employee
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.edit_employee}
                     onChange={(e) =>
@@ -1204,7 +1205,7 @@ const AdminAccessRights = () => {
                   Delete Employee
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.delete_employee}
                     onChange={(e) =>
@@ -1230,7 +1231,7 @@ const AdminAccessRights = () => {
                   Modify Payment Date
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.modify_payment_date}
                     onChange={(e) =>
@@ -1258,7 +1259,7 @@ const AdminAccessRights = () => {
                   Add Lead
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.add_lead}
                     onChange={(e) =>
@@ -1284,7 +1285,7 @@ const AdminAccessRights = () => {
                   View Lead
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_lead}
                     onChange={(e) =>
@@ -1310,7 +1311,7 @@ const AdminAccessRights = () => {
                   Edit Lead
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.edit_lead}
                     onChange={(e) =>
@@ -1336,7 +1337,7 @@ const AdminAccessRights = () => {
                   Delete Lead
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.delete_lead}
                     onChange={(e) =>
@@ -1362,7 +1363,7 @@ const AdminAccessRights = () => {
                   Add Loan
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.add_loan}
                     onChange={(e) =>
@@ -1388,7 +1389,7 @@ const AdminAccessRights = () => {
                   View Loan
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_loan}
                     onChange={(e) =>
@@ -1414,7 +1415,7 @@ const AdminAccessRights = () => {
                   Edit Loan
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.edit_loan}
                     onChange={(e) =>
@@ -1440,7 +1441,7 @@ const AdminAccessRights = () => {
                   Delete Loan
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.delete_loan}
                     onChange={(e) =>
@@ -1466,7 +1467,7 @@ const AdminAccessRights = () => {
                   Add Pigme
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.add_pigme}
                     onChange={(e) =>
@@ -1492,7 +1493,7 @@ const AdminAccessRights = () => {
                   View Pigme
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_pigme}
                     onChange={(e) =>
@@ -1518,7 +1519,7 @@ const AdminAccessRights = () => {
                   Edit Pigme
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.edit_pigme}
                     onChange={(e) =>
@@ -1544,7 +1545,7 @@ const AdminAccessRights = () => {
                   Delete Pigme
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.delete_pigme}
                     onChange={(e) =>
@@ -1570,7 +1571,7 @@ const AdminAccessRights = () => {
                   Add Auction
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.add_auction}
                     onChange={(e) =>
@@ -1596,7 +1597,7 @@ const AdminAccessRights = () => {
                   View Auction
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_auction}
                     onChange={(e) =>
@@ -1622,7 +1623,7 @@ const AdminAccessRights = () => {
                   Edit Auction
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.edit_auction}
                     onChange={(e) =>
@@ -1648,7 +1649,7 @@ const AdminAccessRights = () => {
                   Delete Auction
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.delete_auction}
                     onChange={(e) =>
@@ -1674,7 +1675,7 @@ const AdminAccessRights = () => {
                   Add Payment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.add_payment}
                     onChange={(e) =>
@@ -1700,7 +1701,7 @@ const AdminAccessRights = () => {
                   View Payment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_payment}
                     onChange={(e) =>
@@ -1726,7 +1727,7 @@ const AdminAccessRights = () => {
                   Edit Payment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.edit_payment}
                     onChange={(e) =>
@@ -1752,7 +1753,7 @@ const AdminAccessRights = () => {
                   Delete Payment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.delete_payment}
                     onChange={(e) =>
@@ -1778,7 +1779,7 @@ const AdminAccessRights = () => {
                   View Reports
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_reports}
                     onChange={(e) =>
@@ -1804,7 +1805,7 @@ const AdminAccessRights = () => {
                   View Daybook
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_daybook}
                     onChange={(e) =>
@@ -1830,7 +1831,7 @@ const AdminAccessRights = () => {
                   View Group Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_group_report}
                     onChange={(e) =>
@@ -1858,7 +1859,7 @@ const AdminAccessRights = () => {
                   View All Customer Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={
                       formData.access_permissions.view_all_customer_report
@@ -1888,7 +1889,7 @@ const AdminAccessRights = () => {
                   View Customer Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_customer_report}
                     onChange={(e) =>
@@ -1916,7 +1917,7 @@ const AdminAccessRights = () => {
                   View Receipt Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_receipt_report}
                     onChange={(e) =>
@@ -1944,7 +1945,7 @@ const AdminAccessRights = () => {
                   View Auction Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_auction_report}
                     onChange={(e) =>
@@ -1972,7 +1973,7 @@ const AdminAccessRights = () => {
                   View Lead Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_lead_report}
                     onChange={(e) =>
@@ -2000,7 +2001,7 @@ const AdminAccessRights = () => {
                   View Pigme Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_pigme_report}
                     onChange={(e) =>
@@ -2028,7 +2029,7 @@ const AdminAccessRights = () => {
                   View Loan Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_loan_report}
                     onChange={(e) =>
@@ -2056,7 +2057,7 @@ const AdminAccessRights = () => {
                   View Agent Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={formData.access_permissions.view_agent_report}
                     onChange={(e) =>
@@ -2109,7 +2110,7 @@ const AdminAccessRights = () => {
                 >
                   Title <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="title"
                   value={updateFormData.title}
@@ -2128,7 +2129,7 @@ const AdminAccessRights = () => {
                   View Dashboard
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_dashboard}
                     onChange={(e) =>
@@ -2156,7 +2157,7 @@ const AdminAccessRights = () => {
                   View Analytics
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_analytics}
                     onChange={(e) =>
@@ -2184,7 +2185,7 @@ const AdminAccessRights = () => {
                   Add Group
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.add_group}
                     onChange={(e) =>
@@ -2210,7 +2211,7 @@ const AdminAccessRights = () => {
                   View Group
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_group}
                     onChange={(e) =>
@@ -2238,7 +2239,7 @@ const AdminAccessRights = () => {
                   Edit Group
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.edit_group}
                     onChange={(e) =>
@@ -2266,7 +2267,7 @@ const AdminAccessRights = () => {
                   Delete Group
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.delete_group}
                     onChange={(e) =>
@@ -2294,7 +2295,7 @@ const AdminAccessRights = () => {
                   Add Customer
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.add_customer}
                     onChange={(e) =>
@@ -2322,7 +2323,7 @@ const AdminAccessRights = () => {
                   View Customer
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_customer}
                     onChange={(e) =>
@@ -2350,7 +2351,7 @@ const AdminAccessRights = () => {
                   Edit Customer
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.edit_customer}
                     onChange={(e) =>
@@ -2378,7 +2379,7 @@ const AdminAccessRights = () => {
                   Delete Customer
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.delete_customer}
                     onChange={(e) =>
@@ -2406,7 +2407,7 @@ const AdminAccessRights = () => {
                   Add Enrollment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.add_enrollment}
                     onChange={(e) =>
@@ -2434,7 +2435,7 @@ const AdminAccessRights = () => {
                   Delete Enrollment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={
                       updateFormData.access_permissions.delete_enrollment
@@ -2464,7 +2465,7 @@ const AdminAccessRights = () => {
                   View Enrollment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_enrollment}
                     onChange={(e) =>
@@ -2492,7 +2493,7 @@ const AdminAccessRights = () => {
                   Edit Enrollment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.edit_enrollment}
                     onChange={(e) =>
@@ -2520,7 +2521,7 @@ const AdminAccessRights = () => {
                   Add Employee
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.add_employee}
                     onChange={(e) =>
@@ -2548,7 +2549,7 @@ const AdminAccessRights = () => {
                   View Employee
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_employee}
                     onChange={(e) =>
@@ -2576,7 +2577,7 @@ const AdminAccessRights = () => {
                   Edit Employee
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.edit_employee}
                     onChange={(e) =>
@@ -2604,7 +2605,7 @@ const AdminAccessRights = () => {
                   Delete Employee
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.delete_employee}
                     onChange={(e) =>
@@ -2632,7 +2633,7 @@ const AdminAccessRights = () => {
                   Modify Payment Date
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={
                       updateFormData.access_permissions.modify_payment_date
@@ -2662,7 +2663,7 @@ const AdminAccessRights = () => {
                   Add Lead
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.add_lead}
                     onChange={(e) =>
@@ -2688,7 +2689,7 @@ const AdminAccessRights = () => {
                   View Lead
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_lead}
                     onChange={(e) =>
@@ -2714,7 +2715,7 @@ const AdminAccessRights = () => {
                   Edit Lead
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.edit_lead}
                     onChange={(e) =>
@@ -2740,7 +2741,7 @@ const AdminAccessRights = () => {
                   Delete Lead
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.delete_lead}
                     onChange={(e) =>
@@ -2768,7 +2769,7 @@ const AdminAccessRights = () => {
                   Add Loan
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.add_loan}
                     onChange={(e) =>
@@ -2794,7 +2795,7 @@ const AdminAccessRights = () => {
                   View Loan
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_loan}
                     onChange={(e) =>
@@ -2820,7 +2821,7 @@ const AdminAccessRights = () => {
                   Edit Loan
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.edit_loan}
                     onChange={(e) =>
@@ -2846,7 +2847,7 @@ const AdminAccessRights = () => {
                   Delete Loan
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.delete_loan}
                     onChange={(e) =>
@@ -2874,7 +2875,7 @@ const AdminAccessRights = () => {
                   Add Pigme
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.add_pigme}
                     onChange={(e) =>
@@ -2900,7 +2901,7 @@ const AdminAccessRights = () => {
                   View Pigme
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_pigme}
                     onChange={(e) =>
@@ -2928,7 +2929,7 @@ const AdminAccessRights = () => {
                   Edit Pigme
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.edit_pigme}
                     onChange={(e) =>
@@ -2956,7 +2957,7 @@ const AdminAccessRights = () => {
                   Delete Pigme
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.delete_pigme}
                     onChange={(e) =>
@@ -2984,7 +2985,7 @@ const AdminAccessRights = () => {
                   Add Auction
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.add_auction}
                     onChange={(e) =>
@@ -3012,7 +3013,7 @@ const AdminAccessRights = () => {
                   View Auction
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_auction}
                     onChange={(e) =>
@@ -3040,7 +3041,7 @@ const AdminAccessRights = () => {
                   Edit Auction
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.edit_auction}
                     onChange={(e) =>
@@ -3068,7 +3069,7 @@ const AdminAccessRights = () => {
                   Delete Auction
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.delete_auction}
                     onChange={(e) =>
@@ -3096,7 +3097,7 @@ const AdminAccessRights = () => {
                   Add Payment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.add_payment}
                     onChange={(e) =>
@@ -3124,7 +3125,7 @@ const AdminAccessRights = () => {
                   View Payment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_payment}
                     onChange={(e) =>
@@ -3152,7 +3153,7 @@ const AdminAccessRights = () => {
                   Edit Payment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.edit_payment}
                     onChange={(e) =>
@@ -3180,7 +3181,7 @@ const AdminAccessRights = () => {
                   Delete Payment
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.delete_payment}
                     onChange={(e) =>
@@ -3208,7 +3209,7 @@ const AdminAccessRights = () => {
                   View Reports
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_reports}
                     onChange={(e) =>
@@ -3236,7 +3237,7 @@ const AdminAccessRights = () => {
                   View Daybook
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_daybook}
                     onChange={(e) =>
@@ -3264,7 +3265,7 @@ const AdminAccessRights = () => {
                   View Group Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={
                       updateFormData.access_permissions.view_group_report
@@ -3294,7 +3295,7 @@ const AdminAccessRights = () => {
                   View All Customer Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={
                       updateFormData.access_permissions.view_all_customer_report
@@ -3324,7 +3325,7 @@ const AdminAccessRights = () => {
                   View Customer Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={
                       updateFormData.access_permissions.view_customer_report
@@ -3354,7 +3355,7 @@ const AdminAccessRights = () => {
                   View Receipt Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={
                       updateFormData.access_permissions.view_receipt_report
@@ -3384,7 +3385,7 @@ const AdminAccessRights = () => {
                   View Auction Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={
                       updateFormData.access_permissions.view_auction_report
@@ -3414,7 +3415,7 @@ const AdminAccessRights = () => {
                   View Lead Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_lead_report}
                     onChange={(e) =>
@@ -3442,7 +3443,7 @@ const AdminAccessRights = () => {
                   View Pigme Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={
                       updateFormData.access_permissions.view_pigme_report
@@ -3472,7 +3473,7 @@ const AdminAccessRights = () => {
                   View Loan Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={updateFormData.access_permissions.view_loan_report}
                     onChange={(e) =>
@@ -3500,7 +3501,7 @@ const AdminAccessRights = () => {
                   View Agent Report
                 </span>
                 <label className="inline-flex relative items-center cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={
                       updateFormData.access_permissions.view_agent_report
@@ -3567,7 +3568,7 @@ const AdminAccessRights = () => {
                     </span>{" "}
                     to confirm deletion. <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     id="groupName"
                     placeholder="Enter the designation"

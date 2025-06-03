@@ -18,6 +18,8 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import { IoMdMore } from "react-icons/io";
 import { Link } from "react-router-dom";
+import { fieldSize } from "../data/fieldSize";
+
 const Receipt = () => {
   const [groups, setGroups] = useState([]);
   const [TableDaybook, setTableDaybook] = useState([]);
