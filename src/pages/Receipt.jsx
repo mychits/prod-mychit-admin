@@ -41,7 +41,8 @@ const Receipt = () => {
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showFilterField, setShowFilterField] = useState(false);
-  const [selectedLabel,setSelectedLabel] = useState("Today")
+  const [selectedLabel,setSelectedLabel] = useState("Today");
+  
   const now = new Date();
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
@@ -465,7 +466,7 @@ const Receipt = () => {
                       showSearch
                       popupMatchSelectWidth={false}
                       onChange={handleSelectFilter}
-                      value ={selectedLabel || undefined}
+                      value ={selectedLabel}
                       placeholder="Search Or Select Filter"
                       filterOption={(input, option) =>
                         option.children
@@ -521,7 +522,7 @@ const Receipt = () => {
                     <Select
                       showSearch
                       popupMatchSelectWidth={false}
-                      value={selectedAuctionGroupId || undefined}
+                      value={selectedAuctionGroupId}
                       onChange={handleGroupPayment}
                       placeholder="Search Or Select Group"
                       filterOption={(input, option) =>
@@ -557,7 +558,7 @@ const Receipt = () => {
                     <Select
                       showSearch
                       popupMatchSelectWidth={false}
-                      value={selectedCustomers || undefined}
+                      value={selectedCustomers}
                       filterOption={(input, option) =>
                         option.children
                           .toString()
@@ -589,7 +590,7 @@ const Receipt = () => {
                       <option value="online">Online</option>
                     </select> */}
                     <Select
-                      value={selectedPaymentMode || undefined}
+                      value={selectedPaymentMode}
                       showSearch
                       placeholder="Search Or Select Payment"
                       popupMatchSelectWidth={false}

@@ -45,6 +45,7 @@ const Daybook = () => {
   const [selectedCustomers, setSelectedCustomers] = useState("");
   const [payments, setPayments] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [selectedLabel,setSelectedLabel] = useState("Today")
 
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
@@ -150,6 +151,7 @@ const Daybook = () => {
   // };
 
   const handleSelectFilter = (value) => {
+    setSelectedLabel(value)
     setShowFilterField(false);
     const today = new Date();
     const formatDate = (date) => date.toISOString().slice(0, 10);
@@ -179,7 +181,11 @@ const Daybook = () => {
       group_id: groupId,
     }));
 
-    handleGroupChange(groupId);
+    //handleGroupChange(groupId);
+     const handleGroupChange = async (groupId) => {
+    //const groupId = event.target.value;
+    setSelectedGroup(groupId);
+  };
 
     if (groupId) {
       try {
@@ -430,6 +436,7 @@ const Daybook = () => {
                       showSearch
                       popupMatchSelectWidth={false}
                       onChange={handleSelectFilter}
+                      value ={selectedLabel || undefined}
                       placeholder="Search Or Select Filter"
                       filterOption={(input, option) =>
                         option.children
@@ -458,12 +465,12 @@ const Daybook = () => {
                       />
                     </div>
                   )}
-                  <div className="mb-2 flex flex-col">
+                  <div className="mb-2">
                     <label>Group</label>
                     <Select
                       showSearch
                       popupMatchSelectWidth={false}
-                      value={selectedAuctionGroupId || undefined}
+                      value={selectedAuctionGroupId }
                       onChange={handleGroupPayment}
                       placeholder="Search Or Select Group"
                       filterOption={(input, option) =>
@@ -482,12 +489,12 @@ const Daybook = () => {
                       ))}
                     </Select>
                   </div>
-                  <div className="mb-2 flex flex-col">
+                  <div className="mb-2">
                     <label>Customers</label>
                     <Select
                       showSearch
                       popupMatchSelectWidth={false}
-                      value={selectedCustomers || undefined}
+                      value={selectedCustomers}
                       filterOption={(input, option) =>
                         option.children
                           .toString()
@@ -507,10 +514,10 @@ const Daybook = () => {
                       ))}
                     </Select>
                   </div>
-                  <div className="mb-2 flex flex-col">
+                  <div className="mb-2">
                     <label>Payment Mode</label>
                     <Select
-                      value={selectedPaymentMode || undefined}
+                      value={selectedPaymentMode}
                       showSearch
                       placeholder="Search Or Select Payment"
                       popupMatchSelectWidth={false}

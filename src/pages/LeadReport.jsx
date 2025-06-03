@@ -28,6 +28,7 @@ const LeadReport = () => {
   const [searchText, setSearchText] = useState("");
   const [filteredLeads, setFilteredLeads] = useState([]);
   const [leadSourceOptions, setLeadSourceOptions] = useState([]);
+  const [selectedLabel,setSelectedLabel] = useState("Today")
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
@@ -484,6 +485,7 @@ const LeadReport = () => {
 
   const handleSelectFilter = (value) => {
     //const { value } = e.target;
+    setSelectedLabel(value)
     setShowFilterField(false);
 
     const today = new Date();
@@ -550,6 +552,7 @@ const LeadReport = () => {
                           .includes(input.toLowerCase())
                       }
                       className="w-full max-w-xs h-11"
+                      value={selectedLabel || undefined}
                     >
                       {groupTime.map((time) => (
                         <Select.Option key={time.value} value={time.value}>

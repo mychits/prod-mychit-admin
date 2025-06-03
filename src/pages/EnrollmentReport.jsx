@@ -18,6 +18,7 @@ const EnrollmentReport = () => {
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [showFilterField, setShowFilterField] = useState(false);
+  const [selectedLabel,setSelectedLabel] = useState("Today")
   const [searchText, setSearchText] = useState("");
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
@@ -172,6 +173,7 @@ const EnrollmentReport = () => {
 
   const handleSelectFilter = (value) => {
    // const { value } = e.target;
+   setSelectedLabel(value)
 setShowFilterField(false);
 
 const today = new Date();
@@ -265,6 +267,7 @@ if (value === "Today") {
                       showSearch
                       popupMatchSelectWidth={false}
                       onChange={handleSelectFilter}
+                      value={selectedLabel || undefined}
                       placeholder="Search Or Select Filter"
                       filterOption={(input, option) =>
                         option.children
