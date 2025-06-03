@@ -247,7 +247,6 @@ const Auction = () => {
                 " Auction",
               action: (
                 <div className="flex justify-center gap-2">
-      
                   <Dropdown
                     menu={{
                       items: [
@@ -256,7 +255,7 @@ const Auction = () => {
                           label: (
                             <div
                               className="text-green-600"
-                              onClick={() => handleUpdateModalOpen(group._id)}
+                              onClick={() => handleUpdateModalOpen(group._id,index+2)}
                             >
                               Edit
                             </div>
@@ -290,8 +289,8 @@ const Auction = () => {
       } catch (error) {
         console.error("Error fetching enrollment data:", error);
         setFilteredAuction([]);
-      }finally{
-        setIsLoading(false)
+      } finally {
+        setIsLoading(false);
       }
     } else {
       setFilteredAuction([]);
@@ -381,10 +380,10 @@ const Auction = () => {
     }
   };
 
-  const handleUpdateModalOpen = async (groupId) => {
+  const handleUpdateModalOpen = async (groupId,si) => {
     try {
       const response = await api.get(`/auction/get-auction-by-id/${groupId}`);
-      setCurrentUpdateGroup(response.data);
+      setCurrentUpdateGroup({...response.data,SI_number:si});
       setShowModalUpdate(true);
     } catch (error) {
       console.error("Error fetching auction:", error);
@@ -468,7 +467,13 @@ const Auction = () => {
                     }.csv`}
                   />
                 ) : (
-                  <CircularLoader isLoading={isLoading} data="Auction Data" failure={TableAuctions?.length <= 0 && selectedAuctionGroupId}/>
+                  <CircularLoader
+                    isLoading={isLoading}
+                    data="Auction Data"
+                    failure={
+                      TableAuctions?.length <= 0 && selectedAuctionGroupId
+                    }
+                  />
                 )}
               </div>
             </div>
@@ -744,7 +749,7 @@ const Auction = () => {
                       className="block mb-2 text-sm font-medium text-gray-900"
                       htmlFor="date"
                     >
-                      Next Date   <span className="text-red-500 ">*</span>
+                      Next Date <span className="text-red-500 ">*</span>
                     </label>
                     <input
                       type="date"
@@ -783,24 +788,45 @@ const Auction = () => {
               <h3 className="mb-4 text-xl font-bold text-gray-900">
                 View Auction
               </h3>
+
               <form className="space-y-6" onSubmit={() => {}}>
-                <div>
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="email"
-                  >
-                    Group <span className="text-red-500 ">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="group_id"
-                    value={currentUpdateGroup?.group_id?.group_name}
-                    onChange={() => {}}
-                    id="name"
-                    placeholder="Enter the Group Name"
-                    readOnly
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
+                <div className="flex flex-row justify-between space-x-4">
+                  <div  className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="email"
+                    >
+                      SI No 
+                    </label>
+                    <input
+                      type="text"
+                      name="group_id"
+                      value={currentUpdateGroup?.SI_number}
+                      onChange={() => {}}
+                      id="name"
+                      placeholder="SI Number"
+                      readOnly
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    />
+                     </div>
+                      <div  className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="email"
+                    >
+                      Group <span className="text-red-500 ">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="group_id"
+                      value={currentUpdateGroup?.group_id?.group_name}
+                      onChange={() => {}}
+                      id="name"
+                      placeholder="Enter the Group Name"
+                      readOnly
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
                   <div className="w-1/2">
