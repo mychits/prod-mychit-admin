@@ -716,70 +716,7 @@ const Lead = () => {
                   </p>
                 )}
               </div>
-              <div className="w-full">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="date"
-                >
-                  Note
-                </label>
-                <input
-                  type="text"
-                  name="note"
-                  value={formData.note}
-                  onChange={handleChange}
-                  id="text"
-                  placeholder="Specify note if any!"
-                  required
-                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                />
-              </div>
-
-              <div className="w-full">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
-                >
-                  Lead Needs and Goals <span className="text-red-500 ">*</span>
-                </label>
-                {/* <select
-                  name="lead_needs"
-                  id="category"
-                  value={formData.lead_needs}
-                  onChange={handleChange}
-                  required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                >
-                  <option value="">Select Lead Needs and Goals</option>
-                  <option value="savings">Savings</option>
-                  <option value="borrowings">Borrowings</option>
-                </select> */}
-                <Select
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  placeholder="Select Lead Needs and Goals "
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  name="lead_needs"
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                  value={formData?.lead_needs || undefined}
-                  onChange={(value) => handleAntDSelect("lead_needs", value)}
-                >
-                  {["Savings", "Borrowings"].map((lNeeds) => (
-                    <Select.Option key={lNeeds} value={lNeeds.toLowerCase()}>
-                      {lNeeds}
-                    </Select.Option>
-                  ))}
-                </Select>
-                {errors.lead_needs && (
-                  <p className="mt-1 text-sm text-red-500">
-                    {errors.lead_needs}
-                  </p>
-                )}
-              </div>
-
-              {formData.lead_type === "customer" && (
+               {formData.lead_type === "customer" && (
                 <>
                   <div className="w-full">
                     <label
@@ -945,6 +882,70 @@ const Lead = () => {
                   </div>
                 </>
               )}
+              <div className="w-full">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="date"
+                >
+                  Note
+                </label>
+                <input
+                  type="text"
+                  name="note"
+                  value={formData.note}
+                  onChange={handleChange}
+                  id="text"
+                  placeholder="Specify note if any!"
+                  required
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                />
+              </div>
+
+              <div className="w-full">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="category"
+                >
+                  Lead Needs and Goals <span className="text-red-500 ">*</span>
+                </label>
+                {/* <select
+                  name="lead_needs"
+                  id="category"
+                  value={formData.lead_needs}
+                  onChange={handleChange}
+                  required
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                >
+                  <option value="">Select Lead Needs and Goals</option>
+                  <option value="savings">Savings</option>
+                  <option value="borrowings">Borrowings</option>
+                </select> */}
+                <Select
+                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                  placeholder="Select Lead Needs and Goals "
+                  popupMatchSelectWidth={false}
+                  showSearch
+                  name="lead_needs"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  value={formData?.lead_needs || undefined}
+                  onChange={(value) => handleAntDSelect("lead_needs", value)}
+                >
+                  {["Savings", "Borrowings"].map((lNeeds) => (
+                    <Select.Option key={lNeeds} value={lNeeds.toLowerCase()}>
+                      {lNeeds}
+                    </Select.Option>
+                  ))}
+                </Select>
+                {errors.lead_needs && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.lead_needs}
+                  </p>
+                )}
+              </div>
+
+             
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
@@ -1053,7 +1054,7 @@ const Lead = () => {
                       handleAntInputDSelect("lead_profession", value)
                     }
                   >
-                    {["Employed", "Self_Employed"].map((lProf) => (
+                    {["Employed", "Self Employed"].map((lProf) => (
                       <Select.Option key={lProf} value={lProf.toLowerCase()}>
                         {lProf}
                       </Select.Option>
@@ -1215,6 +1216,115 @@ const Lead = () => {
                   </div>
                 </>
               )}{" "}
+              {updateFormData.lead_type === "agent" && (
+                <>
+                  <div className="w-full">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="category"
+                    >
+                      Agents
+                    </label>
+                    {/* <select
+                      name="lead_agent"
+                      id="category"
+                      value={updateFormData.lead_agent}
+                      onChange={handleInputChange}
+                      required
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    >
+                      <option value="">Select Agent</option>
+                      {agents.map((agent) => (
+                        <option key={agent._id} value={agent._id}>
+                          {agent.name}
+                        </option>
+                      ))}
+                    </select> */}
+                     <Select
+                      className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                      placeholder="Select or Search Agent "
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="lead_agent"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.lead_agent || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("lead_agent", value)
+                      }
+                    >
+                      {agents.map((agent) => (
+                        <Select.Option key={agent._id} value={agent._id}>
+                          {agent.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                    {errors.lead_agent && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.lead_agent}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+               {updateFormData.lead_type === "employee" && (
+                <>
+                  <div className="w-full">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="category"
+                    >
+                      Employee
+                    </label>
+                    {/* <select
+                      name="lead_agent"
+                      id="category"
+                      value={formData.lead_agent}
+                      onChange={handleChange}
+                      required
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    >
+                      <option value="">Select Agent</option>
+                      {agents.map((agent) => (
+                        <option key={agent._id} value={agent._id}>
+                          {agent.name}
+                        </option>
+                      ))}
+                    </select> */}
+                    <Select
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      placeholder="Select Or Search Employee"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="lead_agent"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.lead_agent || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("lead_agent", value)
+                      }
+                    >
+                      {employees.map((emp) => (
+                        <Select.Option key={emp._id} value={emp._id}>
+                          {emp.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                    {errors.lead_agent && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.lead_agent}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
               <label
                 className="block mb-2 text-sm font-medium text-gray-900"
                 htmlFor="date"
@@ -1278,60 +1388,7 @@ const Lead = () => {
                   </p>
                 )}
               </div>
-              {updateFormData.lead_type === "agent" && (
-                <>
-                  <div className="w-full">
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="category"
-                    >
-                      Agents
-                    </label>
-                    {/* <select
-                      name="lead_agent"
-                      id="category"
-                      value={updateFormData.lead_agent}
-                      onChange={handleInputChange}
-                      required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    >
-                      <option value="">Select Agent</option>
-                      {agents.map((agent) => (
-                        <option key={agent._id} value={agent._id}>
-                          {agent.name}
-                        </option>
-                      ))}
-                    </select> */}
-                     <Select
-                      className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                      placeholder="Select or Search Agent "
-                      popupMatchSelectWidth={false}
-                      showSearch
-                      name="lead_agent"
-                      filterOption={(input, option) =>
-                        option.children
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      value={updateFormData?.lead_agent || undefined}
-                      onChange={(value) =>
-                        handleAntInputDSelect("lead_agent", value)
-                      }
-                    >
-                      {agents.map((agent) => (
-                        <Select.Option key={agent._id} value={agent._id}>
-                          {agent.name}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                    {errors.lead_agent && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.lead_agent}
-                      </p>
-                    )}
-                  </div>
-                </>
-              )}
+              
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
