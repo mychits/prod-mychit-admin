@@ -68,8 +68,8 @@ const FilterGroups = () => {
   });
 
   const groupOptions = [
-    { value: "NewGroups", label: "New Groups" },
-    { value: "OngoingGroups", label: "Ongoing Groups" },
+    { value: "New Groups", label: "New Groups" },
+    { value: "Ongoing Groups", label: "Ongoing Groups" },
   ];
 
   const groupType = [{value: "divident", label: "Divident Group"},
