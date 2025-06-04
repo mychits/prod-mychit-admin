@@ -31,6 +31,7 @@ const Lead = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const whatsappEnable = true;
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -944,7 +945,23 @@ const Lead = () => {
                   </p>
                 )}
               </div>
+               <div className="flex flex-col items-center p-4 max-w-full bg-white rounded-lg shadow-sm space-y-4">
+                <div className="flex items-center space-x-3">
+                  <FaWhatsappSquare color="green" className="w-10 h-10" />
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    WhatsApp
+                  </h2>
+                </div>
 
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={whatsappEnable}
+                    className="text-green-500 checked:ring-2  checked:ring-green-700  rounded-full w-4 h-4"
+                  />
+                  <span className="text-gray-700">Send Via Whatsapp</span>
+                </div>
+              </div>
              
               <div className="w-full flex justify-end">
                 <button

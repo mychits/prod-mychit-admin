@@ -7,7 +7,8 @@ const EnrollmentRequestForm = () => {
   const [searchParams] = useSearchParams();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [step, setStep] = useState(1);
-  
+  const [districts, setDistricts] = useState([]);
+
   const [errors, setErrors] = useState({});
 
   const [enrollData, setEnrollData] = useState({
@@ -64,6 +65,18 @@ const EnrollmentRequestForm = () => {
     fetchSelectedGroup();
   }, []);
 
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      try {
+        const response = await api.get("/user/district");
+        setDistricts(response.data?.data?.districts);
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+      }
+    };
+
+    fetchDistricts();
+  }, []);
   const validateForm = (type) => {
     const newErrors = {};
     const data = type === "addEnrollCustomer" ? enrollData : null;
@@ -335,7 +348,6 @@ const EnrollmentRequestForm = () => {
                           value={enrollData?.first_name || ""}
                           onChange={handleChange}
                         />
-                        
                       </div>
                       <div className="sm:w-1/2 w-full">
                         <h1 className="text-left sm:text-lg text-sm font-semibold ">
@@ -352,10 +364,10 @@ const EnrollmentRequestForm = () => {
                       </div>
                     </div>
                     {errors.full_name && (
-                          <p className="mt-2 text-sm text-red-600">
-                            {errors.full_name}
-                          </p>
-                        )}
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.full_name}
+                      </p>
+                    )}
 
                     <div className="sm:flex  gap-4">
                       <div className="sm:w-1/2 w-full">
@@ -551,40 +563,14 @@ const EnrollmentRequestForm = () => {
 
                     <div className="sm:flex gap-4">
                       <div className="sm:w-1/2 w-full">
-                        <h2 className="text-left sm:text-lg text-sm font-semibold ">
-                          District
-                        </h2>
-                        <select
-                          name="district"
-                          value={enrollData?.district}
-                          onChange={handleChange}
-                          className="w-full p-2 border rounded-md  sm:text-lg text-sm mb-4 mt-1 bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
-                        >
-                          <option value="">Select District</option>
-                          <option value="Bengaluru North">
-                            Bengaluru North
-                          </option>
-                          <option value="Bengaluru South">
-                            Bengaluru South
-                          </option>
-                          <option value="Bengaluru Urban">
-                            Bengaluru Urban
-                          </option>
-                          <option value="Bengaluru Rural">
-                            Bengaluru Rural
-                          </option>
-                        </select>
-                      </div>
-
-                      <div className="sm:w-1/2 w-full">
-                        <h2 className="text-left sm:text-lg text-sm font-semibold  ">
+                        <h2 className="text-left sm:text-lg text-sm font-semibold">
                           State
                         </h2>
                         <select
                           name="state"
                           value={enrollData?.state}
                           onChange={handleChange}
-                          className="w-full p-2 border rounded-md  sm:text-lg text-sm mb-4 mt-1 bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500  focus:border-blue-500"
+                          className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                         >
                           <option value="">Select State</option>
                           <option value="Karnataka">Karnataka</option>
@@ -592,6 +578,41 @@ const EnrollmentRequestForm = () => {
                           <option value="Tamil Nadu">Tamil Nadu</option>
                         </select>
                       </div>
+
+                      {enrollData?.state === "Karnataka" ? (
+                        <div className="sm:w-1/2 w-full">
+                          <h2 className="text-left sm:text-lg text-sm font-semibold">
+                            District
+                          </h2>
+                          <select
+                            name="district"
+                            value={enrollData?.district}
+                            onChange={handleChange}
+                            className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            <option value="">Select District</option>
+                            {districts.map((district, index) => (
+                              <option key={index} value={district}>
+                                {district}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      ) : (
+                        <div className="sm:w-1/2 w-full">
+                          <h2 className="text-left sm:text-lg text-sm font-semibold">
+                            District
+                          </h2>
+                          <input
+                            type="text"
+                            name="district"
+                            value={enrollData?.district}
+                            onChange={handleChange}
+                            placeholder="Enter District"
+                            className="w-full p-2 border rounded-md mb-4 mt-1 sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <h2 className="text-left sm:text-lg text-sm font-semibold  ">

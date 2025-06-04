@@ -4,7 +4,7 @@ import Sidebar from "../components/layouts/Sidebar";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import { Select, Dropdown } from "antd";
+import { Input, Select, Dropdown } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
@@ -27,6 +27,7 @@ const User = () => {
   const [groups, setGroups] = useState([]);
   const [areas, setAreas] = useState([]);
   const [files, setFiles] = useState({});
+  const [districts, setDistricts] = useState([]);
   const [reloadTrigger, setReloadTrigger] = useState(0);
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
@@ -48,15 +49,6 @@ const User = () => {
     track_source: "admin_panel",
     collection_area: "",
   });
-
-  const handleAntDSelectGroup = async (groupId) => {
-    try {
-      const response = await api.get(`/group/get-by-id-group/${groupId}`);
-      setSelectedGroup(response.data); 
-    } catch (err) {
-      console.error("Failed to fetch group:", err);
-    }
-  };
 
   const [updateFormData, setUpdateFormData] = useState({
     full_name: "",
@@ -119,6 +111,19 @@ const User = () => {
   }, [reloadTrigger]);
 
   useEffect(() => {
+    const fetchDistricts = async () => {
+      try {
+        const response = await api.get("/user/district");
+        setDistricts(response.data?.data?.districts);
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+      }
+    };
+
+    fetchDistricts();
+  }, [reloadTrigger]);
+
+  useEffect(() => {
     const fetchUsers = async () => {
       try {
         setIsLoading(true);
@@ -137,6 +142,7 @@ const User = () => {
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
+                trigger={["click"]}
                 menu={{
                   items: [
                     {
@@ -248,7 +254,7 @@ const User = () => {
       [field]: "",
     }));
   };
-    const handleAntInputDSelect = (field, value) => {
+  const handleAntInputDSelect = (field, value) => {
     setUpdateFormData((prevData) => ({
       ...prevData,
       [field]: value,
@@ -267,7 +273,14 @@ const User = () => {
       [name]: "",
     }));
   };
-
+  const handleAntDSelectGroup = async (groupId) => {
+    try {
+      const response = await api.get(`/group/get-by-id-group/${groupId}`);
+      setSelectedGroup(response.data);
+    } catch (err) {
+      console.error("Failed to fetch group:", err);
+    }
+  };
   const validateForm = (type) => {
     const newErrors = {};
     const data = type === "addCustomer" ? formData : updateFormData;
@@ -653,7 +666,7 @@ const User = () => {
                 >
                   Full Name <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="full_name"
                   value={formData?.full_name}
@@ -677,7 +690,7 @@ const User = () => {
                   >
                     Email
                   </label>
-                  <input
+                  <Input
                     type="email"
                     name="email"
                     value={formData.email}
@@ -698,7 +711,7 @@ const User = () => {
                   >
                     Phone Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="phone_number"
                     value={formData.phone_number}
@@ -723,7 +736,7 @@ const User = () => {
                   >
                     Password <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="password"
                     value={formData.password}
@@ -746,7 +759,7 @@ const User = () => {
                   >
                     Pincode <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="pincode"
                     value={formData.pincode}
@@ -771,7 +784,7 @@ const User = () => {
                   >
                     Adhaar Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="adhaar_no"
                     value={formData.adhaar_no}
@@ -794,7 +807,7 @@ const User = () => {
                   >
                     Pan Number
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="pan_no"
                     value={formData?.pan_no}
@@ -816,7 +829,7 @@ const User = () => {
                 >
                   Address <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="address"
                   value={formData.address}
@@ -850,7 +863,9 @@ const User = () => {
                       .includes(input.toLowerCase())
                   }
                   value={formData?.collection_area || undefined}
-                  onChange={(value) => handleAntDSelect("collection_area",value)}
+                  onChange={(value) =>
+                    handleAntDSelect("collection_area", value)
+                  }
                 >
                   {areas.map((area) => (
                     <Select.Option key={area._id} value={area._id}>
@@ -917,7 +932,7 @@ const User = () => {
                   >
                     Group Type
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={selectedGroup?.group_type || ""}
                     id="name"
@@ -934,7 +949,7 @@ const User = () => {
                   >
                     Group Value
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name=""
                     value={selectedGroup?.group_value}
@@ -954,7 +969,7 @@ const User = () => {
                   >
                     Group Installment
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name=""
                     value={selectedGroup?.group_install}
@@ -974,7 +989,7 @@ const User = () => {
                   >
                     Group Duration
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name=""
                     value={selectedGroup?.group_duration}
@@ -1008,6 +1023,7 @@ const User = () => {
                   value={updateFormData?.title || undefined}
                   onChange={(value) => handleAntInputDSelect("title", value)}
                 >
+                  <Select.Option value="">Select Title</Select.Option>
                   {["Mr", "Ms", "Mrs", "M/S", "Dr"].map((cTitle) => (
                     <Select.Option key={cTitle} value={cTitle}>
                       {cTitle}
@@ -1023,7 +1039,7 @@ const User = () => {
                 >
                   Full Name <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="full_name"
                   value={updateFormData?.full_name}
@@ -1048,7 +1064,7 @@ const User = () => {
                   >
                     Email
                   </label>
-                  <input
+                  <Input
                     type="email"
                     name="email"
                     value={updateFormData?.email}
@@ -1069,7 +1085,7 @@ const User = () => {
                   >
                     Phone Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="phone_number"
                     value={updateFormData?.phone_number}
@@ -1088,23 +1104,31 @@ const User = () => {
               </div>
 
               <div className="flex flex-row justify-between space-x-4">
+               
                 <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="email"
+                    htmlFor="date"
                   >
-                    Father Name
+                    Password <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
-                    name="father_name"
-                    value={updateFormData?.father_name}
-                    onChange={handleInputChange}
-                    id="father-name"
-                    placeholder="Enter the Father name"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    id="text"
+                    placeholder="Enter Password"
+                    required
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
+                  {errors.password && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.password}
+                    </p>
+                  )}
                 </div>
+               
                 <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -1112,7 +1136,7 @@ const User = () => {
                   >
                     Pincode <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="pincode"
                     value={updateFormData?.pincode}
@@ -1137,7 +1161,7 @@ const User = () => {
                   >
                     Aadhar Number <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="adhaar_no"
                     value={updateFormData?.adhaar_no}
@@ -1160,7 +1184,7 @@ const User = () => {
                   >
                     Pan Number
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="pan_no"
                     value={updateFormData?.pan_no}
@@ -1182,7 +1206,7 @@ const User = () => {
                 >
                   Address <span className="text-red-500 ">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="address"
                   value={updateFormData?.address}
@@ -1196,6 +1220,61 @@ const User = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.address}</p>
                 )}
               </div>
+              <div className="flex flex-row justify-between space-x-4">
+
+                 <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="email"
+                  >
+                    Father Name
+                  </label>
+                  <Input
+                    type="text"
+                    name="father_name"
+                    value={updateFormData?.father_name}
+                    onChange={handleInputChange}
+                    id="father-name"
+                    placeholder="Enter the Father name"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                  />
+                </div>
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="area"
+                  >
+                    Collection Area
+                  </label>
+
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Or Search Collection Area"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="collection_area"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.collection_area || undefined}
+                    onChange={(value) =>
+                      handleAntInputDSelect("collection_area", value)
+                    }
+                  >
+                    <Select.Option value="">
+                      Select or Search Collection Area
+                    </Select.Option>
+                    {areas.map((area) => (
+                      <Select.Option key={area._id} value={area._id}>
+                        {area.route_name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+              </div>
 
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
@@ -1205,7 +1284,7 @@ const User = () => {
                   >
                     Customer Date of Birth
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="dateofbirth"
                     value={
@@ -1241,24 +1320,26 @@ const User = () => {
                     <option value="Female">Female</option>
                   </select> */}
 
-                   <Select
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  placeholder="Select Gender"
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  name="gender"
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                  value={updateFormData?.gender || undefined}
-                  onChange={(value) => handleAntInputDSelect("gender", value)}
-                >
-                  {["Male", "Female"].map((gType) => (
-                    <Select.Option key={gType} value={gType}>
-                      {gType}
-                    </Select.Option>
-                  ))}
-                </Select>
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Gender"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="gender"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.gender || undefined}
+                    onChange={(value) => handleAntInputDSelect("gender", value)}
+                  >
+                    {["Male", "Female"].map((gType) => (
+                      <Select.Option key={gType} value={gType}>
+                        {gType}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1281,23 +1362,29 @@ const User = () => {
                     <option value="Unmarried">Unmarried</option>
                   </select> */}
                   <Select
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  placeholder="Select Marital Status"
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  name="marital_status"
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                  value={updateFormData?.marital_status || undefined}
-                  onChange={(value) => handleAntInputDSelect("marital_status", value)}
-                >
-                  {["Married", "Unmarried"].map((mStatus) => (
-                    <Select.Option key={mStatus} value={mStatus}>
-                      {mStatus}
-                    </Select.Option>
-                  ))}
-                </Select>
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Marital Status"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="marital_status"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.marital_status || undefined}
+                    onChange={(value) =>
+                      handleAntInputDSelect("marital_status", value)
+                    }
+                  >
+                    {["Married", "Unmarried", "Widow", "Divorced"].map(
+                      (mStatus) => (
+                        <Select.Option key={mStatus} value={mStatus}>
+                          {mStatus}
+                        </Select.Option>
+                      )
+                    )}
+                  </Select>
                 </div>
 
                 <div className="w-1/2">
@@ -1307,7 +1394,7 @@ const User = () => {
                   >
                     Referral Name
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="referral_name"
                     value={updateFormData?.referral_name}
@@ -1326,25 +1413,29 @@ const User = () => {
                   >
                     Nationality
                   </label>
-                  
-                   <Select
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  placeholder="Select Nationality"
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  name="nationality"
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                  value={updateFormData?.nationality || undefined}
-                  onChange={(value) => handleAntInputDSelect("nationality", value)}
-                >
-                  {["Indian", "Other"].map((nation) => (
-                    <Select.Option key={nation} value={nation}>
-                      {nation}
-                    </Select.Option>
-                  ))}
-                </Select>
+
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Nationality"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="nationality"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.nationality || undefined}
+                    onChange={(value) =>
+                      handleAntInputDSelect("nationality", value)
+                    }
+                  >
+                    {["Indian", "Other"].map((nation) => (
+                      <Select.Option key={nation} value={nation}>
+                        {nation}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </div>
 
                 <div className="w-1/2">
@@ -1354,7 +1445,7 @@ const User = () => {
                   >
                     Alternate Phone Number
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="alternate_number"
                     value={updateFormData?.alternate_number}
@@ -1374,7 +1465,7 @@ const User = () => {
                   >
                     Village
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="village"
                     value={updateFormData?.village}
@@ -1392,7 +1483,7 @@ const User = () => {
                   >
                     Taluk
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="taluk"
                     value={updateFormData?.taluk}
@@ -1404,35 +1495,9 @@ const User = () => {
                 </div>
               </div>
 
+           
               <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="district"
-                  >
-                    District
-                  </label>
-               
-                   <Select
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  placeholder="Select Nationality"
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  name="district"
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                  value={updateFormData?.district || undefined}
-                  onChange={(value) => handleAntInputDSelect("district", value)}
-                >
-                  {["Bengaluru North", "Bengaluru South","Bengaluru Urban","Bengaluru Rural"].map((district) => (
-                    <Select.Option key={district} value={district}>
-                      {district}
-                    </Select.Option>
-                  ))}
-                </Select>
-                </div>
-
+     
                 <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -1440,25 +1505,70 @@ const User = () => {
                   >
                     State
                   </label>
-              
+
                   <Select
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  placeholder="Select State"
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  name="state"
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                  value={updateFormData?.state || undefined}
-                  onChange={(value) => handleAntInputDSelect("state", value)}
-                >
-                  {["Karnataka", "Maharashtra","Tamil Nadu"].map((state) => (
-                    <Select.Option key={state} value={state}>
-                      {state}
-                    </Select.Option>
-                  ))}
-                </Select>
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select State"
+                    showSearch
+                    name="state"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.state || undefined}
+                    onChange={(value) => handleAntInputDSelect("state", value)}
+                  >
+                    {["Karnataka", "Maharashtra", "Tamil Nadu"].map((state) => (
+                      <Select.Option key={state} value={state}>
+                        {state}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+
+
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="district"
+                  >
+                    District
+                  </label>
+
+                  {updateFormData?.state === "Karnataka" ? (
+                    <Select
+                      className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                      placeholder="Select District"
+                      showSearch
+                      name="district"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.district || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("district", value)
+                      }
+                    >
+                      <Select.Option value="">Select District</Select.Option>
+                      {districts.map((district, index) => (
+                        <Select.Option key={index} value={district}>
+                          {district}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  ) : (
+                    <Input
+                      type="text"
+                      name="district"
+                      value={updateFormData?.district}
+                      onChange={handleInputChange}
+                      placeholder="Enter District"
+                      className="w-full p-2 h-14 border rounded-md sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  )}
                 </div>
               </div>
 
@@ -1470,7 +1580,7 @@ const User = () => {
                   >
                     Nominee Name
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="nominee_name"
                     value={updateFormData?.nominee_name}
@@ -1488,7 +1598,7 @@ const User = () => {
                   >
                     Nominee Date of Birth
                   </label>
-                  <input
+                  <Input
                     type="date"
                     name="nominee_dateofbirth"
                     value={
@@ -1513,25 +1623,36 @@ const User = () => {
                   >
                     Nominee Relationship
                   </label>
-               
-                   <Select
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  placeholder="Select Nominee Relationship"
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  name="nominee_relationship"
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                  value={updateFormData?.nominee_relationship || undefined}
-                  onChange={(value) => handleAntInputDSelect("nominee_relationship", value)}
-                >
-                  {["Father", "Mother","Brother/Sister","Spouse","Son/Daughter","Other"].map((nominee) => (
-                    <Select.Option key={nominee} value={nominee}>
-                      {nominee}
-                    </Select.Option>
-                  ))}
-                </Select>
+
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Nominee Relationship"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="nominee_relationship"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.nominee_relationship || undefined}
+                    onChange={(value) =>
+                      handleAntInputDSelect("nominee_relationship", value)
+                    }
+                  >
+                    {[
+                      "Father",
+                      "Mother",
+                      "Brother/Sister",
+                      "Spouse",
+                      "Son/Daughter",
+                      "Other",
+                    ].map((nominee) => (
+                      <Select.Option key={nominee} value={nominee}>
+                        {nominee}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </div>
 
                 <div className="w-1/2">
@@ -1541,7 +1662,7 @@ const User = () => {
                   >
                     Nominee Phone Number
                   </label>
-                  <input
+                  <Input
                     type="number"
                     name="nominee_phone_number"
                     value={updateFormData?.nominee_phone_number}
@@ -1560,7 +1681,7 @@ const User = () => {
                   >
                     Aadhaar Front Photo
                   </label>
-                  <input
+                  <Input
                     type="file"
                     name="aadhar_frontphoto"
                     onChange={handleFileChange}
@@ -1585,7 +1706,7 @@ const User = () => {
                   >
                     Aadhaar Back Photo
                   </label>
-                  <input
+                  <Input
                     type="file"
                     name="aadhar_backphoto"
                     onChange={handleFileChange}
@@ -1611,7 +1732,7 @@ const User = () => {
                   >
                     Pan Front Photo
                   </label>
-                  <input
+                  <Input
                     type="file"
                     name="pan_frontphoto"
                     onChange={handleFileChange}
@@ -1636,7 +1757,7 @@ const User = () => {
                   >
                     Pan Back Photo
                   </label>
-                  <input
+                  <Input
                     type="file"
                     name="pan_backphoto"
                     onChange={handleFileChange}
@@ -1663,7 +1784,7 @@ const User = () => {
                   >
                     Upload Profile Photo
                   </label>
-                  <input
+                  <Input
                     type="file"
                     name="profilephoto"
                     onChange={handleFileChange}
@@ -1680,36 +1801,7 @@ const User = () => {
                     />
                   </Link>
                 </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="area"
-                  >
-                    Collection Area
-                  </label>
-
-                  <Select
-                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                    placeholder="Select Or Search Collection Area"
-                    popupMatchSelectWidth={false}
-                    showSearch
-                    name="collection_area"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    value={updateFormData?.collection_area || undefined}
-                    onChange={(value) => handleAntInputDSelect("collection_area", value)}
-                  >
-                    {areas.map((area) => (
-                      <Select.Option key={area._id} value={area._id}>
-                        {area.route_name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </div>
+                
               </div>
 
               <label
@@ -1726,7 +1818,7 @@ const User = () => {
                   >
                     Bank Name
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="bank_name"
                     value={updateFormData?.bank_name}
@@ -1744,7 +1836,7 @@ const User = () => {
                   >
                     Bank Branch Name
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="bank_branch_name"
                     value={updateFormData?.bank_branch_name}
@@ -1763,7 +1855,7 @@ const User = () => {
                   >
                     Bank Account Number
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="bank_account_number"
                     value={updateFormData?.bank_account_number}
@@ -1781,7 +1873,7 @@ const User = () => {
                   >
                     Bank IFSC Code
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="bank_IFSC_code"
                     value={updateFormData?.bank_IFSC_code}
@@ -1836,7 +1928,7 @@ const User = () => {
                     to confirm deletion.{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     id="groupName"
                     placeholder="Enter the User Full Name"
