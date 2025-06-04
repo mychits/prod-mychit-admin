@@ -13,6 +13,7 @@ import { IoMdMore } from "react-icons/io";
 import { Input,Select, Dropdown } from "antd";
 import { fieldSize } from "../data/fieldSize";
 import CircularLoader from "../components/loaders/CircularLoader";
+import { FaWhatsappSquare } from "react-icons/fa";
 const Lead = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
