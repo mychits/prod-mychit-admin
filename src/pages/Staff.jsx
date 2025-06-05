@@ -499,6 +499,10 @@ const Staff = () => {
   //   setSelectedReportingManagerId(reportingId);
   // };
 
+  const handleReportingManager = (value) => {
+  setSelectedReportingManagerId(value);
+};
+
   // const handleAntDSelectReportingManager = (reportingId) => {
   //   setSelectedReportingManagerId(reportingId);
 
@@ -1094,6 +1098,44 @@ const Staff = () => {
                   </p>
                 )}
               </div>
+                {(selectedManagerTitle === "Sales Excecutive" ||
+                selectedManagerTitle === "Business Agent" ||
+                selectedManagerTitle === "Office Executive")
+                && (
+                  <div className="w-full">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="category"
+                    >
+                      Reporting Manager
+                    </label>
+                    <Select
+  value={selectedReportingManagerId || undefined}
+  id="selectedReportingManagerId"
+  onChange={handleReportingManager}
+  placeholder="Select Reporting Manager"
+  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+  showSearch
+  popupMatchSelectWidth={false}
+  filterOption={(input, option) =>
+    option?.children?.toString().toLowerCase().includes(input.toLowerCase())
+  }
+>
+  <Select.Option value="" hidden>
+    Select Reporting Manager
+  </Select.Option>
+  {users.map((group) => (
+    <Select.Option key={group._id} value={group._id}>
+      {group.name} - {group?.designation_id?.title}
+    </Select.Option>
+  ))}
+</Select>
+
+                    {errors.reporting_manager && (
+                      <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
+                    )}
+                  </div>
+                )}
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"

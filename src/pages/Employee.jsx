@@ -50,7 +50,7 @@ const Employee = () => {
     address: "",
     pincode: "",
     adhaar_no: "",
-    designation_id:"",
+    designation_id: "",
     pan_no: "",
     agent_type: "employee"
   });
@@ -63,16 +63,16 @@ const Employee = () => {
     address: "",
     pincode: "",
     adhaar_no: "",
-    designation_id:"",
+    designation_id: "",
     pan_no: "",
   });
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchEmployee = async () => {
       try {
         setIsLoading(true);
         const response = await api.get("/agent/get-employee");
-       
+
         setUsers(response?.data?.employee);
         const formattedData = response?.data?.employee?.map((group, index) => ({
           _id: group?._id,
@@ -85,7 +85,7 @@ const Employee = () => {
           action: (
             <div className="flex justify-center  gap-2">
               <Dropdown
-               trigger={['click']}
+                trigger={['click']}
                 menu={{
                   items: [
                     {
@@ -129,7 +129,7 @@ const Employee = () => {
     fetchEmployee();
   }, [reloadTrigger]);
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchManagers = async () => {
       try {
         const response = await api.get("/designation/get-designation");
@@ -150,7 +150,7 @@ const Employee = () => {
 
     setSelectedManagerTitle(title);
 
-  
+
     setFormData((prev) => ({
       ...prev,
       managerId,
@@ -168,7 +168,7 @@ const Employee = () => {
   const handleAntDSelectReportingManager = (reportingId) => {
     setSelectedReportingManagerId(reportingId);
 
-    
+
     setFormData((prev) => ({
       ...prev,
       reportingManagerId: reportingId,
@@ -270,7 +270,7 @@ const Employee = () => {
           designation_id: selectedManagerId,
           reporting_manager_id: selectedReportingManagerId
         };
-        
+
         const response = await api.post("/agent/add-employee", dataToSend, {
           headers: {
             "Content-Type": "application/json",
@@ -304,27 +304,27 @@ const Employee = () => {
         error.response.data &&
         error.response.data.message
       ) {
-       const errMsg = error.response.data.message.toLowerCase();
+        const errMsg = error.response.data.message.toLowerCase();
 
-      if (errMsg.includes("phone number")) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          phone_number: "Phone number already exists",
-        }));
+        if (errMsg.includes("phone number")) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            phone_number: "Phone number already exists",
+          }));
+        } else {
+          setAlertConfig({
+            visibility: true,
+            message: error.response.data.message,
+            type: "error",
+          });
+        }
       } else {
         setAlertConfig({
           visibility: true,
-          message: error.response.data.message,
+          message: "An unexpected error occurred. Please try again.",
           type: "error",
         });
       }
-    } else {
-      setAlertConfig({
-        visibility: true,
-        message: "An unexpected error occurred. Please try again.",
-        type: "error",
-      });
-    }
     }
   };
 
@@ -451,7 +451,7 @@ const Employee = () => {
     }
   };
 
- 
+
 
   const handleManager = async (event) => {
     const groupId = event.target.value;
@@ -460,9 +460,12 @@ const Employee = () => {
     setSelectedManagerTitle(selected?.title || "");
   };
 
-  const handleReportingManager = async (event) => {
-    const reportingId = event.target.value;
-    setSelectedReportingManagerId(reportingId);
+  // const handleReportingManager = async (event) => {
+  //   const reportingId = event.target.value;
+  //   setSelectedReportingManagerId(reportingId);
+  // };
+  const handleReportingManager = (value) => {
+    setSelectedReportingManagerId(value);
   };
 
   return (
@@ -475,13 +478,13 @@ const Employee = () => {
           />
           <Sidebar />
           <CustomAlertDialog
-          type={alertConfig.type}
-          isVisible={alertConfig.visibility}
-          message={alertConfig.message}
-          onClose={() =>
-            setAlertConfig((prev) => ({ ...prev, visibility: false }))
-          }
-        />
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+            onClose={() =>
+              setAlertConfig((prev) => ({ ...prev, visibility: false }))
+            }
+          />
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
@@ -709,7 +712,7 @@ const Employee = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                 Designation <span className="text-red-500 ">*</span>
+                  Designation <span className="text-red-500 ">*</span>
                 </label>
                 {/* <select
                   value={selectedManagerId}
@@ -744,9 +747,9 @@ const Employee = () => {
                     </Select.Option>
                   ))}
                 </Select>
-              
+
               </div>
-              
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
@@ -837,7 +840,7 @@ const Employee = () => {
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
-              <div className="w-full">
+                <div className="w-full">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
@@ -956,7 +959,7 @@ const Employee = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="category"
                 >
-                   Designation <span className="text-red-500 ">*</span>
+                  Designation <span className="text-red-500 ">*</span>
                 </label>
                 {/* <select
                   value={selectedManagerId}
@@ -995,6 +998,44 @@ const Employee = () => {
                   <p className="mt-2 text-sm text-red-600">{errors.designation_id}</p>
                 )}
               </div>
+              {(selectedManagerTitle === "Sales Excecutive" ||
+                selectedManagerTitle === "Business Agent" ||
+                selectedManagerTitle === "Office Executive")
+                && (
+                  <div className="w-full">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="category"
+                    >
+                      Reporting Manager
+                    </label>
+                    <Select
+                      value={selectedReportingManagerId || undefined}
+                      id="selectedReportingManagerId"
+                      onChange={handleReportingManager}
+                      placeholder="Select Reporting Manager"
+                      className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      filterOption={(input, option) =>
+                        option?.children?.toString().toLowerCase().includes(input.toLowerCase())
+                      }
+                    >
+                      <Select.Option value="" hidden>
+                        Select Reporting Manager
+                      </Select.Option>
+                      {users.map((group) => (
+                        <Select.Option key={group._id} value={group._id}>
+                          {group.name} - {group?.designation_id?.title}
+                        </Select.Option>
+                      ))}
+                    </Select>
+
+                    {errors.reporting_manager && (
+                      <p className="mt-2 text-sm text-red-600">{errors.reporting_manager}</p>
+                    )}
+                  </div>
+                )}
               <div className="w-full flex justify-end">
                 <button
                   type="submit"

@@ -267,7 +267,7 @@ const Sidebar = () => {
     <>
       <div
         ref={ref}
-        className={`bg-secondary min-h-screen max-h-auto p-5 pt-8 ${
+        className={`bg-secondary min-h-screen max-h-auto p-5 pt-8  ${
           open ? "w-64" : "w-20"
         } duration-300 relative`}
       >

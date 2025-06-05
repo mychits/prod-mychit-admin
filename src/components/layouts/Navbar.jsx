@@ -9,8 +9,9 @@ import { AiTwotoneGold } from "react-icons/ai";
 import { NavLink } from "react-router-dom";
 import GlobalSearchBar from "../search/GlobalSearchBar";
 import { CgProfile } from "react-icons/cg";
+import { Card, Button, Input } from "antd";
 const Navbar = ({
-  onGlobalSearchChangeHandler = () => {},
+  onGlobalSearchChangeHandler = () => { },
   visibility = false,
 }) => {
   const [adminName, setAdminName] = useState("");
@@ -28,9 +29,11 @@ const Navbar = ({
 
   const [open, setOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+
   return (
     <>
-      <nav className="bg-white w-full fixed top-0 left-0 z-10 shadow-md">
+
+      <nav className=" w-full fixed  top-0 left-0 z-50 bg-white shadow-md">
         <div className=" flex justify-between items-center py-2 px-10">
           <div className="text-2xl flex items-center gap-2 font-bold py-4 uppercase">
             <AiTwotoneGold />
@@ -43,47 +46,72 @@ const Navbar = ({
               visibility={visibility}
             />
           </div>
-          <NavLink
-            className={({ isActive }) =>
-              isActive
-                ? "text-blue-900 font-bold border-b-2 border-blue-900 "
-                : "text-gray-700 font-medium  hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
-            }
-            to={"/reports/group-report"}
-          >
-            Group Report
-          </NavLink>
+
 
           <NavLink
             className={({ isActive }) =>
               isActive
-                ? "text-blue-900 font-bold border-b-2 border-blue-900"
-                : "text-gray-700 font-medium hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
+                ? "text-white font-bold "
+                : "text-white font-medium "
+            }
+            to={"/reports/group-report"}
+          >
+            {({ isActive }) => <Button
+
+              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
+              Group Report
+            </Button>}
+          </NavLink>
+
+
+          <NavLink
+            className={({ isActive }) =>
+              isActive
+                ? "text-white font-bold"
+                : "text-white font-medium "
             }
             to={"/reports/daybook"}
           >
-            Day Book
+            {({ isActive }) => <Button
+
+              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
+
+              Day Book
+            </Button>}
           </NavLink>
           <NavLink
             className={({ isActive }) =>
               isActive
-                ? "text-blue-900 font-bold border-b-2 border-blue-900"
-                : "text-gray-700 font-medium hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
+                ? "text-white font-bold"
+                : "text-white font-medium "
             }
             to={"/reports/receipt"}
           >
-            Receipt Report
+            {({ isActive }) => <Button
+
+              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
+
+              Receipt Report
+            </Button>}
           </NavLink>
+
+
           <NavLink
             className={({ isActive }) =>
               isActive
-                ? "text-blue-900 font-bold border-b-2 border-blue-900"
-                : "text-gray-700 font-medium hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
+                ? "text-white font-bold"
+                : "text-white font-medium"
             }
             to={"/reports/user-report"}
           >
-            Customer Report
+            {({ isActive }) => <Button
+
+              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
+
+              Customer Report
+            </Button>}
           </NavLink>
+
           {/* <NavLink
             className={({ isActive }) =>
               isActive
@@ -97,13 +125,34 @@ const Navbar = ({
           <NavLink
             className={({ isActive }) =>
               isActive
-                ? "text-blue-900 font-bold border-b-2 border-blue-900"
-                : "text-gray-700 font-medium hover:text-blue-500 hover:border-b-2 hover:border-blue-500"
+                ? "text-white font-bold"
+                : "text-white font-medium"
             }
-            to={"/marketing/what-add"}
+            to={"/reports/employee-report"}
           >
-            Whatsapp
+            {({ isActive }) => <Button
+
+              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
+
+              Employee Report
+            </Button>}
           </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              isActive
+                ? "text-white font-bold"
+                : "text-white font-medium"
+            }
+            to={"/reports/lead-report"}
+          >
+            {({ isActive }) => <Button
+
+              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
+
+              Lead Report
+            </Button>}
+          </NavLink>
+
           {/* <div className="hidden md:block">
             <ul className="flex items-center gap-6 text-gray">
               {NavbarMenu.map((item) => {
@@ -130,18 +179,22 @@ const Navbar = ({
             >
               Gold Analytics
             </button> */}
-              <div className="rounded-md bg-red-100 flex p-2 justify-center items-center">
-            <div >
-              <CgProfile className="text-4xl text-red-600 text-center m-1" />
+            {/* <div className="pl-1  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border">
+              <div >
+                <CgProfile className="text-4xl text-red-600 text-center ml-2 " /> <p className="text-black font-semibold  text-center">{adminName}</p>
+              </div>
+              
+            </div> */}
+            <div className=" w-30 h-12 rounded-full shadow-md border flex items-center space-x-2 p-5 bg-white">
+              <CgProfile className="text-2xl text-red-600" />
+              <p className="text-black font-semibold">{adminName}</p>
             </div>
-            <p className="text-black font-semibold  text-center">{adminName}</p>
-          </div>
             <a
               href="/"
               onClick={() => {
                 localStorage.clear();
               }}
-              className="hover:bg-primary text-primary font-semibold hover:text-white rounded-md border-2 border-primary px-6 py-2 duration-200 hidden md:block"
+              className="hover:bg-primary text-primary font-semibold hover:text-white rounded-full border-2 border-primary px-3 py-2 duration-200 hidden md:block"
             >
               <IoIosLogOut size={20} />
             </a>
@@ -149,7 +202,7 @@ const Navbar = ({
           <div className="md:hidden" onClick={() => setOpen(!open)}>
             <MdMenu className="text-4xl" />
           </div>
-        
+
         </div>
       </nav>
       <ResponsiveMenu open={open} menu={NavbarMenu} />
