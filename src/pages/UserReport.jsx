@@ -618,7 +618,7 @@ const UserReport = () => {
   if (screenLoading)
     return (
       <div className="w-screen m-24">
-        <CircularLoader color="text-green-600" />;
+        <CircularLoader color="text-green-600" />
       </div>
     );
 
@@ -632,18 +632,18 @@ const UserReport = () => {
             visibility={true}
           />
           <div className="flex-grow p-7">
-            <h1 className="text-2xl font-semibold text-center">
+            <h1 className="text-2xl font-bold text-center">
               Reports - Customer
             </h1>
             <div className="mt-6 mb-8">
               <div className="mb-2">
-                <div className="flex justify-center items-center w-full gap-4 bg-blue-50 rounded-md shadow-md p-2">
+                <div className="flex justify-center items-center w-full gap-4 bg-blue-50    p-2 w-30 h-40  rounded-3xl  border   space-x-2  ">
                   <div className="mb-2">
                     <label
-                      className="flex w-auto p-4 gap-2 justify-center items-center select-none font-semibold  shadow-sm mb-2 rounded-sm"
+                      className="block text-lg text-gray-500 text-center  font-semibold mb-2"
                       htmlFor={"SS"}
                     >
-                      Search Or Select Customer
+                      Customer
                     </label>
                     <Select
                       id="SS"

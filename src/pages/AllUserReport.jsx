@@ -152,8 +152,8 @@ const AllUserReport = () => {
           </div>
         ) : (
           <div className="flex-grow p-7">
-            <h1 className="text-2xl font-semibold text-center">
-              All Customer Report
+            <h1 className="text-2xl font-bold text-center">
+              Reports - All Customer
             </h1>
 
             <div className="mt-6 mb-8">

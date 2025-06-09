@@ -462,18 +462,20 @@ const GroupReport = () => {
     );
   return (
     <>
-      <div className="w-screen">
+      <div className="w-screen min-h-screen">
         <div className="flex mt-30">
           {/* <Sidebar /> */}
            <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
+         
           <div className="flex-grow p-7">
-            <h1 className="text-2xl font-semibold text-center">Reports - Group</h1>
+            <h1 className="text-2xl font-bold text-center mb-6">Reports - Group</h1>
+
             <div className="mt-6 mb-8">
+              <div className="flex justify-center items-center w-full gap-4 bg-blue-50 p-2 w-30 h-40  rounded-3xl  border   space-x-2">
               <div className="mb-2">
-                <div className="flex justify-center items-center w-full gap-4 p-2 bg-blue-50 rounded-md shadow-md">
-                  <div className="mb-2 flex flex-col">
-                    <label className="flex w-auto p-4 gap-2 justify-center items-center select-none font-semibold  shadow-sm mb-2 rounded-sm" htmlFor={"SS"}>
-                      Search Or Select Group</label>
+                 
+                    <label className="block text-lg text-gray-500 text-center font-semibold mb-2" htmlFor={"SS"}>
+                      Group</label>
                     <Select
                    id="SS"
                     showSearch
@@ -489,6 +491,7 @@ const GroupReport = () => {
                       onChange={handleGroupPayment}
                       // className="border border-gray-300 px-6 py-2 shadow-sm outline-none w-full max-w-md"
                       className="cursor-pointer"
+                      
                     >
                       
                       {groups.map((group) => (
@@ -987,7 +990,7 @@ const GroupReport = () => {
               )}
             </div>
           </div>
-        </div>
+        
       </div>
     </>
   );

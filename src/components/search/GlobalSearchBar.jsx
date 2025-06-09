@@ -25,7 +25,7 @@ const GlobalSearchBar = ({ onGlobalSearchChangeHandler, visibility }) => {
     type="search"
     placeholder="Enter to search..."
     onChange={onGlobalSearchChangeHandler}
-    className="transition-all duration-300 pl-16  pr-4 py-2 ease-in-out w-12 h-12 rounded-full focus:w-64 focus:rounded-full px-4 shadow-md border border-gray-300 bg-white"
+    className="transition-all duration-300 pl-16  pr-4 py-2 ease-in-out w-12 h-12 rounded-full focus:w-64 hover:w-64 focus:rounded-full px-4 shadow-md border border-gray-300 bg-white"
   />
 </div>
   );

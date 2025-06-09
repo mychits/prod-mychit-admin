@@ -63,7 +63,7 @@ const EmployeeReport = () => {
 
   const processedTableData = employeeCustomerData.map((item, index) => ({
     ...item,
-    enrollmentStartDate:item?.enrollmentStartDate?.split("T")[0],
+    enrollmentStartDate: item?.enrollmentStartDate?.split("T")[0],
     sl_no: index + 1,
   }));
 
@@ -91,20 +91,20 @@ const EmployeeReport = () => {
     <div className="w-screen min-h-screen">
       <div className="flex mt-30">
         <Navbar
-         
+
           visibility={true}
         />
-        
+
         <div className="flex-grow p-7">
-          <h1 className="text-2xl font-semibold text-center mb-6">
+          <h1 className="text-2xl font-bold text-center mb-6">
             Reports - Employee
           </h1>
 
           <div className="mt-6 mb-8">
-            <div className="flex justify-center items-center w-full gap-4 bg-blue-50 rounded-md shadow-md p-4">
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Select Employee
+            <div className="flex justify-center items-center w-full gap-4 bg-blue-50    p-2 w-30 h-40  rounded-3xl  border   space-x-2">
+              <div className="mb-2">
+                <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
+                  Employee
                 </label>
                 <Select
                   value={selectedEmployeeId || undefined}
@@ -118,7 +118,7 @@ const EmployeeReport = () => {
                       .toLowerCase()
                       .includes(input.toLowerCase())
                   }
-                  style={{ height: "50px", width: "400px" }}
+                  style={{ height: "50px", width: "600px" }}
                 >
                   {employees.map((emp) => (
                     <Select.Option key={emp._id} value={emp._id}>
@@ -127,12 +127,19 @@ const EmployeeReport = () => {
                   ))}
                 </Select>
               </div>
-              <div className="ml-6 text-md font-semibold text-blue-700">
-                Total Business: ₹
-                {totalBusiness.toLocaleString("en-IN", {
-                  minimumFractionDigits: 2,
-                })}
-              </div>
+
+            </div>
+          </div>
+          <div className="ml-6 text-md font-semibold text-blue-700 mb-5">
+            <label> Total Business: </label>
+            <div className="mt-2">
+            <input
+              className="rounded-md"
+              readOnly
+              value={`₹${totalBusiness.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}`}
+            />
             </div>
           </div>
 

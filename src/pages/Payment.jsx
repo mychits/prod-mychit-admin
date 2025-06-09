@@ -15,7 +15,7 @@ import { FaWhatsappSquare } from "react-icons/fa";
 import PrintModal from "../components/modals/PrintModal";
 import PaymentPrint from "../components/printFormats/PaymentPrint";
 import Navbar from "../components/layouts/Navbar";
-import { Select, Dropdown,Modal as AntModal } from "antd";
+import { Select, Dropdown, Modal as AntModal } from "antd";
 import { IoMdMore } from "react-icons/io";
 import { Link } from "react-router-dom";
 import dataPaymentsFor from "../data/paymentsFor";
@@ -59,6 +59,60 @@ const Payment = () => {
   const [render, setRerender] = useState(0);
   const [openBackdropLoader, setOpenBackdropLoader] = useState(false);
   const [currentGroupId, setCurrentGroupId] = useState(null);
+  const dropDownItems = (group) => {
+    const dropDownItemList = [
+      {
+        key: "1",
+        label: (
+          <Link
+            to={`/print/${group._id}`}
+            className="text-blue-600 "
+          >
+            Print
+          </Link>
+        ),
+      },
+      {
+        key: "2",
+        label: (
+          <div
+            className="text-red-600 "
+            onClick={() => handleDeleteModalOpen(group._id)}
+          >
+            Delete
+          </div>
+        ),
+      },
+      {
+        key: "3",
+        label: (
+          <div
+            className="text-green-600 "
+            onClick={() => handleViewModalOpen(group._id)}
+          >
+            View
+          </div>
+        ),
+      },
+
+    ]
+    if (modifyPayment) {
+      dropDownItemList.push({
+        key: "4",
+        label: (
+          <div
+            className="text-blue-600 "
+            onClick={() => handleUpdateModalOpen(group._id)}
+          >
+            Update Amount
+          </div>
+        ),
+      })
+    }
+    return dropDownItemList;
+
+
+  };
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -112,7 +166,7 @@ const Payment = () => {
     ) {
       const isModify =
         userObj.admin_access_right_id?.access_permissions?.edit_payment ===
-        "true"
+          "true"
           ? true
           : false;
       setModifyPayment(isModify);
@@ -161,6 +215,7 @@ const Payment = () => {
               action: (
                 <div className="flex justify-center gap-2">
                   <Dropdown
+                  trigger={["click"]}
                     menu={{
                       items: [
                         // {
@@ -502,52 +557,7 @@ const Payment = () => {
                 <div className="flex justify-center gap-2">
                   <Dropdown
                     menu={{
-                      items: [
-                        {
-                          key: "1",
-                          label: (
-                            <Link
-                              to={`/print/${group._id}`}
-                              className="text-blue-600 "
-                            >
-                              Print
-                            </Link>
-                          ),
-                        },
-                        {
-                          key: "2",
-                          label: (
-                            <div
-                              className="text-red-600 "
-                              onClick={() => handleDeleteModalOpen(group._id)}
-                            >
-                              Delete
-                            </div>
-                          ),
-                        },
-                        {
-                          key: "3",
-                          label: (
-                            <div
-                              className="text-green-600 "
-                              onClick={() => handleViewModalOpen(group._id)}
-                            >
-                              View
-                            </div>
-                          ),
-                        },
-                        {
-                          key: "4",
-                          label: (
-                            <div
-                              className="text-blue-600 "
-                              onClick={() => handleUpdateModalOpen(group._id)}
-                            >
-                              Update Amount
-                            </div>
-                          ),
-                        },
-                      ],
+                      items: dropDownItems(group)
                     }}
                     placement="bottomLeft"
                   >
@@ -848,7 +858,7 @@ const Payment = () => {
         updateFormData
       );
       setShowUpdateModal(false);
-      
+
 
       setAlertConfig({
         visibility: true,
@@ -1028,13 +1038,12 @@ const Payment = () => {
                       )
                     )}
                     columns={columns}
-                    exportedFileName={`Payments ${
-                      TablePayments.length > 0
-                        ? TablePayments[0].date +
-                          " to " +
-                          TablePayments[TablePayments.length - 1].date
-                        : "empty"
-                    }.csv`}
+                    exportedFileName={`Payments ${TablePayments.length > 0
+                      ? TablePayments[0].date +
+                      " to " +
+                      TablePayments[TablePayments.length - 1].date
+                      : "empty"
+                      }.csv`}
                   />
                 ) : (
                   <div className="mt-10 text-center text-gray-500">
@@ -1388,7 +1397,7 @@ const Payment = () => {
               //   setErrors({});
               //   setPaymentGroupTickets([]);
               // }}
-               isVisible={showUpdateModal}
+              isVisible={showUpdateModal}
               onClose={() => {
                 setSelectedGroupId("");
                 setShowUpdateModal(false);
@@ -1417,10 +1426,10 @@ const Payment = () => {
                         id="pay_date"
                         value={
                           updateFormData?.pay_date &&
-                          !isNaN(new Date(updateFormData.pay_date))
+                            !isNaN(new Date(updateFormData.pay_date))
                             ? new Date(updateFormData.pay_date)
-                                .toISOString()
-                                .split("T")[0]
+                              .toISOString()
+                              .split("T")[0]
                             : ""
                         }
                         onChange={handleInputChange}
@@ -1719,32 +1728,33 @@ const Payment = () => {
   onReload={() => handleViewModalOpen(currentGroupId)}
   loading={loading}
 > */}
-<AntModal  open={showModalView}
-  onCancel={() => setShowModalView(false)}
-  onClose={() => setShowModalView(false)}
-  onOk={() => setShowModalView(false)}
-  onReload={() => handleViewModalOpen(currentGroupId)}
-  >
-    <h3 className="mb-4 text-xl font-bold text-gray-900">Payment Details</h3>
-<div className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5">
-  <div className="mb-3 flex gap-x-2"><strong>Group:   </strong> {currentViewGroup?.group_id?.group_name}</div>
-  <div className="mb-3 flex gap-x-2"><strong>Group Value:</strong> {currentViewGroup?.group_id?.group_value}</div>
-  <div className="mb-3 flex gap-x-2"><strong>Group Installment:</strong> {currentViewGroup?.group_id?.group_install}</div>
-  <div className="mb-3 flex gap-x-2"><strong>User:</strong> {currentViewGroup?.user_id?.full_name} | Ticket: {currentViewGroup?.ticket}</div>
-  <div className="mb-3 flex gap-x-2"><strong>Bid Amount:</strong> {currentViewGroup?.group_id?.group_value - currentViewGroup?.win_amount}</div>
-  <div className="mb-3 flex gap-x-2"><strong>Commission:</strong> {currentViewGroup?.commission}</div>
-  <div className="mb-3 flex gap-x-2"><strong>Winning Amount:</strong> {currentViewGroup?.win_amount}</div>
-  <div className="mb-3 flex gap-x-2"><strong>Divident:</strong> {currentViewGroup?.divident}</div>
-  <div className="mb-3 flex gap-x-2"><strong>Divident per Head:</strong> {currentViewGroup?.divident_head}</div>
-  <div className="mb-3 flex gap-x-2"><strong>Next Payable:</strong> {currentViewGroup?.payable}</div>
-  <div className="mb-3 flex gap-x-2"><strong>Auction Date:</strong> {currentViewGroup?.auction_date}</div>
-  <div className="mb-3 flex gap-x-2"><strong>Next Date:</strong> {currentViewGroup?.next_date}</div>
-  <div className="mb-3 flex gap-x-2"><strong>Created At:</strong> {currentViewGroup?.createdAt?.split("T")[0]}</div>
-  <div className="mb-3 flex gap-x-2"><strong>Updated At:</strong> {currentViewGroup?.updatedAt?.split("T")[0]}</div>
-</div>
-  
-  </AntModal>
-{/* </PaymentModal> */}
+            <AntModal open={showModalView}
+              onCancel={() => setShowModalView(false)}
+              onClose={() => setShowModalView(false)}
+              onOk={() => setShowModalView(false)}
+              onReload={() => handleViewModalOpen(currentGroupId)}
+              footer={<div></div>}
+            >
+              <h3 className="mb-4 text-xl font-bold text-gray-900">Payment Details</h3>
+              <div className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5">
+                <div className="mb-3 flex gap-x-2"><strong>Group:   </strong> {currentViewGroup?.group_id?.group_name}</div>
+                <div className="mb-3 flex gap-x-2"><strong>Group Value:</strong> {currentViewGroup?.group_id?.group_value}</div>
+                <div className="mb-3 flex gap-x-2"><strong>Group Installment:</strong> {currentViewGroup?.group_id?.group_install}</div>
+                <div className="mb-3 flex gap-x-2"><strong>User:</strong> {currentViewGroup?.user_id?.full_name} | Ticket: {currentViewGroup?.ticket}</div>
+                <div className="mb-3 flex gap-x-2"><strong>Bid Amount:</strong> {currentViewGroup?.group_id?.group_value - currentViewGroup?.win_amount}</div>
+                <div className="mb-3 flex gap-x-2"><strong>Commission:</strong> {currentViewGroup?.commission}</div>
+                <div className="mb-3 flex gap-x-2"><strong>Winning Amount:</strong> {currentViewGroup?.win_amount}</div>
+                <div className="mb-3 flex gap-x-2"><strong>Divident:</strong> {currentViewGroup?.divident}</div>
+                <div className="mb-3 flex gap-x-2"><strong>Divident per Head:</strong> {currentViewGroup?.divident_head}</div>
+                <div className="mb-3 flex gap-x-2"><strong>Next Payable:</strong> {currentViewGroup?.payable}</div>
+                <div className="mb-3 flex gap-x-2"><strong>Auction Date:</strong> {currentViewGroup?.auction_date}</div>
+                <div className="mb-3 flex gap-x-2"><strong>Next Date:</strong> {currentViewGroup?.next_date}</div>
+                <div className="mb-3 flex gap-x-2"><strong>Created At:</strong> {currentViewGroup?.createdAt?.split("T")[0]}</div>
+                <div className="mb-3 flex gap-x-2"><strong>Updated At:</strong> {currentViewGroup?.updatedAt?.split("T")[0]}</div>
+              </div>
+
+            </AntModal>
+            {/* </PaymentModal> */}
 
             <Modal
               isVisible={showModalDelete}

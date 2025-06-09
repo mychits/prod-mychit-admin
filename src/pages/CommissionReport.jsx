@@ -12,7 +12,10 @@ const EmployeeReport = () => {
   const [employeeCustomerData, setEmployeeCustomerData] = useState([]);
   const [commissionTotalDetails, setCommissionTotalDetails] = useState({});
   const [loading, setLoading] = useState(false);
+ const onGlobalSearchChangeHandler = (e)=>{
+    setSearchText(e.target.value)
 
+  }
   const fetchEmployees = async () => {
     try {
       const res = await api.get("/agent/get-agent");
@@ -79,7 +82,7 @@ const EmployeeReport = () => {
   return (
     <div className="w-screen min-h-screen">
       <div className="flex mt-30">
-        <Navbar visibility={true} />
+        <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
 
         <div className="flex-grow p-7">
           <h1 className="text-2xl font-bold text-center mb-6">
@@ -87,10 +90,10 @@ const EmployeeReport = () => {
           </h1>
 
           <div className="mt-6 mb-8">
-            <div className="flex justify-center items-center w-full gap-4 bg-blue-50 rounded-md shadow-md p-4">
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Select Employee
+            <div className="flex justify-center items-center w-full gap-4 bg-blue-50 p-2 w-30 h-40  rounded-3xl  border   space-x-2">
+              <div className="mb-2">
+                <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
+                  Employee
                 </label>
                 <Select
                   value={selectedEmployeeId || undefined}
@@ -104,7 +107,7 @@ const EmployeeReport = () => {
                       .toLowerCase()
                       .includes(input.toLowerCase())
                   }
-                  style={{ height: "50px", width: "400px" }}
+                  style={{ height: "50px", width: "600px" }}
                 >
                   {employees.map((emp) => (
                     <Select.Option key={emp._id} value={emp._id}>

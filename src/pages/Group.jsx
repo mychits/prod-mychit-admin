@@ -90,6 +90,7 @@ const Group = () => {
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
+              trigger={["click"]}
                 menu={{
                   items: [
                     {

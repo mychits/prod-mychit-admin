@@ -10,6 +10,7 @@ import { BsEye } from "react-icons/bs";
 import DataTable from "../components/layouts/Datatable";
 import { EyeIcon } from "lucide-react";
 import CircularLoader from "../components/loaders/CircularLoader";
+import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import { Dropdown, Select } from "antd";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
@@ -51,8 +52,13 @@ const AuctionReport = () => {
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
+    const [alertConfig, setAlertConfig] = useState({
+    visibility: false,
+    message: "Something went wrong!",
+    type: "info",
+  });
 
-  // ✅ Summary calculations
+
   const totalCustomers = filteredAuction.length;
   const totalBidAmount = filteredAuction.reduce(
     (sum, item) => sum + ((parseInt(item.divident) || 0) + (parseInt(item.commission) || 0)),
@@ -224,20 +230,29 @@ const AuctionReport = () => {
 
   return (
     <>
-      <div className="w-screen">
+      <div className="w-screen min-h-screen">
         <div className="flex mt-30">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
             visibility={true}
           />
+          <CustomAlertDialog
+            type={alertConfig.type}
+            isVisible={alertConfig.visibility}
+            message={alertConfig.message}
+            onClose={() =>
+              setAlertConfig((prev) => ({ ...prev, visibility: false }))
+            }
+          />
           <div className="flex-grow p-7">
-            <h1 className="text-2xl font-semibold text-center">Auction Report</h1>
+            <h1 className="text-2xl font-bold text-center mb-6">Reports - Auction </h1>
             <div className="mt-6 mb-8">
-              <div className="mb-10 bg-blue-50">
-                <label className="flex w-auto p-4 gap-2 justify-center items-center select-none font-semibold shadow-sm mb-2 rounded-sm">
-                  Search Or Select Group
+              <div className="flex justify-center items-center w-full gap-4 bg-blue-50 p-2 w-30 h-40  rounded-3xl  border   space-x-2 mb-10">
+                <div className="mb-2">
+                <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
+                  Auction Group
                 </label>
-                <div className="flex justify-center items-center w-full">
+                
                   <Select
                     showSearch
                     popupMatchSelectWidth={false}
@@ -248,6 +263,7 @@ const AuctionReport = () => {
                     filterOption={(input, option) =>
                       option.children.toString().toLowerCase().includes(input.toLowerCase())
                     }
+                    
                   >
                     {groups.map((group) => (
                       <option key={group._id} value={group._id}>

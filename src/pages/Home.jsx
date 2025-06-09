@@ -21,9 +21,10 @@ const Home = () => {
   const [staff, setStaffs] = useState([]);
   const [employee, setEmployees] = useState([]);
   const [paymentsPerMonthValue, setPaymentsPerMonthValue] = useState("0");
-  const [searchValue,setSearchValue] = useState("")
+  const [searchValue, setSearchValue] = useState("")
   const [totalAmount, setTotalAmount] = useState(0);
   const [reloadTrigger, setReloadTrigger] = useState(0);
+  const [onload, setOnload] = useState(true)
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -87,7 +88,7 @@ const Home = () => {
       try {
         const response = await api.get("/payment/get-total-payment-amount");
         setTotalAmount(response?.data?.totalAmount || 0);
-        
+
       } catch (error) {
         console.error("Error fetching total amount:", error);
       }
@@ -96,7 +97,19 @@ const Home = () => {
     fetchTotalAmount();
   }, [reloadTrigger]);
 
-    useEffect(() => {
+
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setOnload(false);
+    }, 200);
+
+    return () => {
+      clearTimeout(timer); // Cleanup to avoid memory leaks
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchMonthlyPayments = async () => {
       try {
         const today = new Date();
@@ -115,13 +128,21 @@ const Home = () => {
             to_date: lastDayFormatted,
           },
         });
-        setPaymentsPerMonthValue(response?.data?.monthlyPayment  || 0 );
+        setPaymentsPerMonthValue(response?.data?.monthlyPayment || 0);
       } catch (err) {
         console.error("Error fetching monthly payment data:", err.message);
       }
     };
     fetchMonthlyPayments();
   }, [reloadTrigger]);
+
+  const [clickedIndex, setClickedIndex] = useState(null);
+  const handleCardClick = (index, path) => {
+    setClickedIndex(index);
+    setTimeout(() => {
+      navigate(path);
+    }, 200);
+  };
 
   const cardData = [
     {
@@ -140,7 +161,7 @@ const Home = () => {
       iconColor: "bg-orange-900",
       redirect: "/user",
     },
-     {
+    {
       icon: <FaPeopleGroup size={16} />,
       text: "Staff",
       count: staff.length,
@@ -164,7 +185,7 @@ const Home = () => {
       iconColor: "bg-lime-900",
       redirect: "/employee",
     },
-   
+
     {
       icon: <MdOutlinePayments size={16} />,
       text: "Payments",
@@ -186,27 +207,34 @@ const Home = () => {
       iconColor: "bg-purple-900",
       redirect: "/payment",
     },
-  ].filter((ele)=>ele.text.toLowerCase().includes(searchValue.toLocaleLowerCase()));
-  
-const onGlobalSearchChangeHandler = (e)=>{
-  const {value} = e.target;
- 
-  setSearchValue(value)
-}
+  ].filter((ele) => ele.text.toLowerCase().includes(searchValue.toLocaleLowerCase()));
+
+  const onGlobalSearchChangeHandler = (e) => {
+    const { value } = e.target;
+
+    setSearchValue(value)
+  }
 
   return (
     <>
       <div>
         <div className="flex mt-20">
           <Sidebar />
-        <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
+          <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
           <div className="flex-grow p-7">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 w-full">
               {cardData.map((card, index) => (
                 <Link
                   to={card.redirect}
                   key={index}
-                  className={`group flex items-center ${card.bgColor} p-3 rounded-md shadow-sm transform transition-transform duration-300 hover:scale-105`}
+                  onClick={() => handleCardClick(index, item.path)}
+                  className={`
+  ${onload ? '-translate-y-56 opacity-0' : 'translate-y-0 opacity-100'}
+  group flex items-center ${card.bgColor} p-3 rounded-3xl
+  transform transition-all ease-in-out
+  duration-[600ms] delay-[${index * 100}ms]
+  hover:scale-105
+`}
                 >
                   <div
                     className={`flex items-center justify-center w-14 h-14 ${card.iconColor} text-white rounded-full mr-3`}

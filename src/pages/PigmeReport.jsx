@@ -313,7 +313,7 @@ const PigmeReport = () => {
        
 
           <div className="flex-grow p-7">
-            <h1 className="text-2xl font-semibold">Pigme Report</h1>
+            <h1 className="text-2xl font-bold mb-5"> Reports - Pigme</h1>
             
 
             {tableBorrowers?.length > 0 && !isLoading ? (

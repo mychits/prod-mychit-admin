@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 
 import { AiOutlineGold } from "react-icons/ai";
-
+import  mychits  from "../../src/assets/images/Logo.svg"
 import { useNavigate } from "react-router-dom";
 import api from "../instance/TokenInstance";
+import {Input} from "antd";
 
 const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -38,9 +39,9 @@ const Login = () => {
 
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-28 lg:px-8">
+      {/* <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-28 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <AiOutlineGold className="mx-auto h-10 w-auto text-primary" />
+          <img src={mychits} alt="MyChits" className="mx-auto  h-25 w-auto text-primary" />
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Login to your account
           </h2>
@@ -112,7 +113,67 @@ const Login = () => {
             </div>
           </form>
         </div>
+      </div> */}
+      <div className="min-h-screen flex flex-col justify-center items-center px-6 py-20 bg-gray-50">
+  <div className="w-full max-w-md space-y-8">
+    
+
+    <form onSubmit={handleLogin} className="space-y-6 bg-white p-20 shadow-3xl border rounded-3xl">
+      <div className="text-center">
+      <img src={mychits} alt="MyChits" className="mx-auto h-36 w-auto" />
+      <h2 className="mt-6 text-2xl font-bold text-gray-900">
+        Sign In
+      </h2>
+    </div>
+      <div>
+        <label htmlFor="phoneNumber" className="ml-3 block text-sm font-medium text-gray-700">
+          Phone Number
+        </label>
+        <Input
+          id="phoneNumber"
+          name="phoneNumber"
+          type="text"
+          required
+          autoComplete="tel"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+          className="mt-2 block w-full rounded-3xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+        />
       </div>
+
+      <div>
+        <div className="flex justify-between items-center">
+          <label htmlFor="password" className=" ml-3 block text-sm font-medium text-gray-700">
+            Password
+          </label>
+          <a href="#" className="text-sm font-medium text-primary hover:underline">
+            Forgot password?
+          </a>
+        </div>
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          required
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="mt-2 block w-full rounded-3xl border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+        />
+      </div>
+
+      {error && <p className="text-sm text-red-500">{error}</p>}
+
+      <button
+        type="submit"
+        className="w-full flex justify-center items-center px-4 py-2 bg-primary text-white text-sm font-semibold rounded-3xl shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+      >
+        Login
+      </button>
+    </form>
+  </div>
+</div>
+
     </>
   );
 };

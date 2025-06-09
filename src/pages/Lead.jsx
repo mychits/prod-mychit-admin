@@ -10,7 +10,7 @@ import DataTable from "../components/layouts/Datatable";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import Navbar from "../components/layouts/Navbar";
 import { IoMdMore } from "react-icons/io";
-import { Input,Select, Dropdown } from "antd";
+import { Input, Select, Dropdown } from "antd";
 import { fieldSize } from "../data/fieldSize";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { FaWhatsappSquare } from "react-icons/fa";
@@ -104,12 +104,12 @@ const Lead = () => {
             group.lead_type === "customer"
               ? group?.lead_customer?.full_name
               : group.lead_type === "agent"
-              ? group?.lead_agent?.name
-              : "",
+                ? group?.lead_agent?.name
+                : "",
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
-              trigger={['click']}
+                trigger={['click']}
                 menu={{
                   items: [
                     {
@@ -187,7 +187,7 @@ const Lead = () => {
   //   };
   //   fetchAgent();
   // }, [reloadTrigger]);
-   useEffect(() => {
+  useEffect(() => {
     const fetchEmployee = async () => {
       try {
         const response = await api.get("/agent/get-employee");
@@ -198,7 +198,7 @@ const Lead = () => {
     };
     fetchEmployee();
   }, [reloadTrigger]);
-  
+
   const handleAntDSelect = (field, value) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -255,12 +255,14 @@ const Lead = () => {
     if (data.lead_type === "agent" && !data.lead_agent) {
       newErrors.lead_agent = "Agent selection is required";
     }
-    if (!data.lead_needs.toString().trim()) {
+    if (!data.lead_needs.toString()) {
       newErrors.lead_needs = "Lead Needs and Goals is required";
     }
-    // if(!data.note.trim()){
-    //   newErrors.note ="Note Field is Mandatory"
-    // }
+
+    if (data.note) {
+      if (data.note.trim())
+        newErrors.note = "Note Field is Mandatory"
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -455,13 +457,12 @@ const Lead = () => {
                   )
                 )}
                 columns={columns}
-                exportedFileName={`Leads-${
-                  TableGroups.length > 0
+                exportedFileName={`Leads-${TableGroups.length > 0
                     ? TableGroups[0].date +
-                      " to " +
-                      TableGroups[TableGroups.length - 1].date
+                    " to " +
+                    TableGroups[TableGroups.length - 1].date
                     : "empty"
-                }.csv`}
+                  }.csv`}
               />
             ) : (
               <CircularLoader />
@@ -718,7 +719,7 @@ const Lead = () => {
                   </p>
                 )}
               </div>
-               {formData.lead_type === "customer" && (
+              {formData.lead_type === "customer" && (
                 <>
                   <div className="w-full">
                     <label
@@ -829,7 +830,7 @@ const Lead = () => {
                   </div>
                 </>
               )}
-               {formData.lead_type === "employee" && (
+              {formData.lead_type === "employee" && (
                 <>
                   <div className="w-full">
                     <label
@@ -946,7 +947,7 @@ const Lead = () => {
                   </p>
                 )}
               </div>
-               <div className="flex flex-col items-center p-4 max-w-full bg-white rounded-lg shadow-sm space-y-4">
+              <div className="flex flex-col items-center p-4 max-w-full bg-white rounded-lg shadow-sm space-y-4">
                 <div className="flex items-center space-x-3">
                   <FaWhatsappSquare color="green" className="w-10 h-10" />
                   <h2 className="text-lg font-semibold text-gray-800">
@@ -963,7 +964,7 @@ const Lead = () => {
                   <span className="text-gray-700">Send Via Whatsapp</span>
                 </div>
               </div>
-             
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
@@ -1056,7 +1057,7 @@ const Lead = () => {
                     <option value="employed">Employed</option>
                     <option value="self_employed">Self Employed</option>
                   </select> */}
-                   <Select
+                  <Select
                     className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                     placeholder="Select Lead Work/Profession "
                     popupMatchSelectWidth={false}
@@ -1147,7 +1148,7 @@ const Lead = () => {
                   <option value="agent">Employee</option>
                   <option value="walkin">Walkin</option>
                 </select> */}
-                 <Select
+                <Select
                   className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                   placeholder="Select or Search Lead Source Type "
                   popupMatchSelectWidth={false}
@@ -1166,12 +1167,12 @@ const Lead = () => {
                     "Agent",
                     "Employee",
                     "Walkin",].map(
-                    (type) => (
-                      <Select.Option key={type} value={type.toLowerCase()}>
-                        {type}
-                      </Select.Option>
-                    )
-                  )}
+                      (type) => (
+                        <Select.Option key={type} value={type.toLowerCase()}>
+                          {type}
+                        </Select.Option>
+                      )
+                    )}
                 </Select>
                 {errors.lead_type && (
                   <p className="mt-1 text-sm text-red-500">
@@ -1203,7 +1204,7 @@ const Lead = () => {
                         </option>
                       ))}
                     </select> */}
-                     <Select
+                    <Select
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Customers"
                       popupMatchSelectWidth={false}
@@ -1258,7 +1259,7 @@ const Lead = () => {
                         </option>
                       ))}
                     </select> */}
-                     <Select
+                    <Select
                       className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                       placeholder="Select or Search Agent "
                       popupMatchSelectWidth={false}
@@ -1288,7 +1289,7 @@ const Lead = () => {
                   </div>
                 </>
               )}
-               {updateFormData.lead_type === "employee" && (
+              {updateFormData.lead_type === "employee" && (
                 <>
                   <div className="w-full">
                     <label
@@ -1406,7 +1407,7 @@ const Lead = () => {
                   </p>
                 )}
               </div>
-              
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"

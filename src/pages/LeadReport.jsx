@@ -534,7 +534,7 @@ const LeadReport = () => {
             message={alertConfig.message}
           />
           <div className="flex-grow p-7">
-            <h1 className="font-bold text-2xl">Lead Report</h1>
+            <h1 className="font-bold text-2xl">Reports - Lead </h1>
             <div className="mt-6 mb-8">
               <div className="mb-2">
                 <div className="flex justify-start items-center w-full gap-4">

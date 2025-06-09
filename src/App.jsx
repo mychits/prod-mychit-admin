@@ -50,6 +50,7 @@ import EnrollmentReport from "./pages/EnrollmentReport";
 import Staff from "./pages/Staff";
 import Employee from "./pages/Employee";
 import EmployeeProfile from "./pages/EmployeeProfile"
+import LeadSettings from "./pages/LeadSettings";
 function App() {
   return (
     <>
@@ -248,6 +249,14 @@ function App() {
                 </ProtectedRoute>
               }
             >
+              <Route
+                path=""
+                element={
+                  <ProtectedRoute>
+                    <LeadSettings />
+                  </ProtectedRoute>
+                }
+              ></Route>
               <Route
                 path="app-settings"
                 element={

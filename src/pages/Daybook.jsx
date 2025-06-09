@@ -45,7 +45,7 @@ const Daybook = () => {
   const [selectedCustomers, setSelectedCustomers] = useState("");
   const [payments, setPayments] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [selectedLabel,setSelectedLabel] = useState("Today")
+  const [selectedLabel, setSelectedLabel] = useState("Today")
 
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
@@ -182,10 +182,10 @@ const Daybook = () => {
     }));
 
     //handleGroupChange(groupId);
-     const handleGroupChange = async (groupId) => {
-    //const groupId = event.target.value;
-    setSelectedGroup(groupId);
-  };
+    const handleGroupChange = async (groupId) => {
+      //const groupId = event.target.value;
+      setSelectedGroup(groupId);
+    };
 
     if (groupId) {
       try {
@@ -436,7 +436,7 @@ const Daybook = () => {
                       showSearch
                       popupMatchSelectWidth={false}
                       onChange={handleSelectFilter}
-                      value ={selectedLabel || undefined}
+                      value={selectedLabel || undefined}
                       placeholder="Search Or Select Filter"
                       filterOption={(input, option) =>
                         option.children
@@ -470,7 +470,7 @@ const Daybook = () => {
                     <Select
                       showSearch
                       popupMatchSelectWidth={false}
-                      value={selectedAuctionGroupId }
+                      value={selectedAuctionGroupId}
                       onChange={handleGroupPayment}
                       placeholder="Search Or Select Group"
                       filterOption={(input, option) =>
@@ -504,7 +504,7 @@ const Daybook = () => {
                       placeholder="Search Or Select Customer"
                       onChange={(groupId) => setSelectedCustomers(groupId)}
                       className="w-full max-w-xs h-11"
-                      // className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                    // className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                     >
                       <Select.Option value="">All</Select.Option>
                       {filteredUsers.map((group) => (
@@ -529,19 +529,30 @@ const Daybook = () => {
                           .includes(input.toLowerCase())
                       }
                       className="w-full max-w-xs h-11"
-                      // className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                    // className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
                     >
                       <Select.Option value="">All</Select.Option>
                       <Select.Option value="cash">Cash</Select.Option>
                       <Select.Option value="online">Online</Select.Option>
                     </Select>
                   </div>
-                  <div>
-                    <h1 className="text-md mt-6">
-                      Total Amount:{" "}
-                      <span className="text-xl">₹{payments + 0}</span>
-                    </h1>
+                 
+
+                  <div className="text-md font-semibold text-blue-700 mb-2">
+                    <label> Total Amount </label>
+                    <div>
+                      <input
+                        className="w-full max-w-xs h-11 rounded-md"
+                        readOnly
+                        value={`₹ ${(payments + 0).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                        })}`}
+                      />
+                    </div>
                   </div>
+
+
+
                 </div>
               </div>
               {filteredAuction && filteredAuction.length > 0 && !isLoading ? (
@@ -549,13 +560,12 @@ const Daybook = () => {
                   <DataTable
                     data={filterOption(TableDaybook, searchText)}
                     columns={columns}
-                    exportedFileName={`Daybook-${
-                      TableDaybook.length > 0
+                    exportedFileName={`Daybook-${TableDaybook.length > 0
                         ? TableDaybook[0].name +
-                          " to " +
-                          TableDaybook[TableDaybook.length - 1].name
+                        " to " +
+                        TableDaybook[TableDaybook.length - 1].name
                         : "empty"
-                    }.csv`}
+                      }.csv`}
                   />
                   <div className="flex justify-end mt-4 pr-4">
                     <span className="text-lg font-semibold">
@@ -567,6 +577,7 @@ const Daybook = () => {
                 <CircularLoader
                   isLoading={isLoading}
                   failure={filteredAuction.length <= 0}
+                  data="Daybook Data"
                 />
               )}
             </div>
@@ -732,7 +743,7 @@ const Daybook = () => {
               <h3 className="mb-4 text-xl font-bold text-gray-900">
                 View Auction
               </h3>
-              <form className="space-y-6" onSubmit={() => {}}>
+              <form className="space-y-6" onSubmit={() => { }}>
                 <div>
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -744,7 +755,7 @@ const Daybook = () => {
                     type="text"
                     name="group_id"
                     value={currentUpdateGroup?.group_id?.group_name}
-                    onChange={() => {}}
+                    onChange={() => { }}
                     id="name"
                     placeholder="Enter the Group Name"
                     readOnly
@@ -798,7 +809,7 @@ const Daybook = () => {
                     type="text"
                     name="group_id"
                     value={`${currentUpdateGroup?.user_id?.full_name} | ${currentUpdateGroup?.ticket}`}
-                    onChange={() => {}}
+                    onChange={() => { }}
                     id="name"
                     placeholder="Enter the User Name"
                     readOnly
@@ -820,7 +831,7 @@ const Daybook = () => {
                       currentUpdateGroup?.group_id?.group_value -
                       currentUpdateGroup?.win_amount
                     }
-                    onChange={() => {}}
+                    onChange={() => { }}
                     id="name"
                     placeholder="Enter the Bid Amount"
                     readOnly
@@ -928,7 +939,7 @@ const Daybook = () => {
                       type="date"
                       name="auction_date"
                       value={currentUpdateGroup?.auction_date}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       id="date"
                       placeholder="Enter the Date"
                       readOnly
@@ -946,7 +957,7 @@ const Daybook = () => {
                       type="date"
                       name="next_date"
                       value={currentUpdateGroup?.next_date}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       id="date"
                       placeholder="Enter the Date"
                       readOnly

@@ -12,13 +12,13 @@ import { Dropdown, Select } from "antd";
 const EnrollmentReport = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
-  const [loader, setLoader] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState("");
   const [leads, setLeads] = useState([]);
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [showFilterField, setShowFilterField] = useState(false);
-  const [selectedLabel,setSelectedLabel] = useState("Today")
+  const [selectedLabel, setSelectedLabel] = useState("Today")
   const [searchText, setSearchText] = useState("");
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
@@ -81,7 +81,7 @@ const EnrollmentReport = () => {
 
   useEffect(() => {
     const fetchEnrollmentData = async () => {
-      setLoader(true);
+      setIsLoading(true);
       try {
         const response = await api.get(
           `/enroll-report/get-enroll-report?from_date=${selectedFromDate}&to_date=${selectedToDate}&group_id=${selectedGroup}`
@@ -104,13 +104,13 @@ const EnrollmentReport = () => {
             // referred_agent: group?.agent?.name,
             // referred_customer: group?.referred_customer?.full_name,
             // referred_lead: group?.referred_lead?.lead_name,
-             referred_by: group?.agent?.name && group?.agent?.phone_number
-                ? `${group.agent.name} | ${group.agent.phone_number}`
-                : group?.referred_customer?.full_name && group?.referred_customer?.phone_number
-                ? `${group.referred_customer.full_name} | ${group?.referred_customer?.phone_number }`
+            referred_by: group?.agent?.name && group?.agent?.phone_number
+              ? `${group.agent.name} | ${group.agent.phone_number}`
+              : group?.referred_customer?.full_name && group?.referred_customer?.phone_number
+                ? `${group.referred_customer.full_name} | ${group?.referred_customer?.phone_number}`
                 : group?.referred_lead?.lead_name && group?.referred_lead?.agent_number
-                ? `${group.referred_lead.lead_name} | ${group.referred_lead.agent_number}`
-                : "N/A",
+                  ? `${group.referred_lead.lead_name} | ${group.referred_lead.agent_number}`
+                  : "N/A",
             ticket: group.tickets,
             action: (
               <div className="flex justify-center items-center gap-2">
@@ -152,65 +152,64 @@ const EnrollmentReport = () => {
           setTableGroups(formattedData);
         }
       } catch (error) {
-        setLoader(true);
         console.error("Error fetching Enrollment data:", error);
       } finally {
-        setLoader(false);
+        setIsLoading(false);
       }
     };
     fetchEnrollmentData();
   }, [selectedFromDate, selectedToDate, selectedGroup]);
 
 
-    const groupOptions = [
+  const groupOptions = [
     { value: "Today", label: "Today" },
     { value: "Yesterday", label: "Yesterday" },
     { value: "ThisMonth", label: "This Month" },
     { value: "LastMonth", label: "Last Month" },
     { value: "ThisYear", label: "This Year" },
-    { value: "Custom", label: "Custom"},
+    { value: "Custom", label: "Custom" },
   ];
 
   const handleSelectFilter = (value) => {
-   // const { value } = e.target;
-   setSelectedLabel(value)
-setShowFilterField(false);
+    // const { value } = e.target;
+    setSelectedLabel(value)
+    setShowFilterField(false);
 
-const today = new Date();
-const formatDate = (date) => date.toLocaleDateString('en-CA'); 
+    const today = new Date();
+    const formatDate = (date) => date.toLocaleDateString('en-CA');
 
-if (value === "Today") {
-  const formatted = formatDate(today);
-  setSelectedFromDate(formatted);
-  setSelectedToDate(formatted);
+    if (value === "Today") {
+      const formatted = formatDate(today);
+      setSelectedFromDate(formatted);
+      setSelectedToDate(formatted);
 
-} else if (value === "Yesterday") {
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const formatted = formatDate(yesterday);
-  setSelectedFromDate(formatted);
-  setSelectedToDate(formatted);
+    } else if (value === "Yesterday") {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const formatted = formatDate(yesterday);
+      setSelectedFromDate(formatted);
+      setSelectedToDate(formatted);
 
-} else if (value === "ThisMonth") {
-  const start = new Date(today.getFullYear(), today.getMonth(), 1);
-  const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  setSelectedFromDate(formatDate(start));
-  setSelectedToDate(formatDate(end));
+    } else if (value === "ThisMonth") {
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
 
-} else if (value === "LastMonth") {
-  const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-  const end = new Date(today.getFullYear(), today.getMonth(), 0);
-  setSelectedFromDate(formatDate(start));
-  setSelectedToDate(formatDate(end));
+    } else if (value === "LastMonth") {
+      const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const end = new Date(today.getFullYear(), today.getMonth(), 0);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
 
-} else if (value === "ThisYear") {
-  const start = new Date(today.getFullYear(), 0, 1);
-  const end = new Date(today.getFullYear(), 11, 31);
-  setSelectedFromDate(formatDate(start));
-  setSelectedToDate(formatDate(end));
-}else if(value === "Custom"){
-  setShowFilterField(true)
-}
+    } else if (value === "ThisYear") {
+      const start = new Date(today.getFullYear(), 0, 1);
+      const end = new Date(today.getFullYear(), 11, 31);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
+    } else if (value === "Custom") {
+      setShowFilterField(true)
+    }
 
   };
   const columns = [
@@ -225,7 +224,7 @@ if (value === "Today") {
     { key: "referred_type", header: "Referred Type" },
     // { key: "referred_agent", header: "Referred Agent" },
     // { key: "referred_customer", header: "Referred Customer" },
-      //{ key: "referred_lead", header: "Referred Lead" },
+    //{ key: "referred_lead", header: "Referred Lead" },
     { key: "referred_by", header: "Referred By" },
 
     { key: "ticket", header: "Ticket" },
@@ -245,7 +244,7 @@ if (value === "Today") {
             message={alertConfig.message}
           />
           <div className="flex-grow p-7">
-            <h1 className="font-bold text-2xl">Enrollment Report</h1>
+            <h1 className="font-bold text-2xl"> Reports - Enrollment </h1>
             <div className="mt-6 mb-8">
               <div className="mb-2">
                 <div className="flex justify-start items-center w-full gap-4">
@@ -321,7 +320,7 @@ if (value === "Today") {
                         </option>
                       ))}
                     </select> */}
-                     <Select
+                    <Select
                       showSearch
                       popupMatchSelectWidth={false}
                       placeholder="Search Or Select Group"
@@ -393,22 +392,24 @@ if (value === "Today") {
                 </div>
               </div>
             </div>
-            {loader ? (
-              <div className="flex w-full justify-center items-center">
-                <CircularLoader />;
-              </div>
-            ) : (
+            {TableGroups && TableGroups.length > 0 && !isLoading ? (
               <DataTable
                 data={filterOption(TableGroups, searchText)}
                 columns={columns}
-                exportedFileName={`Leads-${
-                  TableGroups.length > 0
+                exportedFileName={`Leads-${TableGroups.length > 0
                     ? TableGroups[0].date +
-                      " to " +
-                      TableGroups[TableGroups.length - 1].date
+                    " to " +
+                    TableGroups[TableGroups.length - 1].date
                     : "empty"
-                }.csv`}
+                  }.csv`}
               />
+            ) : (
+              <div className="flex w-full justify-center items-center">
+                <CircularLoader
+                 isLoading={isLoading} 
+                failure={TableGroups.length <= 0}
+                  data="Enrollment Data" />;
+              </div>
             )}
           </div>
         </div>

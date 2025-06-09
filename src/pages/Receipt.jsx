@@ -641,6 +641,7 @@ const Receipt = () => {
                   <CircularLoader
                     isLoading={isLoading}
                     failure={filteredAuction.length <= 0}
+                    data="Receipt Data"
                   />
                 </div>
               )}

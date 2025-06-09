@@ -15,6 +15,14 @@ const Navbar = ({
   visibility = false,
 }) => {
   const [adminName, setAdminName] = useState("");
+  const [onload, setOnload] = useState(true);
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setOnload(false);
+  }, 100);
+  return () => clearTimeout(timer);
+}, []);
   useEffect(() => {
     try {
       const usr = localStorage.getItem("user");
@@ -34,7 +42,11 @@ const Navbar = ({
     <>
 
       <nav className=" w-full fixed  top-0 left-0 z-50 bg-white shadow-md">
-        <div className=" flex justify-between items-center py-2 px-10">
+        <div  className={`
+    flex justify-between items-center py-2 px-10
+    transition-all duration-700 ease-out transform
+    ${onload ? 'opacity-0 -translate-y-5' : 'opacity-100 translate-y-0'}
+  `}>
           <div className="text-2xl flex items-center gap-2 font-bold py-4 uppercase">
             <AiTwotoneGold />
             <p>MyChits</p>
@@ -58,7 +70,7 @@ const Navbar = ({
           >
             {({ isActive }) => <Button
 
-              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
+              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
               Group Report
             </Button>}
           </NavLink>
@@ -74,7 +86,7 @@ const Navbar = ({
           >
             {({ isActive }) => <Button
 
-              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
+              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
 
               Day Book
             </Button>}
@@ -89,7 +101,7 @@ const Navbar = ({
           >
             {({ isActive }) => <Button
 
-              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
+              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
 
               Receipt Report
             </Button>}
@@ -106,7 +118,7 @@ const Navbar = ({
           >
             {({ isActive }) => <Button
 
-              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
+              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
 
               Customer Report
             </Button>}
@@ -132,7 +144,7 @@ const Navbar = ({
           >
             {({ isActive }) => <Button
 
-              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
+              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
 
               Employee Report
             </Button>}
@@ -147,7 +159,7 @@ const Navbar = ({
           >
             {({ isActive }) => <Button
 
-              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 shadow-md border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
+              className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"}  `}>
 
               Lead Report
             </Button>}
@@ -185,7 +197,7 @@ const Navbar = ({
               </div>
               
             </div> */}
-            <div className=" w-30 h-12 rounded-full shadow-md border flex items-center space-x-2 p-5 bg-white">
+            <div className=" w-30 h-12 rounded-full border flex items-center space-x-2 p-5 bg-white">
               <CgProfile className="text-2xl text-red-600" />
               <p className="text-black font-semibold">{adminName}</p>
             </div>

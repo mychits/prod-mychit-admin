@@ -98,6 +98,7 @@ const LoanReport = () => {
           action: (
             <div className="flex justify-center gap-2" key={borrower._id}>
               <Dropdown
+              trigger={['click']}
                 menu={{
                   items: [
                     {
@@ -302,7 +303,7 @@ const LoanReport = () => {
           />
 
           <div className="flex-grow p-7">
-            <h1 className="font-bold text-2xl">Loan Report</h1>
+            <h1 className="font-bold text-2xl mb-5">Reports - Loan</h1>
             {loader ? (
               <div className="flex w-full justify-center items-center">
                 <CircularLoader />;
