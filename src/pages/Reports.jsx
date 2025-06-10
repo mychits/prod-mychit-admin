@@ -141,11 +141,11 @@ const Reports = () => {
 
   return (
     <div>
-      <div className="w-screen h-screen flex mt-20">
+      <div className="min-w-screen min-h-screen flex mt-20">
         {location.pathname === "/reports" && <Navbar />}
         <Sidebar />
 
-        <div className="w-[300px]  bg-gray-50 h-full p-4">
+        <div className="w-[300px]  bg-gray-50 min-h-screen p-4">
           {subMenus.map(({ title, link, Icon, red }) => (
             <NavLink
               key={link}

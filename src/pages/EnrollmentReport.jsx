@@ -168,6 +168,7 @@ const EnrollmentReport = () => {
     { value: "LastMonth", label: "Last Month" },
     { value: "ThisYear", label: "This Year" },
     { value: "Custom", label: "Custom" },
+    { value: "All", label: "All" }
   ];
 
   const handleSelectFilter = (value) => {
@@ -205,6 +206,11 @@ const EnrollmentReport = () => {
     } else if (value === "ThisYear") {
       const start = new Date(today.getFullYear(), 0, 1);
       const end = new Date(today.getFullYear(), 11, 31);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
+    } else if (value === "All") {
+      const start = new Date(2000, 0, 1); 
+      const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       setSelectedFromDate(formatDate(start));
       setSelectedToDate(formatDate(end));
     } else if (value === "Custom") {
@@ -397,17 +403,17 @@ const EnrollmentReport = () => {
                 data={filterOption(TableGroups, searchText)}
                 columns={columns}
                 exportedFileName={`Leads-${TableGroups.length > 0
-                    ? TableGroups[0].date +
-                    " to " +
-                    TableGroups[TableGroups.length - 1].date
-                    : "empty"
+                  ? TableGroups[0].date +
+                  " to " +
+                  TableGroups[TableGroups.length - 1].date
+                  : "empty"
                   }.csv`}
               />
             ) : (
               <div className="flex w-full justify-center items-center">
                 <CircularLoader
-                 isLoading={isLoading} 
-                failure={TableGroups.length <= 0}
+                  isLoading={isLoading}
+                  failure={TableGroups.length <= 0}
                   data="Enrollment Data" />;
               </div>
             )}
