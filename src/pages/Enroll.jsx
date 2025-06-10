@@ -239,6 +239,7 @@ const Enroll = () => {
         setTableEnrolls([]);
         setIsDataTableLoading(true);
         const response = await api.get(url);
+        console.info(response,"response data this is data");
         if (response.data && response.data.length > 0) {
           setFilteredUsers(response.data);
           const formattedData = response.data.map((group, index) => {
@@ -250,6 +251,7 @@ const Enroll = () => {
               phone_number: group?.user_id?.phone_number,
               group_name: group?.group_id?.group_name,
               payment_type: group?.payment_type,
+              enrollment_date:group?.createdAt.split("T")[0],
               chit_asking_month: group?.chit_asking_month,
               referred_type: group?.referred_type,
               referred_agent: group?.agent?.name,
