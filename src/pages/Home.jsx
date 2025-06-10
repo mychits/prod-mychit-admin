@@ -24,7 +24,7 @@ const Home = () => {
   const [searchValue, setSearchValue] = useState("")
   const [totalAmount, setTotalAmount] = useState(0);
   const [reloadTrigger, setReloadTrigger] = useState(0);
-  const [onload, setOnload] = useState(true)
+  const [notRendered, setNotRendered] = useState(true)
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -101,8 +101,8 @@ const Home = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setOnload(false);
-    }, 200);
+      setNotRendered(false);
+    }, 500);
 
     return () => {
       clearTimeout(timer); // Cleanup to avoid memory leaks
@@ -222,19 +222,30 @@ const Home = () => {
           <Sidebar />
           <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
           <div className="flex-grow p-7">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               {cardData.map((card, index) => (
                 <Link
                   to={card.redirect}
                   key={index}
-                  onClick={() => handleCardClick(index, item.path)}
-                  className={`
-  ${onload ? '-translate-y-56 opacity-0' : 'translate-y-0 opacity-100'}
-  group flex items-center ${card.bgColor} p-3 rounded-3xl
-  transform transition-all ease-in-out
-  duration-[600ms] delay-[${index * 100}ms]
-  hover:scale-105
+                  onClick={() => { if (!notRendered) { handleCardClick(index, item.path) } }}
+        //           className={`group flex items-center p-3 rounded-3xl  text-white 
+        //   cursor-pointer transition-transform transition-opacity duration-500 ease-in-out
+        //   ${notRendered ? "-translate-y-56 opacity-0 pointer-events-none" : "translate-y-0 opacity-100 pointer-events-auto"}
+        //   ${card.bgColor}
+        //   ${clickedIndex === index ? 'scale-95 brightness-110' : ''}
+        //   ${!notRendered ? 'hover:scale-[1.05]' : ''}
+        // `}
+                 className={`
+  group flex items-center p-3 rounded-3xl text-white cursor-pointer
+  transition-transform  duration-500 ease-in-out
+  ${card.bgColor}
+  ${notRendered ? '-translate-y-56 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100 pointer-events-auto'}
+  ${clickedIndex === index ? 'scale-95 brightness-110' : ''}
+  ${!notRendered ? 'hover:scale-[1.05]' : ''}
 `}
+                  style={{
+                    transitionDelay: `${index * 100}ms`,
+                  }}
                 >
                   <div
                     className={`flex items-center justify-center w-14 h-14 ${card.iconColor} text-white rounded-full mr-3`}

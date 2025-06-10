@@ -105,7 +105,7 @@ const SettingSidebar = () => {
               <div
                 className={`text-gray-300 text-sm flex items-center justify-between gap-x-4 cursor-pointer p-2 ${
                   level > 0 ? "pl-8" : ""
-                } hover:bg-light-white rounded-md`}
+                } hover:bg-light-white rounded-2xl`}
                 onClick={() => toggleExpand(key)}
               >
                 <div className="flex items-center gap-x-4">
@@ -143,7 +143,7 @@ const SettingSidebar = () => {
               <div
                 className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 ${
                   level > 0 ? "pl-8" : ""
-                } hover:bg-light-white rounded-md ${
+                } hover:bg-light-white rounded-2xl ${
                   location.pathname === item.link ? "bg-light-white" : ""
                 }`}
               >

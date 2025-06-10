@@ -302,7 +302,7 @@ const Sidebar = () => {
               <Fragment key={menu.id}>
                 <a href={menu.link} onClick={() => toggleSubMenu(index)}>
                   <li
-                    className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md ${
+                    className={`text-gray-300 text-sm flex items-center p-2 gap-x-4 cursor-pointer  hover:bg-light-white rounded-2xl  ${
                       menu.spacing ? "mt-9" : "mt-2"
                     }`}
                   >
@@ -346,7 +346,7 @@ const Sidebar = () => {
                             onClick={() => toggleNestedSubMenu(index, subIndex)}
                             className={`${
                               submenuItem.red ? "text-red-300" : "text-gray-300"
-                            } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md`}
+                            } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white  rounded-2xl`}
                           >
                             {submenuItem.icon}
                             {submenuItem.title}
