@@ -88,7 +88,9 @@ const EnrollmentReport = () => {
         );
         if (response.data) {
           setLeads(response.data);
-          const formattedData = response.data.map((group, index) => ({
+          const formattedData = response.data.map((group, index) => {
+            if(!group.group_id || !group.user_id) return {};
+            return ({
             _id: group?._id,
             id: index + 1,
             name: group?.user_id?.full_name,
@@ -148,7 +150,7 @@ const EnrollmentReport = () => {
                 </Dropdown>
               </div>
             ),
-          }));
+          })});
           setTableGroups(formattedData);
         }
       } catch (error) {
