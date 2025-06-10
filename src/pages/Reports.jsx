@@ -151,9 +151,9 @@ const Reports = () => {
               key={link}
               to={link}
               className={({ isActive }) =>
-                `my-2 flex items-center gap-2 font-medium rounded-3xl hover:bg-gray-300 p-3 ${
+                `whitespace-nowrap my-2 flex items-center gap-2 font-medium rounded-3xl hover:bg-gray-300 p-3 ${
                   red ? "text-red-800" : "text-gray-900"
-                } ${isActive ? "bg-gray-200 border-l-8 border-gray-300" : ""}`
+                } ${isActive ? "bg-gray-200 border-l-8 border-blue-300" : ""}`
               }
             >
               {({ isActive }) => (
@@ -168,7 +168,7 @@ const Reports = () => {
           ))}
         </div>
 
-        <div className="flex-grow p-6  overflow-y-auto h-[calc(100vh-80px)]">
+        <div className="flex-grow p-6  ">
           {location.pathname === "/reports" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 w-full">
               {subMenus.map(({ title, Icon, link }, idx) => (
