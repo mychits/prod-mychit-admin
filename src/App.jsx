@@ -51,6 +51,7 @@ import Staff from "./pages/Staff";
 import Employee from "./pages/Employee";
 import EmployeeProfile from "./pages/EmployeeProfile"
 import LeadSettings from "./pages/LeadSettings";
+import SalesReport from "./pages/SalesReport";
 function App() {
   return (
     <>
@@ -305,6 +306,7 @@ function App() {
               }
             >
               <Route path="daybook" element={<Daybook />} />
+              <Route path="sales-report" element={<SalesReport />} />
               <Route path="receipt" element={<Receipt />} />
               <Route path="group-report" element={<GroupReport />} />
               <Route path="all-group-report" element={<AllGroupReport />} />
