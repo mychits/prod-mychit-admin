@@ -12,6 +12,7 @@ const EmployeeReport = () => {
   const [employeeCustomerData, setEmployeeCustomerData] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Fetch employees for dropdown
   const fetchEmployees = async () => {
     try {
       const res = await api.get("/agent/get-agent");
@@ -21,13 +22,11 @@ const EmployeeReport = () => {
     }
   };
 
+  // Fetch individual employee report
   const fetchEmployeeReport = async (employeeId) => {
-    if (!employeeId) return;
     setLoading(true);
     try {
-      const res = await api.get(
-        `/agent/getemployeereport?agentId=${employeeId}`
-      );
+      const res = await api.get(`/agent/getemployeereport?agentId=${employeeId}`);
       setEmployeeCustomerData(res.data);
     } catch (err) {
       console.error("Error fetching employee report:", err);
@@ -37,28 +36,46 @@ const EmployeeReport = () => {
     }
   };
 
-  const handleEmployeeChange = (value) => {
+  // Fetch all employees report
+  const fetchAllEmployeeReports = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get(`/agent/getallemployeereport`);
+      setEmployeeCustomerData(res.data);
+    } catch (err) {
+      console.error("Error fetching all employee reports:", err);
+      setEmployeeCustomerData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle dropdown change
+  const handleEmployeeChange = async (value) => {
     setSelectedEmployeeId(value);
-    const selectedEmp = employees.find((emp) => emp._id === value);
-    setSelectedEmployeeDetails(selectedEmp || null);
-    fetchEmployeeReport(value);
+    if (value === "ALL") {
+      setSelectedEmployeeDetails(null);
+      await fetchAllEmployeeReports();
+    } else {
+      const selectedEmp = employees.find((emp) => emp._id === value);
+      setSelectedEmployeeDetails(selectedEmp || null);
+      await fetchEmployeeReport(value);
+    }
   };
 
   useEffect(() => {
     fetchEmployees();
   }, []);
 
+  // Summary calculations
   const totalCommission = employeeCustomerData.reduce(
-    (acc, curr) =>
-      acc + parseFloat(curr.commissionValue?.replace(/,/g, "") || 0),
+    (acc, curr) => acc + parseFloat(curr.commissionValue?.replace(/,/g, "") || 0),
     0
   );
-
   const totalBusiness = employeeCustomerData.reduce(
     (acc, curr) => acc + parseFloat(curr.groupValue || 0),
     0
   );
-
   const totalCustomers = employeeCustomerData.length;
 
   const processedTableData = employeeCustomerData.map((item, index) => ({
@@ -74,10 +91,7 @@ const EmployeeReport = () => {
     { key: "userPhone", header: "Phone Number" },
     { key: "groupName", header: "Group" },
     { key: "groupValue", header: "Group Value" },
-    {
-      key: "enrollmentStartDate",
-      header: "Enrollment Start Date",
-    },
+    { key: "enrollmentStartDate", header: "Enrollment Start Date" },
     { key: "ticket", header: "Ticket" },
     { key: "amountPaid", header: "Amount Paid" },
     { key: "toBePaidAmount", header: "To Be Paid" },
@@ -90,21 +104,16 @@ const EmployeeReport = () => {
   return (
     <div className="w-screen min-h-screen">
       <div className="flex mt-30">
-        <Navbar
-
-          visibility={true}
-        />
-
+        <Navbar visibility={true} />
         <div className="flex-grow p-7">
-          <h1 className="text-2xl font-bold text-center mb-6">
-            Reports - Employee
-          </h1>
+          <h1 className="text-2xl font-semibold text-center mb-6">Reports - Employee</h1>
 
+          {/* Filter UI */}
           <div className="mt-6 mb-8">
-            <div className="flex justify-center items-center w-full gap-4 bg-blue-50    p-2 w-30 h-40  rounded-3xl  border   space-x-2">
-              <div className="mb-2">
-                <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
-                  Employee
+            <div className="flex justify-center items-center w-full gap-4 bg-blue-50 rounded-md shadow-md p-4">
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Select Employee
                 </label>
                 <Select
                   value={selectedEmployeeId || undefined}
@@ -113,13 +122,11 @@ const EmployeeReport = () => {
                   popupMatchSelectWidth={false}
                   placeholder="Search or Select Employee"
                   filterOption={(input, option) =>
-                    option.children
-                      .toString()
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
+                    option.children.toString().toLowerCase().includes(input.toLowerCase())
                   }
-                  style={{ height: "50px", width: "600px" }}
+                  style={{ height: "50px", width: "400px" }}
                 >
+                  <Select.Option value="ALL">All</Select.Option>
                   {employees.map((emp) => (
                     <Select.Option key={emp._id} value={emp._id}>
                       {emp.name} - {emp.phone_number}
@@ -127,24 +134,17 @@ const EmployeeReport = () => {
                   ))}
                 </Select>
               </div>
-
-            </div>
-          </div>
-          <div className="ml-6 text-md font-semibold text-blue-700 mb-5">
-            <label> Total Business: </label>
-            <div className="mt-2">
-            <input
-              className="rounded-md"
-              readOnly
-              value={`₹${totalBusiness.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-              })}`}
-            />
+              <div className="ml-6 text-md font-semibold text-blue-700">
+                Total Business: ₹
+                {totalBusiness.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                })}
+              </div>
             </div>
           </div>
 
-          {/* Employee Info */}
-          {selectedEmployeeDetails && (
+          {/* Employee Info - hide if 'ALL' selected */}
+          {selectedEmployeeId !== "ALL" && selectedEmployeeDetails && (
             <div className="mb-8 bg-gray-50 rounded-md shadow-md p-6 space-y-4">
               <div className="flex gap-4">
                 <div className="flex flex-col flex-1">
@@ -164,9 +164,7 @@ const EmployeeReport = () => {
                   />
                 </div>
                 <div className="flex flex-col flex-1">
-                  <label className="text-sm font-medium mb-1">
-                    Phone Number
-                  </label>
+                  <label className="text-sm font-medium mb-1">Phone Number</label>
                   <input
                     value={selectedEmployeeDetails.phone_number || "-"}
                     readOnly
@@ -176,9 +174,7 @@ const EmployeeReport = () => {
               </div>
               <div className="flex gap-4">
                 <div className="flex flex-col flex-1">
-                  <label className="text-sm font-medium mb-1">
-                    Adhaar Number
-                  </label>
+                  <label className="text-sm font-medium mb-1">Adhaar Number</label>
                   <input
                     value={selectedEmployeeDetails.adhaar_no || "-"}
                     readOnly
@@ -221,9 +217,8 @@ const EmployeeReport = () => {
               <DataTable
                 data={processedTableData}
                 columns={columns}
-                exportedFileName={`EmployeeReport-${selectedEmployeeId}.csv`}
+                exportedFileName={`EmployeeReport-${selectedEmployeeId || "all"}.csv`}
               />
-
               <div className="mt-6 pr-10 text-right flex justify-end gap-12">
                 <div className="text-lg font-semibold text-green-700">
                   Total Commission: ₹
@@ -238,7 +233,9 @@ const EmployeeReport = () => {
             </>
           ) : (
             selectedEmployeeId && (
-              <p>No data found for the selected employee.</p>
+              <p className="text-center text-gray-600">
+                No data found for the selected employee.
+              </p>
             )
           )}
         </div>
