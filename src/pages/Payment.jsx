@@ -15,11 +15,13 @@ import { FaWhatsappSquare } from "react-icons/fa";
 import PrintModal from "../components/modals/PrintModal";
 import PaymentPrint from "../components/printFormats/PaymentPrint";
 import Navbar from "../components/layouts/Navbar";
-import { Select, Dropdown, Modal as AntModal } from "antd";
+import { Select, Dropdown, Modal as AntModal, Drawer, Tooltip } from "antd";
 import { IoMdMore } from "react-icons/io";
 import { Link } from "react-router-dom";
 import dataPaymentsFor from "../data/paymentsFor";
 import BackdropBlurLoader from "../components/loaders/BackDropBlurLoader";
+import { FaReceipt } from "react-icons/fa";
+import { fieldSize } from "../data/fieldSize";
 const Payment = () => {
   const [groups, setGroups] = useState([]);
   const [actualGroups, setActualGroups] = useState([]);
@@ -59,15 +61,16 @@ const Payment = () => {
   const [render, setRerender] = useState(0);
   const [openBackdropLoader, setOpenBackdropLoader] = useState(false);
   const [currentGroupId, setCurrentGroupId] = useState(null);
+  const [openAntDDrawer, setOpenAntDDrawer] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
+  const [lastThreePayments, setLastThreePayments] = useState([]);
+
   const dropDownItems = (group) => {
     const dropDownItemList = [
       {
         key: "1",
         label: (
-          <Link
-            to={`/print/${group._id}`}
-            className="text-blue-600 "
-          >
+          <Link to={`/print/${group._id}`} className="text-blue-600 ">
             Print
           </Link>
         ),
@@ -94,8 +97,7 @@ const Payment = () => {
           </div>
         ),
       },
-
-    ]
+    ];
     if (modifyPayment) {
       dropDownItemList.push({
         key: "4",
@@ -107,11 +109,9 @@ const Payment = () => {
             Update Amount
           </div>
         ),
-      })
+      });
     }
     return dropDownItemList;
-
-
   };
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
@@ -166,7 +166,7 @@ const Payment = () => {
     ) {
       const isModify =
         userObj.admin_access_right_id?.access_permissions?.edit_payment ===
-          "true"
+        "true"
           ? true
           : false;
       setModifyPayment(isModify);
@@ -215,7 +215,7 @@ const Payment = () => {
               action: (
                 <div className="flex justify-center gap-2">
                   <Dropdown
-                  trigger={["click"]}
+                    trigger={["click"]}
                     menu={{
                       items: [
                         // {
@@ -287,6 +287,32 @@ const Payment = () => {
 
     fetchTodaysPayments();
   }, [render]);
+
+  const fetchLastThreeTransactions = async (event) => {
+    event.preventDefault();
+    setOpenAntDDrawer(true);
+    if (formData.user_id && formData.payment_group_tickets) {
+      try {
+        setShowLoader(true);
+        const response = await api.get("payment/get-last-n-transaction", {
+          params: {
+            user_id: formData.user_id,
+            payment_group_tickets: paymentGroupTickets,
+            limit: 3,
+          },
+        });
+        if (response?.data) {
+          setLastThreePayments(response.data);
+        } else {
+          setLastThreePayments([]);
+        }
+      } catch (error) {
+        setLastThreePayments([]);
+      } finally {
+        setShowLoader(false);
+      }
+    }
+  };
 
   useEffect(() => {
     setBorrowers([]);
@@ -557,7 +583,7 @@ const Payment = () => {
                 <div className="flex justify-center gap-2">
                   <Dropdown
                     menu={{
-                      items: dropDownItems(group)
+                      items: dropDownItems(group),
                     }}
                     placement="bottomLeft"
                   >
@@ -859,7 +885,6 @@ const Payment = () => {
       );
       setShowUpdateModal(false);
 
-
       setAlertConfig({
         visibility: true,
         message: "Payment Amount Updated Successfully",
@@ -1038,12 +1063,13 @@ const Payment = () => {
                       )
                     )}
                     columns={columns}
-                    exportedFileName={`Payments ${TablePayments.length > 0
-                      ? TablePayments[0].date +
-                      " to " +
-                      TablePayments[TablePayments.length - 1].date
-                      : "empty"
-                      }.csv`}
+                    exportedFileName={`Payments ${
+                      TablePayments.length > 0
+                        ? TablePayments[0].date +
+                          " to " +
+                          TablePayments[TablePayments.length - 1].date
+                        : "empty"
+                    }.csv`}
                   />
                 ) : (
                   <div className="mt-10 text-center text-gray-500">
@@ -1073,6 +1099,70 @@ const Payment = () => {
                   Add Payment
                 </h3>
                 <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+                  <Drawer
+                    closable
+                    destroyOnHidden
+                    title={<p>Last Three Transactions</p>}
+                    placement="right"
+                    open={openAntDDrawer}
+                    loading={showLoader}
+                    onClose={() => setOpenAntDDrawer(false)}
+                  >
+                    {lastThreePayments?.length <= 0 ? (
+                      <div className="font-semibold text-center text-xl">
+                        No Transaction Found
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-2 ">
+                        {lastThreePayments.map((payment) => {
+                          return (
+                            <section className="bg-white shadow-md rounded-lg p-4 space-y-2 border border-gray-200 ">
+                              <div className="text-gray-800 font-semibold">
+                                Name:{" "}
+                                <span className="font-normal">
+                                  {payment.user_id?.full_name}
+                                </span>
+                              </div>
+                              {payment.group_id && (
+                                <div className="text-gray-800 font-semibold">
+                                  Group:{" "}
+                                  <span className="font-bold">
+                                    {payment.group_id?.group_name}
+                                  </span>
+                                </div>
+                              )}
+                              {payment.ticket && (
+                                <div className="text-gray-800 font-semibold">
+                                  Ticket:{" "}
+                                  <span className="font-normal">
+                                    {payment?.ticket}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="text-gray-800 font-semibold">
+                                Amount:{" "}
+                                <span className="font-bold">
+                                  ₹{payment?.amount}
+                                </span>
+                              </div>
+                              <div className="text-gray-800 font-semibold">
+                                Payment Type:{" "}
+                                <span className="font-normal">
+                                  {payment?.pay_type}
+                                </span>
+                              </div>
+                              <div className="text-gray-800 font-semibold">
+                                Payment Date:{" "}
+                                <span className="font-bold">
+                                  {payment?.pay_date}
+                                </span>
+                              </div>
+                            </section>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </Drawer>
                   <div className="w-full">
                     <label
                       className="block mb-2 text-sm font-medium text-gray-900"
@@ -1082,7 +1172,7 @@ const Payment = () => {
                     </label>
 
                     <Select
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                      className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full ${fieldSize.height}`}
                       placeholder="Select Or Search Customer"
                       popupMatchSelectWidth={false}
                       showSearch
@@ -1122,7 +1212,7 @@ const Payment = () => {
                       placeholder="Select Group | Ticket"
                       onChange={handlePaymentAntSelect}
                       value={paymentGroupTickets}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 "
                     >
                       {filteredAuction.map((entry, index) => {
                         const groupName =
@@ -1189,6 +1279,7 @@ const Payment = () => {
                       )}
                     </div>
                   </div>
+
                   <div className="flex flex-row justify-between space-x-4">
                     <div className="w-1/2">
                       <label
@@ -1197,16 +1288,26 @@ const Payment = () => {
                       >
                         Amount <span className="text-red-500 ">*</span>
                       </label>
-                      <input
-                        type="number"
-                        name="amount"
-                        value={formData.amount}
-                        id="amount"
-                        onChange={handleChange}
-                        placeholder="Enter Amount"
-                        required
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      />
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          name="amount"
+                          value={formData.amount}
+                          id="amount"
+                          onChange={handleChange}
+                          placeholder="Enter Amount"
+                          required
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                        />
+                        <Tooltip title="Last 3 Transactions">
+                          <button
+                            className="bg-green-300 rounded-md p-2 border-2 font-semibold"
+                            onClick={(e) => fetchLastThreeTransactions(e)}
+                          >
+                            <FaReceipt />
+                          </button>
+                        </Tooltip>
+                      </div>
 
                       {errors.amount && (
                         <p className="text-red-500 text-xs mt-1">
@@ -1406,9 +1507,7 @@ const Payment = () => {
               }}
             >
               <div className="py-6 px-5 lg:px-8 text-left">
-                <h3 className="mb-4 text-xl font-bold text-gray-900">
-                  Update
-                </h3>
+                <h3 className="mb-4 text-xl font-bold text-gray-900">Update</h3>
 
                 <form className="space-y-6" onSubmit={handleUpdate} noValidate>
                   <div className="flex flex-row justify-between space-x-4">
@@ -1426,10 +1525,10 @@ const Payment = () => {
                         id="pay_date"
                         value={
                           updateFormData?.pay_date &&
-                            !isNaN(new Date(updateFormData.pay_date))
+                          !isNaN(new Date(updateFormData.pay_date))
                             ? new Date(updateFormData.pay_date)
-                              .toISOString()
-                              .split("T")[0]
+                                .toISOString()
+                                .split("T")[0]
                             : ""
                         }
                         onChange={handleInputChange}
@@ -1728,31 +1827,72 @@ const Payment = () => {
   onReload={() => handleViewModalOpen(currentGroupId)}
   loading={loading}
 > */}
-            <AntModal open={showModalView}
+            <AntModal
+              open={showModalView}
               onCancel={() => setShowModalView(false)}
               onClose={() => setShowModalView(false)}
               onOk={() => setShowModalView(false)}
               onReload={() => handleViewModalOpen(currentGroupId)}
               footer={<div></div>}
             >
-              <h3 className="mb-4 text-xl font-bold text-gray-900">Payment Details</h3>
+              <h3 className="mb-4 text-xl font-bold text-gray-900">
+                Payment Details
+              </h3>
               <div className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5">
-                <div className="mb-3 flex gap-x-2"><strong>Group:   </strong> {currentViewGroup?.group_id?.group_name}</div>
-                <div className="mb-3 flex gap-x-2"><strong>Group Value:</strong> {currentViewGroup?.group_id?.group_value}</div>
-                <div className="mb-3 flex gap-x-2"><strong>Group Installment:</strong> {currentViewGroup?.group_id?.group_install}</div>
-                <div className="mb-3 flex gap-x-2"><strong>User:</strong> {currentViewGroup?.user_id?.full_name} | Ticket: {currentViewGroup?.ticket}</div>
-                <div className="mb-3 flex gap-x-2"><strong>Bid Amount:</strong> {currentViewGroup?.group_id?.group_value - currentViewGroup?.win_amount}</div>
-                <div className="mb-3 flex gap-x-2"><strong>Commission:</strong> {currentViewGroup?.commission}</div>
-                <div className="mb-3 flex gap-x-2"><strong>Winning Amount:</strong> {currentViewGroup?.win_amount}</div>
-                <div className="mb-3 flex gap-x-2"><strong>Divident:</strong> {currentViewGroup?.divident}</div>
-                <div className="mb-3 flex gap-x-2"><strong>Divident per Head:</strong> {currentViewGroup?.divident_head}</div>
-                <div className="mb-3 flex gap-x-2"><strong>Next Payable:</strong> {currentViewGroup?.payable}</div>
-                <div className="mb-3 flex gap-x-2"><strong>Auction Date:</strong> {currentViewGroup?.auction_date}</div>
-                <div className="mb-3 flex gap-x-2"><strong>Next Date:</strong> {currentViewGroup?.next_date}</div>
-                <div className="mb-3 flex gap-x-2"><strong>Created At:</strong> {currentViewGroup?.createdAt?.split("T")[0]}</div>
-                <div className="mb-3 flex gap-x-2"><strong>Updated At:</strong> {currentViewGroup?.updatedAt?.split("T")[0]}</div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Group: </strong>{" "}
+                  {currentViewGroup?.group_id?.group_name}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Group Value:</strong>{" "}
+                  {currentViewGroup?.group_id?.group_value}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Group Installment:</strong>{" "}
+                  {currentViewGroup?.group_id?.group_install}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>User:</strong> {currentViewGroup?.user_id?.full_name}{" "}
+                  | Ticket: {currentViewGroup?.ticket}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Bid Amount:</strong>{" "}
+                  {currentViewGroup?.group_id?.group_value -
+                    currentViewGroup?.win_amount}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Commission:</strong> {currentViewGroup?.commission}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Winning Amount:</strong>{" "}
+                  {currentViewGroup?.win_amount}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Divident:</strong> {currentViewGroup?.divident}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Divident per Head:</strong>{" "}
+                  {currentViewGroup?.divident_head}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Next Payable:</strong> {currentViewGroup?.payable}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Auction Date:</strong>{" "}
+                  {currentViewGroup?.auction_date}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Next Date:</strong> {currentViewGroup?.next_date}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Created At:</strong>{" "}
+                  {currentViewGroup?.createdAt?.split("T")[0]}
+                </div>
+                <div className="mb-3 flex gap-x-2">
+                  <strong>Updated At:</strong>{" "}
+                  {currentViewGroup?.updatedAt?.split("T")[0]}
+                </div>
               </div>
-
             </AntModal>
             {/* </PaymentModal> */}
 
