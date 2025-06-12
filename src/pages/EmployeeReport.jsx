@@ -12,7 +12,7 @@ const EmployeeReport = () => {
   const [employeeCustomerData, setEmployeeCustomerData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch employees for dropdown
+ 
   const fetchEmployees = async () => {
     try {
       const res = await api.get("/agent/get-agent");
@@ -22,7 +22,7 @@ const EmployeeReport = () => {
     }
   };
 
-  // Fetch individual employee report
+ 
   const fetchEmployeeReport = async (employeeId) => {
     setLoading(true);
     try {
@@ -36,11 +36,11 @@ const EmployeeReport = () => {
     }
   };
 
-  // Fetch all employees report
+ 
   const fetchAllEmployeeReports = async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/agent/getallemployeereport`);
+      const res = await api.get(`/agent/get-all-employee-report`);
       setEmployeeCustomerData(res.data);
     } catch (err) {
       console.error("Error fetching all employee reports:", err);
@@ -50,7 +50,7 @@ const EmployeeReport = () => {
     }
   };
 
-  // Handle dropdown change
+ 
   const handleEmployeeChange = async (value) => {
     setSelectedEmployeeId(value);
     if (value === "ALL") {
@@ -67,7 +67,7 @@ const EmployeeReport = () => {
     fetchEmployees();
   }, []);
 
-  // Summary calculations
+ 
   const totalCommission = employeeCustomerData.reduce(
     (acc, curr) => acc + parseFloat(curr.commissionValue?.replace(/,/g, "") || 0),
     0
@@ -82,24 +82,38 @@ const EmployeeReport = () => {
     ...item,
     enrollmentStartDate: item?.enrollmentStartDate?.split("T")[0],
     sl_no: index + 1,
+       agentName: item?.employeeName || "-",
   }));
 
-  const columns = [
-    { key: "sl_no", header: "SL. NO" },
-    { key: "customerName", header: "Customer Name" },
-    { key: "customerId", header: "Customer ID" },
-    { key: "userPhone", header: "Phone Number" },
-    { key: "groupName", header: "Group" },
-    { key: "groupValue", header: "Group Value" },
-    { key: "enrollmentStartDate", header: "Enrollment Start Date" },
-    { key: "ticket", header: "Ticket" },
-    { key: "amountPaid", header: "Amount Paid" },
-    { key: "toBePaidAmount", header: "To Be Paid" },
-    { key: "balance", header: "Balance" },
-    { key: "commissionPercent", header: "Commission (%)" },
-    { key: "commissionValue", header: "Commission (₹)" },
-    { key: "incentives", header: "Incentives" },
-  ];
+ const baseColumns = [
+  { key: "customerName", header: "Customer Name" },
+  { key: "customerId", header: "Customer ID" },
+  { key: "userPhone", header: "Phone Number" },
+  { key: "groupName", header: "Group" },
+  { key: "groupValue", header: "Group Value" },
+  { key: "enrollmentStartDate", header: "Enrollment Start Date" },
+  { key: "ticket", header: "Ticket" },
+  { key: "amountPaid", header: "Amount Paid" },
+  { key: "toBePaidAmount", header: "To Be Paid" },
+  { key: "balance", header: "Balance" },
+  { key: "commissionPercent", header: "Commission (%)" },
+  { key: "commissionValue", header: "Commission (₹)" },
+  { key: "incentives", header: "Incentives" },
+];
+
+const slNoColumn = { key: "sl_no", header: "SL. NO" };
+
+const allColumns = [
+  slNoColumn,
+  { key: "agentName", header: "Agent Name" },
+  ...baseColumns,
+];
+
+const columns = selectedEmployeeId === "ALL"
+  ? allColumns
+  : [slNoColumn, ...baseColumns];
+
+
 
   return (
     <div className="w-screen min-h-screen">
@@ -108,7 +122,7 @@ const EmployeeReport = () => {
         <div className="flex-grow p-7">
           <h1 className="text-2xl font-semibold text-center mb-6">Reports - Employee</h1>
 
-          {/* Filter UI */}
+          
           <div className="mt-6 mb-8">
             <div className="flex justify-center items-center w-full gap-4 bg-blue-50 rounded-md shadow-md p-4">
               <div>
@@ -143,7 +157,7 @@ const EmployeeReport = () => {
             </div>
           </div>
 
-          {/* Employee Info - hide if 'ALL' selected */}
+       
           {selectedEmployeeId !== "ALL" && selectedEmployeeDetails && (
             <div className="mb-8 bg-gray-50 rounded-md shadow-md p-6 space-y-4">
               <div className="flex gap-4">
@@ -209,7 +223,7 @@ const EmployeeReport = () => {
             </div>
           )}
 
-          {/* Table Section */}
+         
           {loading ? (
             <CircularLoader isLoading={true} />
           ) : employeeCustomerData.length > 0 ? (
