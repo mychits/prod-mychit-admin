@@ -259,9 +259,8 @@ const Lead = () => {
       newErrors.lead_needs = "Lead Needs and Goals is required";
     }
 
-    if (data.note) {
-      if (data.note.trim())
-        newErrors.note = "Note Field is Mandatory"
+      if (!data.note?.toString().trim()) {
+      newErrors.note = "Note Field is Mandatory";
     }
 
     setErrors(newErrors);
@@ -586,18 +585,7 @@ const Lead = () => {
                     Lead Work/Profession{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  {/* <select
-                    name="lead_profession"
-                    id="category"
-                    value={formData.lead_profession}
-                    onChange={handleChange}
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  >
-                    <option value="">Select Work/Profession</option>
-                    <option value="employed">Employed</option>
-                    <option value="self_employed">Self Employed</option>
-                  </select> */}
+                 
                   <Select
                     className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                     placeholder="Select Lead Work/Profession "
@@ -705,7 +693,6 @@ const Lead = () => {
                     "Social Media",
                     "Customer",
                     "Agent",
-                    "Employee",
                     "Walkin",
                   ].map((lType) => (
                     <Select.Option key={lType} value={lType.toLowerCase()}>
@@ -830,7 +817,7 @@ const Lead = () => {
                   </div>
                 </>
               )}
-              {formData.lead_type === "employee" && (
+              {/* {formData.lead_type === "employee" && (
                 <>
                   <div className="w-full">
                     <label
@@ -839,21 +826,7 @@ const Lead = () => {
                     >
                       Employee
                     </label>
-                    {/* <select
-                      name="lead_agent"
-                      id="category"
-                      value={formData.lead_agent}
-                      onChange={handleChange}
-                      required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    >
-                      <option value="">Select Agent</option>
-                      {agents.map((agent) => (
-                        <option key={agent._id} value={agent._id}>
-                          {agent.name}
-                        </option>
-                      ))}
-                    </select> */}
+                   
                     <Select
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Employee"
@@ -884,7 +857,7 @@ const Lead = () => {
                     )}
                   </div>
                 </>
-              )}
+              )} */}
               <div className="w-full">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -1045,18 +1018,7 @@ const Lead = () => {
                     Lead Work/Profession{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                  {/* <select
-                    name="lead_profession"
-                    id="category"
-                    value={updateFormData.lead_profession}
-                    onChange={handleInputChange}
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  >
-                    <option value="">Select Work/Profession</option>
-                    <option value="employed">Employed</option>
-                    <option value="self_employed">Self Employed</option>
-                  </select> */}
+                 
                   <Select
                     className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                     placeholder="Select Lead Work/Profession "
@@ -1289,7 +1251,7 @@ const Lead = () => {
                   </div>
                 </>
               )}
-              {updateFormData.lead_type === "employee" && (
+              {/* {updateFormData.lead_type === "employee" && (
                 <>
                   <div className="w-full">
                     <label
@@ -1298,21 +1260,7 @@ const Lead = () => {
                     >
                       Employee
                     </label>
-                    {/* <select
-                      name="lead_agent"
-                      id="category"
-                      value={formData.lead_agent}
-                      onChange={handleChange}
-                      required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    >
-                      <option value="">Select Agent</option>
-                      {agents.map((agent) => (
-                        <option key={agent._id} value={agent._id}>
-                          {agent.name}
-                        </option>
-                      ))}
-                    </select> */}
+                  
                     <Select
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Employee"
@@ -1343,7 +1291,7 @@ const Lead = () => {
                     )}
                   </div>
                 </>
-              )}
+              )} */}
               <label
                 className="block mb-2 text-sm font-medium text-gray-900"
                 htmlFor="date"

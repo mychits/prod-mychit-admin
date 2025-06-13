@@ -624,7 +624,7 @@ const UserReport = () => {
 
   return (
     <>
-      <div className="w-screen">
+      <div className="w-screen min-h-screen">
         <div className="flex mt-30">
           {/* <Sidebar /> */}
           <Navbar

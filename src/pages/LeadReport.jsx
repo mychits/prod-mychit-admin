@@ -521,7 +521,7 @@ const LeadReport = () => {
     }
   };
   return (
-    <div className="w-full">
+    <div className="w-screen">
       <div>
         <Navbar
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
@@ -537,7 +537,7 @@ const LeadReport = () => {
             <h1 className="font-bold text-2xl">Reports - Lead </h1>
             <div className="mt-6 mb-8">
               <div className="mb-2">
-                <div className="flex justify-start items-center w-full gap-4">
+                <div className="flex justify-start items-center w-screen gap-4">
                   <div className="mb-2">
                     <label>Filter Option</label>
                     <Select
@@ -820,7 +820,7 @@ const LeadReport = () => {
                       handleAntInputDSelect("lead_profession", value)
                     }
                   >
-                    {["Employed", "Self_Employed"].map((lProf) => (
+                    {["Employed", "Self Employed"].map((lProf) => (
                       <Select.Option key={lProf} value={lProf.toLowerCase()}>
                         {lProf}
                       </Select.Option>

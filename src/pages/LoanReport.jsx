@@ -286,7 +286,7 @@ const LoanReport = () => {
   ];
 
   return (
-    <div className="w-full">
+    <div className="w-screen">
       <div>
         <Navbar
           visibility={true}
@@ -305,7 +305,7 @@ const LoanReport = () => {
           <div className="flex-grow p-7">
             <h1 className="font-bold text-2xl mb-5">Reports - Loan</h1>
             {loader ? (
-              <div className="flex w-full justify-center items-center">
+              <div className="flex w-screen justify-center items-center">
                 <CircularLoader />;
               </div>
             ) : (

@@ -128,10 +128,10 @@ const columns = [
 
 
   return (
-    <div className="w-full">
+    <div className="w-screen">
       <Navbar />
       <div className="p-6">
-        <h1 className="text-4xl font-semibold mb-4 text-center">Reports-Sales</h1>
+        <h1 className="text-4xl font-semibold  text-center">Reports-Sales</h1>
 
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">

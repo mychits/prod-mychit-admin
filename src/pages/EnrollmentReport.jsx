@@ -239,7 +239,7 @@ const EnrollmentReport = () => {
   ];
 
   return (
-    <div className="w-full">
+    <div className="w-screen">
       <div>
         <Navbar
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
@@ -255,7 +255,7 @@ const EnrollmentReport = () => {
             <h1 className="font-bold text-2xl"> Reports - Enrollment </h1>
             <div className="mt-6 mb-8">
               <div className="mb-2">
-                <div className="flex justify-start items-center w-full gap-4">
+                <div className="flex justify-start items-center w-screen gap-4">
                   <div className="mb-2">
                     <label>Filter Option</label>
                     {/* <select

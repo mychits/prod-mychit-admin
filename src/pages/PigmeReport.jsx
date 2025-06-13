@@ -296,7 +296,7 @@ const PigmeReport = () => {
 
   return (
     <>
-      <div className="w-full">
+      <div className="w-screen">
         <Navbar
           visibility={true}
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
@@ -313,7 +313,7 @@ const PigmeReport = () => {
        
 
           <div className="flex-grow p-7">
-            <h1 className="text-2xl font-bold mb-5"> Reports - Pigme</h1>
+            <h1 className="text-2xl font-semibold mb-5"> Reports - Pigme</h1>
             
 
             {tableBorrowers?.length > 0 && !isLoading ? (

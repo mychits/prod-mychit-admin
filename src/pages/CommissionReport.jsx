@@ -113,10 +113,11 @@ const [toDate, setToDate] = useState( );
       <div className="flex mt-30">
         <Navbar visibility={true} />
         <div className="flex-grow p-7">
-          <h1 className="text-2xl font-bold text-center mb-6">Reports - Commission</h1>
+          <h1 className="text-2xl font-bold text-center ">Reports - Commission</h1>
 
           <div className="mt-6 mb-8">
-            <div className="flex justify-center items-center w-full gap-4 bg-blue-50 p-4 rounded-3xl border space-x-2">
+            <div className="mb-2">
+            <div className="flex justify-center items-center w-full gap-4 bg-blue-50 p-2 w-30 h-40 rounded-3xl border   space-x-2">
               <div className="mb-2">
                 <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
                   Employee
@@ -172,6 +173,7 @@ const [toDate, setToDate] = useState( );
     />
   </div>
             </div>
+          </div>
           </div>
 
           {/* Employee Info */}
