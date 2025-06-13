@@ -67,7 +67,7 @@ const Group = () => {
     minimum_bid: "",
     maximum_bid: "",
     commission: "",
-    group_commission: "5",
+    group_commission: "",
     incentives: "",
     reg_fee: "",
   });
@@ -302,6 +302,7 @@ const Group = () => {
           group_install: "",
           group_members: "",
           group_duration: "",
+          group_commission: "5",
           start_date: "",
           end_date: "",
           minimum_bid: "",
@@ -349,6 +350,7 @@ const Group = () => {
         minimum_bid: response?.data?.minimum_bid,
         maximum_bid: response?.data?.maximum_bid,
         commission: response?.data?.commission,
+        group_commission: response?.data?.group_commission,
         incentives: response?.data?.incentives,
         reg_fee: response?.data?.reg_fee,
       });
@@ -1131,18 +1133,18 @@ const Group = () => {
                 </div>
 
                 <div className="w-1/2">
-  <label className="block mb-2 text-sm font-medium text-gray-900">
-    Commission %
-  </label>
-  <input
-    type="number"
-    name="group_commission"
-    value={formData.group_commission}
-    onChange={handleChange}
-    placeholder="Enter Group Commission"
-    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-  />
-</div>
+                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                    Commission %
+                  </label>
+                  <input
+                    type="number"
+                    name="group_commission"
+                    value={updateFormData.group_commission}
+                    onChange={handleInputChange}
+                    placeholder="Enter Group Commission"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                  />
+                </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm font-medium text-gray-900">
                     Incentives
