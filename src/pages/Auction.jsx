@@ -311,7 +311,7 @@ const Auction = () => {
 
   useEffect(() => {
     if (groupInfo && formData.bid_amount) {
-      const commission = (groupInfo.group_value * 5) / 100 || 0;
+      const commission = (groupInfo.group_value * groupInfo.group_commission) / 100 || 0;
       const win_amount =
         (groupInfo.group_value || 0) - (formData.bid_amount || 0);
       const divident = (formData.bid_amount || 0) - commission;
