@@ -12,6 +12,11 @@ const AllUserReport = () => {
   const [screenLoading, setScreenLoading] = useState(true);
   const [auctionTableData, setAuctionTableData] = useState([]);
   const [usersData, SetUsersData] = useState([]);
+  const [groupFilter, setGroupFilter] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
+  const groupOptions = [...new Set(usersData.map((u) => u.groupName))];
 
   const [totals, setTotals] = useState({
     totalCustomers: 0,
@@ -21,6 +26,18 @@ const AllUserReport = () => {
     totalPaid: 0,
     totalBalance: 0,
   });
+
+  const filteredUsers = filterOption(
+  usersData.filter((u) => {
+    const matchGroup = groupFilter ? u.groupName === groupFilter : true;
+    const enrollmentDate = new Date(u.enrollmentDate);
+    const matchFromDate = fromDate ? enrollmentDate >= new Date(fromDate) : true;
+    const matchToDate = toDate ? enrollmentDate <= new Date(toDate) : true;
+    return matchGroup && matchFromDate && matchToDate;
+  }),
+  searchText
+);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,7 +50,9 @@ const AllUserReport = () => {
           if (usrData?.data) {
             usrData.data.forEach((data) => {
               if (data?.enrollment?.group) {
-                const groupInstall = parseInt(data.enrollment.group.group_install);
+                const groupInstall = parseInt(
+                  data.enrollment.group.group_install
+                );
                 const groupType = data.enrollment.group.group_type;
                 const totalPaidAmount = data.payments.totalPaidAmount;
                 const auctionCount = parseInt(data?.auction?.auctionCount);
@@ -53,9 +72,7 @@ const AllUserReport = () => {
                   groupValue: data?.enrollment?.group?.group_value,
                   groupName: data.enrollment.group.group_name,
                   profit: totalProfit,
-                  // agent: data?.enrollment?.agent,
-                  // reffered_customer: data?.enrollment?.reffered_customer,
-                  // reffered_lead: data?.enrollment?.reffered_lead,
+
                   reffered_by: data?.enrollment?.agent
                     ? data.enrollment.agent
                     : data?.enrollment?.reffered_customer
@@ -65,7 +82,7 @@ const AllUserReport = () => {
                     : "N/A",
                   payment_type: data?.enrollment?.payment_type,
                   referred_type: data?.enrollment?.referred_type,
-                    enrollmentDate: data?.enrollment?.createdAt
+                  enrollmentDate: data?.enrollment?.createdAt
                     ? data.enrollment.createdAt.split("T")[0]
                     : "",
                   totalToBePaid:
@@ -78,8 +95,13 @@ const AllUserReport = () => {
                       : totalPayable + groupInstall + firstDividentHead,
                   balance:
                     groupType === "double"
-                      ? groupInstall * auctionCount + groupInstall - totalPaidAmount
-                      : totalPayable + groupInstall + firstDividentHead - totalPaidAmount,
+                      ? groupInstall * auctionCount +
+                        groupInstall -
+                        totalPaidAmount
+                      : totalPayable +
+                        groupInstall +
+                        firstDividentHead -
+                        totalPaidAmount,
                 };
 
                 usersList.push(tempUsr);
@@ -98,25 +120,29 @@ const AllUserReport = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const totalCustomers = usersData.length;
-    const groupSet = new Set(usersData.map(user => user.groupName));
-    const totalGroups = groupSet.size;
+ useEffect(() => {
+  const totalCustomers = filteredUsers.length;
+  const groupSet = new Set(filteredUsers.map((user) => user.groupName));
+  const totalGroups = groupFilter ? 1 : groupSet.size;
 
-    const totalToBePaid = usersData.reduce((sum, u) => sum + (u.totalToBePaid || 0), 0);
-    const totalProfit = usersData.reduce((sum, u) => sum + (u.profit || 0), 0);
-    const totalPaid = usersData.reduce((sum, u) => sum + (u.amountPaid || 0), 0);
-    const totalBalance = usersData.reduce((sum, u) => sum + (u.balance || 0), 0);
+  const totalToBePaid = filteredUsers.reduce(
+    (sum, u) => sum + (u.totalToBePaid || 0),
+    0
+  );
+  const totalProfit = filteredUsers.reduce((sum, u) => sum + (u.profit || 0), 0);
+  const totalPaid = filteredUsers.reduce((sum, u) => sum + (u.amountPaid || 0), 0);
+  const totalBalance = filteredUsers.reduce((sum, u) => sum + (u.balance || 0), 0);
 
-    setTotals({
-      totalCustomers,
-      totalGroups,
-      totalToBePaid,
-      totalProfit,
-      totalPaid,
-      totalBalance
-    });
-  }, [usersData]);
+  setTotals({
+    totalCustomers,
+    totalGroups,
+    totalToBePaid,
+    totalProfit,
+    totalPaid,
+    totalBalance,
+  });
+}, [filteredUsers, groupFilter]);
+
 
   const Auctioncolumns = [
     { key: "sl_no", header: "SL. NO" },
@@ -160,41 +186,124 @@ const AllUserReport = () => {
               <div className="mt-6 mb-8">
                 <div className="flex justify-start border-b border-gray-300 mb-4"></div>
                 <div className="mt-10">
+                  <div className="flex flex-wrap items-center gap-4 mb-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Group Filter
+                      </label>
+                      <Select
+                        style={{ width: 200 }}
+                        allowClear
+                        placeholder="--All groups--"
+                        onChange={(value) => setGroupFilter(value)}
+                        value={groupFilter || undefined}
+                      >
+                        {groupOptions.map((group) => (
+                          <Select.Option key={group} value={group}>
+                            {group}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        From Date
+                      </label>
+                      <input
+                        type="date"
+                        value={fromDate}
+                        onChange={(e) => setFromDate(e.target.value)}
+                        className="border rounded px-2 py-1"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        To Date
+                      </label>
+                      <input
+                        type="date"
+                        value={toDate}
+                        onChange={(e) => setToDate(e.target.value)}
+                        className="border rounded px-2 py-1"
+                      />
+                    </div>
+                  </div>
+
                   <DataTable
-                    data={filterOption(usersData, searchText)}
+                    data={filterOption(
+                      usersData.filter((u) => {
+                        const matchGroup = groupFilter
+                          ? u.groupName === groupFilter
+                          : true;
+                        const enrollmentDate = new Date(u.enrollmentDate);
+                        const matchFromDate = fromDate
+                          ? enrollmentDate >= new Date(fromDate)
+                          : true;
+                        const matchToDate = toDate
+                          ? enrollmentDate <= new Date(toDate)
+                          : true;
+                        return matchGroup && matchFromDate && matchToDate;
+                      }),
+                      searchText
+                    )}
                     columns={Auctioncolumns}
                     exportedFileName={`CustomerReport.csv`}
                   />
                 </div>
 
-                {/* Summary Section */}
+             
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
                   <div className="flex flex-col border p-4 rounded shadow">
-                    <span className="text-xl font-bold text-gray-700">Total Customers</span>
-                    <span className="text-lg font-bold  text-blue-600">{totals.totalCustomers}</span>
+                    <span className="text-xl font-bold text-gray-700">
+                      Total Customers
+                    </span>
+                    <span className="text-lg font-bold  text-blue-600">
+                      {totals.totalCustomers}
+                    </span>
                   </div>
                   <div className="flex flex-col border p-4 rounded shadow">
-                    <span className="text-xl font-bold text-gray-700">Total Groups</span>
-                    <span className="text-lg font-bold  text-green-600">{totals.totalGroups}</span>
+                    <span className="text-xl font-bold text-gray-700">
+                      Total Groups
+                    </span>
+                    <span className="text-lg font-bold  text-green-600">
+                      {totals.totalGroups}
+                    </span>
                   </div>
                   <div className="flex flex-col border p-4 rounded shadow">
-                    <span className="text-xl font-bold text-gray-700">Amount to be Paid</span>
-                    <span className="text-lg font-bold text-blue-600">₹{totals.totalToBePaid}</span>
+                    <span className="text-xl font-bold text-gray-700">
+                      Amount to be Paid
+                    </span>
+                    <span className="text-lg font-bold text-blue-600">
+                      ₹{totals.totalToBePaid}
+                    </span>
                   </div>
                   <div className="flex flex-col border p-4 rounded shadow">
-                    <span className="text-xl font-bold text-gray-700">Total Profit</span>
-                    <span className="text-lg font-bold text-green-600">₹{totals.totalProfit}</span>
+                    <span className="text-xl font-bold text-gray-700">
+                      Total Profit
+                    </span>
+                    <span className="text-lg font-bold text-green-600">
+                      ₹{totals.totalProfit}
+                    </span>
                   </div>
                   <div className="flex flex-col border p-4 rounded shadow">
-                    <span className="text-xl font-semibold text-gray-700">Total Amount Paid</span>
-                    <span className="text-lg font-bold text-indigo-600">₹{totals.totalPaid}</span>
+                    <span className="text-xl font-semibold text-gray-700">
+                      Total Amount Paid
+                    </span>
+                    <span className="text-lg font-bold text-indigo-600">
+                      ₹{totals.totalPaid}
+                    </span>
                   </div>
                   <div className="flex flex-col border p-4 rounded shadow">
-                    <span className="text-xl font-bold text-gray-700">Total Balance</span>
-                    <span className="text-lg font-bold text-red-600">₹{totals.totalBalance}</span>
+                    <span className="text-xl font-bold text-gray-700">
+                      Total Balance
+                    </span>
+                    <span className="text-lg font-bold text-red-600">
+                      ₹{totals.totalBalance}
+                    </span>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
