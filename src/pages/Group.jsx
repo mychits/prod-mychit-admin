@@ -50,6 +50,7 @@ const Group = () => {
     minimum_bid: "",
     maximum_bid: "",
     commission: "1",
+    group_commission: "5",
     incentives: "1",
     reg_fee: "",
   });
@@ -66,6 +67,7 @@ const Group = () => {
     minimum_bid: "",
     maximum_bid: "",
     commission: "",
+    group_commission: "5",
     incentives: "",
     reg_fee: "",
   });
@@ -90,7 +92,7 @@ const Group = () => {
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
-              trigger={["click"]}
+                trigger={["click"]}
                 menu={{
                   items: [
                     {
@@ -368,8 +370,8 @@ const Group = () => {
       [field]: "",
     }));
   };
- 
-    const handleAntInputDSelect = (field, value) => {
+
+  const handleAntInputDSelect = (field, value) => {
     setUpdateFormData((prevData) => ({
       ...prevData,
       [field]: value,
@@ -778,7 +780,7 @@ const Group = () => {
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm font-medium text-gray-900">
-                    Commission %
+                    Employee Commission %
                   </label>
                   <input
                     type="number"
@@ -789,6 +791,21 @@ const Group = () => {
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
+
+                <div className="w-1/2">
+                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                    Commission %
+                  </label>
+                  <input
+                    type="number"
+                    name="group_commission"
+                    value={formData.group_commission}
+                    onChange={handleChange}
+                    placeholder="Enter Group Commission"
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                  />
+                </div>
+
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm font-medium text-gray-900">
                     Incentives %
@@ -866,7 +883,9 @@ const Group = () => {
                     option.children.toLowerCase().includes(input.toLowerCase())
                   }
                   value={updateFormData?.group_type || undefined}
-                  onChange={(value) => handleAntInputDSelect("group_type", value)}
+                  onChange={(value) =>
+                    handleAntInputDSelect("group_type", value)
+                  }
                 >
                   {["Divident", "Double"].map((gType) => (
                     <Select.Option key={gType} value={gType.toLowerCase()}>
@@ -1099,7 +1118,7 @@ const Group = () => {
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm font-medium text-gray-900">
-                    Commission %
+                    Employee Commission %
                   </label>
                   <input
                     type="number"
@@ -1110,6 +1129,20 @@ const Group = () => {
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
+
+                <div className="w-1/2">
+  <label className="block mb-2 text-sm font-medium text-gray-900">
+    Commission %
+  </label>
+  <input
+    type="number"
+    name="group_commission"
+    value={formData.group_commission}
+    onChange={handleChange}
+    placeholder="Enter Group Commission"
+    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+  />
+</div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm font-medium text-gray-900">
                     Incentives
